@@ -1,0 +1,274 @@
+[
+  {
+    "id": 1,
+    "codigo": "VTInc06",
+    "tipo": "Temperado",
+    "cor": "Incolor",
+    "espessuraMm": "06",
+    "valorM2": 126.0
+  },
+  {
+    "id": 2,
+    "codigo": "VTInc08",
+    "tipo": "Temperado",
+    "cor": "Incolor",
+    "espessuraMm": "08",
+    "valorM2": 139.5
+  },
+  {
+    "id": 3,
+    "codigo": "VTInc10",
+    "tipo": "Temperado",
+    "cor": "Incolor",
+    "espessuraMm": "10",
+    "valorM2": 214.2
+  },
+  {
+    "id": 4,
+    "codigo": "VTVer06",
+    "tipo": "Temperado",
+    "cor": "Verde",
+    "espessuraMm": "06",
+    "valorM2": 144.0
+  },
+  {
+    "id": 5,
+    "codigo": "VTVer08",
+    "tipo": "Temperado",
+    "cor": "Verde",
+    "espessuraMm": "08",
+    "valorM2": 167.4
+  },
+  {
+    "id": 6,
+    "codigo": "VTVer10",
+    "tipo": "Temperado",
+    "cor": "Verde",
+    "espessuraMm": "10",
+    "valorM2": 268.2
+  },
+  {
+    "id": 7,
+    "codigo": "VTFum06",
+    "tipo": "Temperado",
+    "cor": "Fume",
+    "espessuraMm": "06",
+    "valorM2": 144.0
+  },
+  {
+    "id": 8,
+    "codigo": "VTFum08",
+    "tipo": "Temperado",
+    "cor": "Fume",
+    "espessuraMm": "08",
+    "valorM2": 167.4
+  },
+  {
+    "id": 9,
+    "codigo": "VTFum10",
+    "tipo": "Temperado",
+    "cor": "Fume",
+    "espessuraMm": "10",
+    "valorM2": 268.2
+  },
+  {
+    "id": 10,
+    "codigo": "VTBro06",
+    "tipo": "Temperado",
+    "cor": "Bronze",
+    "espessuraMm": "06",
+    "valorM2": null
+  },
+  {
+    "id": 11,
+    "codigo": "VTBro08",
+    "tipo": "Temperado",
+    "cor": "Bronze",
+    "espessuraMm": "08",
+    "valorM2": null
+  },
+  {
+    "id": 12,
+    "codigo": "VTBro10",
+    "tipo": "Temperado",
+    "cor": "Bronze",
+    "espessuraMm": "10",
+    "valorM2": null
+  },
+  {
+    "id": 13,
+    "codigo": "VBInc08",
+    "tipo": "Box",
+    "cor": "Incolor",
+    "espessuraMm": "08",
+    "valorM2": 131.29
+  },
+  {
+    "id": 14,
+    "codigo": "VBVer08",
+    "tipo": "Box",
+    "cor": "Verde",
+    "espessuraMm": "08",
+    "valorM2": 160.1
+  },
+  {
+    "id": 15,
+    "codigo": "VBFum08",
+    "tipo": "Box",
+    "cor": "Fume",
+    "espessuraMm": "08",
+    "valorM2": 160.1
+  },
+  {
+    "id": 16,
+    "codigo": "VBBro08",
+    "tipo": "Box",
+    "cor": "Bronze",
+    "espessuraMm": "08",
+    "valorM2": null
+  },
+  {
+    "id": 17,
+    "codigo": "VELPra03",
+    "tipo": "Espelho Lapidado",
+    "cor": "Prata",
+    "espessuraMm": "03",
+    "valorM2": 130.0
+  },
+  {
+    "id": 18,
+    "codigo": "VELFum03",
+    "tipo": "Espelho Lapidado",
+    "cor": "Fume",
+    "espessuraMm": "03",
+    "valorM2": null
+  },
+  {
+    "id": 19,
+    "codigo": "VELBro03",
+    "tipo": "Espelho Lapidado",
+    "cor": "Bronze",
+    "espessuraMm": "03",
+    "valorM2": null
+  },
+  {
+    "id": 20,
+    "codigo": "VELPra04",
+    "tipo": "Espelho Lapidado",
+    "cor": "Prata",
+    "espessuraMm": "04",
+    "valorM2": 140.22
+  },
+  {
+    "id": 21,
+    "codigo": "VELFum04",
+    "tipo": "Espelho Lapidado",
+    "cor": "Fume",
+    "espessuraMm": "04",
+    "valorM2": null
+  },
+  {
+    "id": 22,
+    "codigo": "VELBro04",
+    "tipo": "Espelho Lapidado",
+    "cor": "Bronze",
+    "espessuraMm": "04",
+    "valorM2": null
+  },
+  {
+    "id": 23,
+    "codigo": "VELPra05",
+    "tipo": "Espelho Lapidado",
+    "cor": "Prata",
+    "espessuraMm": "05",
+    "valorM2": null
+  },
+  {
+    "id": 24,
+    "codigo": "VELFum05",
+    "tipo": "Espelho Lapidado",
+    "cor": "Fume",
+    "espessuraMm": "05",
+    "valorM2": null
+  },
+  {
+    "id": 25,
+    "codigo": "VELBro05",
+    "tipo": "Espelho Lapidado",
+    "cor": "Bronze",
+    "espessuraMm": "05",
+    "valorM2": null
+  },
+  {
+    "id": 26,
+    "codigo": "VEBPra03",
+    "tipo": "Espelho Bisotado",
+    "cor": "Prata",
+    "espessuraMm": "03",
+    "valorM2": null
+  },
+  {
+    "id": 27,
+    "codigo": "VEBFum03",
+    "tipo": "Espelho Bisotado",
+    "cor": "Fume",
+    "espessuraMm": "03",
+    "valorM2": null
+  },
+  {
+    "id": 28,
+    "codigo": "VEBBro03",
+    "tipo": "Espelho Bisotado",
+    "cor": "Bronze",
+    "espessuraMm": "03",
+    "valorM2": null
+  },
+  {
+    "id": 29,
+    "codigo": "VEBPra04",
+    "tipo": "Espelho Bisotado",
+    "cor": "Prata",
+    "espessuraMm": "04",
+    "valorM2": null
+  },
+  {
+    "id": 30,
+    "codigo": "VEBFum04",
+    "tipo": "Espelho Bisotado",
+    "cor": "Fume",
+    "espessuraMm": "04",
+    "valorM2": null
+  },
+  {
+    "id": 31,
+    "codigo": "VEBBro04",
+    "tipo": "Espelho Bisotado",
+    "cor": "Bronze",
+    "espessuraMm": "04",
+    "valorM2": null
+  },
+  {
+    "id": 32,
+    "codigo": "VEBPra05",
+    "tipo": "Espelho Bisotado",
+    "cor": "Prata",
+    "espessuraMm": "05",
+    "valorM2": null
+  },
+  {
+    "id": 33,
+    "codigo": "VEBFum05",
+    "tipo": "Espelho Bisotado",
+    "cor": "Fume",
+    "espessuraMm": "05",
+    "valorM2": null
+  },
+  {
+    "id": 34,
+    "codigo": "VEBBro05",
+    "tipo": "Espelho Bisotado",
+    "cor": "Bronze",
+    "espessuraMm": "05",
+    "valorM2": null
+  }
+]

@@ -1,0 +1,62 @@
+{
+  "version": "2026-07-10",
+  "glassColors": [
+    "Incolor",
+    "Verde",
+    "Fume",
+    "Bronze"
+  ],
+  "aluminumColors": [
+    {
+      "color": "Fosco",
+      "surcharge": 0.0
+    },
+    {
+      "color": "Preto",
+      "surcharge": 0.25
+    },
+    {
+      "color": "Branco",
+      "surcharge": 0.25
+    },
+    {
+      "color": "Bronze",
+      "surcharge": 0.3
+    },
+    {
+      "color": "Brilhante",
+      "surcharge": 0.4
+    }
+  ],
+  "kitBoxSizesCm": [
+    100,
+    120,
+    130,
+    133,
+    150,
+    160,
+    180,
+    200
+  ],
+  "temperedThicknessesMm": [
+    "06",
+    "08",
+    "10"
+  ],
+  "labor": {
+    "boxAvulso": 100,
+    "boxPerM2": 60,
+    "temperedPerM2": 45,
+    "maxiarAvulso": 60
+  },
+  "boxDefaultHeightM": 1.9,
+  "boxSiliconeQty": 1.5,
+  "defaultMarkup": {
+    "box": 0.3,
+    "correr": 0.3,
+    "pivotante": 0.3,
+    "maxiar": 0.5,
+    "fixo": 0.3,
+    "espelho": 0.3
+  }
+}

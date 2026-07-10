@@ -1,0 +1,130 @@
+[
+  {
+    "id": 1,
+    "codigo": "F1100NF",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Fosco",
+    "tamanhoCm": 100.0,
+    "valor": 120.0
+  },
+  {
+    "id": 2,
+    "codigo": "F1120NF",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Fosco",
+    "tamanhoCm": 120.0,
+    "valor": 117.0
+  },
+  {
+    "id": 3,
+    "codigo": "F1130NF",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Fosco",
+    "tamanhoCm": 130.0,
+    "valor": 146.35
+  },
+  {
+    "id": 4,
+    "codigo": "F1133NF",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Fosco",
+    "tamanhoCm": 133.0,
+    "valor": 146.35
+  },
+  {
+    "id": 5,
+    "codigo": "F1150NF",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Fosco",
+    "tamanhoCm": 150.0,
+    "valor": 156.8
+  },
+  {
+    "id": 6,
+    "codigo": "F1160NF",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Fosco",
+    "tamanhoCm": 160.0,
+    "valor": 167.0
+  },
+  {
+    "id": 7,
+    "codigo": "F1180NF",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Fosco",
+    "tamanhoCm": 180.0,
+    "valor": 177.45
+  },
+  {
+    "id": 8,
+    "codigo": "F1200NF",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Fosco",
+    "tamanhoCm": 200.0,
+    "valor": 190.0
+  },
+  {
+    "id": 9,
+    "codigo": "F1100PT",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Preto",
+    "tamanhoCm": 100.0,
+    "valor": 138.0
+  },
+  {
+    "id": 10,
+    "codigo": "F1120PT",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Preto",
+    "tamanhoCm": 120.0,
+    "valor": 139.0
+  },
+  {
+    "id": 11,
+    "codigo": "F1130PT",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Preto",
+    "tamanhoCm": 130.0,
+    "valor": 147.58
+  },
+  {
+    "id": 12,
+    "codigo": "F1133PT",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Preto",
+    "tamanhoCm": 133.0,
+    "valor": 147.58
+  },
+  {
+    "id": 13,
+    "codigo": "F1150PT",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Preto",
+    "tamanhoCm": 150.0,
+    "valor": 156.81
+  },
+  {
+    "id": 14,
+    "codigo": "F1160PT",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Preto",
+    "tamanhoCm": 160.0,
+    "valor": 168.0
+  },
+  {
+    "id": 15,
+    "codigo": "F1180PT",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Preto",
+    "tamanhoCm": 180.0,
+    "valor": 177.5
+  },
+  {
+    "id": 16,
+    "codigo": "F1200PT",
+    "tipo": "Kit Box Frontal 2F",
+    "cor": "Preto",
+    "tamanhoCm": 200.0,
+    "valor": 195.0
+  }
+]

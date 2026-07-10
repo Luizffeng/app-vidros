@@ -1,0 +1,610 @@
+[
+  {
+    "id": 1,
+    "codigo": "AL 01",
+    "descricao": "TRILHO SUPERIOR PESADO",
+    "valorBarra": 175.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 29.16666667
+  },
+  {
+    "id": 2,
+    "codigo": "AL 02",
+    "descricao": "CAPA TRILHP PESADO",
+    "valorBarra": 57.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 9.5
+  },
+  {
+    "id": 3,
+    "codigo": "AL 03",
+    "descricao": "TRILHO SUPERIOR SEM \"U\"",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 4,
+    "codigo": "AL 04",
+    "descricao": "CAPA TRILHO SEM \"U\"",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 5,
+    "codigo": "AL 05",
+    "descricao": "TRILHO INFERIOR 10 MM",
+    "valorBarra": 125.5,
+    "metragemBarra": 6.0,
+    "valorMetro": 20.91666667
+  },
+  {
+    "id": 6,
+    "codigo": "AL 06",
+    "descricao": "THILHO SIMPLES PARA CARRINHO",
+    "valorBarra": 82.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 13.66666667
+  },
+  {
+    "id": 7,
+    "codigo": "AL 07",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 8,
+    "codigo": "AL 09",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 9,
+    "codigo": "AL 10",
+    "descricao": "PERFIL \"U\" TADEU 10 MM",
+    "valorBarra": 56.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 9.333333333
+  },
+  {
+    "id": 10,
+    "codigo": "AL 11",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 11,
+    "codigo": "AL 12",
+    "descricao": "PERFIL \"U\" BAIXO 10 MM",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 12,
+    "codigo": "AL 13",
+    "descricao": "TAPA CANAL PARA AL 05",
+    "valorBarra": 28.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 4.666666667
+  },
+  {
+    "id": 13,
+    "codigo": "AL 14",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 14,
+    "codigo": "AL 15",
+    "descricao": "PERFIL VEDAÇÃO TRESPASSE 10 MM",
+    "valorBarra": 46.67,
+    "metragemBarra": 6.0,
+    "valorMetro": 7.778333333
+  },
+  {
+    "id": 15,
+    "codigo": "AL 17",
+    "descricao": "PERFIL VEDAÇÃO CENTRAL 10 MM",
+    "valorBarra": 75.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 12.5
+  },
+  {
+    "id": 16,
+    "codigo": "AL 18",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 17,
+    "codigo": "AL 19",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 18,
+    "codigo": "AL 20",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 19,
+    "codigo": "AL 21",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 20,
+    "codigo": "AL 22",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 21,
+    "codigo": "AL 23",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 22,
+    "codigo": "AL 24",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 23,
+    "codigo": "AL 26",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 24,
+    "codigo": "AL 27",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 25,
+    "codigo": "AL 28",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 26,
+    "codigo": "AL 29",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 27,
+    "codigo": "AL 30",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 28,
+    "codigo": "AL 31",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 29,
+    "codigo": "AL 34",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 30,
+    "codigo": "AL 35",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 31,
+    "codigo": "AL 36",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 32,
+    "codigo": "AL 37",
+    "descricao": "PERFIL SUPERIOR PARA CARRINHO",
+    "valorBarra": 140.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 23.33333333
+  },
+  {
+    "id": 33,
+    "codigo": "AL 38",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 34,
+    "codigo": "AL 41",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 35,
+    "codigo": "AL 42",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 36,
+    "codigo": "AL 43",
+    "descricao": "TAPA CANAL PARA AL 75",
+    "valorBarra": 19.5,
+    "metragemBarra": 6.0,
+    "valorMetro": 3.25
+  },
+  {
+    "id": 37,
+    "codigo": "AL 44",
+    "descricao": "PERFIL \"U\" BAIXO 8 MM",
+    "valorBarra": 33.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 5.5
+  },
+  {
+    "id": 38,
+    "codigo": "AL 45",
+    "descricao": "PERFIL DE VEDAÇÃO TRESPASSE PARA 8 MM",
+    "valorBarra": 66.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 11.0
+  },
+  {
+    "id": 39,
+    "codigo": "AL 46",
+    "descricao": "PERFIL DE VEDAÇÃO TRESPASSE PARA 8 MM",
+    "valorBarra": 35.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 5.833333333
+  },
+  {
+    "id": 40,
+    "codigo": "AL 47",
+    "descricao": "PERFIL VEDAÇÃO CENTRAL 8 MM",
+    "valorBarra": 45.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 7.5
+  },
+  {
+    "id": 41,
+    "codigo": "AL 48",
+    "descricao": "PERFIL INFERIOR BOX PARA DE ABRIR",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 42,
+    "codigo": "AL 49",
+    "descricao": "TRILHO SUPERIOR PARA 8 MM",
+    "valorBarra": 128.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 21.33333333
+  },
+  {
+    "id": 43,
+    "codigo": "AL 50",
+    "descricao": "CAPA TRILHO SUPERIOR 8 MM",
+    "valorBarra": 48.5,
+    "metragemBarra": 6.0,
+    "valorMetro": 8.083333333
+  },
+  {
+    "id": 44,
+    "codigo": "AL 51",
+    "descricao": "TRILHO SUPERIOR PARA 10 MM",
+    "valorBarra": 210.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 35.0
+  },
+  {
+    "id": 45,
+    "codigo": "AL 52",
+    "descricao": "CAPA TRILHO SUPERIOR 10 MM",
+    "valorBarra": 70.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 11.66666667
+  },
+  {
+    "id": 46,
+    "codigo": "AL 60",
+    "descricao": "TRILHO SUPERIOR PARA BOX",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 47,
+    "codigo": "AL 61",
+    "descricao": "CAPA TRILHO SUPERIOR BOX",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 48,
+    "codigo": "AL 62",
+    "descricao": "PERFIL INFERIOR BOX PARA DE ABRIR",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 49,
+    "codigo": "AL 63",
+    "descricao": "PERFIL VEDAÇÃO CENTRAL BOX",
+    "valorBarra": 34.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 5.666666667
+  },
+  {
+    "id": 50,
+    "codigo": "AL 64",
+    "descricao": "PERFIL VEDAÇÃO CENTRAL CANTO BOX",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 51,
+    "codigo": "AL 65",
+    "descricao": "TAPA CANAL",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 52,
+    "codigo": "AL 66",
+    "descricao": "PERFIL \"U\" 8 MM COM 2,2 CM",
+    "valorBarra": 34.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 5.666666667
+  },
+  {
+    "id": 53,
+    "codigo": "AL 67",
+    "descricao": "PERFIL \"U\" LEVE 10 MM COM 2,2 CM",
+    "valorBarra": 44.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 7.333333333
+  },
+  {
+    "id": 54,
+    "codigo": "AL 68",
+    "descricao": "PERFIL PARA CARRINHO CONCAVO",
+    "valorBarra": 298.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 49.66666667
+  },
+  {
+    "id": 55,
+    "codigo": "AL 69",
+    "descricao": "TRILHO DUPLO",
+    "valorBarra": 167.47,
+    "metragemBarra": 6.0,
+    "valorMetro": 27.91166667
+  },
+  {
+    "id": 56,
+    "codigo": "AL 75",
+    "descricao": "TRILHO INFERIOR 8 MM",
+    "valorBarra": 77.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 12.83333333
+  },
+  {
+    "id": 57,
+    "codigo": "AL 101",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 58,
+    "codigo": "CG - 074",
+    "descricao": "CAPA PARA PERFIL DE APOIO SUPERIOR",
+    "valorBarra": 82.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 13.66666667
+  },
+  {
+    "id": 59,
+    "codigo": "CG - 075",
+    "descricao": "PERFIL \"J\" DE APOIO INFERIOR",
+    "valorBarra": 175.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 29.16666667
+  },
+  {
+    "id": 60,
+    "codigo": "CG - 077",
+    "descricao": "TUBO VERTICAL (COLUNA)",
+    "valorBarra": 227.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 37.83333333
+  },
+  {
+    "id": 61,
+    "codigo": "CG - 083",
+    "descricao": "PERFIL DE APOIO SUPERIOR",
+    "valorBarra": 351.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 58.5
+  },
+  {
+    "id": 62,
+    "codigo": "CG - 143",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 63,
+    "codigo": "CANT 1/2\"",
+    "descricao": null,
+    "valorBarra": 14.7,
+    "metragemBarra": 6.0,
+    "valorMetro": 2.45
+  },
+  {
+    "id": 64,
+    "codigo": "CANT 5/8\"",
+    "descricao": "CANTONEIRA 15 X 15 MM",
+    "valorBarra": 18.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 3.0
+  },
+  {
+    "id": 65,
+    "codigo": "CANT 3/4\"",
+    "descricao": null,
+    "valorBarra": 30.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 5.0
+  },
+  {
+    "id": 66,
+    "codigo": "CANT 1\"",
+    "descricao": "CANTONEIRA 25 X 25 MM",
+    "valorBarra": 38.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 6.333333333
+  },
+  {
+    "id": 67,
+    "codigo": "CANT 2\"",
+    "descricao": "CANTONEIRA 50 X 50 MM",
+    "valorBarra": 80.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 13.33333333
+  },
+  {
+    "id": 68,
+    "codigo": "CANT 1/2\" X 1\"",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 69,
+    "codigo": "CANT 1\" X 2\"",
+    "descricao": null,
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 70,
+    "codigo": "AL 90",
+    "descricao": "TRILHO SUPERIOR PARA 6 MM",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 71,
+    "codigo": "AL 91",
+    "descricao": "CAPA PARA TRILHO SUPERIOR DE 6 MM",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 72,
+    "codigo": "AL 92",
+    "descricao": "TRILHO INFERIOR DE 6 MM",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 73,
+    "codigo": "AL 93",
+    "descricao": "TAPA CANAL PARA AL 92 DE 6 MM",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 74,
+    "codigo": "AL 94",
+    "descricao": "PERFIL DE VEDAÇÃO CENTRAL DE 6 MM",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 75,
+    "codigo": "AL 95",
+    "descricao": "PERFIL DE VEDAÇÃO TRANSPASSE DE 6 MM",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  },
+  {
+    "id": 76,
+    "codigo": "AL 96",
+    "descricao": "PERFIL \"U\" PARA 6 MM",
+    "valorBarra": 0,
+    "metragemBarra": 6.0,
+    "valorMetro": 0
+  }
+]
