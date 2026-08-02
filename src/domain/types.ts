@@ -32,6 +32,30 @@ export interface PricingConfig {
   defaultMarkup: Record<Exclude<ProductKind, 'custom'>, number>
 }
 
+export interface EstablishmentInfo {
+  name: string
+  tradeName?: string
+  /** CNPJ ou CPF */
+  document?: string
+  phone?: string
+  email?: string
+  cep?: string
+  street?: string
+  number?: string
+  complement?: string
+  neighborhood?: string
+  city?: string
+  state?: string
+}
+
+export interface AppSettings {
+  quoteValidityDays: number
+  establishment: EstablishmentInfo
+  /** Data URL da logo (PNG/JPEG) — usado no PDF */
+  logoDataUrl?: string
+}
+
+/** ativo omitido ou true = disponível no cálculo; false = desativado */
 export interface Vidro {
   id: number
   codigo: string
@@ -39,6 +63,7 @@ export interface Vidro {
   cor: string
   espessuraMm: string | null
   valorM2: number | null
+  ativo?: boolean
 }
 
 export interface KitBox {
@@ -48,6 +73,7 @@ export interface KitBox {
   cor: string
   tamanhoCm: number
   valor: number | null
+  ativo?: boolean
 }
 
 export interface Acessorio {
@@ -55,6 +81,7 @@ export interface Acessorio {
   codigo: string
   descricao: string
   valor: number
+  ativo?: boolean
 }
 
 export interface Aluminio {
@@ -64,6 +91,7 @@ export interface Aluminio {
   valorBarra: number
   metragemBarra: number
   valorMetro: number
+  ativo?: boolean
 }
 
 export interface Catalog {
@@ -200,6 +228,15 @@ export interface AdditionalCost {
 export interface CustomerInfo {
   name?: string
   phone?: string
+  /** CEP só dígitos (8) */
+  cep?: string
+  street?: string
+  number?: string
+  complement?: string
+  neighborhood?: string
+  city?: string
+  state?: string
+  /** Legado: endereço livre de orçamentos antigos */
   address?: string
   notes?: string
 }
@@ -215,6 +252,8 @@ export interface Quote {
   createdAt: string
   updatedAt: string
   emittedAt?: string
+  /** ISO — validade comercial do orçamento (cliente) */
+  validUntil?: string
   customer: CustomerInfo
   items: QuoteItem[]
   additionalCosts: AdditionalCost[]
@@ -231,5 +270,7 @@ export interface QuoteRepository {
   deleteQuote(id: string): Promise<void>
   getCatalog(): Promise<Catalog>
   saveCatalog(catalog: Catalog): Promise<void>
+  getSettings(): Promise<AppSettings>
+  saveSettings(settings: AppSettings): Promise<void>
   nextQuoteNumber(): Promise<string>
 }
