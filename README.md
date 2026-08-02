@@ -10,6 +10,10 @@ App mobile-first para emitir orçamentos de vidraçaria. O motor de cálculo esp
 - Interface `QuoteRepository` pronta para trocar por API/banco remoto
 - PDF com jsPDF
 
+## Backlog
+
+Prioridades vivas em [`BACKLOG.md`](./BACKLOG.md). Estratégia atual: Web desktop primeiro; PWA/responsividade depois.
+
 ## Spec Kit
 
 Projeto inicializado com [GitHub Spec Kit](https://github.com/github/spec-kit). Constitution em `.specify/memory/constitution.md`.
