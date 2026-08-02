@@ -1,3 +1,4 @@
+import { isCatalogItemActive } from '../catalogActive'
 import type { Catalog, MaxiarInput, PricingResult } from '../types'
 import {
   aluminumSurcharge,
@@ -22,8 +23,12 @@ export function priceMaxiar(catalog: Catalog, input: MaxiarInput): PricingResult
   const glassCost = glassM2 < 0.25 ? unit * 0.25 : unit * glassM2
 
   const cantoneira =
-    catalog.aluminios.find((a) => a.codigo === 'CANT 5/8"') ??
-    catalog.aluminios.find((a) => a.descricao?.includes('CANTONEIRA 15'))
+    catalog.aluminios.find(
+      (a) => isCatalogItemActive(a) && a.codigo === 'CANT 5/8"',
+    ) ??
+    catalog.aluminios.find(
+      (a) => isCatalogItemActive(a) && a.descricao?.includes('CANTONEIRA 15'),
+    )
   if (!cantoneira) throw new Error('Cantoneira 15x15 não encontrada')
 
   const cantQty = ceiling(input.heightMm * 2 + input.widthMm * 2, 500) / 1000

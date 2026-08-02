@@ -1,3 +1,4 @@
+import { isCatalogItemActive } from '../catalogActive'
 import type { Catalog, PricingConfig } from '../types'
 
 /** Excel-compatible CEILING(number, significance) */
@@ -29,6 +30,7 @@ export function findVidro(
 ) {
   const match = catalog.vidros.find(
     (v) =>
+      isCatalogItemActive(v) &&
       v.tipo === tipo &&
       v.cor === cor &&
       (espessuraMm == null || v.espessuraMm === espessuraMm),
@@ -42,13 +44,17 @@ export function findVidro(
 }
 
 export function findAcessorio(catalog: Catalog, codigo: string) {
-  const match = catalog.acessorios.find((a) => a.codigo === codigo)
+  const match = catalog.acessorios.find(
+    (a) => isCatalogItemActive(a) && a.codigo === codigo,
+  )
   if (!match) throw new Error(`Acessório não encontrado: ${codigo}`)
   return match
 }
 
 export function findAluminio(catalog: Catalog, codigo: string) {
-  const match = catalog.aluminios.find((a) => a.codigo === codigo)
+  const match = catalog.aluminios.find(
+    (a) => isCatalogItemActive(a) && a.codigo === codigo,
+  )
   if (!match) throw new Error(`Alumínio não encontrado: ${codigo}`)
   return match
 }
@@ -62,7 +68,7 @@ export function nearestKitSize(sizes: number[], spanCm: number): number {
 
 export function findKitBox(catalog: Catalog, cor: string, tamanhoCm: number) {
   const match = catalog.kitBox.find(
-    (k) => k.cor === cor && k.tamanhoCm === tamanhoCm,
+    (k) => isCatalogItemActive(k) && k.cor === cor && k.tamanhoCm === tamanhoCm,
   )
   if (!match || match.valor == null) {
     throw new Error(`Kit Box sem preço: ${cor} / ${tamanhoCm}cm`)
