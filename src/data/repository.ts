@@ -1,5 +1,7 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
-import type { Catalog, Quote, QuoteRepository } from '../domain/types'
+import type { AppSettings, Catalog, Quote, QuoteRepository } from '../domain/types'
+import { normalizeCatalog } from './catalogItems'
+import { defaultSettings, normalizeSettings } from './defaultSettings'
 import { loadSeedCatalog } from './seedCatalog'
 
 interface ForteVidrosDB extends DBSchema {
@@ -20,6 +22,7 @@ interface ForteVidrosDB extends DBSchema {
 
 const DB_NAME = 'forte-vidros'
 const DB_VERSION = 1
+const SETTINGS_KEY = 'app-settings'
 
 async function getDb(): Promise<IDBPDatabase<ForteVidrosDB>> {
   return openDB<ForteVidrosDB>(DB_NAME, DB_VERSION, {
@@ -70,16 +73,43 @@ export class LocalQuoteRepository implements QuoteRepository {
     if (stored) {
       const { id, ...catalog } = stored
       void id
-      return catalog
+      return normalizeCatalog(catalog)
     }
-    const seed = loadSeedCatalog()
+    const seed = normalizeCatalog(loadSeedCatalog())
     await db.put('catalog', { ...seed, id: 'current' })
     return seed
   }
 
   async saveCatalog(catalog: Catalog): Promise<void> {
     const db = await getDb()
-    await db.put('catalog', { ...catalog, id: 'current' })
+    const normalized = normalizeCatalog(catalog)
+    await db.put('catalog', { ...normalized, id: 'current' })
+  }
+
+  async getSettings(): Promise<AppSettings> {
+    const db = await getDb()
+    const row = (await db.get('meta', SETTINGS_KEY)) as
+      | { key: string; value: Partial<AppSettings> }
+      | undefined
+    if (row?.value) return normalizeSettings(row.value)
+
+    // Migra validade antiga do catálogo, se existir
+    const catalog = await this.getCatalog()
+    const legacyDays = (catalog.config as PricingConfigLegacy).quoteValidityDays
+    const migrated = normalizeSettings({
+      ...defaultSettings(),
+      quoteValidityDays: legacyDays,
+    })
+    await db.put('meta', { key: SETTINGS_KEY, value: migrated })
+    return migrated
+  }
+
+  async saveSettings(settings: AppSettings): Promise<void> {
+    const db = await getDb()
+    await db.put('meta', {
+      key: SETTINGS_KEY,
+      value: normalizeSettings(settings),
+    })
   }
 
   async nextQuoteNumber(): Promise<string> {
@@ -94,6 +124,8 @@ export class LocalQuoteRepository implements QuoteRepository {
     return `ORC-${year}-${String(next).padStart(4, '0')}`
   }
 }
+
+type PricingConfigLegacy = { quoteValidityDays?: number }
 
 /** Factory — change here when remote backend is ready */
 export function createRepository(): QuoteRepository {
