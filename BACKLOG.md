@@ -10,11 +10,10 @@ Arquivo vivo. Atualizar ao puxar/fechar item. Specs detalhadas ficam em `specs/`
 
 ## Now
 
-- [ ] Validar no browser: CRUD catálogo + export/import JSON
+- _(vazio — puxar de Next)_
 
 ## Next
 
-- [ ] Ampliar testes de paridade com mais exemplos da planilha de referência
 - [ ] Spec Kit `tasks.md` ou nova spec só quando item virar feature grande
 
 ## Later
@@ -45,3 +44,6 @@ Arquivo vivo. Atualizar ao puxar/fechar item. Specs detalhadas ficam em `specs/`
 - [x] Página Configurações (validade + dados do estabelecimento no PDF)
 - [x] Upload de logo nas Configurações + logo no PDF
 - [x] Catálogo: criar / desativar itens + export/import JSON
+- [x] Ampliar testes de paridade (box/correr/pivot/fixo/espelho/custom + inativos)
+- [x] Validar no browser: CRUD catálogo + export/import JSON (`scripts/validate-catalog-browser.mjs`)
+- [x] Import/export: descartar linhas seed com `codigo` null/vazio + limpar `acessorios.json`

@@ -39,7 +39,7 @@
     "id": 7,
     "codigo": "1122 DC - AL 68",
     "descricao": "CARRINHO PEQUENO DUPLO PARA AL 68",
-    "valor": 31.0
+    "valor": 31
   },
   {
     "id": 8,
@@ -81,7 +81,7 @@
     "id": 14,
     "codigo": "1126 MC - AL 68",
     "descricao": "CARRINHO GRANDE MINE PARA AL 68",
-    "valor": 31.0
+    "valor": 31
   },
   {
     "id": 15,
@@ -93,25 +93,25 @@
     "id": 16,
     "codigo": "MÃO AMIGA G",
     "descricao": "MÃO AMIGA GRANDE",
-    "valor": 37.0
+    "valor": 37
   },
   {
     "id": 17,
     "codigo": "1129",
     "descricao": "DOBRADIÇA DUPLA AUTOMÁTICA",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 18,
     "codigo": "1203",
     "descricao": "SPORTE PARA BANDEIRA COM PONTO DE GIRO",
-    "valor": 25.0
+    "valor": 25
   },
   {
     "id": 19,
     "codigo": "1209",
     "descricao": "FACÃO PARA LATERAL E BANDEIRA",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 20,
@@ -135,55 +135,55 @@
     "id": 23,
     "codigo": "1305",
     "descricao": "SUPORTE CENTRAL PARA UNIÃO DE 2 VIDROS",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 24,
     "codigo": "1306",
     "descricao": "SUPORTE COM MIOLO PARA UNIÃO DE 2 VIDROS",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 25,
     "codigo": "1310",
     "descricao": "SUPORTE EM L PARA UNIÃO DE 2 OU 3 VIDROS",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 26,
     "codigo": "1316",
     "descricao": "SUPORTE PARA UNIÃO DE 4 VIDROS SEM MIOLO",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 27,
     "codigo": "1319",
     "descricao": "SUPORTE PARA UNIÃO DE 4 VIDROS EM ÂNGULO",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 28,
     "codigo": "1320",
     "descricao": "SUPORTE CENTRAL EM ÂNGULO",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 29,
     "codigo": "1321",
     "descricao": "SUPORTE COM MIOLO EM ÂNGULO",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 30,
     "codigo": "1326",
     "descricao": "SUPORTE DE CENTRO PEQUENO PARA FIXAÇÃO",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 31,
     "codigo": "1329",
     "descricao": "SUPORTE DE CENTRO",
-    "valor": 11.0
+    "valor": 11
   },
   {
     "id": 32,
@@ -195,13 +195,13 @@
     "id": 33,
     "codigo": "1335 - C",
     "descricao": "CONTRA TRINCO PARA 1335",
-    "valor": 20.0
+    "valor": 20
   },
   {
     "id": 34,
     "codigo": "1402",
     "descricao": "SUPORTE CENTRAL COM BATENTE",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 35,
@@ -213,49 +213,49 @@
     "id": 36,
     "codigo": "1510",
     "descricao": "FECHADURA DE RECORTE BICO DE PAPAGAIO",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 37,
     "codigo": "1511",
     "descricao": "CONTRA FECHADURA PARA 1510",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 38,
     "codigo": "1511 - A",
     "descricao": "ESPELHO DE ALVENARIA PARA 1510",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 39,
     "codigo": "1529",
     "descricao": "TRINCO PARA BOX DE ABRIR",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 40,
     "codigo": "1530",
     "descricao": "CONTRA TRINCO PARA 1529",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 41,
     "codigo": "1530 - A",
     "descricao": "ESPELHO DE ALVENARIA PARA 1529",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 42,
     "codigo": "1531",
     "descricao": "CONTRA FECHADURA PARA 1520",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 43,
     "codigo": "1570 - V / V",
     "descricao": "BATE FECHA VIDRO / VIDRO",
-    "valor": 33.0
+    "valor": 33
   },
   {
     "id": 44,
@@ -267,7 +267,7 @@
     "id": 45,
     "codigo": "1607",
     "descricao": "PUXADOR DE MADEIRA OU DE RESINA",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 46,
@@ -285,43 +285,43 @@
     "id": 48,
     "codigo": "1800 - C",
     "descricao": "CONTRA TRINCO DE PRESSÃO PARA 1800",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 49,
     "codigo": "1800 - F OU G",
     "descricao": "TRINCO COM FURO PARA CARRINHO E VERSATIK",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 50,
     "codigo": "1871",
     "descricao": "PRENDEDOR DE PORTA PARA PISO",
-    "valor": 5.0
+    "valor": 5
   },
   {
     "id": 51,
     "codigo": "1872",
     "descricao": "PRENDEDOR DE PORTA PARA PAREDE",
-    "valor": 25.0
+    "valor": 25
   },
   {
     "id": 52,
     "codigo": "3532 MINE",
     "descricao": "MINE FECHADURA DE FURO",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 53,
     "codigo": "3536 MINE",
     "descricao": "MINE CONTRA FECHADURA DE FURO PARA 3532M",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 54,
     "codigo": "3230 MINE",
     "descricao": "ESPELHO DE ALVENARIA PARA 3532M",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 55,
@@ -333,7 +333,7 @@
     "id": 56,
     "codigo": "SILICONE ACT",
     "descricao": "SILICONE DE VEDAÇÃO ACÉTICO",
-    "valor": 20.0
+    "valor": 20
   },
   {
     "id": 57,
@@ -345,7 +345,7 @@
     "id": 58,
     "codigo": "DOB V/V",
     "descricao": "DOBRADIÇA MAXIAR VIDRO VIDRO",
-    "valor": 25.0
+    "valor": 25
   },
   {
     "id": 59,
@@ -363,19 +363,19 @@
     "id": 61,
     "codigo": "CHUMBADOR",
     "descricao": "CHUMBADOR PARA FIXAÇÃO DE TUBO",
-    "valor": 25.0
+    "valor": 25
   },
   {
     "id": 62,
     "codigo": "GUARNIÇÃO",
     "descricao": "GUARNIÇÃO DE BORRACHA PARA FIXAÇÃO DE VIDRO",
-    "valor": 2.0
+    "valor": 2
   },
   {
     "id": 63,
     "codigo": "CHAPINHA",
     "descricao": "CHAPINHA DE METAL PARA PERFIL LINHA CG",
-    "valor": 5.0
+    "valor": 5
   },
   {
     "id": 64,
@@ -393,49 +393,49 @@
     "id": 66,
     "codigo": "KIT 01",
     "descricao": "KIT PORTA SIMPLES PIVOTANTE V/A",
-    "valor": 90.0
+    "valor": 90
   },
   {
     "id": 67,
     "codigo": "KIT 01 V/V",
     "descricao": "KIT PORTA SIMPLES PIVOTANTE V/V",
-    "valor": 110.0
+    "valor": 110
   },
   {
     "id": 68,
     "codigo": "KIT 01 A (MOLA)",
     "descricao": "KIT PORTA SIMPLES PIVOTANTE V/A COM MOLA",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 69,
     "codigo": "KIT 01 B (3210)",
     "descricao": "KIT PORTA SIMPLES PIVOTANTE V/A COM 3210",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 70,
     "codigo": "KIT 02",
     "descricao": "KIT JANELA PIVOTANTE VIDRO ALVENARIA",
-    "valor": 42.0
+    "valor": 42
   },
   {
     "id": 71,
     "codigo": "KIT 03",
     "descricao": "KIT JANELA DE CORRER COM 04 FOLHAS",
-    "valor": 42.0
+    "valor": 42
   },
   {
     "id": 72,
     "codigo": "KIT 04",
     "descricao": "KIT JANELA DE CORRER COM 02 FOLHAS",
-    "valor": 23.0
+    "valor": 23
   },
   {
     "id": 73,
     "codigo": "KIT 05",
     "descricao": "KIT BOX DE ABRIR AUTOMÁTICO",
-    "valor": 52.0
+    "valor": 52
   },
   {
     "id": 74,
@@ -453,67 +453,67 @@
     "id": 76,
     "codigo": "KIT 08",
     "descricao": "KIT PORTA DUPLA PIVOTANTE",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 77,
     "codigo": "KIT 08 A (MOLA)",
     "descricao": "KIT PORTA DUPLA PIVOTANTE V/V COM MOLA",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 78,
     "codigo": "KIT 08 B (3210)",
     "descricao": "KIT PORTA DUPLA PIVOTANTE V/V COM 3210",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 79,
     "codigo": "KIT 09",
     "descricao": "KIT PORTA DE CORRER VIDRO / VIDRO COM 3530",
-    "valor": 78.0
+    "valor": 78
   },
   {
     "id": 80,
     "codigo": "KIT 10",
     "descricao": "KIT PORTA DE CORRER VIDRO / ALVENARIA COM 3530",
-    "valor": 74.0
+    "valor": 74
   },
   {
     "id": 81,
     "codigo": "KIT 11",
     "descricao": "KIT JANELA DE CORRER VIDRO / VIDRO COM 3532",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 82,
     "codigo": "KIT 12",
     "descricao": "KIT JANELA DE CORRER VIDRO / ALVENARIA COM 3532",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 83,
     "codigo": "KIT 13",
     "descricao": "KIT PORTA DE CORRER V/A COM 1510",
-    "valor": 54.0
+    "valor": 54
   },
   {
     "id": 84,
     "codigo": "KIT 14",
     "descricao": "KIT PORTA DE CORRER V/V COM 1510",
-    "valor": 0.0
+    "valor": 0
   },
   {
     "id": 85,
     "codigo": "1524",
     "descricao": "CONTRA TRINCO PARA 1523",
-    "valor": 4.0
+    "valor": 4
   },
   {
     "id": 86,
     "codigo": "1123",
     "descricao": "DOBRADIÇA PARA VIDRO BASCULANTE",
-    "valor": 11.0
+    "valor": 11
   },
   {
     "id": 87,
@@ -525,90 +525,12 @@
     "id": 88,
     "codigo": "1629",
     "descricao": "PUXADOR DE BOX",
-    "valor": 9.0
+    "valor": 9
   },
   {
     "id": 89,
     "codigo": "H30X20",
     "descricao": "PUXADOR H 300 X 200 MM",
-    "valor": 45.0
-  },
-  {
-    "id": 90,
-    "codigo": null,
-    "descricao": null,
-    "valor": 0
-  },
-  {
-    "id": 91,
-    "codigo": null,
-    "descricao": null,
-    "valor": 0
-  },
-  {
-    "id": 92,
-    "codigo": null,
-    "descricao": null,
-    "valor": 0
-  },
-  {
-    "id": 93,
-    "codigo": null,
-    "descricao": null,
-    "valor": 0
-  },
-  {
-    "id": 94,
-    "codigo": null,
-    "descricao": null,
-    "valor": 0
-  },
-  {
-    "id": 95,
-    "codigo": null,
-    "descricao": null,
-    "valor": 0
-  },
-  {
-    "id": 96,
-    "codigo": null,
-    "descricao": null,
-    "valor": 0
-  },
-  {
-    "id": 97,
-    "codigo": null,
-    "descricao": null,
-    "valor": 0
-  },
-  {
-    "id": 98,
-    "codigo": null,
-    "descricao": null,
-    "valor": 0
-  },
-  {
-    "id": 99,
-    "codigo": null,
-    "descricao": null,
-    "valor": 0
-  },
-  {
-    "id": 100,
-    "codigo": null,
-    "descricao": null,
-    "valor": 0
-  },
-  {
-    "id": 101,
-    "codigo": null,
-    "descricao": null,
-    "valor": 0
-  },
-  {
-    "id": 102,
-    "codigo": null,
-    "descricao": null,
-    "valor": 0
+    "valor": 45
   }
 ]

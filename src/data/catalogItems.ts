@@ -15,13 +15,26 @@ export function nextNumericId(items: { id: number }[]): number {
   return items.reduce((max, item) => Math.max(max, item.id), 0) + 1
 }
 
+/** Seed legado traz linhas vazias (codigo null) — descartar no normalize/import/export */
+export function hasCatalogCodigo(item: { codigo?: string | null }): boolean {
+  return typeof item.codigo === 'string' && item.codigo.trim().length > 0
+}
+
 export function normalizeCatalog(catalog: Catalog): Catalog {
   return {
     config: normalizePricingConfig(catalog.config),
-    vidros: catalog.vidros.map((v) => ({ ...v, ativo: v.ativo !== false })),
-    kitBox: catalog.kitBox.map((k) => ({ ...k, ativo: k.ativo !== false })),
-    acessorios: catalog.acessorios.map((a) => ({ ...a, ativo: a.ativo !== false })),
-    aluminios: catalog.aluminios.map((a) => ({ ...a, ativo: a.ativo !== false })),
+    vidros: catalog.vidros
+      .filter(hasCatalogCodigo)
+      .map((v) => ({ ...v, ativo: v.ativo !== false })),
+    kitBox: catalog.kitBox
+      .filter(hasCatalogCodigo)
+      .map((k) => ({ ...k, ativo: k.ativo !== false })),
+    acessorios: catalog.acessorios
+      .filter(hasCatalogCodigo)
+      .map((a) => ({ ...a, ativo: a.ativo !== false })),
+    aluminios: catalog.aluminios
+      .filter(hasCatalogCodigo)
+      .map((a) => ({ ...a, ativo: a.ativo !== false })),
   }
 }
 
@@ -32,6 +45,15 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 function requireArray(v: unknown, label: string): unknown[] {
   if (!Array.isArray(v)) throw new Error(`Catálogo inválido: ${label} deve ser lista.`)
   return v
+}
+
+function assertRowsHaveIdAndCodigo(
+  rows: { id: number; codigo?: string | null }[],
+  label: string,
+) {
+  if (rows.some((r) => typeof r.id !== 'number' || !hasCatalogCodigo(r))) {
+    throw new Error(`JSON inválido: ${label} precisam de id e codigo.`)
+  }
 }
 
 /** Valida JSON importado e devolve Catalog normalizado */
@@ -47,20 +69,14 @@ export function parseImportedCatalog(raw: unknown): Catalog {
     aluminios: requireArray(raw.aluminios, 'aluminios') as Aluminio[],
   }
 
-  if (catalog.vidros.some((v) => typeof v.id !== 'number' || !v.codigo)) {
-    throw new Error('JSON inválido: vidros precisam de id e codigo.')
-  }
-  if (catalog.kitBox.some((k) => typeof k.id !== 'number' || !k.codigo)) {
-    throw new Error('JSON inválido: kitBox precisa de id e codigo.')
-  }
-  if (catalog.acessorios.some((a) => typeof a.id !== 'number' || !a.codigo)) {
-    throw new Error('JSON inválido: acessorios precisam de id e codigo.')
-  }
-  if (catalog.aluminios.some((a) => typeof a.id !== 'number' || !a.codigo)) {
-    throw new Error('JSON inválido: aluminios precisam de id e codigo.')
-  }
+  const normalized = normalizeCatalog(catalog)
 
-  return normalizeCatalog(catalog)
+  assertRowsHaveIdAndCodigo(normalized.vidros, 'vidros')
+  assertRowsHaveIdAndCodigo(normalized.kitBox, 'kitBox')
+  assertRowsHaveIdAndCodigo(normalized.acessorios, 'acessorios')
+  assertRowsHaveIdAndCodigo(normalized.aluminios, 'aluminios')
+
+  return normalized
 }
 
 export function downloadCatalogJson(catalog: Catalog, filename?: string) {

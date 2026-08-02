@@ -6,6 +6,7 @@ import {
   nextNumericId,
   parseImportedCatalog,
 } from '../data/catalogItems'
+import { normalizeCatalog } from '../data/catalogItems'
 import { loadSeedCatalog } from '../data/seedCatalog'
 import { formatBrl } from '../domain/quote'
 import type {
@@ -128,7 +129,7 @@ export function CatalogEditor({
 
   const restoreSeed = () => {
     if (!confirm('Restaurar preços do seed inicial? Alterações locais serão perdidas.')) return
-    setDraft(cloneCatalog(loadSeedCatalog()))
+    setDraft(cloneCatalog(normalizeCatalog(loadSeedCatalog())))
     setMessage('Seed carregado no editor — salve para aplicar.')
     setError(null)
   }
