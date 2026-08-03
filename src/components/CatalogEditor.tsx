@@ -17,6 +17,7 @@ import type {
   PricingConfig,
   Vidro,
 } from '../domain/types'
+import { AppNav, type AppSection } from './AppNav'
 
 type Tab = 'vidros' | 'kitBox' | 'acessorios' | 'aluminios' | 'config'
 
@@ -86,11 +87,11 @@ function parsePercent(raw: string): number | null {
 export function CatalogEditor({
   catalog,
   onSave,
-  onBack,
+  onNavigate,
 }: {
   catalog: Catalog
   onSave: (catalog: Catalog) => Promise<void>
-  onBack: () => void
+  onNavigate: (section: AppSection) => void
 }) {
   const [draft, setDraft] = useState(() => cloneCatalog(catalog))
   const [tab, setTab] = useState<Tab>('vidros')
@@ -152,14 +153,13 @@ export function CatalogEditor({
   return (
     <div className="shell shell--wide">
       <header className="topbar">
-        <button type="button" className="btn ghost" onClick={onBack}>
-          ← Orçamentos
-        </button>
         <div>
           <p className="brand-sm">Forte Vidros</p>
-          <h1 className="title-sm">Catálogo de preços</h1>
+          <h1 className="title-sm">Catálogo</h1>
         </div>
       </header>
+
+      <AppNav current="catalog" onNavigate={onNavigate} />
 
       <p className="lede catalog-lede">
         Edite, crie ou desative itens. Orçamentos emitidos não mudam; novos usam a versão salva (
@@ -962,9 +962,13 @@ function AluminiosTable({
             <tr>
               <th>Código</th>
               <th>Descrição</th>
-              <th>Tamanho da barra [<span className="unit">m</span>]</th>
-              <th>R$ barra</th>
-              <th>R$/<span className="unit">m</span></th>
+              <th className="cell-num">
+                Tamanho da barra [<span className="unit">m</span>]
+              </th>
+              <th className="cell-num">R$ barra</th>
+              <th className="cell-num">
+                R$/<span className="unit">m</span>
+              </th>
               <th></th>
             </tr>
           </thead>
@@ -976,8 +980,8 @@ function AluminiosTable({
               >
                 <td>{row.codigo}</td>
                 <td className="cell-desc">{row.descricao ?? '—'}</td>
-                <td>{row.metragemBarra}</td>
-                <td>
+                <td className="cell-num">{row.metragemBarra}</td>
+                <td className="cell-num cell-money-barra">
                   <MoneyInput
                     value={row.valorBarra}
                     onCommit={(valorBarra) => {
@@ -992,7 +996,12 @@ function AluminiosTable({
                     }}
                   />
                 </td>
-                <td>{formatBrl(row.valorMetro)}</td>
+                <td className="cell-num">
+                  {row.valorMetro.toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </td>
                 <td>
                   <button
                     type="button"

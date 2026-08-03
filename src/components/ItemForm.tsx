@@ -8,7 +8,6 @@ import type {
   PricingConfig,
   ProductKind,
 } from '../domain/types'
-
 const KINDS: { id: ProductKind; label: string }[] = [
   { id: 'box', label: 'Box' },
   { id: 'correr', label: 'Correr' },

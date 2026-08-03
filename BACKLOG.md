@@ -14,6 +14,8 @@ Arquivo vivo. Atualizar ao puxar/fechar item. Specs detalhadas ficam em `specs/`
 
 ## Next
 
+- [ ] Backup/restauração de orçamentos (export IndexedDB/JSON)
+- [ ] Smoke E2E do fluxo orçamento (emitir + PDF)
 - [ ] Spec Kit `tasks.md` ou nova spec só quando item virar feature grande
 
 ## Later

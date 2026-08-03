@@ -3,15 +3,16 @@ import type { AppSettings, EstablishmentInfo } from '../domain/types'
 import { normalizeSettings } from '../data/defaultSettings'
 import { fileToLogoDataUrl } from '../data/logo'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
+import { AppNav, type AppSection } from './AppNav'
 
 export function SettingsEditor({
   settings,
   onSave,
-  onBack,
+  onNavigate,
 }: {
   settings: AppSettings
   onSave: (settings: AppSettings) => Promise<void>
-  onBack: () => void
+  onNavigate: (section: AppSection) => void
 }) {
   const [draft, setDraft] = useState(() => normalizeSettings(settings))
   const [busy, setBusy] = useState(false)
@@ -101,14 +102,13 @@ export function SettingsEditor({
   return (
     <div className="shell shell--wide">
       <header className="topbar">
-        <button type="button" className="btn ghost" onClick={onBack}>
-          ← Orçamentos
-        </button>
         <div>
           <p className="brand-sm">Forte Vidros</p>
           <h1 className="title-sm">Configurações</h1>
         </div>
       </header>
+
+      <AppNav current="settings" onNavigate={onNavigate} />
 
       <p className="lede catalog-lede">
         Dados do estabelecimento e regras do orçamento. Aparecem no PDF do cliente.
@@ -300,7 +300,7 @@ export function SettingsEditor({
       </section>
 
       <footer className="actions actions--row">
-        <button type="button" className="btn ghost" onClick={onBack}>
+        <button type="button" className="btn ghost" onClick={() => onNavigate('list')}>
           Voltar
         </button>
         <button

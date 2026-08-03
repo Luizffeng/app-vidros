@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type {
   AdditionalCost,
   AppSettings,
@@ -26,13 +26,13 @@ import { createRepository } from '../data/repository'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
 import { generateQuotePdf, shareOrDownloadPdf } from '../pdf/generateQuotePdf'
 import { CatalogEditor } from './CatalogEditor'
+import { AppNav, type AppSection } from './AppNav'
 import { ItemForm } from './ItemForm'
 import { SettingsEditor } from './SettingsEditor'
 
 const repo = createRepository()
 
 type View = 'list' | 'editor' | 'catalog' | 'settings'
-type StatusFilter = 'all' | 'draft' | 'emitted'
 
 export function App() {
   const [view, setView] = useState<View>('list')
@@ -44,7 +44,6 @@ export function App() {
   const [busy, setBusy] = useState(false)
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const [listQuery, setListQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
 
   const refresh = async () => {
     const [c, list, s] = await Promise.all([
@@ -63,9 +62,8 @@ export function App() {
 
   const filteredQuotes = useMemo(() => {
     const q = listQuery.trim().toLowerCase()
+    if (!q) return quotes
     return quotes.filter((quoteRow) => {
-      if (statusFilter !== 'all' && quoteRow.status !== statusFilter) return false
-      if (!q) return true
       const hay = [
         formatQuoteCode(quoteRow.number, quoteRow.revision),
         quoteRow.number,
@@ -79,7 +77,7 @@ export function App() {
         .toLowerCase()
       return hay.includes(q)
     })
-  }, [quotes, listQuery, statusFilter])
+  }, [quotes, listQuery])
 
   const openNew = async () => {
     if (!catalog) return
@@ -216,15 +214,17 @@ export function App() {
     )
   }
 
+  const goSection = (section: AppSection) => {
+    setView(section)
+    if (section === 'list') void refresh()
+  }
+
   if (view === 'catalog') {
     return (
       <CatalogEditor
         catalog={catalog}
         onSave={onSaveCatalog}
-        onBack={() => {
-          setView('list')
-          void refresh()
-        }}
+        onNavigate={goSection}
       />
     )
   }
@@ -234,10 +234,7 @@ export function App() {
       <SettingsEditor
         settings={settings}
         onSave={onSaveSettings}
-        onBack={() => {
-          setView('list')
-          void refresh()
-        }}
+        onNavigate={goSection}
       />
     )
   }
@@ -245,29 +242,28 @@ export function App() {
   if (view === 'list') {
     return (
       <div className="shell">
-        <header className="hero">
-          <p className="brand">{settings.establishment.tradeName || settings.establishment.name || 'Forte Vidros'}</p>
-          <h1>Orçamentos</h1>
-          <p className="lede">
-            Meça no local e emita o orçamento na hora.
-          </p>
-          <div className="hero-actions">
-            <button type="button" className="btn primary" onClick={() => void openNew()}>
-              Novo orçamento
-            </button>
-            <button type="button" className="btn" onClick={() => setView('catalog')}>
-              Catálogo
-            </button>
-            <button type="button" className="btn" onClick={() => setView('settings')}>
-              Configurações
-            </button>
+        <header className="topbar">
+          <div>
+            <p className="brand-sm">
+              {settings.establishment.tradeName ||
+                settings.establishment.name ||
+                'Forte Vidros'}
+            </p>
+            <h1 className="title-sm">Orçamentos</h1>
           </div>
         </header>
 
+        <AppNav current="list" onNavigate={goSection} />
+
         <section className="section">
-          <div className="section-head">
-            <h2>Recentes</h2>
-            <span className="pill">{filteredQuotes.length}</span>
+          <div className="section-head section-head--actions">
+            <div className="section-head__title">
+              <h2>Recentes</h2>
+              <span className="pill">{filteredQuotes.length}</span>
+            </div>
+            <button type="button" className="btn primary" onClick={() => void openNew()}>
+              Novo orçamento
+            </button>
           </div>
           {quotes.length > 0 && (
             <div className="list-filters">
@@ -277,30 +273,12 @@ export function App() {
                 value={listQuery}
                 onChange={(e) => setListQuery(e.target.value)}
               />
-              <div className="kind-grid" role="group" aria-label="Filtrar status">
-                {(
-                  [
-                    ['all', 'Todos'],
-                    ['draft', 'Rascunhos'],
-                    ['emitted', 'Emitidos'],
-                  ] as const
-                ).map(([id, label]) => (
-                  <button
-                    key={id}
-                    type="button"
-                    className={`chip${statusFilter === id ? ' active' : ''}`}
-                    onClick={() => setStatusFilter(id)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
             </div>
           )}
           {quotes.length === 0 ? (
             <p className="muted">Nenhum orçamento ainda.</p>
           ) : filteredQuotes.length === 0 ? (
-            <p className="muted">Nenhum orçamento neste filtro.</p>
+            <p className="muted">Nenhum orçamento na busca.</p>
           ) : (
             <ul className="quote-list">
               {filteredQuotes.map((q) => (
@@ -334,11 +312,11 @@ export function App() {
     <div className="shell">
       <header className="topbar">
         <button type="button" className="btn ghost" onClick={() => { setView('list'); void refresh() }}>
-          ← Lista
+          ← Orçamentos
         </button>
-        <div>
+        <div className="topbar__titles">
           <p className="brand-sm">Forte Vidros</p>
-          <h1 className="title-sm">
+          <h1 className="title-sm title-sm--quote">
             {formatQuoteCode(quote.number, quote.revision)}
           </h1>
         </div>
@@ -352,12 +330,11 @@ export function App() {
         onChange={(c) => void onCustomer(c)}
       />
 
-      <section className="section">
-        <div className="section-head">
-          <h2>Itens</h2>
-          <span className="pill">{quote.items.length}</span>
-        </div>
-
+      <CollapsibleSection
+        title="Itens"
+        badge={<span className="pill">{quote.items.length}</span>}
+        defaultOpen
+      >
         {quote.items.map((item) => (
           <article
             key={item.id}
@@ -370,16 +347,37 @@ export function App() {
             <details>
               <summary>Detalhes do custo</summary>
               <ul className="breakdown">
-                <li>Mão de obra: {formatBrl(item.result.breakdown.labor)}</li>
-                <li>Vidros: {formatBrl(item.result.breakdown.glass)}</li>
-                <li>Alumínios: {formatBrl(item.result.breakdown.aluminum)}</li>
-                <li>Ferragens: {formatBrl(item.result.breakdown.hardware)}</li>
-                <li>Acessórios: {formatBrl(item.result.breakdown.accessories)}</li>
-                <li>Adicionais do item: {formatBrl(item.result.breakdown.extras)}</li>
-                <li>Custo: {formatBrl(item.result.breakdown.totalCost)}</li>
                 <li>
-                  Margem: {(item.result.breakdown.markup * 100).toFixed(0)}% (
-                  {formatBrl(item.result.breakdown.marginAmount)})
+                  <span>Mão de obra</span>
+                  <span>{formatBrl(item.result.breakdown.labor)}</span>
+                </li>
+                <li>
+                  <span>Vidros</span>
+                  <span>{formatBrl(item.result.breakdown.glass)}</span>
+                </li>
+                <li>
+                  <span>Alumínios</span>
+                  <span>{formatBrl(item.result.breakdown.aluminum)}</span>
+                </li>
+                <li>
+                  <span>Ferragens</span>
+                  <span>{formatBrl(item.result.breakdown.hardware)}</span>
+                </li>
+                <li>
+                  <span>Acessórios</span>
+                  <span>{formatBrl(item.result.breakdown.accessories)}</span>
+                </li>
+                <li>
+                  <span>Adicionais do item</span>
+                  <span>{formatBrl(item.result.breakdown.extras)}</span>
+                </li>
+                <li>
+                  <span>Custo</span>
+                  <span>{formatBrl(item.result.breakdown.totalCost)}</span>
+                </li>
+                <li>
+                  <span>Margem ({(item.result.breakdown.markup * 100).toFixed(0)}%)</span>
+                  <span>{formatBrl(item.result.breakdown.marginAmount)}</span>
                 </li>
               </ul>
             </details>
@@ -387,7 +385,7 @@ export function App() {
               <div className="item-block__actions">
                 <button
                   type="button"
-                  className="btn link"
+                  className="btn link btn-edit"
                   onClick={() => setEditingItemId(item.id)}
                 >
                   Editar
@@ -418,7 +416,7 @@ export function App() {
             }}
           />
         )}
-      </section>
+      </CollapsibleSection>
 
       <AdditionalCostsSection
         costs={quote.additionalCosts}
@@ -506,9 +504,22 @@ function CustomerSection({
     }
   }
 
+  const hasCustomer = Boolean(
+    customer.name?.trim() ||
+      customer.phone?.trim() ||
+      customer.cep?.trim() ||
+      customer.street?.trim(),
+  )
+
   return (
-    <section className="section">
-      <h2>Cliente <span className="muted">(opcional)</span></h2>
+    <CollapsibleSection
+      title={
+        <>
+          Cliente <span className="muted">(opcional)</span>
+        </>
+      }
+      defaultOpen={!hasCustomer}
+    >
       <div className="grid">
         <label>
           Nome
@@ -625,7 +636,32 @@ function CustomerSection({
           {cepStatus === 'loading' ? 'Buscando CEP…' : cepMessage}
         </p>
       )}
-    </section>
+    </CollapsibleSection>
+  )
+}
+
+function CollapsibleSection({
+  title,
+  badge,
+  defaultOpen = false,
+  children,
+}: {
+  title: ReactNode
+  badge?: ReactNode
+  defaultOpen?: boolean
+  children: ReactNode
+}) {
+  return (
+    <details className="section collapsible-section" defaultOpen={defaultOpen}>
+      <summary className="collapsible-section__summary">
+        <span className="collapsible-section__heading">{title}</span>
+        {badge}
+        <span className="collapsible-section__chevron" aria-hidden>
+          ▾
+        </span>
+      </summary>
+      <div className="collapsible-section__body">{children}</div>
+    </details>
   )
 }
 
@@ -672,8 +708,11 @@ function AdditionalCostsSection({
   }
 
   return (
-    <section className="section">
-      <h2>Custos adicionais</h2>
+    <CollapsibleSection
+      title="Custos adicionais"
+      badge={<span className="pill">{costs.length}</span>}
+      defaultOpen
+    >
       <ul className="cost-list">
         {costs.map((c) => {
           const freight = isFreightCost(c)
@@ -726,6 +765,6 @@ function AdditionalCostsSection({
           </button>
         </div>
       )}
-    </section>
+    </CollapsibleSection>
   )
 }

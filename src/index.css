@@ -56,10 +56,17 @@ textarea {
   width: min(960px, 100%);
 }
 
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+.app-nav {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.55rem;
+  margin-bottom: 1.15rem;
+}
+
+.app-nav__btn {
+  font-size: 0.95rem;
+  padding: 0.85rem 0.65rem;
+  text-align: center;
 }
 
 .catalog-lede {
@@ -113,20 +120,36 @@ textarea {
   color: var(--muted);
   font-weight: 600;
   font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
   padding-top: 0.3rem;
   padding-bottom: 0.3rem;
 }
 
-/* Unidades SI ficam minúsculas mesmo com th uppercase */
 .catalog-table th .unit {
   text-transform: none;
+}
+
+.catalog-table .cell-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.catalog-table th.cell-num {
+  text-align: right;
+}
+
+.catalog-table .cell-money-barra .money-input {
+  width: 5.25rem;
+  max-width: 5.25rem;
 }
 
 .catalog-table .cell-desc {
   min-width: 12rem;
   max-width: 22rem;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  font-weight: 400;
+  color: rgba(232, 240, 234, 0.82);
 }
 
 .catalog-table .money-input {
@@ -358,8 +381,78 @@ label .percent-input .money-input {
   display: flex;
   gap: 0.75rem;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
+  padding-top: 0.85rem;
   animation: rise 0.35s ease both;
+}
+
+.topbar .brand-sm {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.topbar .title-sm {
+  font-size: 1.65rem;
+  line-height: 1.15;
+  margin: 0.2rem 0 0;
+}
+
+.topbar__titles {
+  min-width: 0;
+  flex: 1;
+}
+
+.topbar .title-sm--quote {
+  font-size: 1.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.collapsible-section {
+  padding-top: 0.65rem;
+}
+
+.collapsible-section__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  margin: 0 0 0.15rem;
+  padding-bottom: 0.35rem;
+}
+
+.collapsible-section__summary::-webkit-details-marker {
+  display: none;
+}
+
+.collapsible-section__heading {
+  font-size: 1rem;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+}
+
+.collapsible-section__chevron {
+  color: var(--muted);
+  font-size: 0.85rem;
+  transition: transform 0.15s ease;
+}
+
+.collapsible-section:not([open]) .collapsible-section__chevron {
+  transform: rotate(-90deg);
+}
+
+.collapsible-section:not([open]) .collapsible-section__summary {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.collapsible-section__body {
+  padding-top: 0.4rem;
 }
 
 .section {
@@ -436,6 +529,27 @@ textarea {
   border-radius: 10px;
   padding: 0.7rem 0.75rem;
   font-size: 1rem;
+  color: var(--text);
+}
+
+select {
+  /* fundo sólido: lista nativa herda melhor o tema escuro */
+  background-color: #152824;
+  color: #f3efe4;
+  color-scheme: dark;
+}
+
+select option,
+select optgroup {
+  background-color: #152824;
+  color: #f3efe4;
+}
+
+select option:checked,
+select option:hover,
+select option:focus {
+  background-color: #2a4f45;
+  color: #ffffff;
 }
 
 input:focus,
@@ -452,6 +566,13 @@ textarea:focus {
   padding: 0.75rem 1rem;
   cursor: pointer;
   font-weight: 600;
+}
+
+.btn.app-nav__btn--active {
+  background: #f2f4f1;
+  color: #121816;
+  border: 1px solid #e6e8e4;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
 }
 
 .btn.primary {
@@ -472,6 +593,11 @@ textarea:focus {
   border: none;
   background: transparent;
   padding: 0.35rem 0;
+}
+
+.btn.link.btn-edit {
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .btn.full {
@@ -533,10 +659,26 @@ textarea:focus {
 }
 
 .breakdown {
+  list-style: none;
   margin: 0.4rem 0 0;
-  padding-left: 1.1rem;
+  padding: 0;
   color: var(--muted);
   font-size: 0.85rem;
+}
+
+.breakdown li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.15rem 0;
+}
+
+.breakdown li span:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: rgba(232, 240, 234, 0.92);
 }
 
 .item-form {
