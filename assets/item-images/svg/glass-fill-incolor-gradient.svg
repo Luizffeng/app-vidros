@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="216" height="176" viewBox="0 0 216 176" aria-labelledby="title">
+  <title id="title">Vidro Incolor  padrao repetivel (gradiente leve)</title>
+  <defs>
+  <!--
+    Variante de teste: mesmo tile das faixas + gradiente suave no fundo.
+    Copiar pattern + linearGradient para diagramas se aprovado.
+  -->
+    <linearGradient id="glass-incolor-grad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="84" y2="56">
+      <stop offset="0%" stop-color="#C8EBFA"/>
+      <stop offset="100%" stop-color="#B5DFF5"/>
+    </linearGradient>
+
+    <pattern
+      id="glass-incolor-tile-gradient"
+      patternUnits="userSpaceOnUse"
+      width="84"
+      height="56"
+      patternTransform="rotate(32 42 28)"
+    >
+      <rect width="84" height="56" fill="url(#glass-incolor-grad)"/>
+      <g fill="#F0FAFE">
+        <rect x="7" y="-12" width="4" height="80"/>
+        <rect x="18" y="-12" width="18" height="80"/>
+      </g>
+    </pattern>
+  </defs>
+
+  <rect width="216" height="176" fill="url(#glass-incolor-tile-gradient)"/>
+</svg>
