@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" fill="none" aria-labelledby="title">
+  <title id="title">Porta Correr 4 Folhas</title>
+  <defs>
+    <symbol id="fechadura" viewBox="0 0 18 40">
+      <rect x="1" y="1" width="16" height="38" fill="currentColor"/>
+      <circle cx="9" cy="11" r="4" fill="#fff"/>
+      <circle cx="9" cy="28" r="2.2" fill="#fff"/>
+      <path d="M9 30.2 L6.2 36 L11.8 36 Z" fill="#fff"/>
+    </symbol>
+    <marker id="arrow-l" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 Z" fill="#000"/></marker>
+    <marker id="arrow-r" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#000"/></marker>
+  </defs>
+  <g color="#000" stroke="#000" stroke-width="2.5" stroke-linecap="square" fill="#fff">
+    <rect x="52" y="48" width="54" height="152"/><rect x="106" y="48" width="54" height="152"/>
+    <rect x="160" y="48" width="54" height="152"/><rect x="214" y="48" width="54" height="152"/>
+    <line x1="52" y1="32" x2="268" y2="32"/><line x1="52" y1="200" x2="268" y2="200"/><line x1="52" y1="208" x2="268" y2="208"/>
+    <line x1="106" y1="48" x2="106" y2="200" stroke-dasharray="6 5"/><line x1="214" y1="48" x2="214" y2="200" stroke-dasharray="6 5"/>
+    <line x1="145" y1="120" x2="118" y2="120" stroke-width="2" marker-end="url(#arrow-l)"/>
+    <line x1="175" y1="120" x2="202" y2="120" stroke-width="2" marker-end="url(#arrow-r)"/>
+    <circle cx="79" cy="36" r="3" fill="currentColor" stroke="none"/><circle cx="133" cy="36" r="3" fill="currentColor" stroke="none"/>
+    <circle cx="187" cy="36" r="3" fill="currentColor" stroke="none"/><circle cx="241" cy="36" r="3" fill="currentColor" stroke="none"/>
+    <use href="#fechadura" x="145" y="109" width="15" height="34"/><use href="#fechadura" x="199" y="109" width="15" height="34"/>
+  </g>
+</svg>

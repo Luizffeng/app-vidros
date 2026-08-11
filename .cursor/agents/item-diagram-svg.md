@@ -13,17 +13,17 @@ You create technical line-art SVG icons for glass/aluminum budget product types 
 
 ## Glass fill (Incolor)
 
-- Source of truth: `assets/item-images/svg/glass-fill-incolor.svg`
-- **Tileable pattern** `#glass-incolor-tile` (84×56, `patternTransform="rotate(32 42 28)"`)
-- Copy `<pattern>` into each item SVG `<defs>`; inside `clipPath`, use `<rect fill="url(#glass-incolor-tile)"/>` at any width/height — pattern repeats, clip crops
-- Do **not** use external `href` to the pattern file (breaks local preview)
-- Base `#ADDBF3`, stripes `#F0FAFE`, narrow (4px) + wide (18px) bands, angle ~32° via patternTransform
+- **Active:** `glass-fill-incolor-gradient.svg` — gradient `#C8EBFA`→`#A8D8F0` + `glass-incolor-stripes` pattern
+- **Fallback:** `glass-fill-incolor.svg` — flat tile `#glass-incolor-tile` (84×56)
+- In `-aluminio` diagrams: copy stripes pattern + per-pane `linearGradient`; clipPath with two rects (gradient, then stripes)
+- Do **not** use external `href` to pattern files
+- Stripes: `#F0FAFE`, 4px + 18px bands, `patternTransform="rotate(32 42 28)"`
 
 ## Canvas
 
 - `width="320" height="240" viewBox="0 0 320 240"`
 - Glass fill (black variant): `#fff`
-- Glass fill (Incolor in `-aluminio` items): `fill="url(#glass-incolor-tile)"` on clipped rect
+- Glass fill (Incolor in `-aluminio` items): gradient + stripes inside clipPath
 - Stroke width: `2.5`, `stroke-linecap="square"` on frame lines
 - Black ferragem/frame variant: `#000`
 - Aluminum ferragem/frame variant: `#9AA0A6`
@@ -64,18 +64,12 @@ Draw glass as filled rects **without stroke**. Frame as separate `<line>` groups
 - Bottom pivot: `10×8` rect at bottom-right of pivot panel
 - Use `fill="currentColor"` inside `<g color="...">` for ferragem color
 
-## Workflow
+## Item catalog
 
-1. Read approved reference in `assets/item-images/svg/` (start with `porta-pivotante-fixo.svg`)
-2. Create black variant first; get user approval
-3. Create `-aluminio` variant applying frame edge rules
-4. One item at a time until user approves
-5. Do not batch-generate items #3–9 without explicit approval
+All 9 items created (black + aluminio). Review with user before app integration.
 
-## Item catalog (pending)
-
-1. porta-pivotante-fixo — done
-2. porta-pivotante — review
+1. porta-pivotante-fixo
+2. porta-pivotante
 3. porta-correr-1f
 4. porta-correr-4f
 5. porta-correr-2f

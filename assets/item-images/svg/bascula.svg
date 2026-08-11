@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" fill="none" aria-labelledby="title">
+  <title id="title">Bascula</title>
+  <g color="#000" stroke="#000" stroke-width="2.5" stroke-linecap="square" fill="#fff">
+    <rect x="70" y="92" width="180" height="60"/>
+    <rect x="70" y="92" width="6" height="6" fill="currentColor" stroke="none"/>
+    <rect x="70" y="119" width="6" height="6" fill="currentColor" stroke="none"/>
+    <rect x="244" y="119" width="6" height="6" fill="currentColor" stroke="none"/>
+  </g>
+</svg>
