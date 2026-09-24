@@ -5,6 +5,7 @@ import {
   findAcessorio,
   findVidro,
   roundUp,
+  sumItemExtras,
 } from './math'
 
 /** Vidro temperado fixo (painel) — derived from sheet labor/glass rules */
@@ -30,7 +31,7 @@ export function priceFixo(catalog: Catalog, input: FixoInput): PricingResult {
     aluminum: 0,
     hardware: 0,
     accessories,
-    extras: input.extras || 0,
+    extras: sumItemExtras(input.extras),
     markup: input.markup,
   })
 
@@ -87,7 +88,7 @@ export function priceEspelho(
     aluminum: 0,
     hardware: 0,
     accessories: 0,
-    extras: input.extras || 0,
+    extras: sumItemExtras(input.extras),
     markup: input.markup,
   })
 

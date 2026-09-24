@@ -20,7 +20,7 @@ export async function generateQuotePdf(
   let y = margin
 
   const est = options?.settings?.establishment
-  const brandName = (est?.tradeName || est?.name || 'FORTE VIDROS').toUpperCase()
+  const brandName = (est?.tradeName || est?.name || 'Vidraçaria').toUpperCase()
   const logoDataUrl = options?.settings?.logoDataUrl
 
   let logoW = 0
@@ -44,14 +44,31 @@ export async function generateQuotePdf(
 
   const headerH = Math.max(32, logoH > 0 ? logoH + 12 : 32)
 
-  const line = (text: string, size = 11, style: 'normal' | 'bold' = 'normal') => {
+  const line = (text: string, size = 11, style: 'normal' | 'bold' = 'normal', indent = 0) => {
     doc.setFont('helvetica', style)
     doc.setFontSize(size)
     doc.setTextColor(30, 30, 30)
-    const lines = doc.splitTextToSize(text, pageW - margin * 2)
-    doc.text(lines, margin, y)
+    const lines = doc.splitTextToSize(text, pageW - margin * 2 - indent)
+    doc.text(lines, margin + indent, y)
     y += lines.length * (size * 0.45) + 2
-    if (y > 280) {
+    if (y > 248) {
+      doc.addPage()
+      y = margin
+    }
+  }
+
+  const lineRight = (left: string, right: string, size = 11, style: 'normal' | 'bold' = 'bold') => {
+    doc.setFont('helvetica', style)
+    doc.setFontSize(size)
+    doc.setTextColor(30, 30, 30)
+    const rightW = doc.getTextWidth(right)
+    const gap = 4
+    const leftMax = pageW - margin * 2 - rightW - gap
+    const lines = doc.splitTextToSize(left, Math.max(leftMax, 40))
+    doc.text(lines, margin, y)
+    doc.text(right, pageW - margin, y, { align: 'right' })
+    y += lines.length * (size * 0.45) + 2
+    if (y > 248) {
       doc.addPage()
       y = margin
     }
@@ -68,7 +85,7 @@ export async function generateQuotePdf(
     const valueLines = doc.splitTextToSize(value, pageW - margin * 2 - w)
     doc.text(valueLines, margin + w, y)
     y += valueLines.length * (11 * 0.45) + 2
-    if (y > 280) {
+    if (y > 248) {
       doc.addPage()
       y = margin
     }
@@ -142,8 +159,20 @@ export async function generateQuotePdf(
 
   line('Itens', 12, 'bold')
   quote.items.forEach((item, idx) => {
-    line(`${idx + 1}. ${customerFacingItemLabel(item.input)}`, 11, 'bold')
-    line(formatBrl(item.result.breakdown.finalPrice), 11)
+    lineRight(
+      `${idx + 1}. ${customerFacingItemLabel(item.input)}`,
+      formatBrl(item.result.breakdown.finalPrice),
+    )
+    if (item.input.kind !== 'custom') {
+      let extraIndex = 0
+      for (const extra of item.input.extras) {
+        const description = extra.description.trim()
+        if (!description || extra.amount <= 0) continue
+        const letter = String.fromCharCode(97 + extraIndex)
+        extraIndex += 1
+        line(`${idx + 1}.${letter}. Adicional: ${description} (${formatBrl(extra.amount)})`, 11, 'normal', 8)
+      }
+    }
     y += 1
   })
 
@@ -163,6 +192,9 @@ export async function generateQuotePdf(
   y += 8
   line(`Subtotal itens: ${formatBrl(quote.itemsTotal)}`, 11)
   line(`Adicionais: ${formatBrl(quote.additionalTotal)}`, 11)
+  if ((quote.discountTotal ?? 0) > 0) {
+    line(`Descontos: ${formatBrl(quote.discountTotal)}`, 11)
+  }
   line(`TOTAL: ${formatBrl(quote.grandTotal)}`, 14, 'bold')
 
   y += 8
@@ -172,15 +204,34 @@ export async function generateQuotePdf(
   )
 
   const estAddress = est ? formatEstablishmentAddress(est) : ''
+  const footerLines: { text: string; size: number; style: 'normal' | 'bold' }[] = []
   if (est && (estAddress || est.phone || est.email || est.name)) {
-    y += 6
-    doc.setDrawColor(200, 200, 200)
-    doc.line(margin, y, pageW - margin, y)
-    y += 6
-    line(est.tradeName || est.name, 9, 'bold')
-    if (estAddress) line(estAddress, 8)
+    footerLines.push({ text: est.tradeName || est.name, size: 9, style: 'bold' })
+    for (const part of estAddress.split('\n').filter(Boolean)) {
+      footerLines.push({ text: part, size: 8, style: 'normal' })
+    }
     const contact = [est.phone, est.email].filter(Boolean).join('  ·  ')
-    if (contact) line(contact, 8)
+    if (contact) footerLines.push({ text: contact, size: 8, style: 'normal' })
+  }
+  if (footerLines.length > 0) {
+    const lineH = (size: number) => size * 0.45 + 1.6
+    const blockH = footerLines.reduce((sum, row) => sum + lineH(row.size), 0)
+    const pageH = doc.internal.pageSize.getHeight()
+    const footerTop = pageH - margin - blockH
+    if (y > footerTop - 6) {
+      doc.addPage()
+    }
+    doc.setDrawColor(200, 200, 200)
+    doc.setLineWidth(0.2)
+    doc.line(margin, footerTop - 4, pageW - margin, footerTop - 4)
+    let fy = footerTop
+    for (const row of footerLines) {
+      doc.setFont('helvetica', row.style)
+      doc.setFontSize(row.size)
+      doc.setTextColor(30, 30, 30)
+      doc.text(row.text, margin, fy)
+      fy += lineH(row.size)
+    }
   }
 
   return doc.output('blob')
@@ -195,6 +246,20 @@ export function downloadBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(url)
 }
 
+/** Texto do orçamento: folha nativa no celular, WhatsApp no computador. */
+export async function shareQuoteText(text: string) {
+  const nav = navigator as Navigator & { share?: (data: ShareData) => Promise<void> }
+  if (typeof nav.share === 'function') {
+    try {
+      await nav.share({ title: 'Orçamento', text })
+      return
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') return
+    }
+  }
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer')
+}
+
 /** Web Share API quando disponível; senão download */
 export async function shareOrDownloadPdf(blob: Blob, filename: string) {
   const file = new File([blob], filename, { type: 'application/pdf' })
@@ -204,7 +269,7 @@ export async function shareOrDownloadPdf(blob: Blob, filename: string) {
   if (typeof nav.share === 'function' && (!nav.canShare || nav.canShare({ files: [file] }))) {
     try {
       await nav.share({
-        title: 'Forte Vidros — Orçamento',
+        title: 'Orçamento',
         text: filename.replace(/\.pdf$/i, ''),
         files: [file],
       })

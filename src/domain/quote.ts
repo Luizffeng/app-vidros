@@ -3,6 +3,7 @@ import type {
   AdditionalCost,
   Catalog,
   CustomerInfo,
+  ItemExtra,
   ItemInput,
   Quote,
   QuoteItem,
@@ -15,6 +16,48 @@ export const FREIGHT_LABEL = 'Frete'
 
 export function defaultFreightCost(): AdditionalCost {
   return { id: uuid(), label: FREIGHT_LABEL, amount: 0 }
+}
+
+function normalizeExtras(raw: unknown): ItemExtra[] {
+  if (typeof raw === 'number') {
+    if (!Number.isFinite(raw) || raw <= 0) return []
+    return [{ id: uuid(), description: 'Adicional', amount: raw }]
+  }
+  if (!Array.isArray(raw)) return []
+  return raw.flatMap((row) => {
+    if (!row || typeof row !== 'object') return []
+    const description = String((row as ItemExtra).description ?? '').trim()
+    const amount = Number((row as ItemExtra).amount)
+    if (!description || !Number.isFinite(amount) || amount < 0) return []
+    const id = String((row as ItemExtra).id || uuid())
+    return [{ id, description, amount }]
+  })
+}
+
+function normalizeCosts(raw: unknown): AdditionalCost[] {
+  if (!Array.isArray(raw)) return []
+  return raw.flatMap((row) => {
+    if (!row || typeof row !== 'object') return []
+    const label = String((row as AdditionalCost).label ?? '').trim()
+    const amount = Number((row as AdditionalCost).amount)
+    if (!label || !Number.isFinite(amount) || amount < 0) return []
+    return [{ id: String((row as AdditionalCost).id || uuid()), label, amount }]
+  })
+}
+
+export function normalizeQuote(quote: Quote): Quote {
+  const discounts = normalizeCosts(quote.discounts)
+  return withTotals({
+    ...quote,
+    discounts,
+    items: quote.items.map((item) => {
+      if (item.input.kind === 'custom') return item
+      return {
+        ...item,
+        input: { ...item.input, extras: normalizeExtras(item.input.extras) },
+      }
+    }),
+  })
 }
 
 export function isFreightCost(cost: AdditionalCost): boolean {
@@ -42,14 +85,16 @@ export function createEmptyDraft(
     customer: {},
     items: [],
     additionalCosts: [defaultFreightCost()],
+    discounts: [],
     pricingVersion,
     itemsTotal: 0,
     additionalTotal: 0,
+    discountTotal: 0,
     grandTotal: 0,
   }
 }
 
-export function recomputeTotals(quote: Quote): Quote {
+function withTotals(quote: Quote): Quote {
   const itemsTotal = quote.items.reduce(
     (sum, i) => sum + i.result.breakdown.finalPrice,
     0,
@@ -58,13 +103,22 @@ export function recomputeTotals(quote: Quote): Quote {
     (sum, c) => sum + c.amount,
     0,
   )
+  const discountTotal = (quote.discounts ?? []).reduce(
+    (sum, c) => sum + c.amount,
+    0,
+  )
   return {
     ...quote,
+    discounts: quote.discounts ?? [],
     itemsTotal,
     additionalTotal,
-    grandTotal: itemsTotal + additionalTotal,
-    updatedAt: new Date().toISOString(),
+    discountTotal,
+    grandTotal: itemsTotal + additionalTotal - discountTotal,
   }
+}
+
+export function recomputeTotals(quote: Quote): Quote {
+  return { ...withTotals(quote), updatedAt: new Date().toISOString() }
 }
 
 export function addItem(
@@ -108,6 +162,10 @@ export function setAdditionalCosts(
   return recomputeTotals({ ...quote, additionalCosts: costs })
 }
 
+export function setDiscounts(quote: Quote, discounts: AdditionalCost[]): Quote {
+  return recomputeTotals({ ...quote, discounts })
+}
+
 export function setCustomer(quote: Quote, customer: CustomerInfo): Quote {
   return { ...quote, customer, updatedAt: new Date().toISOString() }
 }
@@ -129,6 +187,9 @@ export function computeValidUntil(
 export function emitQuote(quote: Quote, validityDays: number = DEFAULT_VALIDITY_DAYS): Quote {
   if (quote.items.length === 0) {
     throw new Error('Adicione pelo menos um item para emitir o orçamento')
+  }
+  if (!quote.customer.name?.trim()) {
+    throw new Error('Informe o nome do cliente para emitir o orçamento')
   }
   const emittedAt = new Date().toISOString()
   return {
@@ -178,6 +239,55 @@ export function customerFacingItemLabel(input: ItemInput): string {
   }
 }
 
+export const DEFAULT_SHARE_CTA = 'Gostaria de realizar o pedido?'
+
+function shareItemBlock(item: QuoteItem, index: number): string {
+  const lines = [
+    `*${index + 1}. ${customerFacingItemLabel(item.input)}*`,
+    formatBrl(item.result.breakdown.finalPrice),
+  ]
+  if (item.input.kind !== 'custom') {
+    for (const extra of item.input.extras) {
+      const description = extra.description.trim()
+      if (!description || extra.amount <= 0) continue
+      lines.push(`• ${description} — ${formatBrl(extra.amount)}`)
+    }
+  }
+  return lines.join('\n')
+}
+
+/** Texto curto pra WhatsApp e folha de compartilhar. Sem endereço. */
+export function quoteShareText(
+  quote: Quote,
+  options?: { shopName?: string; cta?: string },
+): string {
+  const code = formatQuoteCode(quote.number, quote.revision)
+  const shop = options?.shopName?.trim() || 'Vidraçaria'
+  const client = quote.customer.name?.trim()
+  const cta = options?.cta?.trim() ?? ''
+  const items = quote.items.map((item, index) => shareItemBlock(item, index))
+  const additionals = quote.additionalCosts
+    .filter((cost) => cost.amount > 0 && cost.label.trim())
+    .map((cost) => `*${cost.label.trim()}* — ${formatBrl(cost.amount)}`)
+  const discountTotal = quote.discountTotal ?? 0
+  return [
+    `🪟 *${shop}*`,
+    `*Orçamento ${code}*`,
+    client || null,
+    '',
+    items.join('\n\n'),
+    additionals.length ? '' : null,
+    additionals.length ? additionals.join('\n') : null,
+    discountTotal > 0 ? '' : null,
+    discountTotal > 0 ? `*Desconto* — ${formatBrl(discountTotal)}` : null,
+    '',
+    `*Total ${formatBrl(quote.grandTotal)}*`,
+    ...(cta ? ['', cta] : []),
+  ]
+    .filter((line) => line !== null)
+    .join('\n')
+}
+
 export function formatBrl(value: number): string {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
@@ -187,18 +297,29 @@ export function formatQuoteCode(number: string, revision: number): string {
   return `${number}-${revision}`
 }
 
-/** Endereço legível p/ PDF e lista (structured + legado) */
+/** Duas linhas: rua/número/bairro e CEP/cidade/estado. */
+export function formatAddressLines(address: {
+  street?: string
+  number?: string
+  complement?: string
+  neighborhood?: string
+  city?: string
+  state?: string
+  cep?: string
+}): string {
+  const street = [address.street, address.number, address.complement].filter(Boolean).join(', ')
+  const place = [street, address.neighborhood].filter(Boolean).join(' — ')
+  const cepDigits = address.cep?.replace(/\D/g, '') ?? ''
+  const cep = cepDigits
+    ? `CEP ${cepDigits.replace(/^(\d{5})(\d{3})$/, '$1-$2')}`
+    : ''
+  const city = [address.city, address.state].filter(Boolean).join(' - ')
+  return [place, [cep, city].filter(Boolean).join(' · ')].filter(Boolean).join('\n')
+}
+
+/** Endereço do cliente no PDF. Legado sem campos fica numa linha. */
 export function formatCustomerAddress(customer: CustomerInfo): string {
-  const line1 = [customer.street, customer.number].filter(Boolean).join(', ')
-  const parts = [
-    line1,
-    customer.complement,
-    customer.neighborhood,
-    [customer.city, customer.state].filter(Boolean).join(' - '),
-    customer.cep
-      ? `CEP ${customer.cep.replace(/\D/g, '').replace(/^(\d{5})(\d{3})$/, '$1-$2')}`
-      : '',
-  ].filter(Boolean)
-  if (parts.length > 0) return parts.join(' · ')
+  const lines = formatAddressLines(customer)
+  if (lines) return lines
   return customer.address?.trim() || ''
 }

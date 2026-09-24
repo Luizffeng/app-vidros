@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import type { AppSettings, EstablishmentInfo } from '../domain/types'
+import { DEFAULT_LOGO_DATA_URL } from '../data/defaultLogo'
 import { normalizeSettings } from '../data/defaultSettings'
 import { fileToLogoDataUrl } from '../data/logo'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
@@ -103,7 +104,7 @@ export function SettingsEditor({
     <div className="shell shell--wide">
       <header className="topbar">
         <div>
-          <p className="brand-sm">Forte Vidros</p>
+          <p className="brand-sm">App Vidros</p>
           <h1 className="title-sm">Configurações</h1>
         </div>
       </header>
@@ -143,17 +144,17 @@ export function SettingsEditor({
             >
               {logoBusy ? 'Processando…' : draft.logoDataUrl ? 'Trocar logo' : 'Enviar logo'}
             </button>
-            {draft.logoDataUrl && (
+            {draft.logoDataUrl && draft.logoDataUrl !== DEFAULT_LOGO_DATA_URL && (
               <button
                 type="button"
                 className="btn danger"
                 disabled={busy}
                 onClick={() => {
-                  setDraft((d) => ({ ...d, logoDataUrl: undefined }))
-                  setMessage('Logo removida — salve as configurações.')
+                  setDraft((d) => ({ ...d, logoDataUrl: DEFAULT_LOGO_DATA_URL }))
+                  setMessage('Logo padrão restaurada — salve as configurações.')
                 }}
               >
-                Remover
+                Restaurar padrão
               </button>
             )}
             <p className="muted catalog-hint">
@@ -165,25 +166,33 @@ export function SettingsEditor({
 
       <section className="section">
         <h2>Orçamento</h2>
-        <div className="grid">
-          <label>
-            Validade padrão (dias)
-            <input
-              className="money-input"
-              inputMode="numeric"
-              value={String(draft.quoteValidityDays)}
-              onChange={(e) => {
-                const n = Number(e.target.value.replace(/\D/g, ''))
-                setDraft((d) => ({
-                  ...d,
-                  quoteValidityDays: Number.isFinite(n) && n >= 1 ? Math.min(n, 3650) : d.quoteValidityDays,
-                }))
-              }}
-            />
-          </label>
-        </div>
-        <p className="muted catalog-hint">
-          Data do orçamento + N dias. Gravada na emissão.
+        <label className="settings-field">
+          Validade padrão (dias)
+          <input
+            className="settings-days"
+            inputMode="numeric"
+            value={String(draft.quoteValidityDays)}
+            onChange={(e) => {
+              const n = Number(e.target.value.replace(/\D/g, ''))
+              setDraft((d) => ({
+                ...d,
+                quoteValidityDays: Number.isFinite(n) && n >= 1 ? Math.min(n, 3650) : d.quoteValidityDays,
+              }))
+            }}
+          />
+        </label>
+        <p className="field-hint">Data do orçamento + N dias. Gravada na emissão.</p>
+        <label className="settings-field">
+          Chamada no WhatsApp
+          <textarea
+            rows={2}
+            maxLength={180}
+            value={draft.shareCta}
+            onChange={(e) => setDraft((d) => ({ ...d, shareCta: e.target.value }))}
+          />
+        </label>
+        <p className="field-hint">
+          Última linha da mensagem. Vazio, a linha sai do WhatsApp.
         </p>
       </section>
 

@@ -7,6 +7,7 @@ import {
   findAcessorio,
   findVidro,
   roundUp,
+  sumItemExtras,
 } from './math'
 
 export function priceMaxiar(catalog: Catalog, input: MaxiarInput): PricingResult {
@@ -92,7 +93,7 @@ export function priceMaxiar(catalog: Catalog, input: MaxiarInput): PricingResult
     aluminum: aluminumRaw * (1 + surcharge),
     hardware: hardwareRaw * (1 + surcharge),
     accessories,
-    extras: input.extras || 0,
+    extras: sumItemExtras(input.extras),
     markup: input.markup,
   })
 

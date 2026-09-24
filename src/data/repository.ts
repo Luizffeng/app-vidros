@@ -1,10 +1,13 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
+import { getSupabase } from './supabaseClient'
+import { SupabaseQuoteRepository } from './supabaseRepository'
+import { normalizeQuote } from '../domain/quote'
 import type { AppSettings, Catalog, Quote, QuoteRepository } from '../domain/types'
 import { normalizeCatalog } from './catalogItems'
 import { defaultSettings, normalizeSettings } from './defaultSettings'
 import { loadSeedCatalog } from './seedCatalog'
 
-interface ForteVidrosDB extends DBSchema {
+interface AppVidrosDB extends DBSchema {
   quotes: {
     key: string
     value: Quote
@@ -20,12 +23,13 @@ interface ForteVidrosDB extends DBSchema {
   }
 }
 
+// Nome legado: trocar abre banco vazio e esconde os dados locais já gravados.
 const DB_NAME = 'forte-vidros'
 const DB_VERSION = 1
 const SETTINGS_KEY = 'app-settings'
 
-async function getDb(): Promise<IDBPDatabase<ForteVidrosDB>> {
-  return openDB<ForteVidrosDB>(DB_NAME, DB_VERSION, {
+async function getDb(): Promise<IDBPDatabase<AppVidrosDB>> {
+  return openDB<AppVidrosDB>(DB_NAME, DB_VERSION, {
     upgrade(db) {
       if (!db.objectStoreNames.contains('quotes')) {
         const store = db.createObjectStore('quotes', { keyPath: 'id' })
@@ -49,12 +53,13 @@ export class LocalQuoteRepository implements QuoteRepository {
   async listQuotes(): Promise<Quote[]> {
     const db = await getDb()
     const all = await db.getAll('quotes')
-    return all.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    return all.map(normalizeQuote).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
   }
 
   async getQuote(id: string): Promise<Quote | null> {
     const db = await getDb()
-    return (await db.get('quotes', id)) ?? null
+    const quote = await db.get('quotes', id)
+    return quote ? normalizeQuote(quote) : null
   }
 
   async saveQuote(quote: Quote): Promise<void> {
@@ -127,7 +132,9 @@ export class LocalQuoteRepository implements QuoteRepository {
 
 type PricingConfigLegacy = { quoteValidityDays?: number }
 
-/** Factory — change here when remote backend is ready */
+/** Remoto quando as env do Supabase existem. Sem elas, IndexedDB local. */
 export function createRepository(): QuoteRepository {
+  const supabase = getSupabase()
+  if (supabase) return new SupabaseQuoteRepository(supabase)
   return new LocalQuoteRepository()
 }

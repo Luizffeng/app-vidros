@@ -53,6 +53,8 @@ export interface AppSettings {
   establishment: EstablishmentInfo
   /** Data URL da logo (PNG/JPEG) — usado no PDF */
   logoDataUrl?: string
+  /** Última linha da mensagem enviada no WhatsApp */
+  shareCta: string
 }
 
 /** ativo omitido ou true = disponível no cálculo; false = desativado */
@@ -111,6 +113,12 @@ export interface BomLine {
   category: 'vidro' | 'aluminio' | 'ferragem' | 'acessorio' | 'outro'
 }
 
+export interface ItemExtra {
+  id: string
+  description: string
+  amount: number
+}
+
 export interface CostBreakdown {
   labor: number
   glass: number
@@ -139,7 +147,7 @@ export interface BoxInput {
   glassColor: string
   profileColor: string
   markup: number
-  extras: number
+  extras: ItemExtra[]
 }
 
 export interface CorrerInput {
@@ -151,7 +159,7 @@ export interface CorrerInput {
   thicknessMm: string
   profileColor: string
   markup: number
-  extras: number
+  extras: ItemExtra[]
 }
 
 export interface PivotanteInput {
@@ -163,7 +171,7 @@ export interface PivotanteInput {
   profileColor: string
   hasLatch: boolean
   markup: number
-  extras: number
+  extras: ItemExtra[]
 }
 
 export interface MaxiarInput {
@@ -174,7 +182,7 @@ export interface MaxiarInput {
   thicknessMm: string
   profileColor: string
   markup: number
-  extras: number
+  extras: ItemExtra[]
 }
 
 export interface FixoInput {
@@ -184,7 +192,7 @@ export interface FixoInput {
   glassColor: string
   thicknessMm: string
   markup: number
-  extras: number
+  extras: ItemExtra[]
 }
 
 export interface EspelhoInput {
@@ -195,7 +203,7 @@ export interface EspelhoInput {
   glassColor: string
   thicknessMm: string
   markup: number
-  extras: number
+  extras: ItemExtra[]
 }
 
 export interface CustomInput {
@@ -257,9 +265,11 @@ export interface Quote {
   customer: CustomerInfo
   items: QuoteItem[]
   additionalCosts: AdditionalCost[]
+  discounts: AdditionalCost[]
   pricingVersion: string
   itemsTotal: number
   additionalTotal: number
+  discountTotal: number
   grandTotal: number
 }
 

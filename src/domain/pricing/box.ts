@@ -6,6 +6,7 @@ import {
   findKitBox,
   findVidro,
   nearestKitSize,
+  sumItemExtras,
 } from './math'
 
 export function priceBox(catalog: Catalog, input: BoxInput): PricingResult {
@@ -30,7 +31,7 @@ export function priceBox(catalog: Catalog, input: BoxInput): PricingResult {
   const glass = (fixedGlass + movingGlass) * height * (vidro.valorM2 ?? 0)
   const kitCost = kit.valor ?? 0
   const siliconeCost = silicone.valor * config.boxSiliconeQty
-  const extras = input.extras || 0
+  const extras = sumItemExtras(input.extras)
 
   const breakdown = buildBreakdown({
     labor,

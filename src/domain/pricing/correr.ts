@@ -7,6 +7,7 @@ import {
   findAluminio,
   findVidro,
   roundUp,
+  sumItemExtras,
 } from './math'
 
 function is2F(subtype: string) {
@@ -195,7 +196,7 @@ export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult
     aluminum,
     hardware,
     accessories,
-    extras: input.extras || 0,
+    extras: sumItemExtras(input.extras),
     markup: input.markup,
   })
 

@@ -76,6 +76,12 @@ export function findKitBox(catalog: Catalog, cor: string, tamanhoCm: number) {
   return match
 }
 
+export function sumItemExtras(extras: { amount: number }[] | number | undefined): number {
+  if (typeof extras === 'number') return Number.isFinite(extras) ? extras : 0
+  if (!Array.isArray(extras)) return 0
+  return extras.reduce((sum, row) => sum + (Number(row.amount) || 0), 0)
+}
+
 export function buildBreakdown(parts: {
   labor: number
   glass: number

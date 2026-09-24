@@ -23,7 +23,7 @@ describe('pricing parity with spreadsheet examples', () => {
       glassColor: 'Incolor',
       profileColor: 'Fosco',
       markup: 0.3,
-      extras: 0,
+      extras: [],
     })
     expect(r.breakdown.labor).toBeCloseTo(159.6, 2)
     expect(r.breakdown.glass).toBeCloseTo(361.70395, 2)
@@ -40,7 +40,7 @@ describe('pricing parity with spreadsheet examples', () => {
       glassColor: 'Incolor',
       profileColor: 'Fosco',
       markup: 0.3,
-      extras: 0,
+      extras: [],
     })
     expect(r.breakdown.labor).toBeCloseTo(136.8, 2)
     expect(r.breakdown.glass).toBeCloseTo(311.81375, 2)
@@ -57,7 +57,7 @@ describe('pricing parity with spreadsheet examples', () => {
       glassColor: 'Incolor',
       profileColor: 'Preto',
       markup: 0.3,
-      extras: 0,
+      extras: [],
     })
     expect(r.breakdown.hardware).toBeCloseTo(156.81, 2)
     expect(r.breakdown.finalPrice).toBeCloseTo(920.548135, 2)
@@ -73,7 +73,7 @@ describe('pricing parity with spreadsheet examples', () => {
       thicknessMm: '06',
       profileColor: 'Fosco',
       markup: 0.3,
-      extras: 0,
+      extras: [],
     })
     expect(r.breakdown.labor).toBeCloseTo(67.5, 1)
     expect(r.breakdown.glass).toBeCloseTo(219.744, 1)
@@ -90,7 +90,7 @@ describe('pricing parity with spreadsheet examples', () => {
       thicknessMm: '08',
       profileColor: 'Fosco',
       markup: 0.3,
-      extras: 0,
+      extras: [],
     })
     expect(r.breakdown.labor).toBeCloseTo(54, 1)
     expect(r.breakdown.glass).toBeCloseTo(170.19, 2)
@@ -108,7 +108,7 @@ describe('pricing parity with spreadsheet examples', () => {
       thicknessMm: '08',
       profileColor: 'Branco',
       markup: 0.3,
-      extras: 0,
+      extras: [],
     })
     expect(r.breakdown.labor).toBeCloseTo(85.5, 1)
     expect(r.breakdown.glass).toBeCloseTo(330.2802, 2)
@@ -125,7 +125,7 @@ describe('pricing parity with spreadsheet examples', () => {
       profileColor: 'Fosco',
       hasLatch: true,
       markup: 0.3,
-      extras: 25,
+      extras: [{ id: 'extra', description: 'Adicional', amount: 25 }],
     })
     expect(r.breakdown.labor).toBeCloseTo(81, 1)
     expect(r.breakdown.glass).toBeCloseTo(245.52, 1)
@@ -142,7 +142,7 @@ describe('pricing parity with spreadsheet examples', () => {
       profileColor: 'Fosco',
       hasLatch: false,
       markup: 0.3,
-      extras: 0,
+      extras: [],
     })
     expect(r.breakdown.labor).toBeCloseTo(76.5, 1)
     expect(r.breakdown.glass).toBeCloseTo(234.36, 2)
@@ -159,7 +159,7 @@ describe('pricing parity with spreadsheet examples', () => {
       thicknessMm: '08',
       profileColor: 'Fosco',
       markup: 0.5,
-      extras: 0,
+      extras: [],
     })
     expect(r.breakdown.labor).toBeCloseTo(60, 1)
     expect(r.breakdown.glass).toBeCloseTo(49.941, 2)
@@ -174,13 +174,13 @@ describe('pricing parity with spreadsheet examples', () => {
       glassColor: 'Incolor',
       thicknessMm: '08',
       markup: 0.3,
-      extras: 0,
+      extras: [],
     })
     expect(r.breakdown.glass).toBeCloseTo(34.875, 3)
     expect(r.breakdown.labor).toBeCloseTo(9, 2)
     expect(r.breakdown.accessories).toBeCloseTo(20, 2)
     expect(r.breakdown.finalPrice).toBeCloseTo(83.0375, 3)
-    expect(r.notes.some((n) => n.includes('0,25'))).toBe(true)
+    expect((r.notes ?? []).some((n) => n.includes('0,25'))).toBe(true)
   })
 
   it('vidro fixo large Verde 10', () => {
@@ -191,7 +191,7 @@ describe('pricing parity with spreadsheet examples', () => {
       glassColor: 'Verde',
       thicknessMm: '10',
       markup: 0.3,
-      extras: 0,
+      extras: [],
     })
     expect(r.breakdown.glass).toBeCloseTo(482.76, 2)
     expect(r.breakdown.labor).toBeCloseTo(81, 1)
@@ -207,7 +207,7 @@ describe('pricing parity with spreadsheet examples', () => {
       glassColor: 'Prata',
       thicknessMm: '04',
       markup: 0.3,
-      extras: 0,
+      extras: [],
     })
     expect(r.kind).toBe('espelho')
     expect(r.breakdown.glass).toBeCloseTo(112.176, 3)
@@ -274,7 +274,7 @@ describe('inactive catalog items', () => {
         glassColor: 'Incolor',
         profileColor: 'Fosco',
         markup: 0.3,
-        extras: 0,
+        extras: [],
       }),
     ).toThrow(/Kit Box sem preço/)
   })

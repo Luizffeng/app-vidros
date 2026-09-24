@@ -7,6 +7,7 @@ import {
   findAluminio,
   findVidro,
   roundUp,
+  sumItemExtras,
 } from './math'
 
 export function pricePivotante(
@@ -109,7 +110,7 @@ export function pricePivotante(
     aluminum: aluminumRaw * (1 + surcharge),
     hardware: hardwareRaw * (1 + surcharge),
     accessories,
-    extras: input.extras || 0,
+    extras: sumItemExtras(input.extras),
     markup: input.markup,
   })
 

@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   downloadCatalogJson,
   isCatalogItemActive,
@@ -8,7 +7,6 @@ import {
 } from '../data/catalogItems'
 import { normalizeCatalog } from '../data/catalogItems'
 import { loadSeedCatalog } from '../data/seedCatalog'
-import { formatBrl } from '../domain/quote'
 import type {
   Acessorio,
   Aluminio,
@@ -18,6 +16,7 @@ import type {
   Vidro,
 } from '../domain/types'
 import { AppNav, type AppSection } from './AppNav'
+import { Modal } from './Modal'
 
 type Tab = 'vidros' | 'kitBox' | 'acessorios' | 'aluminios' | 'config'
 
@@ -154,7 +153,7 @@ export function CatalogEditor({
     <div className="shell shell--wide">
       <header className="topbar">
         <div>
-          <p className="brand-sm">Forte Vidros</p>
+          <p className="brand-sm">App Vidros</p>
           <h1 className="title-sm">Catálogo</h1>
         </div>
       </header>
@@ -189,13 +188,14 @@ export function CatalogEditor({
         </div>
         {tab !== 'config' && (
           <>
+            <div className="catalog-search-row">
             <input
               className="catalog-search"
               placeholder="Buscar código, tipo, cor…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <div className="kind-grid">
+            <div className="kind-grid catalog-filters">
               <button
                 type="button"
                 className={`chip${!showInactive ? ' active' : ''}`}
@@ -210,6 +210,7 @@ export function CatalogEditor({
               >
                 Incluir inativos
               </button>
+            </div>
             </div>
           </>
         )}
@@ -381,74 +382,6 @@ function setAtivo<T extends { id: number; ativo?: boolean }>(
   ativo: boolean,
 ): T[] {
   return rows.map((r) => (r.id === id ? { ...r, ativo } : r))
-}
-
-function Modal({
-  title,
-  onClose,
-  children,
-}: {
-  title: string
-  onClose: () => void
-  children: ReactNode
-}) {
-  const panelRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const scrollY = window.scrollY
-    const { body } = document
-    const prevOverflow = body.style.overflow
-    const prevPosition = body.style.position
-    const prevTop = body.style.top
-    const prevWidth = body.style.width
-
-    body.style.overflow = 'hidden'
-    body.style.position = 'fixed'
-    body.style.top = `-${scrollY}px`
-    body.style.width = '100%'
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', onKey)
-
-    // Foco no campo do formulário, sem scroll da página de fundo
-    const focusable = panelRef.current?.querySelector<HTMLElement>(
-      '.modal__body input:not([type="hidden"]), .modal__body select, .modal__body textarea',
-    )
-    focusable?.focus({ preventScroll: true })
-
-    return () => {
-      window.removeEventListener('keydown', onKey)
-      body.style.overflow = prevOverflow
-      body.style.position = prevPosition
-      body.style.top = prevTop
-      body.style.width = prevWidth
-      window.scrollTo(0, scrollY)
-    }
-  }, [onClose])
-
-  return createPortal(
-    <div className="modal-backdrop" role="presentation" onClick={onClose}>
-      <div
-        ref={panelRef}
-        className="modal"
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal__head">
-          <h3>{title}</h3>
-          <button type="button" className="btn ghost" onClick={onClose}>
-            Fechar
-          </button>
-        </div>
-        <div className="modal__body">{children}</div>
-      </div>
-    </div>,
-    document.body,
-  )
 }
 
 function VidrosTable({
