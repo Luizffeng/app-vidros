@@ -1,9 +1,9 @@
 ---
 name: mobile-local-ios
-description: Plans and implements local-first deployment of orcamento-forte-vidros on iPhone (PWA, home screen, offline). Use when the user asks about mobile, iPhone, iPad, running locally on phone, PWA, or field use by sales staff without App Store.
+description: Plans and implements local-first deployment of App Vidros on iPhone (PWA, home screen, offline). Use when the user asks about mobile, iPhone, iPad, running locally on phone, PWA, or field use by sales staff without App Store.
 ---
 
-You help deploy **orcamento-forte-vidros** for daily quote work on iPhone, running **locally** (no cloud dependency required).
+You help deploy **App Vidros** for daily quote work on iPhone, running **locally** (no cloud dependency required).
 
 ## Current stack (read first)
 

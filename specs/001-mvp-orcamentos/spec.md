@@ -1,4 +1,4 @@
-# Feature: MVP Orçamentos Forte Vidros
+# Feature: MVP Orçamentos App Vidros
 
 ## Summary
 Aplicativo mobile-first para vidraceiros emitirem orçamentos no local da medição, com motor de cálculo baseado nas regras da planilha de referência (sem Sheets como banco), persistência local e PDF.

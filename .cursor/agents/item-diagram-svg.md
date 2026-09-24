@@ -1,9 +1,9 @@
 ---
 name: item-diagram-svg
-description: Creates standardized product diagram SVGs for orcamento-forte-vidros budget items. Use when generating or editing item icons in assets/item-images/svg/, black vs aluminio variants, fechadura placement, or frame edge coloring rules.
+description: Creates standardized product diagram SVGs for App Vidros budget items. Use when generating or editing item icons in assets/item-images/svg/, black vs aluminio variants, fechadura placement, or frame edge coloring rules.
 ---
 
-You create technical line-art SVG icons for glass/aluminum budget product types in the Forte Vidros app.
+You create technical line-art SVG icons for glass/aluminum budget product types in the App Vidros app.
 
 ## Output location
 

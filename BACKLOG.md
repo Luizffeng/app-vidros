@@ -1,4 +1,4 @@
-# Backlog — Forte Vidros
+# Backlog — App Vidros
 
 Arquivo vivo. Atualizar ao puxar/fechar item. Specs detalhadas ficam em `specs/`.
 
@@ -24,8 +24,8 @@ Arquivo vivo. Atualizar ao puxar/fechar item. Specs detalhadas ficam em `specs/`
 - [ ] Responsividade fina (~390px) e ajustes de campo
 - [ ] PWA: install, cache, uso offline
 - [ ] Web Share / atalhos mobile (base Web Share já no PDF desktop/mobile quando o browser permitir)
-- [ ] Adapter remoto (`QuoteRepository`) + sync
-- [ ] Login / multi-usuário (fora do MVP original)
+- [ ] Botão admin "enviar dados deste navegador" (IndexedDB local → Supabase)
+- [ ] Code-split do bundle (jsPDF/html2canvas sob demanda)
 
 ## Explicitamente fora (por enquanto)
 
@@ -33,6 +33,11 @@ Arquivo vivo. Atualizar ao puxar/fechar item. Specs detalhadas ficam em `specs/`
 - App nativo (iOS/Android)
 
 ## Done
+
+- [x] **v1.0.0** — Supabase (Postgres + Auth + Storage da logo) atrás de `QuoteRepository`, login e-mail/senha, papéis admin/vendedor com RLS, deploy Cloudflare Pages
+- [x] Excluir rascunho (emitido segue imutável); nome do cliente obrigatório para emitir
+- [x] Lista em grade com filtro Todos / Emitidos / Rascunhos
+- [x] Prévia do WhatsApp com copiar texto
 
 - [x] MVP orçamentos local (IndexedDB) + motor pricing + PDF
 - [x] Constitution + Spec Kit 001

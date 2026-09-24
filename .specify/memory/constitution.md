@@ -1,14 +1,14 @@
 <!--
 Sync Impact Report
 - Version change: (template) → 1.0.0
-- Modified principles: placeholders → Forte Vidros principles
+- Modified principles: placeholders → App Vidros principles
 - Added sections: Persistence Strategy, Product Constraints
 - Removed sections: none
 - Templates: ⚠ pending alignment during plan/spec
 - Follow-up: none
 -->
 
-# Forte Vidros — Constitution
+# App Vidros — Constitution
 
 ## Core Principles
 
