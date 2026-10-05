@@ -97,6 +97,24 @@ textarea {
   margin-bottom: 0;
 }
 
+.catalog-kind .dropdown__button {
+  width: 100%;
+  height: 3rem;
+  min-height: 48px;
+  border-radius: 12px;
+  font-size: 1.05rem;
+}
+
+.catalog-kind .dropdown__value {
+  flex: 1;
+  text-align: left;
+}
+
+.catalog-kind .dropdown__list {
+  left: 0;
+  right: auto;
+}
+
 .catalog-section {
   overflow: hidden;
 }

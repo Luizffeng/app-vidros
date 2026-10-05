@@ -16,12 +16,12 @@ import { SearchField } from './SearchField'
 
 type Tab = 'vidros' | 'kitBox' | 'acessorios' | 'aluminios' | 'config'
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'vidros', label: 'Vidros' },
-  { id: 'kitBox', label: 'Kit Box' },
-  { id: 'acessorios', label: 'Acessórios' },
-  { id: 'aluminios', label: 'Alumínios' },
-  { id: 'config', label: 'Mão de obra / margem' },
+const TABS: { value: Tab; label: string }[] = [
+  { value: 'vidros', label: 'Vidros' },
+  { value: 'kitBox', label: 'Kit Box' },
+  { value: 'acessorios', label: 'Acessórios' },
+  { value: 'aluminios', label: 'Alumínios' },
+  { value: 'config', label: 'Mão de obra / margem' },
 ]
 
 const MARGIN_LABELS: Record<keyof PricingConfig['defaultMarkup'], string> = {
@@ -142,23 +142,16 @@ export function CatalogEditor({
       {message && !error && <div className="banner ok">{message}</div>}
 
       <div className="catalog-toolbar">
-        <div className="kind-grid" role="tablist" aria-label="Tabelas do catálogo">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={tab === t.id}
-              className={`chip${tab === t.id ? ' active' : ''}`}
-              onClick={() => {
-                setTab(t.id)
-                setQuery('')
-              }}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+        <Dropdown
+          className="catalog-kind"
+          label="Tabela do catálogo"
+          value={tab}
+          onChange={(next) => {
+            setTab(next)
+            setQuery('')
+          }}
+          options={TABS}
+        />
         {tab !== 'config' && (
           <div className="list-filters catalog-filters">
             <SearchField
