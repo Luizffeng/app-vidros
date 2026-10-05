@@ -242,8 +242,12 @@ export function downloadBlob(blob: Blob, filename: string) {
   const a = document.createElement('a')
   a.href = url
   a.download = filename
+  a.rel = 'noopener'
+  document.body.appendChild(a)
   a.click()
-  URL.revokeObjectURL(url)
+  a.remove()
+  // Safari/Firefox ainda leem a URL depois do click; revogar na hora cancela o download.
+  window.setTimeout(() => URL.revokeObjectURL(url), 10_000)
 }
 
 /** Texto do orçamento: folha nativa no celular, WhatsApp no computador. */
@@ -260,23 +264,36 @@ export async function shareQuoteText(text: string) {
   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer')
 }
 
-/** Web Share API quando disponível; senão download */
-export async function shareOrDownloadPdf(blob: Blob, filename: string) {
-  const file = new File([blob], filename, { type: 'application/pdf' })
+/**
+ * Compartilha o arquivo PDF pela Web Share API; senão baixa.
+ * Não faça `await` antes de chamar no click: o Safari exige `navigator.share` dentro do
+ * gesto do usuário (NotAllowedError cai no download).
+ */
+export async function shareOrDownloadPdf(
+  blob: Blob,
+  filename: string,
+): Promise<'shared' | 'cancelled' | 'downloaded'> {
   const nav = navigator as Navigator & {
     canShare?: (data?: ShareData) => boolean
   }
-  if (typeof nav.share === 'function' && (!nav.canShare || nav.canShare({ files: [file] }))) {
+  if (typeof nav.share === 'function' && typeof nav.canShare === 'function') {
+    const file = new File([blob], filename, { type: 'application/pdf' })
+    const data: ShareData = { title: filename.replace(/\.pdf$/i, ''), files: [file] }
+    let canShareFiles = false
     try {
-      await nav.share({
-        title: 'Orçamento',
-        text: filename.replace(/\.pdf$/i, ''),
-        files: [file],
-      })
-      return
-    } catch (e) {
-      if (e instanceof DOMException && e.name === 'AbortError') return
+      canShareFiles = nav.canShare(data)
+    } catch {
+      canShareFiles = false
+    }
+    if (canShareFiles) {
+      try {
+        await nav.share(data)
+        return 'shared'
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'AbortError') return 'cancelled'
+      }
     }
   }
   downloadBlob(blob, filename)
+  return 'downloaded'
 }

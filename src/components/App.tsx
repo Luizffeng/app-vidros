@@ -28,11 +28,17 @@ import {
 import { useAccess } from '../auth/access'
 import { createRepository } from '../data/repository'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
-import { downloadBlob, generateQuotePdf, shareQuoteText } from '../pdf/generateQuotePdf'
+import {
+  downloadBlob,
+  generateQuotePdf,
+  shareOrDownloadPdf,
+  shareQuoteText,
+} from '../pdf/generateQuotePdf'
 import { CatalogEditor } from './CatalogEditor'
 import { AppNav, type AppSection } from './AppNav'
 import { ITEM_KINDS, ItemForm } from './ItemForm'
 import { Modal } from './Modal'
+import { PdfPreview } from './PdfPreview'
 import { SettingsEditor } from './SettingsEditor'
 
 const repo = createRepository()
@@ -55,7 +61,8 @@ export function App() {
   const [itemModal, setItemModal] = useState<
     null | { mode: 'pick' } | { mode: 'create'; kind: ProductKind } | { mode: 'edit'; id: string }
   >(null)
-  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null)
+  const [pdfPreviewBlob, setPdfPreviewBlob] = useState<Blob | null>(null)
+  const pdfCacheRef = useRef<{ key: string; promise: Promise<Blob>; blob?: Blob } | null>(null)
   const [shareText, setShareText] = useState<string | null>(null)
   const [listQuery, setListQuery] = useState('')
   const [listStatus, setListStatus] = useState<'all' | 'emitted' | 'draft'>('all')
@@ -214,23 +221,56 @@ export function App() {
       settings: settings ?? undefined,
     })
 
-  const closePdfPreview = () => {
-    setPdfPreviewUrl((url) => {
-      if (url) URL.revokeObjectURL(url)
-      return null
-    })
+  const settingsPdfKey = useMemo(() => JSON.stringify(settings), [settings])
+  const pdfCacheKey = (q: Quote) =>
+    `${q.id}|${q.revision}|${q.status}|${q.updatedAt}|${settingsPdfKey}`
+  const emittedPdfKey =
+    quote && quote.status === 'emitted' && quote.items.length > 0 && settings
+      ? pdfCacheKey(quote)
+      : null
+
+  /** Só orçamentos emitidos (imutáveis) entram no cache; rascunho sempre gera de novo. */
+  const getPdfBlob = (q: Quote): Promise<Blob> => {
+    if (q.status !== 'emitted') return buildPdfBlob(q)
+    const key = pdfCacheKey(q)
+    const cached = pdfCacheRef.current
+    if (cached?.key === key) return cached.promise
+    const entry: { key: string; promise: Promise<Blob>; blob?: Blob } = {
+      key,
+      promise: buildPdfBlob(q),
+    }
+    pdfCacheRef.current = entry
+    entry.promise.then(
+      (blob) => {
+        entry.blob = blob
+      },
+      () => {
+        if (pdfCacheRef.current === entry) pdfCacheRef.current = null
+      },
+    )
+    return entry.promise
   }
+
+  const readyPdfBlob = (q: Quote): Blob | null => {
+    const cached = pdfCacheRef.current
+    return q.status === 'emitted' && cached?.key === pdfCacheKey(q) ? (cached.blob ?? null) : null
+  }
+
+  // Pré-gera o PDF do emitido: o Safari só aceita navigator.share logo no gesto do click.
+  useEffect(() => {
+    if (!emittedPdfKey || !quote) return
+    void getPdfBlob(quote).catch(() => undefined)
+    // emittedPdfKey já cobre quote + settings.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [emittedPdfKey])
+
+  const closePdfPreview = () => setPdfPreviewBlob(null)
 
   const onPreviewPdf = async () => {
     if (!quote) return
     try {
       setBusy(true)
-      const blob = await buildPdfBlob(quote)
-      const url = URL.createObjectURL(blob)
-      setPdfPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev)
-        return url
-      })
+      setPdfPreviewBlob(await getPdfBlob(quote))
       setError(null)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -243,8 +283,27 @@ export function App() {
     if (!quote) return
     try {
       setBusy(true)
-      const blob = await buildPdfBlob(quote)
+      const blob = await getPdfBlob(quote)
       downloadBlob(blob, pdfFilename(quote))
+      setError(null)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const onSharePdf = async () => {
+    if (!quote) return
+    const filename = pdfFilename(quote)
+    const ready = readyPdfBlob(quote)
+    try {
+      if (ready) {
+        await shareOrDownloadPdf(ready, filename)
+      } else {
+        setBusy(true)
+        await shareOrDownloadPdf(await getPdfBlob(quote), filename)
+      }
       setError(null)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -738,9 +797,14 @@ export function App() {
             onClick={() => void onDownloadPdf()}
           />
           <ActionButton
-            label="Enviar"
-            hint={pdfShareHint(readOnly, quote.items.length === 0, 'enviar')}
+            label="Compartilhar"
+            hint={pdfShareHint(readOnly, quote.items.length === 0, 'compartilhar')}
             className="primary"
+            disabled={busy || !readOnly || quote.items.length === 0}
+            onClick={() => void onSharePdf()}
+          />
+          <ShareTextButton
+            hint={pdfShareHint(readOnly, quote.items.length === 0, 'enviar')}
             disabled={busy || !readOnly || quote.items.length === 0}
             onClick={openSharePreview}
           />
@@ -748,11 +812,10 @@ export function App() {
       </footer>
       </section>
 
-      {pdfPreviewUrl && (
+      {pdfPreviewBlob && (
         <Modal className="modal--pdf" title="Prévia do PDF" onClose={closePdfPreview}>
-          <iframe title="Prévia do orçamento" src={pdfPreviewUrl} />
+          <PdfPreview data={pdfPreviewBlob} />
           <div className="modal__actions modal__actions--pdf">
-            <ActionButton label="Fechar" hint="Fechar a prévia." onClick={closePdfPreview} />
             <ActionButton
               label="Baixar"
               hint={pdfShareHint(readOnly, false, 'baixar')}
@@ -761,9 +824,14 @@ export function App() {
               onClick={() => void onDownloadPdf()}
             />
             <ActionButton
-              label="Enviar"
-              hint={pdfShareHint(readOnly, false, 'enviar')}
+              label="Compartilhar"
+              hint={pdfShareHint(readOnly, false, 'compartilhar')}
               className="primary"
+              disabled={!readOnly || busy}
+              onClick={() => void onSharePdf()}
+            />
+            <ShareTextButton
+              hint={pdfShareHint(readOnly, false, 'enviar')}
               disabled={!readOnly || busy}
               onClick={openSharePreview}
             />
@@ -1078,14 +1146,45 @@ function renderZapLine(line: string): ReactNode {
   )
 }
 
-function pdfShareHint(emitted: boolean, empty: boolean, action: 'baixar' | 'enviar'): string {
+const PDF_SHARE_HINTS = {
+  baixar: { pending: 'Emita o orçamento para baixar o PDF.', ready: 'Baixar o PDF.' },
+  compartilhar: { pending: 'Emita o orçamento para compartilhar.', ready: 'Compartilhar o PDF.' },
+  enviar: { pending: 'Emita o orçamento para enviar.', ready: 'Enviar texto no WhatsApp.' },
+} as const
+
+function pdfShareHint(
+  emitted: boolean,
+  empty: boolean,
+  action: keyof typeof PDF_SHARE_HINTS,
+): string {
   if (empty) return 'Inclua ao menos um item.'
-  if (!emitted) {
-    return action === 'baixar'
-      ? 'Emita o orçamento para baixar o PDF.'
-      : 'Emita o orçamento para enviar.'
-  }
-  return action === 'baixar' ? 'Baixar o PDF.' : 'Enviar o resumo no WhatsApp.'
+  return emitted ? PDF_SHARE_HINTS[action].ready : PDF_SHARE_HINTS[action].pending
+}
+
+function ShareTextButton({
+  hint,
+  disabled,
+  onClick,
+}: {
+  hint: string
+  disabled?: boolean
+  onClick: () => void
+}) {
+  return (
+    <span className="btn-slot" title={hint}>
+      <button
+        type="button"
+        className="btn btn--zap-text"
+        aria-label="Enviar texto no WhatsApp"
+        title="Enviar texto no WhatsApp"
+        disabled={disabled}
+        onClick={onClick}
+      >
+        <WhatsAppIcon />
+        <span>Texto</span>
+      </button>
+    </span>
+  )
 }
 
 function ActionButton({

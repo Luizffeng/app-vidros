@@ -1470,14 +1470,48 @@ textarea:focus {
 
 .actions__pdf {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.2fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr);
   gap: 0.5rem;
+}
+
+.actions__pdf .btn,
+.modal__actions--pdf .btn {
+  padding: 0 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 520px) {
+  .actions__pdf {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.btn--zap-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.btn--zap-text svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: none;
+  color: #25d366;
+}
+
+.btn--zap-text:disabled svg {
+  color: inherit;
 }
 
 .modal--pdf {
   width: min(920px, 100%);
   height: min(92vh, 900px);
   max-height: min(92vh, 900px);
+  height: min(92dvh, 900px);
+  max-height: min(92dvh, 900px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1499,17 +1533,62 @@ textarea:focus {
   padding: 0 1.1rem 1.1rem;
 }
 
-.modal--pdf iframe {
+.pdf-preview {
   flex: 1;
-  width: 100%;
   min-height: 0;
-  border: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   border-radius: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  padding: 0.6rem;
+}
+
+.pdf-preview__pages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.pdf-preview__pages--hidden .pdf-preview__page {
+  display: none;
+}
+
+.pdf-preview__page {
+  display: block;
+  width: 100%;
+  height: auto;
   background: #fff;
+  border-radius: 2px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.pdf-preview__status {
+  margin: 1.5rem 0;
+  text-align: center;
+  color: var(--muted);
+}
+
+.pdf-preview__status--error {
+  color: #ffc9c9;
 }
 
 .modal__actions--pdf {
-  grid-template-columns: 1fr 1fr 1.2fr;
+  flex: none;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr) minmax(0, 1fr);
+}
+
+@media (max-width: 400px) {
+  .modal__actions--pdf {
+    gap: 0.4rem;
+  }
+
+  .modal__actions--pdf .btn {
+    padding: 0 0.35rem;
+    font-size: 0.9rem;
+  }
 }
 
 .banner {
