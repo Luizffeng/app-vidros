@@ -38,6 +38,7 @@ import { CatalogEditor } from './CatalogEditor'
 import { AppHeader } from './AppHeader'
 import type { AppSection } from './AppNav'
 import { Dropdown } from './Dropdown'
+import { SearchField } from './SearchField'
 import { ITEM_KINDS, ItemForm } from './ItemForm'
 import { ItemBlockHead } from './ItemBlockHead'
 import { Modal } from './Modal'
@@ -427,20 +428,11 @@ export function App() {
           </div>
           {quotes.length > 0 && (
             <div className="list-filters">
-              <label className="list-search">
-                <svg className="list-search__icon" viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="11" cy="11" r="7" />
-                  <path d="m20 20-3.5-3.5" />
-                </svg>
-                <input
-                  type="search"
-                  enterKeyHint="search"
-                  aria-label="Buscar por código, cliente ou telefone"
-                  placeholder="Buscar…"
-                  value={listQuery}
-                  onChange={(e) => setListQuery(e.target.value)}
-                />
-              </label>
+              <SearchField
+                label="Buscar por código, cliente ou telefone"
+                value={listQuery}
+                onChange={setListQuery}
+              />
               <Dropdown
                 className="list-status"
                 label="Filtrar por status"

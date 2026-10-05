@@ -17,7 +17,9 @@ import type {
 } from '../domain/types'
 import { AppHeader } from './AppHeader'
 import type { AppSection } from './AppNav'
+import { Dropdown } from './Dropdown'
 import { Modal } from './Modal'
+import { SearchField } from './SearchField'
 
 type Tab = 'vidros' | 'kitBox' | 'acessorios' | 'aluminios' | 'config'
 
@@ -181,32 +183,23 @@ export function CatalogEditor({
           ))}
         </div>
         {tab !== 'config' && (
-          <>
-            <div className="catalog-search-row">
-            <input
-              className="catalog-search"
-              placeholder="Buscar código, tipo, cor…"
+          <div className="list-filters catalog-filters">
+            <SearchField
+              label="Buscar por código, tipo ou cor"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={setQuery}
             />
-            <div className="kind-grid catalog-filters">
-              <button
-                type="button"
-                className={`chip${!showInactive ? ' active' : ''}`}
-                onClick={() => setShowInactive(false)}
-              >
-                Só ativos
-              </button>
-              <button
-                type="button"
-                className={`chip${showInactive ? ' active' : ''}`}
-                onClick={() => setShowInactive(true)}
-              >
-                Incluir inativos
-              </button>
-            </div>
-            </div>
-          </>
+            <Dropdown
+              className="list-status"
+              label="Filtrar por situação"
+              value={showInactive ? 'all' : 'active'}
+              onChange={(v) => setShowInactive(v === 'all')}
+              options={[
+                { value: 'active', label: 'Só ativos' },
+                { value: 'all', label: 'Todos' },
+              ]}
+            />
+          </div>
         )}
       </div>
 
