@@ -74,7 +74,7 @@ export function describeItem(input: ItemInput): ItemDescription {
       }
     case 'pivotante':
       return {
-        title: input.hasLatch ? 'Porta pivotante com fechadura' : 'Porta pivotante',
+        title: input.hasLatch ? 'Porta pivotante com trinco' : 'Porta pivotante',
         spec: framedSpec(input.profileColor, input.glassColor, input.thicknessMm),
         size: sizeMm(input.widthMm, input.heightMm),
       }

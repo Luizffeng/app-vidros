@@ -37,7 +37,7 @@ describe('generateQuotePdf itens', () => {
     expect(raw).toContain('(1. Espelho Lapidado)')
     expect(raw).toContain('(Prata 04mm)')
     expect(raw).toContain('(1.a. Adicional: Instalacao')
-    expect(raw).toContain('(2. Porta pivotante com fechadura)')
+    expect(raw).toContain('(2. Porta pivotante com trinco)')
     expect(raw).toContain('(Alumínio Fosco · Vidro Incolor 10mm)')
     expect(raw).not.toContain('3445')
     expect(raw).not.toContain('2150')

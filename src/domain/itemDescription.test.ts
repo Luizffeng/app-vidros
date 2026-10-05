@@ -74,7 +74,7 @@ describe('describeItem', () => {
     })
   })
 
-  it('pivotante sem fechadura', () => {
+  it('pivotante sem trinco', () => {
     expect(
       describeItem({
         ...base,
@@ -93,7 +93,7 @@ describe('describeItem', () => {
     })
   })
 
-  it('pivotante com fechadura', () => {
+  it('pivotante com trinco', () => {
     expect(
       describeItem({
         ...base,
@@ -105,7 +105,7 @@ describe('describeItem', () => {
         profileColor: 'Fosco',
         hasLatch: true,
       }).title,
-    ).toBe('Porta pivotante com fechadura')
+    ).toBe('Porta pivotante com trinco')
   })
 
   it('maxiar', () => {
