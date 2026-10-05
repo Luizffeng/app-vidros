@@ -505,25 +505,38 @@ export function App() {
         <div className="quote-head__bar">
           <button
             type="button"
-            className="btn ghost quote-head__back"
+            className="btn btn-icon"
+            aria-label="Voltar para orçamentos"
+            title="Voltar para orçamentos"
             onClick={() => { setView('list'); void refresh() }}
           >
-            ← Orçamentos
+            <BackIcon />
           </button>
           <h1 className="quote-head__code">{formatQuoteCode(quote.number, quote.revision)}</h1>
-        </div>
-        <div className="quote-head__meta">
           <span className={`status-pill status-pill--${readOnly ? 'emitted' : 'draft'}`}>
             {readOnly ? 'Emitido' : 'Rascunho'}
           </span>
-          {!readOnly && (
+          {readOnly ? (
+            <button
+              type="button"
+              className="btn btn-icon revise"
+              aria-label="Criar uma revisão"
+              title="Criar uma revisão"
+              disabled={busy}
+              onClick={() => void onRevise()}
+            >
+              <RevisionIcon />
+            </button>
+          ) : (
             <div className="topbar__delete">
               <button
                 type="button"
-                className="btn danger-solid"
+                className="btn btn-icon danger-solid"
+                aria-label="Excluir rascunho"
+                title="Excluir rascunho"
                 onClick={() => setPendingDeleteQuote((open) => !open)}
               >
-                Excluir rascunho
+                <TrashIcon />
               </button>
               {pendingDeleteQuote && (
                 <div className="remove-pop" role="dialog" aria-label="Excluir rascunho">
@@ -1270,14 +1283,46 @@ function PencilIcon() {
   )
 }
 
+function BackIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M19 12H5M11 6l-6 6 6 6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function RevisionIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="8" y="8" width="12.5" height="12.5" rx="2" />
+      <path d="M4.5 15.5V5.5a2 2 0 0 1 2-2h9.5M14.25 11.5v5.5M11.5 14.25h5.5" />
+    </svg>
+  )
+}
+
 function TrashIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path
-        d="M5 7h14M9 7V5h6v2M8 7l.8 12h6.4L16 7"
+        d="M4 6.5h16M9.5 6.5V4.8c0-.7.6-1.3 1.3-1.3h2.4c.7 0 1.3.6 1.3 1.3v1.7M6.2 6.5l.8 12.3c.1 1 .9 1.7 1.9 1.7h6.2c1 0 1.8-.7 1.9-1.7l.8-12.3M10 10.5v6M14 10.5v6"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.7"
+        strokeWidth="1.9"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
