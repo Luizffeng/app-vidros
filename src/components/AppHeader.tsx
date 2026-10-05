@@ -131,7 +131,7 @@ function HeaderMenu({
       <button
         ref={buttonRef}
         type="button"
-        className="btn app-header__menu-btn"
+        className="btn btn-icon app-header__menu-btn"
         aria-label="Menu"
         aria-haspopup="menu"
         aria-expanded={open}
@@ -144,8 +144,8 @@ function HeaderMenu({
           }
         }}
       >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 7h16M4 12h16M4 17h16" />
+        <svg {...ICON_PROPS}>
+          <path d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
       {open && (

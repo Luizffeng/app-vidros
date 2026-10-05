@@ -607,21 +607,21 @@ label .percent-input .money-input {
   flex: none;
 }
 
-.app-header__menu-btn {
+.btn.btn-icon {
+  flex: none;
   width: var(--control-h);
   height: var(--control-h);
+  min-height: 0;
   padding: 0;
-  display: grid;
+  display: inline-grid;
   place-items: center;
+  line-height: 0;
 }
 
-.app-header__menu-btn svg {
+.btn.btn-icon svg {
+  display: block;
   width: 1.4rem;
   height: 1.4rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
 }
 
 .app-header__menu-btn[aria-expanded='true'] {
