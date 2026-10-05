@@ -414,8 +414,45 @@ label .percent-input .money-input {
   }
 }
 
-.catalog-row--inactive td {
+.catalog-row--inactive td:not(.cell-toggle) {
   opacity: 0.45;
+}
+
+.catalog-table .cell-toggle {
+  width: 2.25rem;
+  text-align: center;
+}
+
+.catalog-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.catalog-toggle svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.catalog-toggle--on {
+  color: var(--accent-2);
+}
+
+.catalog-toggle:focus-visible {
+  outline: 2px solid rgba(212, 160, 23, 0.45);
+}
+
+@media (hover: hover) {
+  .catalog-toggle:hover {
+    background: rgba(245, 241, 232, 0.1);
+  }
 }
 
 .section-head--actions {

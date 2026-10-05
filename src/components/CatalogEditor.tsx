@@ -310,6 +310,49 @@ function PercentInput({
   )
 }
 
+function ActiveToggle({
+  active,
+  code,
+  onToggle,
+}: {
+  active: boolean
+  code: string
+  onToggle: () => void
+}) {
+  const label = active ? `Desativar ${code}` : `Reativar ${code}`
+  return (
+    <button
+      type="button"
+      className={`catalog-toggle${active ? ' catalog-toggle--on' : ''}`}
+      aria-label={label}
+      title={label}
+      onClick={onToggle}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        {active ? (
+          <>
+            <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
+            <circle cx="12" cy="12" r="3" />
+          </>
+        ) : (
+          <>
+            <path d="M10.6 5.6A9.6 9.6 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-2.6 3.4M6.4 6.9C3.9 8.6 2.5 12 2.5 12S6 18.5 12 18.5c1.9 0 3.5-.6 4.9-1.5" />
+            <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2M3.5 3.5l17 17" />
+          </>
+        )}
+      </svg>
+    </button>
+  )
+}
+
 function setAtivo<T extends { id: number; ativo?: boolean }>(
   rows: T[],
   id: number,
@@ -411,16 +454,12 @@ function VidrosTable({
                     }
                   />
                 </td>
-                <td>
-                  <button
-                    type="button"
-                    className="btn link"
-                    onClick={() =>
-                      onChange(setAtivo(rows, row.id, !isCatalogItemActive(row)))
-                    }
-                  >
-                    {isCatalogItemActive(row) ? 'Desativar' : 'Reativar'}
-                  </button>
+                <td className="cell-toggle">
+                  <ActiveToggle
+                    active={isCatalogItemActive(row)}
+                    code={row.codigo}
+                    onToggle={() => onChange(setAtivo(rows, row.id, !isCatalogItemActive(row)))}
+                  />
                 </td>
               </tr>
             ))}
@@ -564,16 +603,12 @@ function KitBoxTable({
                     }
                   />
                 </td>
-                <td>
-                  <button
-                    type="button"
-                    className="btn link"
-                    onClick={() =>
-                      onChange(setAtivo(rows, row.id, !isCatalogItemActive(row)))
-                    }
-                  >
-                    {isCatalogItemActive(row) ? 'Desativar' : 'Reativar'}
-                  </button>
+                <td className="cell-toggle">
+                  <ActiveToggle
+                    active={isCatalogItemActive(row)}
+                    code={row.codigo}
+                    onToggle={() => onChange(setAtivo(rows, row.id, !isCatalogItemActive(row)))}
+                  />
                 </td>
               </tr>
             ))}
@@ -707,16 +742,12 @@ function AcessoriosTable({
                     }
                   />
                 </td>
-                <td>
-                  <button
-                    type="button"
-                    className="btn link"
-                    onClick={() =>
-                      onChange(setAtivo(rows, row.id, !isCatalogItemActive(row)))
-                    }
-                  >
-                    {isCatalogItemActive(row) ? 'Desativar' : 'Reativar'}
-                  </button>
+                <td className="cell-toggle">
+                  <ActiveToggle
+                    active={isCatalogItemActive(row)}
+                    code={row.codigo}
+                    onToggle={() => onChange(setAtivo(rows, row.id, !isCatalogItemActive(row)))}
+                  />
                 </td>
               </tr>
             ))}
@@ -869,16 +900,12 @@ function AluminiosTable({
                     maximumFractionDigits: 2,
                   })}
                 </td>
-                <td>
-                  <button
-                    type="button"
-                    className="btn link"
-                    onClick={() =>
-                      onChange(setAtivo(rows, row.id, !isCatalogItemActive(row)))
-                    }
-                  >
-                    {isCatalogItemActive(row) ? 'Desativar' : 'Reativar'}
-                  </button>
+                <td className="cell-toggle">
+                  <ActiveToggle
+                    active={isCatalogItemActive(row)}
+                    code={row.codigo}
+                    onToggle={() => onChange(setAtivo(rows, row.id, !isCatalogItemActive(row)))}
+                  />
                 </td>
               </tr>
             ))}
