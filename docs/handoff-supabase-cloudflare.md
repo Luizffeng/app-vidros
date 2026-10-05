@@ -66,7 +66,7 @@ RLS, sessão do usuário (anon key no client). **Nunca** `service_role` no brows
 
 **Cloudflare Pages** serve o Vite estático. **Supabase** é banco, auth e storage. Supabase não hospeda o SPA.
 
-- Projeto Pages ligado ao GitHub, build `npm run build`, output `dist`.
+- Projeto Pages `appvidros` (https://appvidros.pages.dev) ligado ao GitHub, build `npm run build`, output `dist`. Substituiu o projeto `app-vidros` em out/2026: projeto Pages não troca de subdomínio, então foi criado outro.
 - SPA fallback: `/* /index.html 200` (Pages `_redirects` ou config equivalente). Sem isso, refresh em rota funda quebra. O app hoje não usa router de URL (estado interno), mas o fallback evita 404 no refresh.
 - Env no Pages (públicas, prefixo Vite): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
 - Plano free do Supabase **pausa o projeto após 7 dias sem uso**. Uso na semana mantém acordado. Avisar o Luiz; não trocar de plano nesta entrega.

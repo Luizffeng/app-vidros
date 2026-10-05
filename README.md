@@ -4,7 +4,7 @@ App web para vidraçaria montar, emitir e enviar orçamentos. Hoje atende uma lo
 
 Poucos acessos por instalação. Não é SaaS: sem cadastro público, sem multi-empresa.
 
-**Produção:** https://app-vidros.pages.dev
+**Produção:** https://appvidros.pages.dev
 
 ## Funcionalidades (v1)
 
@@ -63,12 +63,13 @@ Sem `.env`, o app roda 100% local (IndexedDB) e não pede login.
    update public.profiles set role = 'admin' where id = '<uuid>';
    ```
 4. Copiar Project URL e a chave **publishable/anon** para o `.env`. Nunca usar a `service_role` no front.
+5. Authentication → URL Configuration → Site URL: `https://appvidros.pages.dev` (links dos e-mails de convite e troca de senha).
 
 O plano free do Supabase pausa o projeto após 7 dias sem uso. Uso semanal mantém acordado.
 
 ### Cloudflare Pages
 
-- Projeto ligado ao GitHub, branch `main`
+- Projeto `appvidros` ligado ao GitHub, branch `main`
 - Build command: `npm run build`
 - Output: `dist`
 - Variáveis: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (e `NODE_VERSION=22`)
