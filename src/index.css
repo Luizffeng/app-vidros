@@ -13,6 +13,8 @@
   --danger: #ff6b6b;
   --radius: 14px;
   --control-h: 2.75rem;
+  /* .action-bar: padding 0.6rem × 2 + botão + borda */
+  --action-bar-h: calc(var(--control-h) + 1.2rem + 1px);
   --font: 'Google Sans', system-ui, sans-serif;
   --display: 'Google Sans', system-ui, sans-serif;
   color-scheme: dark;
@@ -50,11 +52,15 @@ textarea {
 .shell {
   width: min(560px, 100%);
   margin: 0 auto;
-  padding: 1rem 1rem 6rem;
+  padding: 1rem 1rem calc(6rem + env(safe-area-inset-bottom));
 }
 
 .shell--wide {
   width: min(960px, 100%);
+}
+
+.shell--editor {
+  padding-bottom: calc(var(--action-bar-h) + env(safe-area-inset-bottom));
 }
 
 .app-nav {
@@ -1089,9 +1095,11 @@ textarea:focus {
   margin-top: 0.75rem;
 }
 
-.btn:hover:not(:disabled) {
-  border-color: rgba(255, 255, 255, 0.32);
-  background: rgba(245, 241, 232, 0.16);
+@media (hover: hover) {
+  .btn:not(.primary, .revise, .danger-solid):hover:not(:disabled) {
+    border-color: rgba(255, 255, 255, 0.32);
+    background: rgba(245, 241, 232, 0.16);
+  }
 }
 
 .btn.primary:hover:not(:disabled) {
@@ -1733,7 +1741,7 @@ textarea:focus {
   padding: 1rem;
   display: grid;
   gap: 0.45rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.42rem;
 }
 
 .totals > div {
@@ -1776,13 +1784,6 @@ textarea:focus {
   margin-top: 0.35rem;
 }
 
-.actions__pdf {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: 0.5rem;
-}
-
-.actions__pdf .btn,
 .modal__actions--pdf .btn {
   padding: 0 0.5rem;
   white-space: nowrap;
@@ -1790,10 +1791,77 @@ textarea:focus {
   text-overflow: ellipsis;
 }
 
-@media (max-width: 520px) {
-  .actions__pdf {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom));
+  background: rgba(10, 20, 18, 0.88);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.action-bar__inner {
+  width: min(528px, 100%);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.action-bar__total {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  line-height: 1.15;
+}
+
+.action-bar__total span {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.action-bar__total strong {
+  font-size: 1.15rem;
+  color: var(--accent-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.action-bar__buttons {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.action-bar__buttons .emit-wrap .btn {
+  padding: 0 1.25rem;
+}
+
+.action-bar .remove-pop.emit-pop {
+  left: auto;
+  right: 0;
+  transform: none;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  white-space: normal;
+}
+
+.btn.btn-icon.action-bar__zap svg {
+  color: #25d366;
+}
+
+.btn.btn-icon.action-bar__zap:disabled svg {
+  color: inherit;
 }
 
 .btn--zap-text {
@@ -1885,7 +1953,9 @@ textarea:focus {
 
 .modal__actions--pdf {
   flex: none;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr) minmax(0, 1fr);
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
 }
 
 @media (max-width: 400px) {

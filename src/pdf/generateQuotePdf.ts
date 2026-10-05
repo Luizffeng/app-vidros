@@ -281,6 +281,18 @@ export async function shareQuoteText(text: string) {
   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer')
 }
 
+/** Navegador abre a folha do sistema com arquivo PDF (celular, Windows, macOS; não Linux/Firefox). */
+export function canSharePdfFiles(): boolean {
+  const nav = navigator as Navigator & { canShare?: (data?: ShareData) => boolean }
+  if (typeof nav.share !== 'function' || typeof nav.canShare !== 'function') return false
+  try {
+    const probe = new File([new Uint8Array(1)], 'orcamento.pdf', { type: 'application/pdf' })
+    return nav.canShare({ files: [probe] })
+  } catch {
+    return false
+  }
+}
+
 /**
  * Compartilha o arquivo PDF pela Web Share API; senão baixa.
  * Não faça `await` antes de chamar no click: o Safari exige `navigator.share` dentro do

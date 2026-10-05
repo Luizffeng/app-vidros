@@ -32,6 +32,7 @@ import {
   downloadBlob,
   generateQuotePdf,
   shareOrDownloadPdf,
+  canSharePdfFiles,
   shareQuoteText,
 } from '../pdf/generateQuotePdf'
 import { CatalogEditor } from './CatalogEditor'
@@ -46,6 +47,7 @@ import { PdfPreview } from './PdfPreview'
 import { SettingsEditor } from './SettingsEditor'
 
 const repo = createRepository()
+const pdfShareSupported = canSharePdfFiles()
 
 type View = 'list' | 'editor' | 'catalog' | 'settings'
 
@@ -492,7 +494,7 @@ export function App() {
   }
 
   return (
-    <div className="shell">
+    <div className="shell shell--editor">
       <header className="quote-head">
         <div className="quote-head__bar">
           <button
@@ -735,85 +737,89 @@ export function App() {
         onChange={(d) => void onDiscounts(d)}
       />
 
-      <section className="totals">
-        <div><span>Itens</span><strong>{formatBrl(quote.itemsTotal)}</strong></div>
-        <div><span>Adicionais</span><strong>{formatBrl(quote.additionalTotal)}</strong></div>
-        {(quote.discountTotal ?? 0) > 0 && (
-          <div><span>Desconto</span><strong>{formatBrl(quote.discountTotal)}</strong></div>
-        )}
-        <div className="totals__grand"><span>Total</span><strong>{formatBrl(quote.grandTotal)}</strong></div>
-      <footer className="actions">
-        {readOnly ? (
-          <ActionButton
-            label="Criar uma revisão"
-            hint="Cria uma revisão editável a partir deste orçamento."
-            className="revise"
-            disabled={busy}
-            onClick={() => void onRevise()}
-          />
-        ) : (
-          <div className="emit-wrap">
-            <ActionButton
-              label="Emitir orçamento"
-              hint={
-                quote.items.length === 0
-                  ? 'Inclua ao menos um item para emitir.'
-                  : 'Finaliza o orçamento e libera baixar e enviar.'
-              }
-              className="primary"
+      {(quote.additionalTotal > 0 || (quote.discountTotal ?? 0) > 0) && (
+        <section className="totals">
+          <div><span>Itens</span><strong>{formatBrl(quote.itemsTotal)}</strong></div>
+          {quote.additionalTotal > 0 && (
+            <div><span>Adicionais</span><strong>{formatBrl(quote.additionalTotal)}</strong></div>
+          )}
+          {(quote.discountTotal ?? 0) > 0 && (
+            <div><span>Desconto</span><strong>{formatBrl(quote.discountTotal)}</strong></div>
+          )}
+        </section>
+      )}
+
+      <footer className="action-bar">
+        <div className="action-bar__inner">
+          <div className="action-bar__total">
+            <span>Total</span>
+            <strong>{formatBrl(quote.grandTotal)}</strong>
+          </div>
+          <div className="action-bar__buttons">
+            <IconAction
+              label="Prévia do PDF"
               disabled={busy || quote.items.length === 0}
-              onClick={() => void onEmit()}
-            />
-            {emitNeedsName && !quote.customer.name?.trim() && (
-              <div className="remove-pop emit-pop" role="alertdialog" aria-label="Nome do cliente obrigatório">
-                <span>Preencha o nome do cliente para emitir.</span>
-                <button
-                  type="button"
-                  className="btn primary"
-                  onClick={() => {
-                    setEmitNeedsName(false)
-                    focusCustomerName()
-                  }}
+              onClick={() => void onPreviewPdf()}
+            >
+              <EyeIcon />
+            </IconAction>
+            {readOnly ? (
+              <>
+                <IconAction label="Baixar PDF" disabled={busy} onClick={() => void onDownloadPdf()}>
+                  <DownloadIcon />
+                </IconAction>
+                {pdfShareSupported && (
+                  <IconAction
+                    label="Compartilhar PDF"
+                    className="primary"
+                    disabled={busy}
+                    onClick={() => void onSharePdf()}
+                  >
+                    <ShareIcon />
+                  </IconAction>
+                )}
+                <IconAction
+                  label="Enviar texto no WhatsApp"
+                  className="action-bar__zap"
+                  disabled={busy}
+                  onClick={openSharePreview}
                 >
-                  Preencher nome
-                </button>
+                  <WhatsAppIcon />
+                </IconAction>
+              </>
+            ) : (
+              <div className="emit-wrap">
+                <ActionButton
+                  label="Emitir"
+                  hint={
+                    quote.items.length === 0
+                      ? 'Inclua ao menos um item para emitir.'
+                      : 'Finaliza o orçamento e libera baixar e enviar.'
+                  }
+                  className="primary"
+                  disabled={busy || quote.items.length === 0}
+                  onClick={() => void onEmit()}
+                />
+                {emitNeedsName && !quote.customer.name?.trim() && (
+                  <div className="remove-pop emit-pop" role="alertdialog" aria-label="Nome do cliente obrigatório">
+                    <span>Preencha o nome do cliente para emitir.</span>
+                    <button
+                      type="button"
+                      className="btn primary"
+                      onClick={() => {
+                        setEmitNeedsName(false)
+                        focusCustomerName()
+                      }}
+                    >
+                      Preencher nome
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
-        <div className="actions__pdf">
-          <ActionButton
-            label="Prévia"
-            hint={
-              quote.items.length === 0
-                ? 'Inclua ao menos um item para ver a prévia.'
-                : 'Abrir a prévia do PDF.'
-            }
-            disabled={busy || quote.items.length === 0}
-            onClick={() => void onPreviewPdf()}
-          />
-          <ActionButton
-            label="Baixar"
-            hint={pdfShareHint(readOnly, quote.items.length === 0, 'baixar')}
-            className="primary"
-            disabled={busy || !readOnly || quote.items.length === 0}
-            onClick={() => void onDownloadPdf()}
-          />
-          <ActionButton
-            label="Compartilhar"
-            hint={pdfShareHint(readOnly, quote.items.length === 0, 'compartilhar')}
-            className="primary"
-            disabled={busy || !readOnly || quote.items.length === 0}
-            onClick={() => void onSharePdf()}
-          />
-          <ShareTextButton
-            hint={pdfShareHint(readOnly, quote.items.length === 0, 'enviar')}
-            disabled={busy || !readOnly || quote.items.length === 0}
-            onClick={openSharePreview}
-          />
         </div>
       </footer>
-      </section>
 
       {pdfPreviewBlob && (
         <Modal className="modal--pdf" title="Prévia do PDF" onClose={closePdfPreview}>
@@ -826,13 +832,15 @@ export function App() {
               disabled={!readOnly || busy}
               onClick={() => void onDownloadPdf()}
             />
-            <ActionButton
-              label="Compartilhar"
-              hint={pdfShareHint(readOnly, false, 'compartilhar')}
-              className="primary"
-              disabled={!readOnly || busy}
-              onClick={() => void onSharePdf()}
-            />
+            {pdfShareSupported && (
+              <ActionButton
+                label="Compartilhar"
+                hint={pdfShareHint(readOnly, false, 'compartilhar')}
+                className="primary"
+                disabled={!readOnly || busy}
+                onClick={() => void onSharePdf()}
+              />
+            )}
             <ShareTextButton
               hint={pdfShareHint(readOnly, false, 'enviar')}
               disabled={!readOnly || busy}
@@ -1186,6 +1194,68 @@ function ShareTextButton({
         <span>Texto</span>
       </button>
     </span>
+  )
+}
+
+function IconAction({
+  label,
+  disabled,
+  className,
+  onClick,
+  children,
+}: {
+  label: string
+  disabled?: boolean
+  className?: string
+  onClick: () => void
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      className={`btn btn-icon${className ? ` ${className}` : ''}`}
+      aria-label={label}
+      title={label}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  )
+}
+
+const STROKE_ICON = {
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.9,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+  'aria-hidden': true,
+} as const
+
+function EyeIcon() {
+  return (
+    <svg {...STROKE_ICON}>
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  )
+}
+
+function DownloadIcon() {
+  return (
+    <svg {...STROKE_ICON}>
+      <path d="M12 4v11M7 10.5l5 5 5-5M4.5 19.5h15" />
+    </svg>
+  )
+}
+
+function ShareIcon() {
+  return (
+    <svg {...STROKE_ICON}>
+      <path d="M12 3.5v11M8 7.5l4-4 4 4M8.5 10.5H7a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1.5" />
+    </svg>
   )
 }
 
