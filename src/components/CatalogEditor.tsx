@@ -15,7 +15,8 @@ import type {
   PricingConfig,
   Vidro,
 } from '../domain/types'
-import { AppNav, type AppSection } from './AppNav'
+import { AppHeader } from './AppHeader'
+import type { AppSection } from './AppNav'
 import { Modal } from './Modal'
 
 type Tab = 'vidros' | 'kitBox' | 'acessorios' | 'aluminios' | 'config'
@@ -151,14 +152,7 @@ export function CatalogEditor({
 
   return (
     <div className="shell shell--wide">
-      <header className="topbar">
-        <div>
-          <p className="brand-sm">App Vidros</p>
-          <h1 className="title-sm">Catálogo</h1>
-        </div>
-      </header>
-
-      <AppNav current="catalog" onNavigate={onNavigate} />
+      <AppHeader title="Catálogo" current="catalog" onNavigate={onNavigate} />
 
       <p className="lede catalog-lede">
         Edite, crie ou desative itens. Orçamentos emitidos não mudam; novos usam a versão salva (

@@ -2,10 +2,9 @@ import { useAccess } from '../auth/access'
 
 export type AppSection = 'list' | 'catalog' | 'settings'
 
-const SECTIONS: { id: AppSection; label: string }[] = [
+const TABS: { id: AppSection; label: string }[] = [
   { id: 'list', label: 'Orçamentos' },
   { id: 'catalog', label: 'Catálogo' },
-  { id: 'settings', label: 'Configurações' },
 ]
 
 export function AppNav({
@@ -16,11 +15,11 @@ export function AppNav({
   onNavigate: (section: AppSection) => void
 }) {
   const access = useAccess()
-  const sections = access.role === 'vendedor' ? SECTIONS.filter((s) => s.id === 'list') : SECTIONS
+  if (access.role === 'vendedor') return null
 
   return (
     <nav className="app-nav" aria-label="Seções do app">
-      {sections.map((s) => (
+      {TABS.map((s) => (
         <button
           key={s.id}
           type="button"
@@ -31,11 +30,6 @@ export function AppNav({
           {s.label}
         </button>
       ))}
-      {access.signOut && (
-        <button type="button" className="btn ghost app-nav__btn" onClick={() => void access.signOut?.()}>
-          Sair
-        </button>
-      )}
     </nav>
   )
 }
