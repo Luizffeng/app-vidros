@@ -103,7 +103,7 @@ export function SettingsEditor({
   const est = draft.establishment
 
   return (
-    <div className="shell shell--wide">
+    <div className="shell shell--wide shell--with-bar">
       <AppHeader title="Configurações" current="settings" onNavigate={onNavigate} />
 
       <p className="lede catalog-lede">
@@ -308,18 +308,20 @@ export function SettingsEditor({
         )}
       </section>
 
-      <footer className="actions actions--row">
-        <button type="button" className="btn ghost" onClick={() => onNavigate('list')}>
-          Voltar
-        </button>
-        <button
-          type="button"
-          className="btn primary"
-          disabled={busy || !dirty}
-          onClick={() => void save()}
-        >
-          {busy ? 'Salvando…' : dirty ? 'Salvar configurações' : 'Salvo'}
-        </button>
+      <footer className="action-bar">
+        <div className="action-bar__inner action-bar__inner--pair">
+          <button type="button" className="btn" onClick={() => onNavigate('list')}>
+            Voltar
+          </button>
+          <button
+            type="button"
+            className="btn primary"
+            disabled={busy || !dirty}
+            onClick={() => void save()}
+          >
+            {busy ? 'Salvando…' : dirty ? 'Salvar' : 'Salvo'}
+          </button>
+        </div>
       </footer>
     </div>
   )

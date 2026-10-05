@@ -59,7 +59,7 @@ textarea {
   width: min(960px, 100%);
 }
 
-.shell--editor {
+.shell--with-bar {
   padding-bottom: calc(var(--action-bar-h) + env(safe-area-inset-bottom));
 }
 
@@ -209,10 +209,6 @@ label .money-input {
 label .percent-input .money-input {
   width: 100%;
   flex: 1;
-}
-
-.actions--row {
-  grid-template-columns: 1fr 1fr;
 }
 
 .banner.ok {
@@ -1903,6 +1899,12 @@ textarea:focus {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+.action-bar__inner--pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
 }
 
 .action-bar__total {

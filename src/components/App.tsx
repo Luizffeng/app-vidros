@@ -512,7 +512,7 @@ export function App() {
   }
 
   return (
-    <div className="shell shell--editor">
+    <div className="shell shell--with-bar">
       <header className="quote-head">
         <div className="quote-head__bar">
           <button
