@@ -855,7 +855,7 @@ function AluminiosTable({
         Edite valor da barra; R$/m recalcula com metragem da barra.
       </p>
       <div className="table-wrap">
-        <table className="catalog-table">
+        <table className="catalog-table catalog-table--aluminios">
           <thead>
             <tr>
               <th>Código</th>

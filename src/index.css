@@ -172,8 +172,24 @@ textarea {
 }
 
 .catalog-table .cell-money-barra .money-input {
-  width: 4.75rem;
-  max-width: 4.75rem;
+  width: 4.25rem;
+  max-width: 4.25rem;
+}
+
+@media (max-width: 480px) {
+  .catalog-section .table-wrap {
+    margin: 0 -0.5rem;
+  }
+}
+
+.catalog-table--aluminios th,
+.catalog-table--aluminios td {
+  padding-left: 0.22rem;
+  padding-right: 0.22rem;
+}
+
+.catalog-table.catalog-table--aluminios .cell-desc {
+  min-width: 4rem;
 }
 
 .catalog-table .cell-desc {
