@@ -32,6 +32,7 @@ import { downloadBlob, generateQuotePdf, shareQuoteText } from '../pdf/generateQ
 import { CatalogEditor } from './CatalogEditor'
 import { AppNav, type AppSection } from './AppNav'
 import { ITEM_KINDS, ItemForm } from './ItemForm'
+import { ItemBlockHead } from './ItemBlockHead'
 import { Modal } from './Modal'
 import { SettingsEditor } from './SettingsEditor'
 
@@ -503,10 +504,7 @@ export function App() {
             key={item.id}
             className={`item-block${itemModal?.mode === 'edit' && itemModal.id === item.id ? ' item-block--editing' : ''}`}
           >
-            <div className="item-block__head">
-              <strong>{item.result.label}</strong>
-              <span className="item-block__price">{formatBrl(item.result.breakdown.finalPrice)}</span>
-            </div>
+            <ItemBlockHead item={item} />
             <div className={`item-block__tools${readOnly ? '' : ' item-block__tools--actions'}`}>
             <details>
               <summary>Detalhes do custo</summary>
