@@ -134,8 +134,7 @@ export function CatalogEditor({
       <AppHeader title="Catálogo" current="catalog" onNavigate={onNavigate} />
 
       <p className="lede catalog-lede">
-        Edite, crie ou desative itens. Orçamentos emitidos não mudam; novos usam a versão salva (
-        {draft.config.version}).
+        Edite, crie ou desative itens. Orçamentos emitidos não serão alterados!
       </p>
 
       {error && <div className="banner error">{error}</div>}
