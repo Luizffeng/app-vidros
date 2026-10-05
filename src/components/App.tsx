@@ -851,19 +851,11 @@ export function App() {
       )}
 
       {shareText && (
-        <Modal title="Enviar no WhatsApp" onClose={() => setShareText(null)}>
-          <p className="muted catalog-hint">Prévia da mensagem. O negrito sai no WhatsApp.</p>
-          <WhatsAppPreview text={shareText} />
-          <div className="modal__actions">
-            <button type="button" className="btn" onClick={() => setShareText(null)}>
-              Voltar
-            </button>
-            <button type="button" className="btn primary zap-send" onClick={() => void confirmShare()}>
-              <WhatsAppIcon />
-              Enviar no WhatsApp
-            </button>
-          </div>
-        </Modal>
+        <WhatsAppShareModal
+          text={shareText}
+          onClose={() => setShareText(null)}
+          onSend={() => void confirmShare()}
+        />
       )}
     </div>
   )
@@ -1101,7 +1093,15 @@ function CollapsibleSection({
   )
 }
 
-function WhatsAppPreview({ text }: { text: string }) {
+function WhatsAppShareModal({
+  text,
+  onClose,
+  onSend,
+}: {
+  text: string
+  onClose: () => void
+  onSend: () => void
+}) {
   const [copied, setCopied] = useState(false)
 
   const copy = async () => {
@@ -1112,19 +1112,41 @@ function WhatsAppPreview({ text }: { text: string }) {
   }
 
   return (
-    <div className="zap-preview">
-      <button
-        type="button"
-        className="icon-btn zap-preview__copy"
-        aria-label={copied ? 'Texto copiado' : 'Copiar texto'}
-        onClick={() => void copy()}
-      >
-        {copied ? <CheckIcon /> : <CopyIcon />}
-      </button>
-      {text.split('\n').map((line, index) => (
-        <p key={index}>{renderZapLine(line)}</p>
-      ))}
-    </div>
+    <Modal className="modal--zap" title="Enviar no WhatsApp" onClose={onClose}>
+      <p className="muted catalog-hint">Prévia da mensagem. O negrito sai no WhatsApp.</p>
+      <div className="zap-preview">
+        <button
+          type="button"
+          className="icon-btn zap-preview__copy"
+          aria-label={copied ? 'Texto copiado' : 'Copiar texto'}
+          onClick={() => void copy()}
+        >
+          {copied ? <CheckIcon /> : <CopyIcon />}
+        </button>
+        <div className="zap-preview__scroll">
+          {text.split('\n').map((line, index) => (
+            <p key={index}>{renderZapLine(line)}</p>
+          ))}
+        </div>
+      </div>
+      <div className="modal__actions">
+        <button type="button" className="btn zap-copy" onClick={() => void copy()}>
+          {copied ? <CheckIcon /> : <CopyIcon />}
+          {copied ? 'Copiado' : 'Copiar texto'}
+        </button>
+        <button
+          type="button"
+          className="btn primary zap-send"
+          aria-label="Enviar no WhatsApp"
+          onClick={onSend}
+        >
+          <WhatsAppIcon />
+          <span>
+            Enviar<span className="zap-send__long"> no WhatsApp</span>
+          </span>
+        </button>
+      </div>
+    </Modal>
   )
 }
 

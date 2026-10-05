@@ -279,11 +279,78 @@ label .percent-input .money-input {
 
 .zap-preview {
   position: relative;
+  display: flex;
+  min-height: 0;
   background: rgba(0, 0, 0, 0.28);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-  padding: 0.85rem 2.6rem 0.85rem 1rem;
   line-height: 1.45;
+}
+
+.zap-preview__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.85rem 2.6rem 0.85rem 1rem;
+}
+
+.modal--zap {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: min(90vh, 720px);
+  max-height: min(90dvh, 720px);
+}
+
+.modal--zap .modal__head,
+.modal--zap .catalog-hint,
+.modal--zap .modal__actions {
+  flex: none;
+}
+
+.modal--zap .modal__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal--zap .zap-preview {
+  flex: 1;
+}
+
+.modal--zap .modal__actions {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+}
+
+.zap-copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.zap-copy svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+}
+
+.modal--zap .modal__actions .btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 400px) {
+  .modal--zap .modal__actions .btn {
+    padding: 0 0.5rem;
+    gap: 0.35rem;
+  }
+
+  .zap-send__long {
+    display: none;
+  }
 }
 
 .zap-preview__copy {
