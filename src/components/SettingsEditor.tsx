@@ -4,7 +4,8 @@ import { DEFAULT_LOGO_DATA_URL } from '../data/defaultLogo'
 import { normalizeSettings } from '../data/defaultSettings'
 import { fileToLogoDataUrl } from '../data/logo'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
-import { AppNav, type AppSection } from './AppNav'
+import { AppHeader } from './AppHeader'
+import type { AppSection } from './AppNav'
 
 export function SettingsEditor({
   settings,
@@ -102,14 +103,7 @@ export function SettingsEditor({
 
   return (
     <div className="shell shell--wide">
-      <header className="topbar">
-        <div>
-          <p className="brand-sm">App Vidros</p>
-          <h1 className="title-sm">Configurações</h1>
-        </div>
-      </header>
-
-      <AppNav current="settings" onNavigate={onNavigate} />
+      <AppHeader title="Configurações" current="settings" onNavigate={onNavigate} />
 
       <p className="lede catalog-lede">
         Dados do estabelecimento e regras do orçamento. Aparecem no PDF do cliente.

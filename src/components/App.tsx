@@ -30,7 +30,9 @@ import { createRepository } from '../data/repository'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
 import { downloadBlob, generateQuotePdf, shareQuoteText } from '../pdf/generateQuotePdf'
 import { CatalogEditor } from './CatalogEditor'
-import { AppNav, type AppSection } from './AppNav'
+import { AppHeader } from './AppHeader'
+import type { AppSection } from './AppNav'
+import { Dropdown } from './Dropdown'
 import { ITEM_KINDS, ItemForm } from './ItemForm'
 import { Modal } from './Modal'
 import { SettingsEditor } from './SettingsEditor'
@@ -351,14 +353,7 @@ export function App() {
   if (view === 'list') {
     return (
       <div className="shell shell--wide">
-        <header className="topbar">
-          <div>
-            <p className="brand-sm">App Vidros</p>
-            <h1 className="title-sm">Orçamentos</h1>
-          </div>
-        </header>
-
-        <AppNav current="list" onNavigate={goSection} />
+        <AppHeader title="Orçamentos" current="list" onNavigate={goSection} />
 
         <section className="section">
           <div className="section-head section-head--actions">
@@ -372,30 +367,31 @@ export function App() {
           </div>
           {quotes.length > 0 && (
             <div className="list-filters">
-              <input
-                className="list-search"
-                placeholder="Buscar código, cliente, telefone…"
-                value={listQuery}
-                onChange={(e) => setListQuery(e.target.value)}
+              <label className="list-search">
+                <svg className="list-search__icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m20 20-3.5-3.5" />
+                </svg>
+                <input
+                  type="search"
+                  enterKeyHint="search"
+                  aria-label="Buscar por código, cliente ou telefone"
+                  placeholder="Buscar…"
+                  value={listQuery}
+                  onChange={(e) => setListQuery(e.target.value)}
+                />
+              </label>
+              <Dropdown
+                className="list-status"
+                label="Filtrar por status"
+                value={listStatus}
+                onChange={setListStatus}
+                options={[
+                  { value: 'all', label: 'Todos' },
+                  { value: 'emitted', label: 'Emitidos' },
+                  { value: 'draft', label: 'Rascunhos' },
+                ]}
               />
-              <div className="list-status">
-                {(
-                  [
-                    ['all', 'Todos'],
-                    ['emitted', 'Emitidos'],
-                    ['draft', 'Rascunhos'],
-                  ] as const
-                ).map(([id, label]) => (
-                  <button
-                    key={id}
-                    type="button"
-                    className={`chip${listStatus === id ? ' active' : ''}`}
-                    onClick={() => setListStatus(id)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
             </div>
           )}
           {quotes.length === 0 ? (
@@ -447,12 +443,16 @@ export function App() {
     <div className="shell">
       <header className="quote-head">
         <div className="quote-head__bar">
-          <button type="button" className="btn ghost" onClick={() => { setView('list'); void refresh() }}>
+          <button
+            type="button"
+            className="btn ghost quote-head__back"
+            onClick={() => { setView('list'); void refresh() }}
+          >
             ← Orçamentos
           </button>
+          <h1 className="quote-head__code">{formatQuoteCode(quote.number, quote.revision)}</h1>
         </div>
-        <div className="quote-head__title">
-          <h1>{formatQuoteCode(quote.number, quote.revision)}</h1>
+        <div className="quote-head__meta">
           <span className={`status-pill status-pill--${readOnly ? 'emitted' : 'draft'}`}>
             {readOnly ? 'Emitido' : 'Rascunho'}
           </span>
