@@ -11,6 +11,7 @@ import type {
 
 const DEFAULT_VALIDITY_DAYS = 15
 import { priceItem } from './pricing'
+import { describeItem } from './itemDescription'
 
 export const FREIGHT_LABEL = 'Frete'
 
@@ -219,33 +220,14 @@ export function createRevision(source: Quote, newId?: string): Quote {
   })
 }
 
-/** Rótulo do item para o cliente — sem medidas */
-export function customerFacingItemLabel(input: ItemInput): string {
-  switch (input.kind) {
-    case 'box':
-      return `Box frontal 2F (${input.glassColor}/${input.profileColor})`
-    case 'correr':
-      return `Correr ${input.subtype} (${input.glassColor}/${input.profileColor})`
-    case 'pivotante':
-      return `Pivotante (${input.glassColor}/${input.profileColor})`
-    case 'maxiar':
-      return `Maxim-ar (${input.glassColor}/${input.profileColor})`
-    case 'fixo':
-      return `Vidro fixo temperado (${input.glassColor})`
-    case 'espelho':
-      return `${input.finish} (${input.glassColor})`
-    case 'custom':
-      return input.description || 'Item avulso'
-  }
-}
-
 export const DEFAULT_SHARE_CTA = 'Gostaria de realizar o pedido?'
 
+/** Cliente vê tipo e cor/espessura — sem medidas */
 function shareItemBlock(item: QuoteItem, index: number): string {
-  const lines = [
-    `*${index + 1}. ${customerFacingItemLabel(item.input)}*`,
-    formatBrl(item.result.breakdown.finalPrice),
-  ]
+  const { title, spec } = describeItem(item.input)
+  const lines = [`*${index + 1}. ${title}*`]
+  if (spec) lines.push(spec)
+  lines.push(formatBrl(item.result.breakdown.finalPrice))
   if (item.input.kind !== 'custom') {
     for (const extra of item.input.extras) {
       const description = extra.description.trim()

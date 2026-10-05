@@ -4,11 +4,11 @@ import { formatEstablishmentAddress } from '../data/defaultSettings'
 import { loadImageSize, logoFormatForPdf } from '../data/logo'
 import {
   computeValidUntil,
-  customerFacingItemLabel,
   formatBrl,
   formatCustomerAddress,
   formatQuoteCode,
 } from '../domain/quote'
+import { describeItem } from '../domain/itemDescription'
 
 export async function generateQuotePdf(
   quote: Quote,
@@ -159,10 +159,24 @@ export async function generateQuotePdf(
 
   line('Itens', 12, 'bold')
   quote.items.forEach((item, idx) => {
-    lineRight(
-      `${idx + 1}. ${customerFacingItemLabel(item.input)}`,
-      formatBrl(item.result.breakdown.finalPrice),
-    )
+    const { title, spec } = describeItem(item.input)
+    lineRight(`${idx + 1}. ${title}`, formatBrl(item.result.breakdown.finalPrice))
+    if (spec) {
+      const specSize = 10
+      const specIndent = 5
+      y -= 0.6
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(specSize)
+      doc.setTextColor(105, 105, 105)
+      const specLines = doc.splitTextToSize(spec, pageW - margin * 2 - specIndent)
+      doc.text(specLines, margin + specIndent, y)
+      doc.setTextColor(30, 30, 30)
+      y += specLines.length * (specSize * 0.45) + 2
+      if (y > 248) {
+        doc.addPage()
+        y = margin
+      }
+    }
     if (item.input.kind !== 'custom') {
       let extraIndex = 0
       for (const extra of item.input.extras) {
