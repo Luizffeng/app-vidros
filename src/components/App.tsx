@@ -920,68 +920,72 @@ function CustomerSection({
       className="customer-section"
     >
       <div className="grid">
-        <label>
-          <span>
-            Nome <span className="required-mark">*</span>
-          </span>
-          <input
-            id="customer-name"
-            disabled={disabled}
-            required
-            aria-invalid={!disabled && !hasName}
-            placeholder="Obrigatório para emitir"
-            value={customer.name ?? ''}
-            onChange={(e) => onChange({ ...customer, name: e.target.value })}
-          />
-        </label>
-        <label>
-          Telefone
-          <input
-            disabled={disabled}
-            inputMode="numeric"
-            pattern="[0-9]*"
-            autoComplete="tel"
-            value={customer.phone ?? ''}
-            onChange={(e) =>
-              onChange({
-                ...customer,
-                phone: digitsOnly(e.target.value),
-              })
-            }
-          />
-        </label>
-        <label>
-          CEP
-          <input
-            disabled={disabled}
-            inputMode="numeric"
-            autoComplete="postal-code"
-            placeholder="00000-000"
-            value={formatCep(customer.cep ?? '')}
-            onChange={(e) => {
-              const cep = digitsOnly(e.target.value, 8)
-              onChange({ ...customer, cep })
-              setCepStatus('idle')
-              setCepMessage(null)
-              if (cep.length === 8) void applyCep(cep)
-            }}
-          />
-        </label>
-        <label>
-          UF
-          <input
-            disabled={disabled}
-            maxLength={2}
-            autoComplete="address-level1"
-            value={customer.state ?? ''}
-            onChange={(e) =>
-              onChange({
-                ...customer,
-                state: e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2),
-              })
-            }
-          />
-        </label>
+        <div className="field-pair field-pair--name full">
+          <label>
+            <span>
+              Nome <span className="required-mark">*</span>
+            </span>
+            <input
+              id="customer-name"
+              disabled={disabled}
+              required
+              aria-invalid={!disabled && !hasName}
+              placeholder="Obrigatório para emitir"
+              value={customer.name ?? ''}
+              onChange={(e) => onChange({ ...customer, name: e.target.value })}
+            />
+          </label>
+          <label>
+            Telefone
+            <input
+              disabled={disabled}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              autoComplete="tel"
+              value={customer.phone ?? ''}
+              onChange={(e) =>
+                onChange({
+                  ...customer,
+                  phone: digitsOnly(e.target.value),
+                })
+              }
+            />
+          </label>
+        </div>
+        <div className="field-pair field-pair--cep full">
+          <label>
+            CEP
+            <input
+              disabled={disabled}
+              inputMode="numeric"
+              autoComplete="postal-code"
+              placeholder="00000-000"
+              value={formatCep(customer.cep ?? '')}
+              onChange={(e) => {
+                const cep = digitsOnly(e.target.value, 8)
+                onChange({ ...customer, cep })
+                setCepStatus('idle')
+                setCepMessage(null)
+                if (cep.length === 8) void applyCep(cep)
+              }}
+            />
+          </label>
+          <label>
+            UF
+            <input
+              disabled={disabled}
+              maxLength={2}
+              autoComplete="address-level1"
+              value={customer.state ?? ''}
+              onChange={(e) =>
+                onChange({
+                  ...customer,
+                  state: e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2),
+                })
+              }
+            />
+          </label>
+        </div>
         <label className="full">
           Rua / logradouro
           <input
@@ -993,39 +997,43 @@ function CustomerSection({
             }
           />
         </label>
-        <label>
-          Número
-          <input
-            disabled={disabled}
-            value={customer.number ?? ''}
-            onChange={(e) => onChange({ ...customer, number: e.target.value })}
-          />
-        </label>
-        <label>
-          Complemento
-          <input
-            disabled={disabled}
-            value={customer.complement ?? ''}
-            onChange={(e) => onChange({ ...customer, complement: e.target.value })}
-          />
-        </label>
-        <label>
-          Bairro
-          <input
-            disabled={disabled}
-            value={customer.neighborhood ?? ''}
-            onChange={(e) => onChange({ ...customer, neighborhood: e.target.value })}
-          />
-        </label>
-        <label>
-          Cidade
-          <input
-            disabled={disabled}
-            autoComplete="address-level2"
-            value={customer.city ?? ''}
-            onChange={(e) => onChange({ ...customer, city: e.target.value })}
-          />
-        </label>
+        <div className="field-pair field-pair--number full">
+          <label>
+            Número
+            <input
+              disabled={disabled}
+              value={customer.number ?? ''}
+              onChange={(e) => onChange({ ...customer, number: e.target.value })}
+            />
+          </label>
+          <label>
+            Complemento
+            <input
+              disabled={disabled}
+              value={customer.complement ?? ''}
+              onChange={(e) => onChange({ ...customer, complement: e.target.value })}
+            />
+          </label>
+        </div>
+        <div className="field-pair field-pair--city full">
+          <label>
+            Bairro
+            <input
+              disabled={disabled}
+              value={customer.neighborhood ?? ''}
+              onChange={(e) => onChange({ ...customer, neighborhood: e.target.value })}
+            />
+          </label>
+          <label>
+            Cidade
+            <input
+              disabled={disabled}
+              autoComplete="address-level2"
+              value={customer.city ?? ''}
+              onChange={(e) => onChange({ ...customer, city: e.target.value })}
+            />
+          </label>
+        </div>
         <label className="full">
           Observações
           <textarea

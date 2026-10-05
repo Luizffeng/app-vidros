@@ -1009,6 +1009,31 @@ label .percent-input .money-input {
   gap: 0.35rem 0.5rem;
 }
 
+.field-pair {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.field-pair > label {
+  min-width: 0;
+}
+
+.field-pair--name {
+  grid-template-columns: 3fr 2fr;
+}
+
+.field-pair--cep {
+  grid-template-columns: minmax(0, 1fr) 4rem;
+}
+
+.field-pair--number {
+  grid-template-columns: 5rem minmax(0, 1fr);
+}
+
+.field-pair--city {
+  grid-template-columns: 1fr 1fr;
+}
+
 .customer-section label {
   gap: 0.15rem;
   font-size: 0.75rem;
