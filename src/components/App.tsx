@@ -158,10 +158,20 @@ export function App() {
     setView('editor')
   }
 
+  const saveQueueRef = useRef<Promise<void>>(Promise.resolve())
+  const latestSavedRef = useRef<Quote | null>(null)
+
+  // Atualiza a tela antes de salvar: inputs controlados esperando a rede perdem
+  // teclas. Saves em fila evitam que uma versão antiga termine por último.
   const persist = async (q: Quote) => {
-    await repo.saveQuote(q)
     setQuote(q)
-    await refresh()
+    latestSavedRef.current = q
+    const save = saveQueueRef.current.then(() =>
+      latestSavedRef.current === q ? repo.saveQuote(q) : undefined,
+    )
+    saveQueueRef.current = save.catch(() => undefined)
+    await save
+    if (latestSavedRef.current === q) await refresh()
   }
 
   const onAddItem = async (input: ItemInput) => {
