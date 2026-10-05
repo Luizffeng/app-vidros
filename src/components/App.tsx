@@ -29,6 +29,14 @@ import { useAccess } from '../auth/access'
 import { createRepository } from '../data/repository'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
 import {
+  filterUfInput,
+  formatPhone,
+  isValidUf,
+  phoneDdd,
+  phoneDigits,
+  withDefaultDdd,
+} from '../domain/brazil'
+import {
   downloadBlob,
   generateQuotePdf,
   shareOrDownloadPdf,
@@ -567,6 +575,7 @@ export function App() {
       <CustomerSection
         customer={quote.customer}
         disabled={readOnly}
+        storeDdd={phoneDdd(settings?.establishment.phone)}
         onChange={(c) => void onCustomer(c)}
       />
 
@@ -874,10 +883,12 @@ export function App() {
 function CustomerSection({
   customer,
   disabled,
+  storeDdd,
   onChange,
 }: {
   customer: CustomerInfo
   disabled: boolean
+  storeDdd?: string
   onChange: (c: CustomerInfo) => void
 }) {
   const [cepStatus, setCepStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle')
@@ -949,16 +960,17 @@ function CustomerSection({
             Telefone
             <input
               disabled={disabled}
+              type="tel"
               inputMode="numeric"
-              pattern="[0-9]*"
-              autoComplete="tel"
-              value={customer.phone ?? ''}
-              onChange={(e) =>
-                onChange({
-                  ...customer,
-                  phone: digitsOnly(e.target.value),
-                })
-              }
+              autoComplete="tel-national"
+              placeholder={storeDdd ? `(${storeDdd}) 99999-9999` : '(00) 00000-0000'}
+              value={formatPhone(customer.phone)}
+              onChange={(e) => onChange({ ...customer, phone: phoneDigits(e.target.value) })}
+              onBlur={(e) => {
+                const current = customerRef.current
+                const phone = withDefaultDdd(e.currentTarget.value, storeDdd)
+                if (phone !== (current.phone ?? '')) onChange({ ...current, phone })
+              }}
             />
           </label>
         </div>
@@ -986,13 +998,17 @@ function CustomerSection({
               disabled={disabled}
               maxLength={2}
               autoComplete="address-level1"
+              autoCapitalize="characters"
               value={customer.state ?? ''}
               onChange={(e) =>
-                onChange({
-                  ...customer,
-                  state: e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2),
-                })
+                onChange({ ...customer, state: filterUfInput(e.target.value, customer.state) })
               }
+              onBlur={(e) => {
+                const current = customerRef.current
+                if (e.currentTarget.value && !isValidUf(e.currentTarget.value)) {
+                  onChange({ ...current, state: '' })
+                }
+              }}
             />
           </label>
         </div>
@@ -1012,8 +1028,9 @@ function CustomerSection({
             Número
             <input
               disabled={disabled}
+              inputMode="numeric"
               value={customer.number ?? ''}
-              onChange={(e) => onChange({ ...customer, number: e.target.value })}
+              onChange={(e) => onChange({ ...customer, number: digitsOnly(e.target.value, 6) })}
             />
           </label>
           <label>

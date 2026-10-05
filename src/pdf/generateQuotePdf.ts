@@ -8,6 +8,7 @@ import {
   formatCustomerAddress,
   formatQuoteCode,
 } from '../domain/quote'
+import { formatPhone } from '../domain/brazil'
 import { describeItem, itemNote } from '../domain/itemDescription'
 
 export async function generateQuotePdf(
@@ -124,7 +125,7 @@ export async function generateQuotePdf(
 
   const headerBits: string[] = []
   if (est?.document) headerBits.push(`CNPJ/CPF ${est.document}`)
-  if (est?.phone) headerBits.push(est.phone)
+  if (est?.phone) headerBits.push(formatPhone(est.phone))
   if (est?.email) headerBits.push(est.email)
   if (headerBits.length > 0) {
     doc.setFontSize(8)
@@ -151,7 +152,7 @@ export async function generateQuotePdf(
   if (quote.customer.name || quote.customer.phone || addressLine) {
     line('Cliente', 12, 'bold')
     if (quote.customer.name) labeled('Nome', quote.customer.name, true)
-    if (quote.customer.phone) labeled('Telefone', quote.customer.phone)
+    if (quote.customer.phone) labeled('Telefone', formatPhone(quote.customer.phone))
     if (addressLine) labeled('Endereço', addressLine)
     if (quote.customer.notes) labeled('Obs.', quote.customer.notes)
     y += 3
@@ -227,7 +228,7 @@ export async function generateQuotePdf(
     for (const part of estAddress.split('\n').filter(Boolean)) {
       footerLines.push({ text: part, size: 8, style: 'normal' })
     }
-    const contact = [est.phone, est.email].filter(Boolean).join('  ·  ')
+    const contact = [est.phone && formatPhone(est.phone), est.email].filter(Boolean).join('  ·  ')
     if (contact) footerLines.push({ text: contact, size: 8, style: 'normal' })
   }
   if (footerLines.length > 0) {

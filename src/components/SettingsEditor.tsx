@@ -4,6 +4,7 @@ import { DEFAULT_LOGO_DATA_URL } from '../data/defaultLogo'
 import { normalizeSettings } from '../data/defaultSettings'
 import { fileToLogoDataUrl } from '../data/logo'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
+import { filterUfInput, formatPhone, isValidUf, phoneDdd, phoneDigits } from '../domain/brazil'
 import { AppHeader } from './AppHeader'
 import type { AppSection } from './AppNav'
 
@@ -218,10 +219,14 @@ export function SettingsEditor({
           <label>
             Telefone
             <input
+              type="tel"
               inputMode="numeric"
-              value={est.phone ?? ''}
-              onChange={(e) => setEst({ phone: digitsOnly(e.target.value) })}
+              placeholder="(00) 00000-0000"
+              aria-invalid={Boolean(est.phone) && !phoneDdd(est.phone)}
+              value={formatPhone(est.phone)}
+              onChange={(e) => setEst({ phone: phoneDigits(e.target.value) })}
             />
+            <span className="field-hint">Com DDD. Completa telefones de clientes sem DDD.</span>
           </label>
           <label className="full">
             E-mail
@@ -251,12 +256,12 @@ export function SettingsEditor({
             UF
             <input
               maxLength={2}
+              autoCapitalize="characters"
               value={est.state ?? ''}
-              onChange={(e) =>
-                setEst({
-                  state: e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2),
-                })
-              }
+              onChange={(e) => setEst({ state: filterUfInput(e.target.value, est.state) })}
+              onBlur={(e) => {
+                if (e.currentTarget.value && !isValidUf(e.currentTarget.value)) setEst({ state: '' })
+              }}
             />
           </label>
           <label className="full">
@@ -269,8 +274,9 @@ export function SettingsEditor({
           <label>
             Número
             <input
+              inputMode="numeric"
               value={est.number ?? ''}
-              onChange={(e) => setEst({ number: e.target.value })}
+              onChange={(e) => setEst({ number: digitsOnly(e.target.value, 6) })}
             />
           </label>
           <label>
