@@ -8,7 +8,7 @@ import {
   formatCustomerAddress,
   formatQuoteCode,
 } from '../domain/quote'
-import { describeItem } from '../domain/itemDescription'
+import { describeItem, itemNote } from '../domain/itemDescription'
 
 export async function generateQuotePdf(
   quote: Quote,
@@ -160,23 +160,26 @@ export async function generateQuotePdf(
   line('Itens', 12, 'bold')
   quote.items.forEach((item, idx) => {
     const { title, spec } = describeItem(item.input)
+    const note = itemNote(item.input)
     lineRight(`${idx + 1}. ${title}`, formatBrl(item.result.breakdown.finalPrice))
-    if (spec) {
-      const specSize = 10
-      const specIndent = 5
+    const subLine = (text: string, style: 'normal' | 'italic') => {
+      const size = 10
+      const indent = 5
       y -= 0.6
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(specSize)
+      doc.setFont('helvetica', style)
+      doc.setFontSize(size)
       doc.setTextColor(105, 105, 105)
-      const specLines = doc.splitTextToSize(spec, pageW - margin * 2 - specIndent)
-      doc.text(specLines, margin + specIndent, y)
+      const lines = doc.splitTextToSize(text, pageW - margin * 2 - indent)
+      doc.text(lines, margin + indent, y)
       doc.setTextColor(30, 30, 30)
-      y += specLines.length * (specSize * 0.45) + 2
+      y += lines.length * (size * 0.45) + 2
       if (y > 248) {
         doc.addPage()
         y = margin
       }
     }
+    if (spec) subLine(spec, 'normal')
+    if (note) subLine(`Obs.: ${note}`, 'italic')
     if (item.input.kind !== 'custom') {
       let extraIndex = 0
       for (const extra of item.input.extras) {

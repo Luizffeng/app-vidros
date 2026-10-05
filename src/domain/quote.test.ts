@@ -56,4 +56,29 @@ describe('quoteShareText', () => {
     expect(text).not.toMatch(/\d+\s*[×x]\s*\d+/)
     expect(text).not.toMatch(/\bmm\b(?!\S)/)
   })
+
+  it('inclui a observação do item em itálico, depois da cor/espessura', () => {
+    let quote = createEmptyDraft('ORC-2026-0002', catalog.config.version)
+    quote = addItem(quote, catalog, {
+      kind: 'espelho',
+      finish: 'Espelho Lapidado',
+      widthMm: 1000,
+      heightMm: 800,
+      glassColor: 'Prata',
+      thicknessMm: '04',
+      markup: 0.3,
+      extras: [],
+      note: '  Banheiro social ',
+    })
+    quote = addItem(quote, catalog, { kind: 'custom', description: 'Película', amount: 80, note: '   ' })
+    const lines = quoteShareText(quote).split('\n')
+
+    const espelho = lines.indexOf('*1. Espelho Lapidado*')
+    expect(lines[espelho + 1]).toBe('Prata 04mm')
+    expect(lines[espelho + 2]).toBe('_Obs.: Banheiro social_')
+    expect(lines[espelho + 3]).toMatch(/^R\$/)
+
+    const custom = lines.indexOf('*2. Película*')
+    expect(lines[custom + 1]).toMatch(/^R\$/)
+  })
 })

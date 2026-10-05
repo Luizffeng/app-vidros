@@ -378,6 +378,7 @@ export function ItemForm({
   const [extraRows, setExtraRows] = useState(seedExtraRows(initial))
   const [customDesc, setCustomDesc] = useState(seeded.customDesc)
   const [customAmount, setCustomAmount] = useState(seeded.customAmount)
+  const [note, setNote] = useState(initial?.note ?? '')
   const [formError, setFormError] = useState<string | null>(null)
   const [numSnap, setNumSnap] = useState({
     spanCm,
@@ -530,7 +531,8 @@ export function ItemForm({
       )
       return
     }
-    onSubmit(input)
+    const trimmedNote = note.trim()
+    onSubmit(trimmedNote ? { ...input, note: trimmedNote } : input)
     setFormError(null)
   }
 
@@ -802,6 +804,17 @@ export function ItemForm({
           </div>
         </div>
       )}
+
+      <label className="item-form__note">
+        Observação
+        <input
+          value={note}
+          maxLength={120}
+          placeholder="Ex.: Banheiro, quarto, 2º andar"
+          onChange={(e) => setNote(e.target.value)}
+        />
+        <span className="field-hint">Sai no PDF e no texto do WhatsApp.</span>
+      </label>
 
       {formError && <p className="banner error">{formError}</p>}
       </div>

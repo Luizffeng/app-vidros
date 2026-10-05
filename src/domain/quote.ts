@@ -11,7 +11,7 @@ import type {
 
 const DEFAULT_VALIDITY_DAYS = 15
 import { priceItem } from './pricing'
-import { describeItem } from './itemDescription'
+import { describeItem, itemNote } from './itemDescription'
 
 export const FREIGHT_LABEL = 'Frete'
 
@@ -227,6 +227,8 @@ function shareItemBlock(item: QuoteItem, index: number): string {
   const { title, spec } = describeItem(item.input)
   const lines = [`*${index + 1}. ${title}*`]
   if (spec) lines.push(spec)
+  const note = itemNote(item.input)
+  if (note) lines.push(`_Obs.: ${note}_`)
   lines.push(formatBrl(item.result.breakdown.finalPrice))
   if (item.input.kind !== 'custom') {
     for (const extra of item.input.extras) {

@@ -94,3 +94,7 @@ export function describeItem(input: ItemInput): ItemDescription {
       return { title: clean(input.description) || 'Item avulso' }
   }
 }
+
+export function itemNote(input: ItemInput): string | undefined {
+  return clean(input.note) || undefined
+}

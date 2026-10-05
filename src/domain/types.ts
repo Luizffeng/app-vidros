@@ -141,7 +141,12 @@ export interface PricingResult {
   notes?: string[]
 }
 
-export interface BoxInput {
+/** Observação livre do item (ex.: banheiro, 2º andar) — sai no PDF e no texto */
+export interface ItemNote {
+  note?: string
+}
+
+export interface BoxInput extends ItemNote {
   kind: 'box'
   spanCm: number
   glassColor: string
@@ -150,7 +155,7 @@ export interface BoxInput {
   extras: ItemExtra[]
 }
 
-export interface CorrerInput {
+export interface CorrerInput extends ItemNote {
   kind: 'correr'
   subtype: CorrerSubtype
   widthMm: number
@@ -162,7 +167,7 @@ export interface CorrerInput {
   extras: ItemExtra[]
 }
 
-export interface PivotanteInput {
+export interface PivotanteInput extends ItemNote {
   kind: 'pivotante'
   widthMm: number
   heightMm: number
@@ -174,7 +179,7 @@ export interface PivotanteInput {
   extras: ItemExtra[]
 }
 
-export interface MaxiarInput {
+export interface MaxiarInput extends ItemNote {
   kind: 'maxiar'
   widthMm: number
   heightMm: number
@@ -185,7 +190,7 @@ export interface MaxiarInput {
   extras: ItemExtra[]
 }
 
-export interface FixoInput {
+export interface FixoInput extends ItemNote {
   kind: 'fixo'
   widthMm: number
   heightMm: number
@@ -195,7 +200,7 @@ export interface FixoInput {
   extras: ItemExtra[]
 }
 
-export interface EspelhoInput {
+export interface EspelhoInput extends ItemNote {
   kind: 'espelho'
   finish: EspelhoFinish
   widthMm: number
@@ -206,7 +211,7 @@ export interface EspelhoInput {
   extras: ItemExtra[]
 }
 
-export interface CustomInput {
+export interface CustomInput extends ItemNote {
   kind: 'custom'
   description: string
   amount: number

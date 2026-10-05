@@ -442,6 +442,14 @@ label .percent-input .money-input {
   padding: 0.85rem 1.1rem 0.35rem;
 }
 
+.item-form__note {
+  margin: 0.75rem 0 0.5rem;
+}
+
+.item-form__note .field-hint {
+  margin: 0;
+}
+
 .modal--item .kind-grid {
   flex: none;
   margin: 0;

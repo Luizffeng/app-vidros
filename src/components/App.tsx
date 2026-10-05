@@ -1134,14 +1134,13 @@ async function writeClipboard(text: string): Promise<boolean> {
 }
 
 function renderZapLine(line: string): ReactNode {
-  const parts = line.split(/(\*[^*]+\*)/g)
-  return parts.map((part, index) =>
-    part.startsWith('*') && part.endsWith('*') && part.length > 2 ? (
-      <strong key={index}>{part.slice(1, -1)}</strong>
-    ) : (
-      part
-    ),
-  )
+  const parts = line.split(/(\*[^*]+\*|_[^_]+_)/g)
+  return parts.map((part, index) => {
+    if (part.length <= 2) return part
+    if (part.startsWith('*') && part.endsWith('*')) return <strong key={index}>{part.slice(1, -1)}</strong>
+    if (part.startsWith('_') && part.endsWith('_')) return <em key={index}>{part.slice(1, -1)}</em>
+    return part
+  })
 }
 
 const PDF_SHARE_HINTS = {
