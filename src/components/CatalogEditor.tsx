@@ -1,12 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import {
-  downloadCatalogJson,
-  isCatalogItemActive,
-  nextNumericId,
-  parseImportedCatalog,
-} from '../data/catalogItems'
-import { normalizeCatalog } from '../data/catalogItems'
-import { loadSeedCatalog } from '../data/seedCatalog'
+import { useEffect, useMemo, useState } from 'react'
+import { isCatalogItemActive, nextNumericId } from '../data/catalogItems'
 import type {
   Acessorio,
   Aluminio,
@@ -102,7 +95,6 @@ export function CatalogEditor({
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const importRef = useRef<HTMLInputElement>(null)
 
   const dirty = useMemo(
     () => JSON.stringify(draft) !== JSON.stringify(catalog),
@@ -130,30 +122,15 @@ export function CatalogEditor({
     }
   }
 
-  const restoreSeed = () => {
-    if (!confirm('Restaurar preços do seed inicial? Alterações locais serão perdidas.')) return
-    setDraft(cloneCatalog(normalizeCatalog(loadSeedCatalog())))
-    setMessage('Seed carregado no editor — salve para aplicar.')
+  const discardChanges = () => {
+    if (!confirm('Descartar as alterações não salvas do catálogo?')) return
+    setDraft(cloneCatalog(catalog))
+    setMessage(null)
     setError(null)
   }
 
-  const onImportFile = async (file: File | undefined) => {
-    if (!file) return
-    try {
-      const text = await file.text()
-      const parsed = parseImportedCatalog(JSON.parse(text) as unknown)
-      setDraft(parsed)
-      setMessage('Catálogo importado — revise e salve para aplicar.')
-      setError(null)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Falha ao importar JSON.')
-    } finally {
-      if (importRef.current) importRef.current.value = ''
-    }
-  }
-
   return (
-    <div className="shell shell--wide">
+    <div className="shell shell--wide shell--with-bar">
       <AppHeader title="Catálogo" current="catalog" onNavigate={onNavigate} />
 
       <p className="lede catalog-lede">
@@ -242,42 +219,20 @@ export function CatalogEditor({
         />
       )}
 
-      <input
-        ref={importRef}
-        type="file"
-        accept="application/json,.json"
-        hidden
-        onChange={(e) => void onImportFile(e.target.files?.[0])}
-      />
-
-      <footer className="actions catalog-actions">
-        <button
-          type="button"
-          className="btn"
-          disabled={busy}
-          onClick={() => downloadCatalogJson(draft)}
-        >
-          Exportar JSON
-        </button>
-        <button
-          type="button"
-          className="btn"
-          disabled={busy}
-          onClick={() => importRef.current?.click()}
-        >
-          Importar JSON
-        </button>
-        <button type="button" className="btn" onClick={restoreSeed} disabled={busy}>
-          Restaurar seed
-        </button>
-        <button
-          type="button"
-          className="btn primary"
-          disabled={busy || !dirty}
-          onClick={() => void save()}
-        >
-          {busy ? 'Salvando…' : dirty ? 'Salvar catálogo' : 'Salvo'}
-        </button>
+      <footer className="action-bar">
+        <div className="action-bar__inner action-bar__inner--pair">
+          <button type="button" className="btn" disabled={busy || !dirty} onClick={discardChanges}>
+            Resetar mudanças
+          </button>
+          <button
+            type="button"
+            className="btn primary"
+            disabled={busy || !dirty}
+            onClick={() => void save()}
+          >
+            {busy ? 'Salvando…' : dirty ? 'Salvar' : 'Salvo'}
+          </button>
+        </div>
       </footer>
     </div>
   )
