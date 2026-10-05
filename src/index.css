@@ -168,15 +168,16 @@ textarea {
 
 .catalog-table th.cell-num {
   text-align: right;
+  white-space: normal;
 }
 
 .catalog-table .cell-money-barra .money-input {
-  width: 5.25rem;
-  max-width: 5.25rem;
+  width: 4.75rem;
+  max-width: 4.75rem;
 }
 
 .catalog-table .cell-desc {
-  min-width: 12rem;
+  min-width: 6rem;
   max-width: 22rem;
   font-size: 0.72rem;
   line-height: 1.3;

@@ -829,10 +829,10 @@ function AluminiosTable({
             <tr>
               <th>Código</th>
               <th>Descrição</th>
+              <th className="cell-num">R$ barra</th>
               <th className="cell-num">
                 Tamanho da barra [<span className="unit">m</span>]
               </th>
-              <th className="cell-num">R$ barra</th>
               <th className="cell-num">
                 R$/<span className="unit">m</span>
               </th>
@@ -847,7 +847,6 @@ function AluminiosTable({
               >
                 <td>{row.codigo}</td>
                 <td className="cell-desc">{row.descricao ?? '—'}</td>
-                <td className="cell-num">{row.metragemBarra}</td>
                 <td className="cell-num cell-money-barra">
                   <MoneyInput
                     value={row.valorBarra}
@@ -863,6 +862,7 @@ function AluminiosTable({
                     }}
                   />
                 </td>
+                <td className="cell-num">{row.metragemBarra}</td>
                 <td className="cell-num">
                   {row.valorMetro.toLocaleString('pt-BR', {
                     minimumFractionDigits: 2,
