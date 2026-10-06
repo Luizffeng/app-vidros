@@ -594,6 +594,7 @@ export function ItemForm({
                 Largura (mm)
                 <input
                   inputMode="numeric"
+                  data-select-all
                   value={widthMm}
                   onChange={(e) => setWidthMm(e.target.value)}
                 />
@@ -602,6 +603,7 @@ export function ItemForm({
                 Altura (mm)
                 <input
                   inputMode="numeric"
+                  data-select-all
                   value={heightMm}
                   onChange={(e) => setHeightMm(e.target.value)}
                 />

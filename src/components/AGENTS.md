@@ -10,8 +10,8 @@ React UI. No price formulas and no Supabase queries except `LoginScreen` (passwo
 | `ItemForm.tsx` | Modal fields per product kind. Markup percent → fraction. |
 | `CatalogEditor.tsx` | Catalog tables, version bump, calls `parseImportedCatalog`. |
 | `SettingsEditor.tsx` | Establishment, validity, share CTA, logo file. |
-| `AppNav.tsx` | Orçamentos / Catálogo. Hidden for `vendedor`. |
-| `AppHeader.tsx` | Settings menu and sign-out. Settings hidden for `vendedor`. |
+| `AppHeader.tsx` | Title + hamburger menu: Orçamentos, Catálogo, Configurações (hidden for `vendedor`), Ajuda, Sair. Owns `AppSection`. `HeaderMenu` is also used in the editor head (`App.tsx`). |
+| `selectAllOnFocus.ts` | Global listener (installed in `main.tsx`): `inputMode="decimal"` and `data-select-all` inputs select their value on focus. |
 | `LoginScreen.tsx` | Email/password form. |
 | `PdfPreview.tsx` | pdf.js preview of a blob. |
 | `Dropdown.tsx`, `Modal.tsx`, `SearchField.tsx`, `useDismiss.ts` | Shared widgets. |
@@ -22,6 +22,7 @@ Domain calls go through `src/domain/quote.ts` and `priceItem`. Persistence is th
 
 - Search `App.tsx` for the handler (`onEmit`, `persist`, `onDeleteDraft`, `openNew`) and read that region. Do not load the whole file, and do not read the icon functions at the bottom, unless the task is those icons.
 - `readOnly` means `quote.status === 'emitted'`. Keep emit/delete rules in the domain; the UI should keep calling `emitQuote` / checking `draft`.
+- `HeaderMenu` is always the last (rightmost) control in a screen header. Screen actions (delete, revise) go to its left.
 - Admin gate is `access.role !== 'vendedor'`. Role loading stays in `src/auth/access.tsx`.
 
 ## Skip unless needed

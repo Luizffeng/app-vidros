@@ -45,7 +45,7 @@ Views are `useState` in `App` (`list` \| `editor` \| `catalog` \| `settings`). T
 
 - **API calls:** `src/data/supabaseRepository.ts`, `src/data/supabaseClient.ts`, `src/auth/access.tsx`, `src/components/LoginScreen.tsx`, `src/data/viacep.ts`. No app-owned HTTP server.
 - **Business logic:** `src/domain/quote.ts`, `src/domain/pricing/`. Rules: [BUSINESS_RULES.md](BUSINESS_RULES.md).
-- **Auth:** Supabase email/password. Gate: `src/auth/access.tsx`. Real write lock: RLS in the migration. UI hide: `AppNav.tsx`, `AppHeader.tsx`, `App.tsx` (`isAdmin`).
+- **Auth:** Supabase email/password. Gate: `src/auth/access.tsx`. Real write lock: RLS in the migration. UI hide: `AppHeader.tsx`, `App.tsx` (`isAdmin`).
 - **State:** React `useState` inside `App`. Only context is `AccessContext`. No Redux/Zustand.
 - **Tests:** colocated `*.test.ts` under `src/`. Run `npm test`. Browser catalog script: `scripts/validate-catalog-browser.mjs` (not in `npm test`).
 - **Config / env:** `.env.example`, `src/vite-env.d.ts`. Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Missing either value means local mode.

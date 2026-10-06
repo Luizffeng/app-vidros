@@ -7,14 +7,14 @@ Rules encoded in the current code. Locations are the evidence. Unclear items are
 - Without Supabase env, role is `local` and the UI is the admin UI, because admin means “not vendedor”. `src/auth/access.tsx`, `src/components/App.tsx` (`isAdmin`).
 - With Supabase, no session shows `LoginScreen`. Failed password shows a generic invalid message. `src/components/LoginScreen.tsx`.
 - `profiles.role === 'admin'` is admin. Any other value, error, or missing row becomes `vendedor`. `loadRole` in `src/auth/access.tsx`.
-- Vendedor does not see Catálogo or Configurações. `src/components/AppNav.tsx`, `src/components/AppHeader.tsx`, `goSection` in `App.tsx`.
+- Vendedor does not see Catálogo or Configurações. `src/components/AppHeader.tsx`, `goSection` in `App.tsx`.
 - Database: any authenticated user can read and write quotes, including delete. Only admin can insert/update catalog and settings, or write the `logos` bucket. `supabase/migrations/20260924120000_init.sql`.
 - New auth user is inserted as `vendedor`. `handle_new_user` in the same migration.
 
 ## Quote status
 
 - Status is only `draft` or `emitted`. `QuoteStatus` in `src/domain/types.ts`.
-- New quote starts `draft`, revision `1`, empty customer, one freight line at 0. `createEmptyDraft`.
+- New quote starts `draft`, revision `1`, empty customer, no additional costs. `createEmptyDraft`.
 - Emit requires at least one item and a non-blank customer name. Otherwise `emitQuote` throws. `src/domain/quote.ts`. The editor also blocks emit and asks for the name before calling it. `onEmit` in `App.tsx`.
 - Emit sets `emittedAt`, `validUntil` from settings validity days (default 15), and `status: 'emitted'`. It does not change prices. `emitQuote`, `computeValidUntil`.
 - Validity date is the issue date plus N days, time 23:59:59.999 local. A day count below 1 falls back to 15. Settings normalize clamps days to 1–3650. `computeValidUntil`, `normalizeSettings` in `src/data/defaultSettings.ts`.
@@ -30,7 +30,7 @@ Rules encoded in the current code. Locations are the evidence. Unclear items are
 - Default markup fractions live on `PricingConfig.defaultMarkup` (seed `src/data/seed/config.json`). The form shows percent and divides by 100. `ItemForm.tsx`.
 - Additional costs and discounts need a label and amount ≥ 0. Blank or invalid rows are dropped on normalize. `normalizeCosts`.
 - Item extras need a description and amount ≥ 0. A legacy numeric extra becomes one line labeled `Adicional` only if &gt; 0. `normalizeExtras`.
-- Freight label is exactly `Frete` (case-insensitive). Amount 0 is kept on the quote but omitted from PDF and share text (those skip additional costs with amount ≤ 0). `isFreightCost`, `generateQuotePdf.ts`, `quoteShareText`.
+- Freight is an ordinary additional cost the user adds (placeholder `Ex.: Frete`). Opening a draft or creating a revision drops a legacy automatic `Frete` line at 0 (`dropEmptyFreight`). Costs with amount ≤ 0 are omitted from PDF and share text. `generateQuotePdf.ts`, `quoteShareText`.
 - Share text shows one discount total, not each discount line. PDF lists discounts only as the total when &gt; 0.
 
 ## Catalog

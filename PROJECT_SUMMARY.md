@@ -10,7 +10,7 @@ Web app for one glass shop to price measured openings, save a draft, emit an imm
 
 - Quote list with search and filter Todos / Emitidos / Rascunhos.
 - Draft items: box, correr (J2F, J4F, P2F, P4F), pivotante, maxim-ar, vidro fixo, espelho, or free-text (`custom`).
-- Per-item extras, quote-level additional costs (freight line included), discounts, per-item markup.
+- Per-item extras, quote-level additional costs (freight typed as one), discounts, per-item markup.
 - Customer CEP lookup (ViaCEP). Name required to emit.
 - Emit locks the quote in the UI. Changes go through a new revision (`ORC-2026-0001` revision 2 displays to the client as `2026-0001-2`).
 - Delete draft only (UI). Emitted quotes stay.
@@ -64,7 +64,7 @@ Postgres tables: `profiles`, `quotes`, `catalog`, `settings`, `quote_counters`. 
 | --- | --- |
 | Authentication / roles | `src/auth/access.tsx`, `src/components/LoginScreen.tsx`, RLS in `supabase/migrations/20260924120000_init.sql` |
 | API / Supabase integration | `src/data/supabaseClient.ts`, `src/data/supabaseRepository.ts`, [API_CONTEXT.md](API_CONTEXT.md) |
-| Quote list or editor UI | `src/components/App.tsx` (search the handler). Header/nav: `AppHeader.tsx`, `AppNav.tsx`. Local map: `src/components/AGENTS.md` |
+| Quote list or editor UI | `src/components/App.tsx` (search the handler). Header/nav menu: `AppHeader.tsx`. Local map: `src/components/AGENTS.md` |
 | Item fields / markup input | `src/components/ItemForm.tsx` |
 | Pricing formula | `src/domain/pricing/index.ts` then the one pricer. Local map: `src/domain/pricing/AGENTS.md`. Tests: `pricing.test.ts` |
 | Emit, revision, totals, WhatsApp text | `src/domain/quote.ts` |

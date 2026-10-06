@@ -13,12 +13,6 @@ const DEFAULT_VALIDITY_DAYS = 15
 import { priceItem } from './pricing'
 import { describeItem, itemNote } from './itemDescription'
 
-export const FREIGHT_LABEL = 'Frete'
-
-export function defaultFreightCost(): AdditionalCost {
-  return { id: uuid(), label: FREIGHT_LABEL, amount: 0 }
-}
-
 function normalizeExtras(raw: unknown): ItemExtra[] {
   if (typeof raw === 'number') {
     if (!Number.isFinite(raw) || raw <= 0) return []
@@ -61,14 +55,12 @@ export function normalizeQuote(quote: Quote): Quote {
   })
 }
 
-export function isFreightCost(cost: AdditionalCost): boolean {
-  return cost.label.trim().toLowerCase() === FREIGHT_LABEL.toLowerCase()
-}
-
-/** Garante linha Frete (R$ 0) no início — cálculo automático de km fica pro depois */
-export function ensureFreightCost(costs: AdditionalCost[]): AdditionalCost[] {
-  if (costs.some(isFreightCost)) return costs
-  return [defaultFreightCost(), ...costs]
+/** Drafts created before freight became optional carry an automatic `Frete` line at R$ 0. */
+export function dropEmptyFreight(costs: AdditionalCost[]): AdditionalCost[] {
+  const next = costs.filter(
+    (c) => !(c.amount === 0 && c.label.trim().toLowerCase() === 'frete'),
+  )
+  return next.length === costs.length ? costs : next
 }
 
 export function createEmptyDraft(
@@ -85,7 +77,7 @@ export function createEmptyDraft(
     updatedAt: now,
     customer: {},
     items: [],
-    additionalCosts: [defaultFreightCost()],
+    additionalCosts: [],
     discounts: [],
     pricingVersion,
     itemsTotal: 0,
@@ -216,7 +208,7 @@ export function createRevision(source: Quote, newId?: string): Quote {
     updatedAt: now,
     emittedAt: undefined,
     validUntil: undefined,
-    additionalCosts: ensureFreightCost(clone.additionalCosts),
+    additionalCosts: dropEmptyFreight(clone.additionalCosts),
   })
 }
 

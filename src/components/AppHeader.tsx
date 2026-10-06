@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { useAccess } from '../auth/access'
-import { AppNav, type AppSection } from './AppNav'
 import { useDismiss } from './useDismiss'
+
+export type AppSection = 'list' | 'catalog' | 'settings'
 
 type MenuEntry = {
   id: string
@@ -10,6 +11,7 @@ type MenuEntry = {
   tag?: string
   disabled?: boolean
   current?: boolean
+  dividerBefore?: boolean
   onSelect?: () => void
 }
 
@@ -22,6 +24,23 @@ const ICON_PROPS = {
   strokeLinejoin: 'round',
   'aria-hidden': true,
 } as const
+
+const QuotesIcon = () => (
+  <svg {...ICON_PROPS}>
+    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+    <path d="M14 3v5h5" />
+    <path d="M9 13h6M9 17h4" />
+  </svg>
+)
+
+const CatalogIcon = () => (
+  <svg {...ICON_PROPS}>
+    <rect x="3" y="3" width="7" height="7" rx="1.5" />
+    <rect x="14" y="3" width="7" height="7" rx="1.5" />
+    <rect x="3" y="14" width="7" height="7" rx="1.5" />
+    <rect x="14" y="14" width="7" height="7" rx="1.5" />
+  </svg>
+)
 
 const GearIcon = () => (
   <svg {...ICON_PROPS}>
@@ -46,7 +65,7 @@ const LogoutIcon = () => (
   </svg>
 )
 
-function HeaderMenu({
+export function HeaderMenu({
   current,
   onNavigate,
 }: {
@@ -68,16 +87,40 @@ function HeaderMenu({
   useDismiss(open, wrapRef, (reason) => close(reason === 'escape'))
 
   const entries: MenuEntry[] = []
-  if (access.role !== 'vendedor') {
-    entries.push({
-      id: 'settings',
-      label: 'Configurações',
-      icon: <GearIcon />,
-      current: current === 'settings',
-      onSelect: () => onNavigate('settings'),
-    })
+  const isAdmin = access.role !== 'vendedor'
+  if (isAdmin) {
+    entries.push(
+      {
+        id: 'list',
+        label: 'Orçamentos',
+        icon: <QuotesIcon />,
+        current: current === 'list',
+        onSelect: () => onNavigate('list'),
+      },
+      {
+        id: 'catalog',
+        label: 'Catálogo',
+        icon: <CatalogIcon />,
+        current: current === 'catalog',
+        onSelect: () => onNavigate('catalog'),
+      },
+      {
+        id: 'settings',
+        label: 'Configurações',
+        icon: <GearIcon />,
+        current: current === 'settings',
+        onSelect: () => onNavigate('settings'),
+      },
+    )
   }
-  entries.push({ id: 'help', label: 'Ajuda', icon: <HelpIcon />, tag: 'em breve', disabled: true })
+  entries.push({
+    id: 'help',
+    label: 'Ajuda',
+    icon: <HelpIcon />,
+    tag: 'em breve',
+    disabled: true,
+    dividerBefore: isAdmin,
+  })
   if (access.signOut) {
     const signOut = access.signOut
     entries.push({
@@ -165,7 +208,9 @@ function HeaderMenu({
               type="button"
               role="menuitem"
               tabIndex={-1}
-              className={`app-menu__item${entry.current ? ' app-menu__item--current' : ''}`}
+              className={`app-menu__item${entry.current ? ' app-menu__item--current' : ''}${
+                entry.dividerBefore ? ' app-menu__item--divider' : ''
+              }`}
               aria-disabled={entry.disabled || undefined}
               aria-current={entry.current ? 'page' : undefined}
               onClick={() => choose(entry)}
@@ -191,15 +236,12 @@ export function AppHeader({
   onNavigate: (section: AppSection) => void
 }) {
   return (
-    <>
-      <header className="topbar app-header">
-        <div className="app-header__titles">
-          <p className="brand-sm">App Vidros</p>
-          <h1 className="title-sm">{title}</h1>
-        </div>
-        <HeaderMenu current={current} onNavigate={onNavigate} />
-      </header>
-      <AppNav current={current} onNavigate={onNavigate} />
-    </>
+    <header className="topbar app-header">
+      <div className="app-header__titles">
+        <p className="brand-sm">App Vidros</p>
+        <h1 className="title-sm">{title}</h1>
+      </div>
+      <HeaderMenu current={current} onNavigate={onNavigate} />
+    </header>
   )
 }

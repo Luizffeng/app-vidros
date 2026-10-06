@@ -8,8 +8,7 @@ import type {
   PricingConfig,
   Vidro,
 } from '../domain/types'
-import { AppHeader } from './AppHeader'
-import type { AppSection } from './AppNav'
+import { AppHeader, type AppSection } from './AppHeader'
 import { Dropdown } from './Dropdown'
 import { Modal } from './Modal'
 import { SearchField } from './SearchField'
@@ -851,9 +850,6 @@ function AluminiosTable({
           Adicionar alumínio
         </button>
       </div>
-      <p className="muted catalog-hint">
-        Edite valor da barra; R$/m recalcula com metragem da barra.
-      </p>
       <div className="table-wrap">
         <table className="catalog-table catalog-table--aluminios">
           <thead>

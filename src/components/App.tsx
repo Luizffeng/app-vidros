@@ -13,12 +13,11 @@ import {
   createEmptyDraft,
   createRevision,
   emitQuote,
-  ensureFreightCost,
+  dropEmptyFreight,
   formatBrl,
   formatQuoteCode,
   quotePdfFilename,
   quoteShareText,
-  isFreightCost,
   recomputeTotals,
   removeItem,
   setAdditionalCosts,
@@ -45,8 +44,7 @@ import {
   shareQuoteText,
 } from '../pdf/generateQuotePdf'
 import { CatalogEditor } from './CatalogEditor'
-import { AppHeader } from './AppHeader'
-import type { AppSection } from './AppNav'
+import { AppHeader, HeaderMenu, type AppSection } from './AppHeader'
 import { Dropdown } from './Dropdown'
 import { SearchField } from './SearchField'
 import { ITEM_KINDS, ItemForm } from './ItemForm'
@@ -153,7 +151,7 @@ export function App() {
     if (!q) return
     setItemModal(null)
     if (q.status === 'draft') {
-      const costs = ensureFreightCost(q.additionalCosts)
+      const costs = dropEmptyFreight(q.additionalCosts)
       if (costs !== q.additionalCosts) {
         const next = recomputeTotals({ ...q, additionalCosts: costs })
         await repo.saveQuote(next)
@@ -524,10 +522,12 @@ export function App() {
           >
             <BackIcon />
           </button>
-          <h1 className="quote-head__code">{formatQuoteCode(quote.number, quote.revision)}</h1>
-          <span className={`status-pill status-pill--${readOnly ? 'emitted' : 'draft'}`}>
-            {readOnly ? 'Emitido' : 'Rascunho'}
-          </span>
+          <div className="quote-head__titles">
+            <h1 className="quote-head__code">{formatQuoteCode(quote.number, quote.revision)}</h1>
+            <span className={`status-pill status-pill--${readOnly ? 'emitted' : 'draft'}`}>
+              {readOnly ? 'Emitido' : 'Rascunho'}
+            </span>
+          </div>
           {readOnly ? (
             <button
               type="button"
@@ -567,6 +567,7 @@ export function App() {
               )}
             </div>
           )}
+          <HeaderMenu current="list" onNavigate={goSection} />
         </div>
       </header>
 
@@ -580,7 +581,14 @@ export function App() {
       />
 
       <CollapsibleSection
-        title="Itens"
+        title={
+          <>
+            Itens
+            {quote.items.length === 0 && !readOnly && (
+              <span className="missing-flag">Adicione um item!</span>
+            )}
+          </>
+        }
         badge={<span className="pill">{quote.items.length}</span>}
         defaultOpen
       >
@@ -930,7 +938,7 @@ function CustomerSection({
         <>
           Cliente
           {hasName && <span className="customer-name"> · {customer.name!.trim()}</span>}
-          {!hasName && !disabled && <span className="missing-flag">Preencha o nome</span>}
+          {!hasName && !disabled && <span className="missing-flag">Preencha o nome!</span>}
         </>
       }
       defaultOpen={!hasName}
@@ -1116,7 +1124,7 @@ function CollapsibleSection({
         <span className="collapsible-section__heading">{title}</span>
         {badge}
         <span className="collapsible-section__chevron" aria-hidden>
-          ▾
+          <ChevronIcon />
         </span>
       </summary>
       <div className="collapsible-section__body">{children}</div>
@@ -1367,6 +1375,21 @@ function WhatsAppIcon() {
   )
 }
 
+function ChevronIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M6 9l6 6 6-6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 function PlusIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1472,7 +1495,6 @@ function AdditionalCostsSection({
   const add = () => {
     const value = parseMoneyBr(amount)
     if (!label.trim() || value == null) return
-    if (label.trim().toLowerCase() === 'frete') return
     onChange([
       ...costs,
       { id: crypto.randomUUID(), label: label.trim(), amount: value },
@@ -1495,49 +1517,40 @@ function AdditionalCostsSection({
       defaultOpen
     >
       <ul className="cost-list">
-        {costs.map((c) => {
-          const freight = isFreightCost(c)
-          return (
-            <li key={c.id}>
-              <div className="inline-form">
-                <span className="inline-form__label">{c.label}</span>
-                {disabled ? (
-                  <span className="inline-form__value">{formatBrl(c.amount)}</span>
-                ) : (
-                  <input
-                    className="money-input"
-                    inputMode="decimal"
-                    aria-label={`Valor ${c.label}`}
-                    defaultValue={c.amount.toFixed(2).replace('.', ',')}
-                    key={`${c.id}-${c.amount}`}
-                    onBlur={(e) => updateAmount(c.id, e.target.value)}
-                  />
-                )}
-                {!disabled && (
-                  <button
-                    type="button"
-                    className="btn btn--remove"
-                    aria-label={freight ? 'Zerar frete' : `Excluir ${c.label}`}
-                    onClick={() => {
-                      if (freight) {
-                        onChange(costs.map((x) => (x.id === c.id ? { ...x, amount: 0 } : x)))
-                        return
-                      }
-                      onChange(costs.filter((x) => x.id !== c.id))
-                    }}
-                  >
-                    <CrossIcon />
-                  </button>
-                )}
-              </div>
-            </li>
-          )
-        })}
+        {costs.map((c) => (
+          <li key={c.id}>
+            <div className="inline-form">
+              <span className="inline-form__label">{c.label}</span>
+              {disabled ? (
+                <span className="inline-form__value">{formatBrl(c.amount)}</span>
+              ) : (
+                <input
+                  className="money-input"
+                  inputMode="decimal"
+                  aria-label={`Valor ${c.label}`}
+                  defaultValue={c.amount.toFixed(2).replace('.', ',')}
+                  key={`${c.id}-${c.amount}`}
+                  onBlur={(e) => updateAmount(c.id, e.target.value)}
+                />
+              )}
+              {!disabled && (
+                <button
+                  type="button"
+                  className="btn btn--remove"
+                  aria-label={`Excluir ${c.label}`}
+                  onClick={() => onChange(costs.filter((x) => x.id !== c.id))}
+                >
+                  <CrossIcon />
+                </button>
+              )}
+            </div>
+          </li>
+        ))}
       </ul>
       {!disabled && (
         <div className="inline-form">
           <input
-            placeholder="Ex.: Andaime"
+            placeholder="Ex.: Frete"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             onKeyDown={(e) => {

@@ -60,7 +60,7 @@ RLS, sessão do usuário (anon key no client). **Nunca** `service_role` no brows
 
 - `quotes`: `authenticated` lê e escreve.
 - `catalog`, `settings`, storage da logo: `authenticated` lê; só `admin` escreve.
-- UI: esconder Catálogo e Configurações de quem não é admin (`src/components/AppNav.tsx`). RLS é a trava real.
+- UI: esconder Catálogo e Configurações de quem não é admin (menu em `src/components/AppHeader.tsx`). RLS é a trava real.
 
 ## Hospedagem
 

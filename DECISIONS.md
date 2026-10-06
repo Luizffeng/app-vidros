@@ -47,7 +47,7 @@ Only choices visible in code or in README / constitution / handoff. Not a change
 ## Admin writes catalog and settings; vendedor does not
 
 - **Decision:** RLS allows catalog/settings/logo writes only for `is_admin()`. UI hides Catálogo and Configurações when `role === 'vendedor'`.
-- **Reason/evidence:** Migration policies. `AppNav.tsx` returns null for vendedor. `AppHeader.tsx` omits settings. `App.tsx` `goSection` returns early. Handoff doc.
+- **Reason/evidence:** Migration policies. `AppHeader.tsx` menu omits Orçamentos/Catálogo/Configurações for vendedor. `App.tsx` `goSection` returns early. Handoff doc.
 - **Consequence:** Hiding a button is not the security boundary. New admin-only writes need a policy, not only a `isAdmin` check.
 
 ## Anon key in the client; no service role
@@ -64,9 +64,9 @@ Only choices visible in code or in README / constitution / handoff. Not a change
 
 ## Freight is a manual additional cost
 
-- **Decision:** Every new draft gets a `Frete` line at amount 0. Automatic km pricing is not implemented.
-- **Reason/evidence:** `FREIGHT_LABEL`, `ensureFreightCost`. `BACKLOG.md` lists km freight as later.
-- **Consequence:** Do not invent a maps API. Keep the manual line unless that backlog item is in scope.
+- **Decision:** Freight is a regular additional cost the user types in (no fixed line since 2026-10). Automatic km pricing is not implemented.
+- **Reason/evidence:** Owner request: fixed `Frete` R$ 0 row was noise. `dropEmptyFreight` cleans legacy drafts. `BACKLOG.md` lists km freight as later.
+- **Consequence:** Do not invent a maps API. Do not reintroduce a fixed freight row unless the km backlog item is in scope.
 
 ## Spec Kit for larger features
 

@@ -4,6 +4,7 @@ import {
   addItem,
   createEmptyDraft,
   displayQuoteNumber,
+  dropEmptyFreight,
   formatDisplayQuoteCode,
   quotePdfFilename,
   quoteShareText,
@@ -40,6 +41,23 @@ function sampleQuote() {
   quote = addItem(quote, catalog, { kind: 'custom', description: '', amount: 80 })
   return quote
 }
+
+describe('custos adicionais', () => {
+  it('rascunho novo começa sem custos', () => {
+    expect(createEmptyDraft('ORC-2026-0001', catalog.config.version).additionalCosts).toEqual([])
+  })
+
+  it('remove só o Frete automático em R$ 0', () => {
+    const costs = [
+      { id: 'a', label: 'Frete', amount: 0 },
+      { id: 'b', label: 'Andaime', amount: 0 },
+      { id: 'c', label: 'frete', amount: 80 },
+    ]
+    expect(dropEmptyFreight(costs).map((c) => c.id)).toEqual(['b', 'c'])
+    const kept = costs.slice(1)
+    expect(dropEmptyFreight(kept)).toBe(kept)
+  })
+})
 
 describe('displayQuoteNumber', () => {
   it('remove o prefixo ORC- sem alterar o restante', () => {

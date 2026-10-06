@@ -63,19 +63,6 @@ textarea {
   padding-bottom: calc(var(--action-bar-h) + env(safe-area-inset-bottom));
 }
 
-.app-nav {
-  display: flex;
-  gap: 0.55rem;
-  margin-bottom: 1.15rem;
-}
-
-.app-nav__btn {
-  flex: 1;
-  font-size: 0.95rem;
-  padding: 0.85rem 0.65rem;
-  text-align: center;
-}
-
 .login-form {
   display: grid;
   gap: 0.85rem;
@@ -202,7 +189,8 @@ textarea {
 }
 
 .catalog-table .money-input {
-  width: 6.5rem;
+  /* fits 9999,99 */
+  width: calc(7ch + 0.8rem + 2px);
   padding: 0.28rem 0.4rem;
   font-size: 0.85rem;
   border-radius: 8px;
@@ -687,7 +675,7 @@ label .percent-input .money-input {
 
 .topbar {
   position: relative;
-  z-index: 5;
+  z-index: 10;
   display: flex;
   gap: 0.75rem;
   align-items: center;
@@ -787,6 +775,20 @@ label .percent-input .money-input {
   color: var(--accent);
 }
 
+.app-menu__item--divider {
+  position: relative;
+  margin-top: 0.35rem;
+}
+
+.app-menu__item--divider::before {
+  content: '';
+  position: absolute;
+  top: calc(-0.25rem - 1px);
+  left: 0.5rem;
+  right: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .app-menu__item[aria-disabled='true'] {
   color: var(--muted);
   cursor: default;
@@ -830,7 +832,7 @@ label .percent-input .money-input {
 
 .quote-head {
   position: relative;
-  z-index: 5;
+  z-index: 10;
   padding-top: 0.85rem;
   margin-bottom: 0.85rem;
   animation: rise 0.35s ease both;
@@ -847,9 +849,16 @@ label .percent-input .money-input {
   gap: 0.5rem;
 }
 
-.quote-head__code {
+.quote-head__titles {
   flex: 1;
   min-width: 0;
+  display: grid;
+  justify-items: start;
+  gap: 0.2rem;
+}
+
+.quote-head__code {
+  max-width: 100%;
   margin: 0;
   text-align: left;
   font-family: var(--display);
@@ -893,13 +902,9 @@ label .percent-input .money-input {
 
 .missing-flag {
   margin-left: 0.6rem;
-  padding: 0.12rem 0.55rem;
-  border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: #f07070;
-  background: rgba(224, 90, 90, 0.14);
-  border: 1px solid rgba(224, 90, 90, 0.55);
   vertical-align: middle;
 }
 
@@ -967,9 +972,26 @@ label .percent-input .money-input {
 }
 
 .collapsible-section__chevron {
-  color: var(--muted);
-  font-size: 0.85rem;
-  transition: transform 0.15s ease;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  transition:
+    transform 0.2s ease,
+    background 0.15s ease;
+}
+
+.collapsible-section__chevron svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.collapsible-section__summary:hover .collapsible-section__chevron {
+  background: rgba(245, 241, 232, 0.18);
 }
 
 .collapsible-section:not([open]) .collapsible-section__chevron {
@@ -1201,14 +1223,6 @@ textarea:focus {
   padding: 0 1rem;
   cursor: pointer;
   font-weight: 600;
-}
-
-.btn.app-nav__btn--active,
-.btn.app-nav__btn--active:hover:not(:disabled) {
-  background: #f2f4f1;
-  color: #121816;
-  border: 1px solid #e6e8e4;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
 }
 
 .btn.primary {

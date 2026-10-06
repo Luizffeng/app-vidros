@@ -5,8 +5,7 @@ import { normalizeSettings } from '../data/defaultSettings'
 import { fileToLogoDataUrl } from '../data/logo'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
 import { filterUfInput, formatPhone, isValidUf, phoneDdd, phoneDigits } from '../domain/brazil'
-import { AppHeader } from './AppHeader'
-import type { AppSection } from './AppNav'
+import { AppHeader, type AppSection } from './AppHeader'
 
 type SettingsTab = 'establishment' | 'quote' | 'logo'
 
@@ -190,33 +189,35 @@ export function SettingsEditor({
                 onChange={(e) => setEst({ email: e.target.value })}
               />
             </label>
-            <label>
-              CEP
-              <input
-                inputMode="numeric"
-                placeholder="00000-000"
-                value={formatCep(est.cep ?? '')}
-                onChange={(e) => {
-                  const cep = digitsOnly(e.target.value, 8)
-                  setEst({ cep })
-                  setCepStatus('idle')
-                  setCepMessage(null)
-                  if (cep.length === 8) void applyCep(cep)
-                }}
-              />
-            </label>
-            <label>
-              UF
-              <input
-                maxLength={2}
-                autoCapitalize="characters"
-                value={est.state ?? ''}
-                onChange={(e) => setEst({ state: filterUfInput(e.target.value, est.state) })}
-                onBlur={(e) => {
-                  if (e.currentTarget.value && !isValidUf(e.currentTarget.value)) setEst({ state: '' })
-                }}
-              />
-            </label>
+            <div className="field-pair field-pair--cep full">
+              <label>
+                CEP
+                <input
+                  inputMode="numeric"
+                  placeholder="00000-000"
+                  value={formatCep(est.cep ?? '')}
+                  onChange={(e) => {
+                    const cep = digitsOnly(e.target.value, 8)
+                    setEst({ cep })
+                    setCepStatus('idle')
+                    setCepMessage(null)
+                    if (cep.length === 8) void applyCep(cep)
+                  }}
+                />
+              </label>
+              <label>
+                UF
+                <input
+                  maxLength={2}
+                  autoCapitalize="characters"
+                  value={est.state ?? ''}
+                  onChange={(e) => setEst({ state: filterUfInput(e.target.value, est.state) })}
+                  onBlur={(e) => {
+                    if (e.currentTarget.value && !isValidUf(e.currentTarget.value)) setEst({ state: '' })
+                  }}
+                />
+              </label>
+            </div>
             <label className="full">
               Rua / logradouro
               <input
@@ -224,35 +225,39 @@ export function SettingsEditor({
                 onChange={(e) => setEst({ street: e.target.value })}
               />
             </label>
-            <label>
-              Número
-              <input
-                inputMode="numeric"
-                value={est.number ?? ''}
-                onChange={(e) => setEst({ number: digitsOnly(e.target.value, 6) })}
-              />
-            </label>
-            <label>
-              Complemento
-              <input
-                value={est.complement ?? ''}
-                onChange={(e) => setEst({ complement: e.target.value })}
-              />
-            </label>
-            <label>
-              Bairro
-              <input
-                value={est.neighborhood ?? ''}
-                onChange={(e) => setEst({ neighborhood: e.target.value })}
-              />
-            </label>
-            <label>
-              Cidade
-              <input
-                value={est.city ?? ''}
-                onChange={(e) => setEst({ city: e.target.value })}
-              />
-            </label>
+            <div className="field-pair field-pair--number full">
+              <label>
+                Número
+                <input
+                  inputMode="numeric"
+                  value={est.number ?? ''}
+                  onChange={(e) => setEst({ number: digitsOnly(e.target.value, 6) })}
+                />
+              </label>
+              <label>
+                Complemento
+                <input
+                  value={est.complement ?? ''}
+                  onChange={(e) => setEst({ complement: e.target.value })}
+                />
+              </label>
+            </div>
+            <div className="field-pair field-pair--city full">
+              <label>
+                Bairro
+                <input
+                  value={est.neighborhood ?? ''}
+                  onChange={(e) => setEst({ neighborhood: e.target.value })}
+                />
+              </label>
+              <label>
+                Cidade
+                <input
+                  value={est.city ?? ''}
+                  onChange={(e) => setEst({ city: e.target.value })}
+                />
+              </label>
+            </div>
           </div>
           {cepMessage && (
             <p className={`cep-status${cepStatus === 'error' ? ' cep-status--error' : ''}`}>
@@ -274,6 +279,7 @@ export function SettingsEditor({
             <input
               className="settings-days"
               inputMode="numeric"
+              data-select-all
               value={String(draft.quoteValidityDays)}
               onChange={(e) => {
                 const n = Number(e.target.value.replace(/\D/g, ''))

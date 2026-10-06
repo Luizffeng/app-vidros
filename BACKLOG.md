@@ -15,13 +15,14 @@ Arquivo vivo. Atualizar ao puxar/fechar item. Specs novas entram em `specs/`. A 
 - [ ] **Modelos de cálculo** (Configurações, fixo por loja): `labor_and_margin` (atual, margem sobre material + mão de obra), `labor_only`, `margin_only`, `margin_on_material` (margem só no material, mão de obra somada sem margem). Snapshot no orçamento ao criar; emitidos não mudam. Aplicar em `priceItem` (pós-processa breakdown), sem mexer nos pricers. Esconder campos de margem / mão de obra conforme modelo
 - [ ] **Fluxo de envio MECE:** emitido mostra Prévia + **Enviar**; Enviar abre folha com PDF (share/download), Texto (prévia + copiar, share nativo / `wa.me` no desktop), Baixar PDF. Sai botão WhatsApp da barra, botões desabilitados da prévia no rascunho e duplicatas
 - [ ] **"+ mais detalhes" no custo do item:** modal com composição (vidro, alumínio, ferragem, acessório, mão de obra) com quantidade, unidade, preço unitário e subtotal. Admin edita preço → salva no catálogo geral (bump de versão), recalcula o item aberto, aviso "Catálogo atualizado". Vendedor só visualiza. Pré-requisito: `BomLine` com `unit`, `source` (tabela + id) e acréscimo de cor nas linhas
+- [ ] **Porta de Correr 1 Folha:** novo cálculo em `priceItem` + teste de paridade. Aguardando refinamento do cálculo pelo dono (planilha/orçamento real, BOM, medidas exemplo)
 - [ ] Backup/restauração de orçamentos (export IndexedDB/JSON)
 - [ ] Smoke E2E do fluxo orçamento (emitir + PDF)
 - [ ] Spec Kit `tasks.md` ou nova spec só quando item virar feature grande
 
 ## Later
 
-- [ ] Frete por km: origem fixa (config) + destino (CEP/endereço cliente) → distância de rota → R$/km (API a decidir: Google / OpenRouteService / OSRM). Hoje: campo Frete manual nos custos adicionais
+- [ ] Frete por km: origem fixa (config) + destino (CEP/endereço cliente) → distância de rota → R$/km (API a decidir: Google / OpenRouteService / OSRM). Hoje: Frete digitado como custo adicional comum
 - [ ] Responsividade fina (~390px) e ajustes de campo
 - [ ] PWA: install, cache, uso offline
 - [ ] Web Share / atalhos mobile (base Web Share já no PDF desktop/mobile quando o browser permitir)
@@ -34,6 +35,18 @@ Arquivo vivo. Atualizar ao puxar/fechar item. Specs novas entram em `specs/`. A 
 - App nativo (iOS/Android)
 
 ## Done
+
+- [x] Topo do orçamento: status abaixo do número; lixeira/revisão + menu (menu sempre na ponta direita); flags de aviso só em texto vermelho com "!"
+
+- [x] Custos adicionais sem linha Frete fixa (placeholder `Ex.: Frete`; Frete R$ 0 legado some ao abrir rascunho)
+- [x] Flag "Adicione um item" na seção Itens do rascunho vazio
+- [x] Catálogo › Alumínios sem texto de ajuda
+
+- [x] Orçamentos / Catálogo / Configurações no menu hambúrguer (sem abas no topo); menu acima dos filtros do catálogo
+- [x] Campos de valor (`inputMode="decimal"`, medidas, validade) selecionam tudo ao focar
+- [x] Seta das seções do editor em SVG (círculo + chevron, gira ao abrir)
+- [x] Catálogo: campo de preço estreito (cabe `9999,99`)
+- [x] Configurações: endereço compacto (CEP+UF, Número+Complemento, Bairro+Cidade)
 
 - [x] PDF baixado como `<código>-<primeiro nome>.pdf` (ex.: `2026-0001-1-Luiz.pdf`)
 - [x] Comparação J4F 2000×1200 com a planilha antiga (orçamento 2026-0016-1): diferenças só de catálogo, acréscimo de cor e arredondamento; motor mantido como está

@@ -16,7 +16,7 @@ Layout, copy, buttons, modals, filters, sticky bars, input masks, mobile fit, ad
 
 ## Steps
 
-1. Pick the file: list, editor, customer, costs, discounts, share modal: `App.tsx`. Item fields: `ItemForm.tsx`. Catalog: `CatalogEditor.tsx`. Settings tabs: `SettingsEditor.tsx`. Nav/header: `AppNav.tsx`, `AppHeader.tsx`. Widgets: `Dropdown.tsx`, `Modal.tsx`, `SearchField.tsx`, `useDismiss.ts`.
+1. Pick the file: list, editor, customer, costs, discounts, share modal: `App.tsx`. Item fields: `ItemForm.tsx`. Catalog: `CatalogEditor.tsx`. Settings tabs: `SettingsEditor.tsx`. Nav/header menu: `AppHeader.tsx`. Select-on-focus: `selectAllOnFocus.ts` (new value inputs use `inputMode="decimal"` or `data-select-all`). Widgets: `Dropdown.tsx`, `Modal.tsx`, `SearchField.tsx`, `useDismiss.ts`.
 2. Locate the span, never the whole file. Search the visible pt-BR label (`"Novo orçamento"`, `"Adicionar item"`, `"Emitir"`) or a handler (`openNew`, `persist`, `onEmit`, `onDeleteDraft`, `goSection`, `readOnly`, `isAdmin`): `rg -n "<label or handler>" src/components/App.tsx`. Read about 60 lines around the hit. Skip the icon functions at the bottom of `App.tsx`.
 3. Styles: `src/index.css` is about 2200 lines. `rg -n "\.<class>" src/index.css`, read the matched blocks and any nearby `@media (max-width: …)` override. Reuse existing classes (`.btn-icon`, sticky action bars, `.remove-pop`) before adding new ones.
 4. Edit and keep these rules:
