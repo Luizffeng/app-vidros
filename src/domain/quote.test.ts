@@ -6,6 +6,7 @@ import {
   displayQuoteNumber,
   formatDisplayQuoteCode,
   quoteShareText,
+  resolveQuoteValidUntil,
   setCustomer,
 } from './quote'
 
@@ -72,6 +73,15 @@ describe('quoteShareText', () => {
     expect(text).not.toMatch(/\bmm\b(?!\S)/)
     expect(text).toContain('*Orçamento 2026-0001-1*')
     expect(text).not.toContain('ORC-')
+  })
+
+  it('inclui validade da proposta após a chamada', () => {
+    const quote = sampleQuote()
+    const validUntil = resolveQuoteValidUntil(quote, 15)
+    const date = new Date(validUntil).toLocaleDateString('pt-BR')
+    const text = quoteShareText(quote, { cta: 'Gostaria de realizar o pedido?' })
+    expect(text).toMatch(/Gostaria de realizar o pedido\?\n\n_Validade da proposta: .+_/)
+    expect(text).toContain(`_Validade da proposta: ${date}_`)
   })
 
   it('inclui a observação do item em itálico, depois da cor/espessura', () => {

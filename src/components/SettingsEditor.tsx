@@ -187,7 +187,7 @@ export function SettingsEditor({
           />
         </label>
         <p className="field-hint">
-          Última linha da mensagem. Vazio, a linha sai do WhatsApp.
+          Antes da validade, no fim da mensagem. Vazio, a linha sai do WhatsApp.
         </p>
       </section>
 

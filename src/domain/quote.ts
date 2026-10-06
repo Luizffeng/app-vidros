@@ -240,6 +240,18 @@ function shareItemBlock(item: QuoteItem, index: number): string {
   return lines.join('\n')
 }
 
+export function resolveQuoteValidUntil(
+  quote: Quote,
+  validityDays: number = DEFAULT_VALIDITY_DAYS,
+): string {
+  const issuedAt = new Date(quote.emittedAt ?? quote.updatedAt)
+  return quote.validUntil ?? computeValidUntil(issuedAt, validityDays)
+}
+
+export function formatValidUntilDate(validUntilIso: string): string {
+  return new Date(validUntilIso).toLocaleDateString('pt-BR')
+}
+
 /** Número exibido ao cliente (sem prefixo interno ORC-). */
 export function displayQuoteNumber(number: string): string {
   return number.replace(/^ORC-/i, '')
@@ -253,9 +265,11 @@ export function formatDisplayQuoteCode(number: string, revision: number): string
 /** Texto curto pra WhatsApp e folha de compartilhar. Sem endereço. */
 export function quoteShareText(
   quote: Quote,
-  options?: { shopName?: string; cta?: string },
+  options?: { shopName?: string; cta?: string; validityDays?: number },
 ): string {
   const code = formatDisplayQuoteCode(quote.number, quote.revision)
+  const validityDays = options?.validityDays ?? DEFAULT_VALIDITY_DAYS
+  const validUntilLine = `_Validade da proposta: ${formatValidUntilDate(resolveQuoteValidUntil(quote, validityDays))}_`
   const shop = options?.shopName?.trim() || 'Vidraçaria'
   const client = quote.customer.name?.trim()
   const cta = options?.cta?.trim() ?? ''
@@ -277,6 +291,8 @@ export function quoteShareText(
     '',
     `*Total ${formatBrl(quote.grandTotal)}*`,
     ...(cta ? ['', cta] : []),
+    '',
+    validUntilLine,
   ]
     .filter((line) => line !== null)
     .join('\n')

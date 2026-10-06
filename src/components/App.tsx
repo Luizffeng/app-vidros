@@ -347,6 +347,7 @@ export function App() {
       quoteShareText(quote, {
         shopName: shop,
         cta: settings?.shareCta,
+        validityDays: settings?.quoteValidityDays,
       }),
     )
   }

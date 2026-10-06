@@ -3,10 +3,11 @@ import type { AppSettings, Quote } from '../domain/types'
 import { formatEstablishmentAddress } from '../data/defaultSettings'
 import { loadImageSize, logoFormatForPdf } from '../data/logo'
 import {
-  computeValidUntil,
   formatBrl,
   formatCustomerAddress,
   formatDisplayQuoteCode,
+  formatValidUntilDate,
+  resolveQuoteValidUntil,
 } from '../domain/quote'
 import { formatPhone } from '../domain/brazil'
 import { describeItem, itemNote } from '../domain/itemDescription'
@@ -136,16 +137,13 @@ export async function generateQuotePdf(
   const code = formatDisplayQuoteCode(quote.number, quote.revision)
   const status = quote.status === 'emitted' ? 'Emitido' : 'Rascunho'
   const issuedAt = new Date(quote.emittedAt ?? quote.updatedAt)
-  const validUntilIso =
-    quote.validUntil ??
-    computeValidUntil(
-      issuedAt,
-      options?.validityDays ?? options?.settings?.quoteValidityDays ?? 15,
-    )
+  const validityDays =
+    options?.validityDays ?? options?.settings?.quoteValidityDays ?? 15
+  const validUntilIso = resolveQuoteValidUntil(quote, validityDays)
 
   line(`${code}  ·  ${status}`, 11, 'bold')
   line(`Data: ${issuedAt.toLocaleString('pt-BR')}`, 10)
-  line(`Validade: ${new Date(validUntilIso).toLocaleDateString('pt-BR')}`, 10)
+  line(`Validade: ${formatValidUntilDate(validUntilIso)}`, 10)
   y += 3
 
   const addressLine = formatCustomerAddress(quote.customer)
