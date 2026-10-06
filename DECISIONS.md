@@ -76,6 +76,6 @@ Only choices visible in code or in README / constitution / handoff. Not a change
 
 ## Docs-only pushes do not deploy
 
-- **Decision:** A push that only touches markdown, `docs/`, `specs/`, `.specify/`, `.cursor/`, or `assets/item-images/` does not deploy production.
+- **Decision:** A push that only touches markdown, `docs/`, `specs/`, `.specify/`, `.cursor/`, `.agents/`, or `assets/item-images/` does not deploy production.
 - **Reason/evidence:** README deploy section. Production builds come from Cloudflare Pages on `main`, not from a GitHub Actions workflow (none is in the repo). Pages skips a build when every changed path matches Build watch path excludes, or when the commit message starts with `[CI Skip]`.
 - **Consequence:** A commit that also changes app code still builds. The exclude list is a Pages project setting. It is not read from a file in git. Until that setting is saved in the dashboard, `[CI Skip]` is the skip that works.

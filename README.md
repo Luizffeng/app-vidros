@@ -80,7 +80,7 @@ Push na `main` que mexe no app gera deploy. Commit só de documento, backlog, sp
 Settings → Build → Build watch paths:
 
 - Include: `*`
-- Exclude: `*.md`, `docs/*`, `specs/*`, `.specify/*`, `.cursor/*`, `assets/item-images/*`
+- Exclude: `*.md`, `docs/*`, `specs/*`, `.specify/*`, `.cursor/*`, `.agents/*`, `assets/item-images/*`
 
 Exclude vale primeiro. Se sobrar arquivo do app, o build roda. Essa lista fica no projeto Pages, não num workflow do git. Até ela estar salva no dashboard, o prefixo `[CI Skip]` na mensagem do commit pula aquele deploy.
 

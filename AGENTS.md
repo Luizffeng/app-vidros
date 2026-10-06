@@ -4,6 +4,8 @@ Routing guide. Read this first. Then open only the folder the task needs.
 
 Deeper context: [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md), [ARCHITECTURE.md](ARCHITECTURE.md), [BUSINESS_RULES.md](BUSINESS_RULES.md), [DECISIONS.md](DECISIONS.md), [API_CONTEXT.md](API_CONTEXT.md). Token notes: [AI_OPTIMIZATION.md](AI_OPTIMIZATION.md).
 
+Reusable procedures (pricing, persisted field, customer output, UI, browser check, ship): `.agents/skills/<name>/SKILL.md`. Open the one that matches the task.
+
 ## What this repo is
 
 App Vidros: single-shop SPA to build, emit, and share glass quotes for one establishment (Forte Vidros is seeded data, not a tenant). Not SaaS. No public signup. Production: https://appvidros.pages.dev. Package name: `app-vidros`.
@@ -60,4 +62,4 @@ Views are `useState` in `App` (`list` \| `editor` \| `catalog` \| `settings`). T
 - Do not read `src/data/defaultLogo.ts` (embedded PNG). Do not read `src/data/seed/*.json` unless the task is seed data.
 - UI quote behavior: search inside `App.tsx` for the handler (`onEmit`, `persist`, `onDeleteDraft`) before reading the whole file.
 - Do not change pricing formulas to “clean them up”. Backlog items live in `BACKLOG.md`, not in code comments.
-- Doc, backlog, spec, `.cursor/`, and `assets/item-images/` edits do not deploy by themselves. See the Cloudflare watch paths in `README.md`. A commit that also changes the app still builds.
+- Doc, backlog, spec, `.cursor/`, `.agents/`, and `assets/item-images/` edits do not deploy by themselves. See the Cloudflare watch paths in `README.md`. A commit that also changes the app still builds.
