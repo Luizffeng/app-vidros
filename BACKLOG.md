@@ -17,7 +17,6 @@ Arquivo vivo. Atualizar ao puxar/fechar item. Specs detalhadas ficam em `specs/`
 - [ ] **Modelos de cálculo** (Configurações, fixo por loja): `labor_and_margin` (atual, margem sobre material + mão de obra), `labor_only`, `margin_only`, `margin_on_material` (margem só no material, mão de obra somada sem margem). Snapshot no orçamento ao criar; emitidos não mudam. Aplicar em `priceItem` (pós-processa breakdown), sem mexer nos pricers. Esconder campos de margem / mão de obra conforme modelo
 - [ ] **Fluxo de envio MECE:** emitido mostra Prévia + **Enviar**; Enviar abre folha com PDF (share/download), Texto (prévia + copiar, share nativo / `wa.me` no desktop), Baixar PDF. Sai botão WhatsApp da barra, botões desabilitados da prévia no rascunho e duplicatas
 - [ ] **"+ mais detalhes" no custo do item:** modal com composição (vidro, alumínio, ferragem, acessório, mão de obra) com quantidade, unidade, preço unitário e subtotal. Admin edita preço → salva no catálogo geral (bump de versão), recalcula o item aberto, aviso "Catálogo atualizado". Vendedor só visualiza. Pré-requisito: `BomLine` com `unit`, `source` (tabela + id) e acréscimo de cor nas linhas
-- [ ] Comparar janela de correr 4 folhas com a planilha antiga (discovery em andamento)
 - [ ] Backup/restauração de orçamentos (export IndexedDB/JSON)
 - [ ] Smoke E2E do fluxo orçamento (emitir + PDF)
 - [ ] Spec Kit `tasks.md` ou nova spec só quando item virar feature grande
@@ -37,6 +36,9 @@ Arquivo vivo. Atualizar ao puxar/fechar item. Specs detalhadas ficam em `specs/`
 - App nativo (iOS/Android)
 
 ## Done
+
+- [x] PDF baixado como `<código>-<primeiro nome>.pdf` (ex.: `2026-0001-1-Luiz.pdf`)
+- [x] Comparação J4F 2000×1200 com a planilha antiga (orçamento 2026-0016-1): diferenças só de catálogo, acréscimo de cor e arredondamento; motor mantido como está
 
 - [x] Configurações em abas (Estabelecimento, Orçamento, Logo)
 - [x] WhatsApp: validade da proposta em itálico na última linha; número sem `ORC-` no texto e no PDF (app interno segue com `ORC-`)
