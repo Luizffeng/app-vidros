@@ -15,8 +15,8 @@ import {
   emitQuote,
   ensureFreightCost,
   formatBrl,
-  formatDisplayQuoteCode,
   formatQuoteCode,
+  quotePdfFilename,
   quoteShareText,
   isFreightCost,
   recomputeTotals,
@@ -238,8 +238,6 @@ export function App() {
     await persist(setDiscounts(quote, discounts))
   }
 
-  const pdfFilename = (q: Quote) => `${formatDisplayQuoteCode(q.number, q.revision)}.pdf`
-
   const buildPdfBlob = async (q: Quote) =>
     generateQuotePdf(q, {
       validityDays: settings?.quoteValidityDays ?? 15,
@@ -309,7 +307,7 @@ export function App() {
     try {
       setBusy(true)
       const blob = await getPdfBlob(quote)
-      downloadBlob(blob, pdfFilename(quote))
+      downloadBlob(blob, quotePdfFilename(quote))
       setError(null)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -320,7 +318,7 @@ export function App() {
 
   const onSharePdf = async () => {
     if (!quote) return
-    const filename = pdfFilename(quote)
+    const filename = quotePdfFilename(quote)
     const ready = readyPdfBlob(quote)
     try {
       if (ready) {

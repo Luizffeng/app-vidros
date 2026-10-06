@@ -5,6 +5,7 @@ import {
   createEmptyDraft,
   displayQuoteNumber,
   formatDisplayQuoteCode,
+  quotePdfFilename,
   quoteShareText,
   resolveQuoteValidUntil,
   setCustomer,
@@ -45,6 +46,17 @@ describe('displayQuoteNumber', () => {
     expect(displayQuoteNumber('ORC-2026-0001-5')).toBe('2026-0001-5')
     expect(displayQuoteNumber('2026-0001-5')).toBe('2026-0001-5')
     expect(formatDisplayQuoteCode('ORC-2026-0001', 3)).toBe('2026-0001-3')
+  })
+})
+
+describe('quotePdfFilename', () => {
+  it('junta código e primeiro nome do cliente', () => {
+    const quote = createEmptyDraft('ORC-2026-0001', catalog.config.version)
+    expect(quotePdfFilename(setCustomer(quote, { name: '  Luiz Felipe Souza ' }))).toBe(
+      '2026-0001-1-Luiz.pdf',
+    )
+    expect(quotePdfFilename(setCustomer(quote, { name: 'João/Silva' }))).toBe('2026-0001-1-JoãoSilva.pdf')
+    expect(quotePdfFilename(quote)).toBe('2026-0001-1.pdf')
   })
 })
 

@@ -262,6 +262,16 @@ export function formatDisplayQuoteCode(number: string, revision: number): string
   return `${displayQuoteNumber(number)}-${revision}`
 }
 
+/** Nome do PDF: código + primeiro nome do cliente, sem caracteres inválidos em arquivo. */
+export function quotePdfFilename(quote: Quote): string {
+  const code = formatDisplayQuoteCode(quote.number, quote.revision)
+  const firstName = (quote.customer.name ?? '')
+    .trim()
+    .split(/\s+/)[0]
+    .replace(/[\\/:*?"<>|.]/g, '')
+  return `${firstName ? `${code}-${firstName}` : code}.pdf`
+}
+
 /** Texto curto pra WhatsApp e folha de compartilhar. Sem endereço. */
 export function quoteShareText(
   quote: Quote,
