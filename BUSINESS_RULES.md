@@ -1,0 +1,73 @@
+# BUSINESS_RULES
+
+Rules encoded in the current code. Locations are the evidence. Unclear items are marked.
+
+## Access
+
+- Without Supabase env, role is `local` and the UI is the admin UI, because admin means “not vendedor”. `src/auth/access.tsx`, `src/components/App.tsx` (`isAdmin`).
+- With Supabase, no session shows `LoginScreen`. Failed password shows a generic invalid message. `src/components/LoginScreen.tsx`.
+- `profiles.role === 'admin'` is admin. Any other value, error, or missing row becomes `vendedor`. `loadRole` in `src/auth/access.tsx`.
+- Vendedor does not see Catálogo or Configurações. `src/components/AppNav.tsx`, `src/components/AppHeader.tsx`, `goSection` in `App.tsx`.
+- Database: any authenticated user can read and write quotes, including delete. Only admin can insert/update catalog and settings, or write the `logos` bucket. `supabase/migrations/20260924120000_init.sql`.
+- New auth user is inserted as `vendedor`. `handle_new_user` in the same migration.
+
+## Quote status
+
+- Status is only `draft` or `emitted`. `QuoteStatus` in `src/domain/types.ts`.
+- New quote starts `draft`, revision `1`, empty customer, one freight line at 0. `createEmptyDraft`.
+- Emit requires at least one item and a non-blank customer name. Otherwise `emitQuote` throws. `src/domain/quote.ts`. The editor also blocks emit and asks for the name before calling it. `onEmit` in `App.tsx`.
+- Emit sets `emittedAt`, `validUntil` from settings validity days (default 15), and `status: 'emitted'`. It does not change prices. `emitQuote`, `computeValidUntil`.
+- Validity date is the issue date plus N days, time 23:59:59.999 local. A day count below 1 falls back to 15. Settings normalize clamps days to 1–3650. `computeValidUntil`, `normalizeSettings` in `src/data/defaultSettings.ts`.
+- Emitted editor is read-only: no item edits, no customer/cost edits, no emit. PDF preview/download/share and WhatsApp text enable only when emitted. `readOnly` in `App.tsx`.
+- Revision clones the quote, new id, `revision + 1`, `parentId` = source `parentId` or source id, status draft, clears `emittedAt` and `validUntil`, keeps the same `number`. `createRevision`.
+- UI delete runs only when `status === 'draft'`. `onDeleteDraft` in `App.tsx`. The repository delete has no status check.
+
+## Money
+
+- `grandTotal = itemsTotal + additionalTotal - discountTotal`. `withTotals` in `src/domain/quote.ts`.
+- Item final price for catalog kinds is `totalCost * (1 + markup)`. `marginPct` is margin / final price. `buildBreakdown` in `src/domain/pricing/math.ts`.
+- Custom item final price is the typed amount. Cost equals that amount. Markup and margin are 0. `priceCustom` in `src/domain/pricing/index.ts`.
+- Default markup fractions live on `PricingConfig.defaultMarkup` (seed `src/data/seed/config.json`). The form shows percent and divides by 100. `ItemForm.tsx`.
+- Additional costs and discounts need a label and amount ≥ 0. Blank or invalid rows are dropped on normalize. `normalizeCosts`.
+- Item extras need a description and amount ≥ 0. A legacy numeric extra becomes one line labeled `Adicional` only if &gt; 0. `normalizeExtras`.
+- Freight label is exactly `Frete` (case-insensitive). Amount 0 is kept on the quote but omitted from PDF and share text (those skip additional costs with amount ≤ 0). `isFreightCost`, `generateQuotePdf.ts`, `quoteShareText`.
+- Share text shows one discount total, not each discount line. PDF lists discounts only as the total when &gt; 0.
+
+## Catalog
+
+- `ativo === false` is inactive. Omitted `ativo` counts as active. `src/domain/catalogActive.ts`.
+- Lookups (`findVidro`, `findKitBox`, `findAcessorio`, `findAluminio`) skip inactive rows and throw if price/code is missing. `src/domain/pricing/math.ts`.
+- Rows with empty `codigo` are dropped on normalize. Import requires `config` and the four arrays, each row with numeric `id` and `codigo`. `src/data/catalogItems.ts`.
+- Saving the catalog from the editor bumps `config.version` to `YYYY-MM-DD`, or to a minute timestamp if that day string is already the version. `bumpVersion` in `src/components/CatalogEditor.tsx`.
+- First catalog read, local or remote, inserts the seed when no row exists. `LocalQuoteRepository.getCatalog`, `SupabaseQuoteRepository.getCatalog`.
+
+## Pricing rules that the pricers implement
+
+Dispatch: `priceItem` in `src/domain/pricing/index.ts`. Shared helpers: `src/domain/pricing/math.ts`. Parity examples: `src/domain/pricing/pricing.test.ts`.
+
+- Box (`box.ts`): height is `config.boxDefaultHeightM` (not an input). Glass type `Box`, thickness code `08`. Kit size is the smallest `kitBoxSizesCm` ≥ span, else the largest. Silicone accessory `SILICONE ACT` times `boxSiliconeQty`. Labor is span(m) × height × `labor.boxPerM2`. `labor.boxAvulso` is not used.
+- Correr (`correr.ts`): glass type `Temperado`. 2-leaf vs 4-leaf changes glass count and profile meters. Aluminum and hardware costs multiply by `(1 + aluminum color surcharge)`. Labor is vão area × `labor.temperedPerM2`. Profile color must exist in `aluminumColors` or pricing throws.
+- Pivotante (`pivotante.ts`): tempered glass, aluminum surcharge on aluminum and hardware. Latch accessory `1335` quantity is 1 only when `hasLatch` is true. Labor is tempered per m².
+- Maxim-ar (`maxiar.ts`): glass billed at least 0.25 m². Labor is the flat `labor.maxiarAvulso`, not per m². Cantoneira code `CANT 5/8"` or a description containing `CANTONEIRA 15`.
+- Fixo and espelho (`fixoEspelho.ts`): glass billed at least 0.25 m². Fixo adds silicone `SILICONE ACT`, quantity `max(1, ceil(vão area))`. Espelho looks up vidro by `finish` (`Espelho Lapidado` or `Espelho Bisotado`) and has no silicone line. Both use `labor.temperedPerM2` on vão area (before the 0.25 glass minimum).
+
+Color surcharge percents and labor numbers in the seed are data, not hardcoded in the pricers. Current seed: `src/data/seed/config.json`.
+
+## Customer and display
+
+- Internal code is `{number}-{revision}` (`formatQuoteCode`). Customer code strips a leading `ORC-` (`formatDisplayQuoteCode`). PDF filename uses the customer code.
+- PDF and WhatsApp omit item size. They show `describeItem` title and spec, optional note, final price, and extras. `src/domain/itemDescription.ts`, `quoteShareText`, `generateQuotePdf`.
+- Legacy customer `address` string is used on the PDF only when structured lines are empty. `formatCustomerAddress`.
+- Phone: digits only, max 11, strips leading `55` and zeros. `src/domain/brazil.ts`.
+- CEP lookup needs 8 digits. Unknown CEP returns null. HTTP failure throws. `src/data/viacep.ts`.
+
+## Logo
+
+- Accepted upload: PNG, JPEG, WebP, max 5 MB, longest edge scaled to 720 px, stored as PNG data URL. `src/data/logo.ts`.
+- Remote save uploads `logos/shop/logo.png` and does not put the data URL in the settings payload. `SupabaseQuoteRepository.saveSettings`.
+
+## What is not a rule yet
+
+- No per-quote owner. Any authenticated user sees every quote (RLS `using (true)`).
+- No status besides draft and emitted. No “sent” or “accepted”.
+- Km freight, offline sync of IndexedDB into Supabase, and alternate margin models are backlog only (`BACKLOG.md`), not code.

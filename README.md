@@ -75,7 +75,14 @@ O plano free do Supabase pausa o projeto após 7 dias sem uso. Uso semanal mant�
 - Variáveis: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (e `NODE_VERSION=22`)
 - `public/_redirects` faz o fallback da SPA para `index.html`
 
-Cada push na `main` gera deploy novo.
+Push na `main` que mexe no app gera deploy. Commit só de documento, backlog, spec ou arquivo fora do build não deve gerar. Não há GitHub Actions neste repo: o gatilho é o Cloudflare Pages.
+
+Settings → Build → Build watch paths:
+
+- Include: `*`
+- Exclude: `*.md`, `docs/*`, `specs/*`, `.specify/*`, `.cursor/*`, `assets/item-images/*`
+
+Exclude vale primeiro. Se sobrar arquivo do app, o build roda. Essa lista fica no projeto Pages, não num workflow do git. Até ela estar salva no dashboard, o prefixo `[CI Skip]` na mensagem do commit pula aquele deploy.
 
 ## Dados
 
@@ -84,4 +91,4 @@ Catálogo inicial em `src/data/seed/` (exportado da planilha de exemplo). No Sup
 ## Backlog e specs
 
 - Prioridades vivas em [`BACKLOG.md`](./BACKLOG.md)
-- Projeto com [GitHub Spec Kit](https://github.com/github/spec-kit); constitution em `.specify/memory/constitution.md`, specs em `specs/`
+- Projeto com [GitHub Spec Kit](https://github.com/github/spec-kit); constitution em `.specify/memory/constitution.md`. Specs novas entram em `specs/`. A spec antiga do MVP (`001-mvp-orcamentos`) foi removida.

@@ -1,10 +1,8 @@
 # Backlog — App Vidros
 
-Arquivo vivo. Atualizar ao puxar/fechar item. Specs detalhadas ficam em `specs/`.
+Arquivo vivo. Atualizar ao puxar/fechar item. Specs novas entram em `specs/`. A spec antiga do MVP foi removida.
 
 **Estratégia:** Web desktop primeiro (fluxo completo, catálogo, PDF, qualidade). Responsividade fina + PWA/offline depois — domínio e UI web já estáveis.
-
-**MVP 001** (`specs/001-mvp-orcamentos/`): entregue — rascunho, itens, custos, emit imutável, revisão, PDF, seed + testes básicos.
 
 ---
 
