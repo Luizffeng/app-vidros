@@ -1075,7 +1075,7 @@ label .percent-input .money-input {
 }
 
 .field-pair--name {
-  grid-template-columns: 3fr 2fr;
+  grid-template-columns: minmax(0, 3fr) minmax(8.5rem, 2fr);
 }
 
 .field-pair--cep {
