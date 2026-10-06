@@ -8,6 +8,14 @@ import { filterUfInput, formatPhone, isValidUf, phoneDdd, phoneDigits } from '..
 import { AppHeader } from './AppHeader'
 import type { AppSection } from './AppNav'
 
+type SettingsTab = 'establishment' | 'quote' | 'logo'
+
+const SETTINGS_TABS: { id: SettingsTab; label: string }[] = [
+  { id: 'establishment', label: 'Estabelecimento' },
+  { id: 'quote', label: 'Orçamento' },
+  { id: 'logo', label: 'Logo' },
+]
+
 export function SettingsEditor({
   settings,
   onSave,
@@ -24,6 +32,7 @@ export function SettingsEditor({
   const [cepStatus, setCepStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle')
   const [cepMessage, setCepMessage] = useState<string | null>(null)
   const [logoBusy, setLogoBusy] = useState(false)
+  const [tab, setTab] = useState<SettingsTab>('establishment')
   const logoInputRef = useRef<HTMLInputElement>(null)
 
   const dirty = useMemo(
@@ -113,200 +122,235 @@ export function SettingsEditor({
       {error && <div className="banner error">{error}</div>}
       {message && !error && <div className="banner ok">{message}</div>}
 
-      <section className="section">
-        <h2>Logo</h2>
-        <div className="logo-row">
-          <div className="logo-preview">
-            {draft.logoDataUrl ? (
-              <img src={draft.logoDataUrl} alt="Logo do estabelecimento" />
-            ) : (
-              <span className="muted">Sem logo</span>
-            )}
+      <div className="tabs" role="tablist" aria-label="Seções das configurações">
+        {SETTINGS_TABS.map(({ id, label }) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            id={`settings-tab-${id}`}
+            className="tabs__tab"
+            aria-selected={tab === id}
+            aria-controls={`settings-panel-${id}`}
+            onClick={() => setTab(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'establishment' && (
+        <section
+          className="section"
+          role="tabpanel"
+          id="settings-panel-establishment"
+          aria-labelledby="settings-tab-establishment"
+        >
+          <div className="grid">
+            <label className="full">
+              Nome / razão social
+              <input
+                value={est.name}
+                onChange={(e) => setEst({ name: e.target.value })}
+              />
+            </label>
+            <label className="full">
+              Nome fantasia
+              <input
+                value={est.tradeName ?? ''}
+                onChange={(e) => setEst({ tradeName: e.target.value })}
+              />
+            </label>
+            <label>
+              CNPJ / CPF
+              <input
+                inputMode="numeric"
+                value={est.document ?? ''}
+                onChange={(e) => setEst({ document: digitsOnly(e.target.value, 14) })}
+              />
+            </label>
+            <label>
+              Telefone
+              <input
+                type="tel"
+                inputMode="numeric"
+                placeholder="(00) 00000-0000"
+                aria-invalid={Boolean(est.phone) && !phoneDdd(est.phone)}
+                value={formatPhone(est.phone)}
+                onChange={(e) => setEst({ phone: phoneDigits(e.target.value) })}
+              />
+              <span className="field-hint">Com DDD. Completa telefones de clientes sem DDD.</span>
+            </label>
+            <label className="full">
+              E-mail
+              <input
+                type="email"
+                autoComplete="email"
+                value={est.email ?? ''}
+                onChange={(e) => setEst({ email: e.target.value })}
+              />
+            </label>
+            <label>
+              CEP
+              <input
+                inputMode="numeric"
+                placeholder="00000-000"
+                value={formatCep(est.cep ?? '')}
+                onChange={(e) => {
+                  const cep = digitsOnly(e.target.value, 8)
+                  setEst({ cep })
+                  setCepStatus('idle')
+                  setCepMessage(null)
+                  if (cep.length === 8) void applyCep(cep)
+                }}
+              />
+            </label>
+            <label>
+              UF
+              <input
+                maxLength={2}
+                autoCapitalize="characters"
+                value={est.state ?? ''}
+                onChange={(e) => setEst({ state: filterUfInput(e.target.value, est.state) })}
+                onBlur={(e) => {
+                  if (e.currentTarget.value && !isValidUf(e.currentTarget.value)) setEst({ state: '' })
+                }}
+              />
+            </label>
+            <label className="full">
+              Rua / logradouro
+              <input
+                value={est.street ?? ''}
+                onChange={(e) => setEst({ street: e.target.value })}
+              />
+            </label>
+            <label>
+              Número
+              <input
+                inputMode="numeric"
+                value={est.number ?? ''}
+                onChange={(e) => setEst({ number: digitsOnly(e.target.value, 6) })}
+              />
+            </label>
+            <label>
+              Complemento
+              <input
+                value={est.complement ?? ''}
+                onChange={(e) => setEst({ complement: e.target.value })}
+              />
+            </label>
+            <label>
+              Bairro
+              <input
+                value={est.neighborhood ?? ''}
+                onChange={(e) => setEst({ neighborhood: e.target.value })}
+              />
+            </label>
+            <label>
+              Cidade
+              <input
+                value={est.city ?? ''}
+                onChange={(e) => setEst({ city: e.target.value })}
+              />
+            </label>
           </div>
-          <div className="logo-actions">
+          {cepMessage && (
+            <p className={`cep-status${cepStatus === 'error' ? ' cep-status--error' : ''}`}>
+              {cepStatus === 'loading' ? 'Buscando CEP…' : cepMessage}
+            </p>
+          )}
+        </section>
+      )}
+
+      {tab === 'quote' && (
+        <section
+          className="section"
+          role="tabpanel"
+          id="settings-panel-quote"
+          aria-labelledby="settings-tab-quote"
+        >
+          <label className="settings-field">
+            Validade padrão (dias)
             <input
-              ref={logoInputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              hidden
-              onChange={(e) => void onLogoPick(e.target.files?.[0])}
+              className="settings-days"
+              inputMode="numeric"
+              value={String(draft.quoteValidityDays)}
+              onChange={(e) => {
+                const n = Number(e.target.value.replace(/\D/g, ''))
+                setDraft((d) => ({
+                  ...d,
+                  quoteValidityDays: Number.isFinite(n) && n >= 1 ? Math.min(n, 3650) : d.quoteValidityDays,
+                }))
+              }}
             />
-            <button
-              type="button"
-              className="btn"
-              disabled={logoBusy || busy}
-              onClick={() => logoInputRef.current?.click()}
-            >
-              {logoBusy ? 'Processando…' : draft.logoDataUrl ? 'Trocar logo' : 'Enviar logo'}
-            </button>
-            {draft.logoDataUrl && draft.logoDataUrl !== DEFAULT_LOGO_DATA_URL && (
+          </label>
+          <p className="field-hint">Data do orçamento + N dias. Gravada na emissão.</p>
+          <label className="settings-field">
+            Chamada no WhatsApp
+            <textarea
+              rows={2}
+              maxLength={180}
+              value={draft.shareCta}
+              onChange={(e) => setDraft((d) => ({ ...d, shareCta: e.target.value }))}
+            />
+          </label>
+          <p className="field-hint">
+            Antes da validade, no fim da mensagem. Vazio, a linha sai do WhatsApp.
+          </p>
+        </section>
+      )}
+
+      {tab === 'logo' && (
+        <section
+          className="section"
+          role="tabpanel"
+          id="settings-panel-logo"
+          aria-labelledby="settings-tab-logo"
+        >
+          <div className="logo-row">
+            <div className="logo-preview">
+              {draft.logoDataUrl ? (
+                <img src={draft.logoDataUrl} alt="Logo do estabelecimento" />
+              ) : (
+                <span className="muted">Sem logo</span>
+              )}
+            </div>
+            <div className="logo-actions">
+              <input
+                ref={logoInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                hidden
+                onChange={(e) => void onLogoPick(e.target.files?.[0])}
+              />
               <button
                 type="button"
-                className="btn danger"
-                disabled={busy}
-                onClick={() => {
-                  setDraft((d) => ({ ...d, logoDataUrl: DEFAULT_LOGO_DATA_URL }))
-                  setMessage('Logo padrão restaurada — salve as configurações.')
-                }}
+                className="btn"
+                disabled={logoBusy || busy}
+                onClick={() => logoInputRef.current?.click()}
               >
-                Restaurar padrão
+                {logoBusy ? 'Processando…' : draft.logoDataUrl ? 'Trocar logo' : 'Enviar logo'}
               </button>
-            )}
-            <p className="muted catalog-hint">
-              PNG, JPEG ou WebP · até 5 MB · redimensionada automaticamente.
-            </p>
+              {draft.logoDataUrl && draft.logoDataUrl !== DEFAULT_LOGO_DATA_URL && (
+                <button
+                  type="button"
+                  className="btn danger"
+                  disabled={busy}
+                  onClick={() => {
+                    setDraft((d) => ({ ...d, logoDataUrl: DEFAULT_LOGO_DATA_URL }))
+                    setMessage('Logo padrão restaurada — salve as configurações.')
+                  }}
+                >
+                  Restaurar padrão
+                </button>
+              )}
+              <p className="muted catalog-hint">
+                PNG, JPEG ou WebP · até 5 MB · redimensionada automaticamente.
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <h2>Orçamento</h2>
-        <label className="settings-field">
-          Validade padrão (dias)
-          <input
-            className="settings-days"
-            inputMode="numeric"
-            value={String(draft.quoteValidityDays)}
-            onChange={(e) => {
-              const n = Number(e.target.value.replace(/\D/g, ''))
-              setDraft((d) => ({
-                ...d,
-                quoteValidityDays: Number.isFinite(n) && n >= 1 ? Math.min(n, 3650) : d.quoteValidityDays,
-              }))
-            }}
-          />
-        </label>
-        <p className="field-hint">Data do orçamento + N dias. Gravada na emissão.</p>
-        <label className="settings-field">
-          Chamada no WhatsApp
-          <textarea
-            rows={2}
-            maxLength={180}
-            value={draft.shareCta}
-            onChange={(e) => setDraft((d) => ({ ...d, shareCta: e.target.value }))}
-          />
-        </label>
-        <p className="field-hint">
-          Antes da validade, no fim da mensagem. Vazio, a linha sai do WhatsApp.
-        </p>
-      </section>
-
-      <section className="section">
-        <h2>Estabelecimento</h2>
-        <div className="grid">
-          <label className="full">
-            Nome / razão social
-            <input
-              value={est.name}
-              onChange={(e) => setEst({ name: e.target.value })}
-            />
-          </label>
-          <label className="full">
-            Nome fantasia
-            <input
-              value={est.tradeName ?? ''}
-              onChange={(e) => setEst({ tradeName: e.target.value })}
-            />
-          </label>
-          <label>
-            CNPJ / CPF
-            <input
-              inputMode="numeric"
-              value={est.document ?? ''}
-              onChange={(e) => setEst({ document: digitsOnly(e.target.value, 14) })}
-            />
-          </label>
-          <label>
-            Telefone
-            <input
-              type="tel"
-              inputMode="numeric"
-              placeholder="(00) 00000-0000"
-              aria-invalid={Boolean(est.phone) && !phoneDdd(est.phone)}
-              value={formatPhone(est.phone)}
-              onChange={(e) => setEst({ phone: phoneDigits(e.target.value) })}
-            />
-            <span className="field-hint">Com DDD. Completa telefones de clientes sem DDD.</span>
-          </label>
-          <label className="full">
-            E-mail
-            <input
-              type="email"
-              autoComplete="email"
-              value={est.email ?? ''}
-              onChange={(e) => setEst({ email: e.target.value })}
-            />
-          </label>
-          <label>
-            CEP
-            <input
-              inputMode="numeric"
-              placeholder="00000-000"
-              value={formatCep(est.cep ?? '')}
-              onChange={(e) => {
-                const cep = digitsOnly(e.target.value, 8)
-                setEst({ cep })
-                setCepStatus('idle')
-                setCepMessage(null)
-                if (cep.length === 8) void applyCep(cep)
-              }}
-            />
-          </label>
-          <label>
-            UF
-            <input
-              maxLength={2}
-              autoCapitalize="characters"
-              value={est.state ?? ''}
-              onChange={(e) => setEst({ state: filterUfInput(e.target.value, est.state) })}
-              onBlur={(e) => {
-                if (e.currentTarget.value && !isValidUf(e.currentTarget.value)) setEst({ state: '' })
-              }}
-            />
-          </label>
-          <label className="full">
-            Rua / logradouro
-            <input
-              value={est.street ?? ''}
-              onChange={(e) => setEst({ street: e.target.value })}
-            />
-          </label>
-          <label>
-            Número
-            <input
-              inputMode="numeric"
-              value={est.number ?? ''}
-              onChange={(e) => setEst({ number: digitsOnly(e.target.value, 6) })}
-            />
-          </label>
-          <label>
-            Complemento
-            <input
-              value={est.complement ?? ''}
-              onChange={(e) => setEst({ complement: e.target.value })}
-            />
-          </label>
-          <label>
-            Bairro
-            <input
-              value={est.neighborhood ?? ''}
-              onChange={(e) => setEst({ neighborhood: e.target.value })}
-            />
-          </label>
-          <label>
-            Cidade
-            <input
-              value={est.city ?? ''}
-              onChange={(e) => setEst({ city: e.target.value })}
-            />
-          </label>
-        </div>
-        {cepMessage && (
-          <p className={`cep-status${cepStatus === 'error' ? ' cep-status--error' : ''}`}>
-            {cepStatus === 'loading' ? 'Buscando CEP…' : cepMessage}
-          </p>
-        )}
-      </section>
+        </section>
+      )}
 
       <footer className="action-bar">
         <div className="action-bar__inner action-bar__inner--pair">
