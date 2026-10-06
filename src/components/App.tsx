@@ -684,10 +684,6 @@ export function App() {
           </article>
         ))}
 
-        {quote.items.length === 0 && (
-          <p className="muted">Nenhum item neste orçamento.</p>
-        )}
-
         {!readOnly && (
           <div className="items-toolbar">
             <button
