@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { loadSeedCatalog } from '../data/seedCatalog'
-import { addItem, createEmptyDraft, quoteShareText, setCustomer } from './quote'
+import {
+  addItem,
+  createEmptyDraft,
+  displayQuoteNumber,
+  formatDisplayQuoteCode,
+  quoteShareText,
+  setCustomer,
+} from './quote'
 
 const catalog = loadSeedCatalog()
 
@@ -32,6 +39,14 @@ function sampleQuote() {
   return quote
 }
 
+describe('displayQuoteNumber', () => {
+  it('remove o prefixo ORC- sem alterar o restante', () => {
+    expect(displayQuoteNumber('ORC-2026-0001-5')).toBe('2026-0001-5')
+    expect(displayQuoteNumber('2026-0001-5')).toBe('2026-0001-5')
+    expect(formatDisplayQuoteCode('ORC-2026-0001', 3)).toBe('2026-0001-3')
+  })
+})
+
 describe('quoteShareText', () => {
   it('descreve tipo e cor/espessura sem medidas', () => {
     const quote = sampleQuote()
@@ -55,6 +70,8 @@ describe('quoteShareText', () => {
 
     expect(text).not.toMatch(/\d+\s*[×x]\s*\d+/)
     expect(text).not.toMatch(/\bmm\b(?!\S)/)
+    expect(text).toContain('*Orçamento 2026-0001-1*')
+    expect(text).not.toContain('ORC-')
   })
 
   it('inclui a observação do item em itálico, depois da cor/espessura', () => {

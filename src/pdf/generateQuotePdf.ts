@@ -6,7 +6,7 @@ import {
   computeValidUntil,
   formatBrl,
   formatCustomerAddress,
-  formatQuoteCode,
+  formatDisplayQuoteCode,
 } from '../domain/quote'
 import { formatPhone } from '../domain/brazil'
 import { describeItem, itemNote } from '../domain/itemDescription'
@@ -133,7 +133,7 @@ export async function generateQuotePdf(
   }
   y = headerH + 8
 
-  const code = formatQuoteCode(quote.number, quote.revision)
+  const code = formatDisplayQuoteCode(quote.number, quote.revision)
   const status = quote.status === 'emitted' ? 'Emitido' : 'Rascunho'
   const issuedAt = new Date(quote.emittedAt ?? quote.updatedAt)
   const validUntilIso =

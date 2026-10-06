@@ -15,6 +15,7 @@ import {
   emitQuote,
   ensureFreightCost,
   formatBrl,
+  formatDisplayQuoteCode,
   formatQuoteCode,
   quoteShareText,
   isFreightCost,
@@ -237,7 +238,7 @@ export function App() {
     await persist(setDiscounts(quote, discounts))
   }
 
-  const pdfFilename = (q: Quote) => `${formatQuoteCode(q.number, q.revision)}.pdf`
+  const pdfFilename = (q: Quote) => `${formatDisplayQuoteCode(q.number, q.revision)}.pdf`
 
   const buildPdfBlob = async (q: Quote) =>
     generateQuotePdf(q, {

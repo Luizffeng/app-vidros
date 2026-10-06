@@ -240,12 +240,22 @@ function shareItemBlock(item: QuoteItem, index: number): string {
   return lines.join('\n')
 }
 
+/** Número exibido ao cliente (sem prefixo interno ORC-). */
+export function displayQuoteNumber(number: string): string {
+  return number.replace(/^ORC-/i, '')
+}
+
+/** Código exibido no PDF e no WhatsApp. */
+export function formatDisplayQuoteCode(number: string, revision: number): string {
+  return `${displayQuoteNumber(number)}-${revision}`
+}
+
 /** Texto curto pra WhatsApp e folha de compartilhar. Sem endereço. */
 export function quoteShareText(
   quote: Quote,
   options?: { shopName?: string; cta?: string },
 ): string {
-  const code = formatQuoteCode(quote.number, quote.revision)
+  const code = formatDisplayQuoteCode(quote.number, quote.revision)
   const shop = options?.shopName?.trim() || 'Vidraçaria'
   const client = quote.customer.name?.trim()
   const cta = options?.cta?.trim() ?? ''
