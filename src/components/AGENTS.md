@@ -6,7 +6,7 @@ React UI. No price formulas and no Supabase queries except `LoginScreen` (passwo
 
 | File | Owns |
 | --- | --- |
-| `App.tsx` | Views `list` \| `editor` \| `catalog` \| `settings`. Quote state, persist queue, emit, revision, delete, PDF/share actions. Also customer, costs, discounts, and share modal in the same file. |
+| `App.tsx` | Views `list` \| `editor` \| `catalog` \| `settings`. Quote state, persist queue, emit, revision, delete, PDF/share actions. Also customer, costs, discounts, send sheet (`SendSheet`: share PDF, text, download) and text share modal in the same file. |
 | `ItemForm.tsx` | Modal fields per product kind. Markup percent → fraction. |
 | `CatalogEditor.tsx` | Catalog tables, version bump, calls `parseImportedCatalog`. |
 | `SettingsEditor.tsx` | Establishment, validity, share CTA, logo file. |

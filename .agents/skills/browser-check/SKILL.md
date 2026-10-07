@@ -27,7 +27,7 @@ Nothing else by default. Open `scripts/validate-catalog-browser.mjs` only for ca
 2. Open the URL with the browser tool. Viewports: 390×844 first (sales staff use phones), 360 wide for tight rows, 1280 wide only if desktop layout changed.
 3. Local mode starts with the seed catalog and admin UI (no login). For emitted-only features (PDF preview, download, share, WhatsApp text): "Novo orçamento", add an item, fill the customer name, "Emitir".
 4. Save screenshots under `tmp-browser-qa/` (gitignored). Do not write `tmp-*.png` to the repo root.
-5. Catalog regression: `APP_URL=http://127.0.0.1:5173 node scripts/validate-catalog-browser.mjs`. It uses Playwright Chromium; if the browser binary is missing, `npx playwright install chromium` needs network.
+5. Quote flow regression (create → item → emit → PDF preview/download): `APP_URL=http://127.0.0.1:5173 node scripts/smoke-quote-browser.mjs`. Catalog regression: `APP_URL=http://127.0.0.1:5173 node scripts/validate-catalog-browser.mjs`. It uses Playwright Chromium; if the browser binary is missing, `npx playwright install chromium` needs network.
 6. Stop the dev server if you started it.
 
 ## Scope

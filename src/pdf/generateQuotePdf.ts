@@ -1,4 +1,3 @@
-import { jsPDF } from 'jspdf'
 import type { AppSettings, Quote } from '../domain/types'
 import { formatEstablishmentAddress } from '../data/defaultSettings'
 import { loadImageSize, logoFormatForPdf } from '../data/logo'
@@ -16,6 +15,7 @@ export async function generateQuotePdf(
   quote: Quote,
   options?: { validityDays?: number; settings?: AppSettings },
 ): Promise<Blob> {
+  const { jsPDF } = await import('jspdf')
   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
   const margin = 16
   const pageW = 210

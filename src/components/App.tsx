@@ -77,6 +77,7 @@ export function App() {
   const [pdfPreviewBlob, setPdfPreviewBlob] = useState<Blob | null>(null)
   const pdfCacheRef = useRef<{ key: string; promise: Promise<Blob>; blob?: Blob } | null>(null)
   const [shareText, setShareText] = useState<string | null>(null)
+  const [sendOpen, setSendOpen] = useState(false)
   const [listQuery, setListQuery] = useState('')
   const [listStatus, setListStatus] = useState<'all' | 'emitted' | 'draft'>('all')
 
@@ -787,29 +788,15 @@ export function App() {
               <EyeIcon />
             </IconAction>
             {readOnly ? (
-              <>
-                <IconAction label="Baixar PDF" disabled={busy} onClick={() => void onDownloadPdf()}>
-                  <DownloadIcon />
-                </IconAction>
-                {pdfShareSupported && (
-                  <IconAction
-                    label="Compartilhar PDF"
-                    className="primary"
-                    disabled={busy}
-                    onClick={() => void onSharePdf()}
-                  >
-                    <ShareIcon />
-                  </IconAction>
-                )}
-                <IconAction
-                  label="Enviar texto no WhatsApp"
-                  className="action-bar__zap"
-                  disabled={busy}
-                  onClick={openSharePreview}
-                >
-                  <WhatsAppIcon />
-                </IconAction>
-              </>
+              <button
+                type="button"
+                className="btn primary action-bar__send"
+                disabled={busy}
+                onClick={() => setSendOpen(true)}
+              >
+                <ShareIcon />
+                <span>Enviar</span>
+              </button>
             ) : (
               <div className="emit-wrap">
                 <ActionButton
@@ -847,30 +834,44 @@ export function App() {
       {pdfPreviewBlob && (
         <Modal className="modal--pdf" title="Prévia do PDF" onClose={closePdfPreview}>
           <PdfPreview data={pdfPreviewBlob} />
-          <div className="modal__actions modal__actions--pdf">
-            <ActionButton
-              label="Baixar"
-              hint={pdfShareHint(readOnly, false, 'baixar')}
-              className="primary"
-              disabled={!readOnly || busy}
-              onClick={() => void onDownloadPdf()}
-            />
-            {pdfShareSupported && (
-              <ActionButton
-                label="Compartilhar"
-                hint={pdfShareHint(readOnly, false, 'compartilhar')}
-                className="primary"
-                disabled={!readOnly || busy}
-                onClick={() => void onSharePdf()}
-              />
-            )}
-            <ShareTextButton
-              hint={pdfShareHint(readOnly, false, 'enviar')}
-              disabled={!readOnly || busy}
-              onClick={openSharePreview}
-            />
-          </div>
+          {readOnly ? (
+            <div className="modal__actions modal__actions--pdf">
+              <button
+                type="button"
+                className="btn primary action-bar__send"
+                disabled={busy}
+                onClick={() => {
+                  closePdfPreview()
+                  setSendOpen(true)
+                }}
+              >
+                <ShareIcon />
+                <span>Enviar</span>
+              </button>
+            </div>
+          ) : (
+            <p className="muted catalog-hint">Rascunho. Emita o orçamento para enviar.</p>
+          )}
         </Modal>
+      )}
+
+      {sendOpen && readOnly && (
+        <SendSheet
+          canSharePdf={pdfShareSupported}
+          onClose={() => setSendOpen(false)}
+          onSharePdf={() => {
+            void onSharePdf()
+            setSendOpen(false)
+          }}
+          onText={() => {
+            setSendOpen(false)
+            openSharePreview()
+          }}
+          onDownloadPdf={() => {
+            setSendOpen(false)
+            void onDownloadPdf()
+          }}
+        />
       )}
 
       {shareText && (
@@ -1217,44 +1218,47 @@ function renderZapLine(line: string): ReactNode {
   })
 }
 
-const PDF_SHARE_HINTS = {
-  baixar: { pending: 'Emita o orçamento para baixar o PDF.', ready: 'Baixar o PDF.' },
-  compartilhar: { pending: 'Emita o orçamento para compartilhar.', ready: 'Compartilhar o PDF.' },
-  enviar: { pending: 'Emita o orçamento para enviar.', ready: 'Enviar texto no WhatsApp.' },
-} as const
-
-function pdfShareHint(
-  emitted: boolean,
-  empty: boolean,
-  action: keyof typeof PDF_SHARE_HINTS,
-): string {
-  if (empty) return 'Inclua ao menos um item.'
-  return emitted ? PDF_SHARE_HINTS[action].ready : PDF_SHARE_HINTS[action].pending
-}
-
-function ShareTextButton({
-  hint,
-  disabled,
-  onClick,
+function SendSheet({
+  canSharePdf,
+  onClose,
+  onSharePdf,
+  onText,
+  onDownloadPdf,
 }: {
-  hint: string
-  disabled?: boolean
-  onClick: () => void
+  canSharePdf: boolean
+  onClose: () => void
+  onSharePdf: () => void
+  onText: () => void
+  onDownloadPdf: () => void
 }) {
   return (
-    <span className="btn-slot" title={hint}>
-      <button
-        type="button"
-        className="btn btn--zap-text"
-        aria-label="Enviar texto no WhatsApp"
-        title="Enviar texto no WhatsApp"
-        disabled={disabled}
-        onClick={onClick}
-      >
-        <WhatsAppIcon />
-        <span>Texto</span>
-      </button>
-    </span>
+    <Modal className="modal--send" title="Enviar orçamento" onClose={onClose}>
+      <div className="send-options">
+        {canSharePdf && (
+          <button type="button" className="send-option" onClick={onSharePdf}>
+            <span className="send-option__icon"><ShareIcon /></span>
+            <span className="send-option__text">
+              <strong>Compartilhar PDF</strong>
+              <small>WhatsApp, e-mail e outros apps</small>
+            </span>
+          </button>
+        )}
+        <button type="button" className="send-option" onClick={onText}>
+          <span className="send-option__icon send-option__icon--zap"><WhatsAppIcon /></span>
+          <span className="send-option__text">
+            <strong>Texto</strong>
+            <small>Prévia da mensagem, copiar ou enviar</small>
+          </span>
+        </button>
+        <button type="button" className="send-option" onClick={onDownloadPdf}>
+          <span className="send-option__icon"><DownloadIcon /></span>
+          <span className="send-option__text">
+            <strong>Baixar PDF</strong>
+            <small>Salvar o arquivo no aparelho</small>
+          </span>
+        </button>
+      </div>
+    </Modal>
   )
 }
 
