@@ -39,7 +39,7 @@ Views are `useState` in `App` (`list` \| `editor` \| `catalog` \| `settings`). T
 | `src/data/seed/` | Initial catalog JSON. |
 | `supabase/migrations/20260924120000_init.sql` | Schema, RLS, quote-number RPC, logo bucket. |
 | `assets/item-images/` | SVG/PNG diagrams. Not imported by `src/`. |
-| `specs/`, `.specify/` | Future Spec Kit specs and constitution. Not runtime. No feature spec is checked in. |
+| `specs/`, `.specify/` | Spec Kit feature specs (`002-modelos-de-calculo`, `003-composicao-do-item`, `004-transicoes`) and constitution. Not runtime. |
 
 ## Where things live
 
@@ -47,7 +47,7 @@ Views are `useState` in `App` (`list` \| `editor` \| `catalog` \| `settings`). T
 - **Business logic:** `src/domain/quote.ts`, `src/domain/pricing/`. Rules: [BUSINESS_RULES.md](BUSINESS_RULES.md).
 - **Auth:** Supabase email/password. Gate: `src/auth/access.tsx`. Real write lock: RLS in the migration. UI hide: `AppHeader.tsx`, `App.tsx` (`isAdmin`).
 - **State:** React `useState` inside `App`. Only context is `AccessContext`. No Redux/Zustand.
-- **Tests:** colocated `*.test.ts` under `src/`. Run `npm test`. Browser catalog script: `scripts/validate-catalog-browser.mjs` (not in `npm test`).
+- **Tests:** colocated `*.test.ts` under `src/`. Run `npm test`. Browser scripts (not in `npm test`, need a local-mode dev server): `scripts/smoke-quote-browser.mjs` (create → item → emit → PDF), `scripts/validate-catalog-browser.mjs` (catalog CRUD, stale UI selectors).
 - **Config / env:** `.env.example`, `src/vite-env.d.ts`. Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Missing either value means local mode.
 - **Integrations:** Supabase (Auth, Postgres, Storage bucket `logos`), ViaCEP, WhatsApp `wa.me`, Cloudflare Pages.
 

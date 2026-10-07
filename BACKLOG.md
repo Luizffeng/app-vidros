@@ -1,65 +1,76 @@
 # Backlog — App Vidros
 
-Arquivo vivo. Atualizar ao puxar/fechar item. Specs novas entram em `specs/`. A spec antiga do MVP foi removida.
+Arquivo vivo: features, correções e mudanças de implementação (refactor, testes, performance). Specs de features grandes entram em `specs/`.
 
-**Estratégia:** Web desktop primeiro (fluxo completo, catálogo, PDF, qualidade). Responsividade fina + PWA/offline depois — domínio e UI web já estáveis.
+**Estratégia:** web desktop primeiro (fluxo completo, catálogo, PDF, qualidade). Responsividade fina + PWA/offline depois.
+
+## Convenções
+
+- **Seções por status:** Now (em andamento) → Next (pronto pra puxar, prioridade de cima pra baixo) → Blocked (aguardando decisão ou insumo) → Later (sem prioridade) → Fora → Done.
+- **Linha:** `- [ ] \`tipo\` (P|M|G) **Título:** descrição`. Tipos iguais aos commits: `feat`, `fix`, `ui`, `refactor`, `test`, `perf`, `data`, `docs`. Tamanho: P (horas), M (1–2 dias), G (vários dias, exige spec antes de codar).
+- **Puxar:** mover de Next para Now. **Fechar:** remover de Now e adicionar `- [x]` com o resultado visível no topo de Done, sob o cabeçalho da data (`### AAAA-MM-DD`, mais recente primeiro).
+- Ideias novas entram em Next/Later, nunca em comentário de código.
 
 ---
 
 ## Now
 
-- _(vazio — puxar de Next)_
+1. [ ] `feat` (G) **Cálculo de margem** (Configurações › Orçamento, fixo por loja): Empresa = (material + adicionais do item + mão de obra) × (1+margem) (= hoje); Vendedor = (material + adicionais do item) × (1+margem) + mão de obra; Autônomo = sem margem. Custos adicionais do orçamento (Frete) e desconto nunca têm margem. Seção com uma caixa por modo (nome + descrição), Salvar com aviso. Rascunho desatualizado (modo ou catálogo mudou) mostra aviso com "Atualizar valores"; emitidos nunca mudam. Aplicar em `priceItem` (pós-processa breakdown), sem mexer nos pricers. Autônomo esconde margem. Sem migração SQL (payload JSON, RLS existente). Spec, plano e tarefas: `specs/002-modelos-de-calculo/`
+2. [ ] `feat` (G) **Janela "Detalhes do custo":** tocar em "Detalhes do custo" abre direto um modal (substitui a lista que expande) com resumo no topo e composição (vidro, alumínio, ferragem, acessório, mão de obra) com quantidade, unidade, preço unitário e subtotal. Admin edita preço com duas ações: "Só neste orçamento" (preço próprio do orçamento) ou "Atualizar no catálogo" (confirmação; bump de versão, recalcula o rascunho aberto, outros rascunhos mostram "Atualizar valores", aviso "Catálogo atualizado"). Vendedor só visualiza. Pré-requisito: `BomLine` com `unit`, `source` (tabela + id) e acréscimo de cor nas linhas. Depende do Cálculo de margem. Spec, plano e tarefas: `specs/003-composicao-do-item/`
+3. [ ] `ui` (G) **Transições leves:** janelas (sobe no celular, cresce no computador, saída mais curta), seletor/menu/confirmações a partir do botão, seções que expandem sem salto, abas com marcador deslizante, troca de tela com direção (lista ↔ orçamento) e rolagem da lista mantida. Tabela única de durações (100–250 ms), só transform/opacity, respeita "reduzir movimento", sem biblioteca. Remove desfoque pesado das seções e da barra inferior. Medido com CPU 4× mais lenta. Spec, plano e tarefas: `specs/004-transicoes/`
 
 ## Next
 
-- [ ] **Modelos de cálculo** (Configurações, fixo por loja): `labor_and_margin` (atual, margem sobre material + mão de obra), `labor_only`, `margin_only`, `margin_on_material` (margem só no material, mão de obra somada sem margem). Snapshot no orçamento ao criar; emitidos não mudam. Aplicar em `priceItem` (pós-processa breakdown), sem mexer nos pricers. Esconder campos de margem / mão de obra conforme modelo
-- [ ] **Fluxo de envio MECE:** emitido mostra Prévia + **Enviar**; Enviar abre folha com PDF (share/download), Texto (prévia + copiar, share nativo / `wa.me` no desktop), Baixar PDF. Sai botão WhatsApp da barra, botões desabilitados da prévia no rascunho e duplicatas
-- [ ] **"+ mais detalhes" no custo do item:** modal com composição (vidro, alumínio, ferragem, acessório, mão de obra) com quantidade, unidade, preço unitário e subtotal. Admin edita preço → salva no catálogo geral (bump de versão), recalcula o item aberto, aviso "Catálogo atualizado". Vendedor só visualiza. Pré-requisito: `BomLine` com `unit`, `source` (tabela + id) e acréscimo de cor nas linhas
-- [ ] **Porta de Correr 1 Folha:** novo cálculo em `priceItem` + teste de paridade. Aguardando refinamento do cálculo pelo dono (planilha/orçamento real, BOM, medidas exemplo)
-- [ ] Backup/restauração de orçamentos (export IndexedDB/JSON)
-- [ ] Smoke E2E do fluxo orçamento (emitir + PDF)
-- [ ] Spec Kit `tasks.md` ou nova spec só quando item virar feature grande
+- [ ] `feat` (G) **URLs por tela (precisa de spec):** hoje sem router, telas em `useState` no `App`; voltar do navegador/celular sai do app e recarregar volta pra lista. Decidir antes de codar: quais telas ganham path (ex.: `/orcamentos`, `/orcamentos/:id`, `/catalogo/:tabela`, `/configuracoes/:aba`), o que vira só estado (modal de item, prévia, envio), o que persiste entre sessões (último orçamento aberto, aba/filtro do catálogo), deep link de orçamento compartilhável internamente, gate de vendedor em rota admin. Router próprio (History API) vs lib; Cloudflare `_redirects` já faz fallback SPA
+- [ ] `test` (P) **Atualizar `scripts/validate-catalog-browser.mjs`:** seletores antigos (aba "Catálogo", título "Catálogo de preços", abas de tabela, "Salvar catálogo"); hoje o script falha logo no início
+- [ ] `data` (M) **Backup/restauração de orçamentos** (export IndexedDB/JSON). Prioridade baixa: produção usa Supabase
+
+## Blocked
+
+- [ ] `feat` (M) **Porta de Correr 1 Folha:** novo cálculo em `priceItem` + teste de paridade. Aguardando o dono refinar o cálculo (planilha/orçamento real, BOM, medidas exemplo)
 
 ## Later
 
-- [ ] Frete por km: origem fixa (config) + destino (CEP/endereço cliente) → distância de rota → R$/km (API a decidir: Google / OpenRouteService / OSRM). Hoje: Frete digitado como custo adicional comum
-- [ ] Responsividade fina (~390px) e ajustes de campo
-- [ ] PWA: install, cache, uso offline
-- [ ] Web Share / atalhos mobile (base Web Share já no PDF desktop/mobile quando o browser permitir)
-- [ ] Botão admin "enviar dados deste navegador" (IndexedDB local → Supabase)
-- [ ] Code-split do bundle (jsPDF/html2canvas sob demanda)
+- [ ] `feat` (G) **Frete por km:** origem fixa (config) + destino (CEP/endereço cliente) → distância de rota → R$/km (API a decidir: Google / OpenRouteService / OSRM). Hoje: Frete digitado como custo adicional comum
+- [ ] `ui` (M) **Responsividade fina (~390px):** reavaliar; boa parte resolvida em 2026-10-06
+- [ ] `feat` (G) **PWA:** install, cache, uso offline
+- [ ] `feat` (P) **Web Share / atalhos mobile** (base Web Share já no PDF desktop/mobile quando o browser permitir)
+- [ ] `data` (M) **Botão admin "enviar dados deste navegador"** (IndexedDB local → Supabase)
 
-## Explicitamente fora (por enquanto)
+## Fora (por enquanto)
 
 - Sync Google Sheets em runtime
 - App nativo (iOS/Android)
 
 ## Done
 
-- [x] Topo do orçamento: status abaixo do número; lixeira/revisão + menu (menu sempre na ponta direita); flags de aviso só em texto vermelho com "!"
+### 2026-10-06
 
-- [x] Custos adicionais sem linha Frete fixa (placeholder `Ex.: Frete`; Frete R$ 0 legado some ao abrir rascunho)
-- [x] Flag "Adicione um item" na seção Itens do rascunho vazio
-- [x] Catálogo › Alumínios sem texto de ajuda
+- [x] `feat` Envio do emitido: barra com Prévia + **Enviar**; Enviar abre folha com Compartilhar PDF (quando o aparelho suporta), Texto (prévia, copiar, WhatsApp) e Baixar PDF. Prévia do rascunho sem botões desabilitados; prévia do emitido com um único Enviar
+- [x] `perf` jsPDF carregado só ao gerar PDF: bundle principal de 1.079 KB para 680 KB (pdf.js já era sob demanda)
+- [x] `test` Smoke E2E `scripts/smoke-quote-browser.mjs`: criar → item → emitir (com e sem nome) → prévia → envio por texto → download do PDF
+- [x] `docs` Backlog reorganizado por status (Now / Next / Blocked / Later / Fora / Done por data) com tipo e tamanho
+- [x] `ui` Topo do orçamento: status abaixo do número; lixeira/revisão + menu (menu sempre na ponta direita); flags de aviso só em texto vermelho com "!"
+- [x] `feat` Custos adicionais sem linha Frete fixa (placeholder `Ex.: Frete`; Frete R$ 0 legado some ao abrir rascunho)
+- [x] `ui` Flag "Adicione um item" na seção Itens do rascunho vazio
+- [x] `ui` Catálogo › Alumínios sem texto de ajuda
+- [x] `ui` Orçamentos / Catálogo / Configurações no menu hambúrguer (sem abas no topo); menu acima dos filtros do catálogo
+- [x] `ui` Campos de valor (`inputMode="decimal"`, medidas, validade) selecionam tudo ao focar
+- [x] `ui` Seta das seções do editor em SVG (círculo + chevron, gira ao abrir)
+- [x] `ui` Catálogo: campo de preço estreito (cabe `9999,99`)
+- [x] `ui` Configurações: endereço compacto (CEP+UF, Número+Complemento, Bairro+Cidade)
+- [x] `feat` PDF baixado como `<código>-<primeiro nome>.pdf` (ex.: `2026-0001-1-Luiz.pdf`)
+- [x] `test` Comparação J4F 2000×1200 com a planilha antiga (orçamento 2026-0016-1): diferenças só de catálogo, acréscimo de cor e arredondamento; motor mantido como está
+- [x] `ui` Configurações em abas (Estabelecimento, Orçamento, Logo)
+- [x] `feat` WhatsApp: validade da proposta em itálico na última linha; número sem `ORC-` no texto e no PDF (app interno segue com `ORC-`)
+- [x] `ui` Sem mensagem "Nenhum item" em orçamento vazio; telefone do cliente cabe inteiro em 360px
 
-- [x] Orçamentos / Catálogo / Configurações no menu hambúrguer (sem abas no topo); menu acima dos filtros do catálogo
-- [x] Campos de valor (`inputMode="decimal"`, medidas, validade) selecionam tudo ao focar
-- [x] Seta das seções do editor em SVG (círculo + chevron, gira ao abrir)
-- [x] Catálogo: campo de preço estreito (cabe `9999,99`)
-- [x] Configurações: endereço compacto (CEP+UF, Número+Complemento, Bairro+Cidade)
-
-- [x] PDF baixado como `<código>-<primeiro nome>.pdf` (ex.: `2026-0001-1-Luiz.pdf`)
-- [x] Comparação J4F 2000×1200 com a planilha antiga (orçamento 2026-0016-1): diferenças só de catálogo, acréscimo de cor e arredondamento; motor mantido como está
-
-- [x] Configurações em abas (Estabelecimento, Orçamento, Logo)
-- [x] WhatsApp: validade da proposta em itálico na última linha; número sem `ORC-` no texto e no PDF (app interno segue com `ORC-`)
-- [x] Sem mensagem "Nenhum item" em orçamento vazio; telefone do cliente cabe inteiro em 360px
+### Até 2026-10-05
 
 - [x] **v1.0.0** — Supabase (Postgres + Auth + Storage da logo) atrás de `QuoteRepository`, login e-mail/senha, papéis admin/vendedor com RLS, deploy Cloudflare Pages
 - [x] Excluir rascunho (emitido segue imutável); nome do cliente obrigatório para emitir
 - [x] Lista em grade com filtro Todos / Emitidos / Rascunhos
 - [x] Prévia do WhatsApp com copiar texto
-
 - [x] MVP orçamentos local (IndexedDB) + motor pricing + PDF
 - [x] Constitution + Spec Kit 001
 - [x] Tela Catálogo (vidros, kit box, acessórios, alumínios, config) + restore seed
