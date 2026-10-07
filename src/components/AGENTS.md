@@ -7,6 +7,7 @@ React UI. No price formulas and no Supabase queries except `LoginScreen` (passwo
 | File | Owns |
 | --- | --- |
 | `App.tsx` | Views `list` \| `editor` \| `catalog` \| `settings`. Quote state, persist queue, emit, revision, delete, PDF/share actions. Also customer, costs, discounts, send sheet (`SendSheet`: share PDF, text, download) and text share modal in the same file. Passes `settings.marginMode` to domain calls, `ItemForm`, `CatalogEditor`; outdated-draft banner ("Atualizar valores" → `repriceDraft`). |
+| `CostDetailModal.tsx` | "Detalhes do custo" window per item: summary + `composeCost` groups; admin draft edits a line price via `onSetOverride` (→ `setPriceOverride`) or `onUpdateCatalog` (→ `onUpdateCatalogPrice` in `App.tsx`: catalog save + reprice). |
 | `ItemForm.tsx` | Modal fields per product kind. Markup percent → fraction. Hides margin field/line in Autônomo mode. |
 | `CatalogEditor.tsx` | Catalog tables, version bump, calls `parseImportedCatalog`. Hides "Margem padrão" in Autônomo mode. |
 | `SettingsEditor.tsx` | Tabs Cadastro (expandable Estabelecimento), Orçamento (sections Cálculo de margem with confirm on change, Validade padrão, Texto final no WhatsApp), Logo (preview + actions side by side). One card + `h2` per section, explanation under the title (`.section-hint`). |

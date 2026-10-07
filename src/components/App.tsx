@@ -3,6 +3,7 @@ import type {
   AdditionalCost,
   AppSettings,
   Catalog,
+  CatalogRef,
   CustomerInfo,
   ItemInput,
   MarginMode,
@@ -27,6 +28,7 @@ import {
   setAdditionalCosts,
   setDiscounts,
   setCustomer,
+  setPriceOverride,
   updateItem,
 } from '../domain/quote'
 import { useAccess } from '../auth/access'
@@ -37,10 +39,11 @@ import {
   formatPhone,
   isValidUf,
   phoneDdd,
+  parseMoneyBr,
   phoneDigits,
   withDefaultDdd,
 } from '../domain/brazil'
-import { marginLabel } from '../domain/itemDescription'
+import { bumpCatalogVersion, sameRef, setCatalogPrice } from '../domain/catalogEdit'
 import {
   downloadBlob,
   generateQuotePdf,
@@ -51,6 +54,7 @@ import {
 import { CatalogEditor } from './CatalogEditor'
 import { AppHeader, HeaderMenu, type AppSection } from './AppHeader'
 import { CollapsibleSection } from './CollapsibleSection'
+import { CostDetailModal } from './CostDetailModal'
 import { Dropdown } from './Dropdown'
 import { SearchField } from './SearchField'
 import { ITEM_KINDS, ItemForm } from './ItemForm'
@@ -80,6 +84,7 @@ export function App() {
   const [itemModal, setItemModal] = useState<
     null | { mode: 'pick' } | { mode: 'create'; kind: ProductKind } | { mode: 'edit'; id: string }
   >(null)
+  const [costItemId, setCostItemId] = useState<string | null>(null)
   const [pdfPreviewBlob, setPdfPreviewBlob] = useState<Blob | null>(null)
   const pdfCacheRef = useRef<{ key: string; promise: Promise<Blob>; blob?: Blob } | null>(null)
   const [shareText, setShareText] = useState<string | null>(null)
@@ -228,6 +233,24 @@ export function App() {
     const { quote: next, failed } = repriceDraft(quote, catalog, marginMode)
     await persist(next)
     setRepriceFailed(failed)
+  }
+
+  const onSetPriceOverride = async (ref: CatalogRef, price: number | null) => {
+    if (!quote || !catalog) return
+    await persist(setPriceOverride(quote, catalog, ref, price, marginMode))
+  }
+
+  const onUpdateCatalogPrice = async (ref: CatalogRef, price: number) => {
+    if (!quote || !catalog || !isAdmin) return
+    const priced = setCatalogPrice(catalog, ref, price)
+    const next: Catalog = {
+      ...priced,
+      config: { ...priced.config, version: bumpCatalogVersion(priced.config.version) },
+    }
+    await repo.saveCatalog(next)
+    setCatalog(next)
+    const own = quote.priceOverrides?.filter((o) => !sameRef(o.ref, ref))
+    await persist(repriceDraft({ ...quote, priceOverrides: own }, next, marginMode).quote)
   }
 
   const onDeleteDraft = async () => {
@@ -522,6 +545,7 @@ export function App() {
   if (!quote) return null
 
   const readOnly = quote.status === 'emitted'
+  const costItem = costItemId ? quote.items.find((i) => i.id === costItemId) : undefined
   const outdated = draftOutdated(quote, catalog, marginMode)
   const outdatedDate = outdated && outdatedSince(outdated, catalog, settings?.marginModeChangedAt)
   const since = outdatedDate ? ` em ${outdatedDate.toLocaleDateString('pt-BR')}` : ''
@@ -649,54 +673,9 @@ export function App() {
           >
             <ItemBlockHead item={item} />
             <div className={`item-block__tools${readOnly ? '' : ' item-block__tools--actions'}`}>
-            <details>
-              <summary>Detalhes do custo</summary>
-              <ul className="breakdown">
-                <li>
-                  <span>Mão de obra</span>
-                  <span>{formatBrl(item.result.breakdown.labor)}</span>
-                </li>
-                <li>
-                  <span>Vidros</span>
-                  <span>{formatBrl(item.result.breakdown.glass)}</span>
-                </li>
-                <li>
-                  <span>Alumínios</span>
-                  <span>{formatBrl(item.result.breakdown.aluminum)}</span>
-                </li>
-                <li>
-                  <span>Ferragens</span>
-                  <span>{formatBrl(item.result.breakdown.hardware)}</span>
-                </li>
-                <li>
-                  <span>Acessórios</span>
-                  <span>{formatBrl(item.result.breakdown.accessories)}</span>
-                </li>
-                {item.input.kind !== 'custom' && item.input.extras.length > 0 ? (
-                  item.input.extras.map((extra) => (
-                    <li key={extra.id} className="breakdown__extra">
-                      <span>{extra.description}</span>
-                      <span>{formatBrl(extra.amount)}</span>
-                    </li>
-                  ))
-                ) : (
-                  <li>
-                    <span>Adicionais do item</span>
-                    <span>{formatBrl(item.result.breakdown.extras)}</span>
-                  </li>
-                )}
-                <li className="breakdown__cost">
-                  <span>Custo</span>
-                  <span>{formatBrl(item.result.breakdown.totalCost)}</span>
-                </li>
-                {(item.result.breakdown.marginMode ?? 'empresa') !== 'autonomo' && (
-                  <li className="breakdown__margin">
-                    <span>{marginLabel(item.result.breakdown)}</span>
-                    <span>{formatBrl(item.result.breakdown.marginAmount)}</span>
-                  </li>
-                )}
-              </ul>
-            </details>
+            <button type="button" className="item-block__cost-btn" onClick={() => setCostItemId(item.id)}>
+              Detalhes do custo
+            </button>
             {!readOnly && (
               <div className="item-block__actions">
                 <button
@@ -775,6 +754,18 @@ export function App() {
             ))}
           </div>
         </Modal>
+      )}
+
+      {costItem && (
+        <CostDetailModal
+          item={costItem}
+          quote={quote}
+          catalog={catalog}
+          isAdmin={isAdmin}
+          onClose={() => setCostItemId(null)}
+          onSetOverride={onSetPriceOverride}
+          onUpdateCatalog={onUpdateCatalogPrice}
+        />
       )}
 
       {!readOnly && itemModal && itemModal.mode !== 'pick' && catalog && (
@@ -1476,18 +1467,6 @@ function TrashIcon() {
       />
     </svg>
   )
-}
-
-function parseMoneyBr(raw: string): number | null {
-  const trimmed = raw.trim()
-  if (!trimmed) return null
-  const normalized =
-    trimmed.includes(',') && trimmed.includes('.')
-      ? trimmed.replace(/\./g, '').replace(',', '.')
-      : trimmed.replace(',', '.')
-  const n = Number(normalized)
-  if (Number.isNaN(n) || n < 0) return null
-  return Math.round(n * 100) / 100
 }
 
 function AdditionalCostsSection({

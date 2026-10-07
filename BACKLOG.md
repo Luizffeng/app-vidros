@@ -15,8 +15,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Now
 
-1. [ ] `feat` (G) **Janela "Detalhes do custo":** tocar em "Detalhes do custo" abre direto um modal (substitui a lista que expande) com resumo no topo e composição (vidro, alumínio, ferragem, acessório, mão de obra) com quantidade, unidade, preço unitário e subtotal. Admin edita preço com duas ações: "Só neste orçamento" (preço próprio do orçamento) ou "Atualizar no catálogo" (confirmação; bump de versão, recalcula o rascunho aberto, outros rascunhos mostram "Atualizar valores", aviso "Catálogo atualizado"). Vendedor só visualiza. Pré-requisito: `BomLine` com `unit`, `source` (tabela + id) e acréscimo de cor nas linhas. Depende do Cálculo de margem. Spec, plano e tarefas: `specs/003-composicao-do-item/`
-2. [ ] `ui` (G) **Transições leves:** janelas (sobe no celular, cresce no computador, saída mais curta), seletor/menu/confirmações a partir do botão, seções que expandem sem salto, abas com marcador deslizante, troca de tela com direção (lista ↔ orçamento) e rolagem da lista mantida. Tabela única de durações (100–250 ms), só transform/opacity, respeita "reduzir movimento", sem biblioteca. Remove desfoque pesado das seções e da barra inferior. Medido com CPU 4× mais lenta. Spec, plano e tarefas: `specs/004-transicoes/`
+1. [ ] `ui` (G) **Transições leves:** janelas (sobe no celular, cresce no computador, saída mais curta), seletor/menu/confirmações a partir do botão, seções que expandem sem salto, abas com marcador deslizante, troca de tela com direção (lista ↔ orçamento) e rolagem da lista mantida. Tabela única de durações (100–250 ms), só transform/opacity, respeita "reduzir movimento", sem biblioteca. Remove desfoque pesado das seções e da barra inferior. Medido com CPU 4× mais lenta. Spec, plano e tarefas: `specs/004-transicoes/`
 
 ## Next
 
@@ -48,6 +47,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ### 2026-10-07
 
+- [x] `feat` **Janela "Detalhes do custo":** modal por item com resumo e linhas por grupo (quantidade, unidade, unitário, subtotal, "+N% cor"). Admin no rascunho edita o preço de uma linha: "Só neste orçamento" (preço próprio, vale para os itens do orçamento com o mesmo código) ou "Atualizar no catálogo" (confirmação, recalcula este rascunho, outros mostram o aviso). Vendedor e emitido só visualizam. Spec `specs/003-composicao-do-item/`
 - [x] `fix` Aviso do rascunho só aparece se atualizar mudaria o preço de algum item (catálogo mudou em algo que o rascunho usa, ou cálculo de margem diferente)
 - [x] `ui` Configurações mais compactas: caixa do cálculo de margem à direita e centralizada; Validade com dica sob o título e campo "Dias" curto na mesma linha; **Texto final no WhatsApp** (era Chamada no WhatsApp) com dica sob o título; Logo com botão ao lado da imagem. Regras de espaço vertical na skill de UI
 - [x] `ui` Modal do item mais curto no celular: Largura + Altura e Espessura + Cor do vidro (no espelho, Cor + Espessura) na mesma linha

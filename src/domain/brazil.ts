@@ -52,3 +52,16 @@ export function withDefaultDdd(value: string | undefined, ddd: string | undefine
   if (!ddd || (d.length !== 8 && d.length !== 9)) return d
   return `${ddd}${d}`
 }
+
+/** "1.234,56", "1234,56" or "1234.56" → 1234.56; empty, text or negative → null */
+export function parseMoneyBr(raw: string): number | null {
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+  const normalized =
+    trimmed.includes(',') && trimmed.includes('.')
+      ? trimmed.replace(/\./g, '').replace(',', '.')
+      : trimmed.replace(',', '.')
+  const n = Number(normalized)
+  if (Number.isNaN(n) || n < 0) return null
+  return Math.round(n * 100) / 100
+}

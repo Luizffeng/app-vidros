@@ -1,5 +1,5 @@
 /**
- * Browser smoke: novo orçamento → item → nome → emitir → prévia e download do PDF.
+ * Browser smoke: novo orçamento → item → detalhes do custo → nome → emitir → prévia e download do PDF.
  * Needs a dev server in local mode (no Supabase):
  *   VITE_SUPABASE_URL= VITE_SUPABASE_ANON_KEY= npm run dev -- --host 127.0.0.1
  * Run: APP_URL=http://127.0.0.1:5173 node scripts/smoke-quote-browser.mjs
@@ -64,6 +64,18 @@ async function main() {
 
     const total = (await page.locator('.action-bar').innerText()).match(/R\$\s*([\d.,]+)/)?.[1]
     check('total maior que zero', Boolean(total) && total !== '0,00', `R$ ${total}`)
+
+    await items.first().getByRole('button', { name: 'Detalhes do custo' }).click()
+    const cost = page.locator('.modal--cost')
+    await cost.getByRole('region', { name: 'Vidro' }).waitFor()
+    check(
+      'detalhes do custo lista linhas',
+      (await cost.locator('.cost-line').count()) >= 2,
+      `${await cost.locator('.cost-line').count()} linha(s)`,
+    )
+    await page.keyboard.press('Escape')
+    await cost.waitFor({ state: 'detached' })
+    ok('detalhes do custo fecha')
 
     await page.getByRole('button', { name: 'Emitir' }).click()
     await page.getByRole('alertdialog', { name: 'Nome do cliente obrigatório' }).waitFor()

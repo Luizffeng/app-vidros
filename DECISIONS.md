@@ -74,6 +74,12 @@ Only choices visible in code or in README / constitution / handoff. Not a change
 - **Reason/evidence:** Spec `specs/002-modelos-de-calculo/`. Settings are already admin-only by RLS and stored as JSON, so no SQL migration.
 - **Consequence:** Changing the mode never reprices drafts silently. Drafts show the "Atualizar valores" banner; emitted quotes keep their stored prices. Pricers stay mode-agnostic; `priceItem` applies the mode.
 
+## Item cost lines and quote-only prices
+
+- **Decision:** `BomLine` carries `unit`, `source` (catalog table + id) and `surcharge`; aluminum/hardware unit prices include the color surcharge, and each pricer adds one `mao_de_obra` line, so lines sum to the breakdown. Quote-only prices live in `Quote.priceOverrides` (JSON payload, no migration) and are applied through `withPriceOverrides` before pricing.
+- **Reason/evidence:** Spec `specs/003-composicao-do-item/`. Owners check items line by line against the spreadsheet and need a one-off price without touching the catalog.
+- **Consequence:** "Só neste orçamento" is gated in the UI only (it edits a draft the user can already edit). "Atualizar no catálogo" is gated by catalog RLS (admin write). Items saved before these fields show lines read-only until recalculated. Do not change breakdown math to fit the lines.
+
 ## Spec Kit for larger features
 
 - **Decision:** Larger features get a new spec under `specs/`. The old MVP spec `specs/001-mvp-orcamentos/` was removed. Day-to-day queue stays `BACKLOG.md`.

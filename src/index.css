@@ -1037,7 +1037,7 @@ label .percent-input .money-input {
 }
 
 .collapsible-section__summary:hover,
-.item-block__tools summary:hover {
+.item-block__cost-btn:hover {
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -1550,37 +1550,29 @@ textarea:focus {
   margin-top: 0.05rem;
 }
 
-.item-block__tools--actions summary {
+.item-block__tools--actions .item-block__cost-btn {
   width: calc(100% - 3.8rem);
 }
 
-.item-block__tools details {
-  min-width: 0;
-}
-
-.item-block__tools summary {
+.item-block__cost-btn {
   min-height: 1.7rem;
   display: flex;
   align-items: center;
   line-height: 1;
-  list-style: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
   border-radius: 8px;
   padding: 0 0.35rem;
 }
 
-.item-block__tools summary::-webkit-details-marker {
-  display: none;
-}
-
-.item-block__tools summary::before {
+.item-block__cost-btn::before {
   content: '▸';
   margin-right: 0.35rem;
   color: var(--muted);
-}
-
-.item-block__tools details[open] > summary::before {
-  content: '▾';
 }
 
 .icon-btn {
@@ -2379,4 +2371,187 @@ textarea:focus {
   .grid {
     grid-template-columns: 1fr;
   }
+}
+
+.modal--cost {
+  width: min(560px, 100%);
+  max-height: min(92vh, 760px);
+}
+
+.modal--cost .modal__body {
+  gap: 0.7rem;
+}
+
+.cost-item {
+  margin: 0;
+  display: grid;
+  gap: 0.1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.cost-item strong {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.cost-notice {
+  margin: 0;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+.cost-summary {
+  margin: 0;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cost-group__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0 0 0.25rem;
+  font-size: 0.9rem;
+}
+
+.cost-group__head span:last-child,
+.cost-line__total {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cost-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.cost-line {
+  padding: 0.3rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.85rem;
+}
+
+.cost-line__main {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.cost-line__desc {
+  min-width: 0;
+}
+
+.cost-line__calc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.5rem;
+  margin-top: 0.1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.cost-line__code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+}
+
+.cost-line__price {
+  padding: 0.1rem 0.3rem;
+  border: 1px dashed rgba(255, 255, 255, 0.28);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.cost-line__price:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cost-line__tag {
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 0.72rem;
+}
+
+.cost-line__tag--own {
+  background: rgba(240, 160, 74, 0.16);
+  color: #f3c48a;
+}
+
+.cost-line__hint {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.cost-line__link {
+  margin-top: 0.2rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--accent-2);
+  font: inherit;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.cost-edit {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cost-edit .inline-field {
+  justify-content: space-between;
+  font-size: 0.82rem;
+}
+
+.cost-edit .cost-edit__input {
+  width: 7.5rem;
+}
+
+.cost-edit .cost-line__hint {
+  margin: 0;
+}
+
+.cost-edit__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+.cost-edit__actions .btn {
+  min-height: 2rem;
+  padding: 0 0.5rem;
+  font-size: 0.82rem;
+}
+
+.cost-edit__actions .btn.ghost {
+  grid-column: 1 / -1;
+}
+
+.remove-pop.cost-confirm {
+  position: static;
+  transform: none;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  white-space: normal;
+  padding: 0.6rem 0.7rem;
+  line-height: 1.35;
+  box-shadow: none;
 }
