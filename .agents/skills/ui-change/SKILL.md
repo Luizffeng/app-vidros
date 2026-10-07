@@ -25,6 +25,14 @@ Layout, copy, buttons, modals, filters, sticky bars, input masks, mobile fit, ad
    - Admin-only UI sits behind `isAdmin`. A new admin-only write needs RLS: see `persisted-field-change`.
    - Money and percent inputs: reuse the parser already in the same file (`parseMoneyBr` in `App.tsx`; `parseMoney`/`parsePercent` in `CatalogEditor.tsx`; `parseMoney` in `ItemForm.tsx`). Percent in the UI is a fraction in storage (divide by 100). Do not add another copy, and do not extract a shared helper unless the task asks.
    - UI copy is pt-BR and matches existing labels.
+5. Vertical space (phones first; owner rule 2026-10-07). New or touched components follow these; a full-app review is in `BACKLOG.md`:
+   - Section = `.section` card + `h2`. Its explanation goes right under the title (`.section-hint`), not under the field. Do not repeat the title as the field label (use `aria-labelledby`).
+   - Related fields share a row, also at ≤420px where `.grid` collapses: `.field-pair` with `--half` (width + height, thickness + color) or a sized variant (`--cep`, `--number`).
+   - Short values (days, %, quantity up to 4 digits): inline label + input sized to content (`.inline-field`, about 4.5–6rem), not a full-width row.
+   - Choice rows (radio/checkbox): text left, control right and vertically centered (right-thumb reach).
+   - Media + actions side by side (preview left, buttons and hint right) when it fits 360px.
+   - Full width only for long text or selects with long options. A lone short field does not leave an empty grid cell on desktop: give it `full` or pair it.
+   - Check 360 and 390 px; compare the height before and after.
 
 ## Scope
 

@@ -252,9 +252,9 @@ label .percent-input .money-input {
 
 .logo-row {
   display: grid;
-  grid-template-columns: 8.5rem 1fr;
-  gap: 1rem;
-  align-items: start;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: center;
 }
 
 .logo-preview {
@@ -275,11 +275,6 @@ label .percent-input .money-input {
   object-fit: contain;
 }
 
-.settings-field {
-  display: grid;
-  gap: 0.35rem;
-}
-
 .margin-modes {
   margin: 0;
   padding: 0;
@@ -291,7 +286,7 @@ label .percent-input .money-input {
 
 .margin-mode {
   display: grid;
-  grid-template-columns: auto 6.5rem 1fr;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.65rem;
   padding: 0.6rem 0.75rem;
@@ -335,8 +330,15 @@ label .percent-input .money-input {
   transform: translateY(-1px) rotate(45deg);
 }
 
+.margin-mode__text {
+  display: grid;
+  gap: 0.1rem;
+}
+
 .margin-mode__name {
   font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
 }
 
 .margin-mode__desc {
@@ -345,29 +347,38 @@ label .percent-input .money-input {
   line-height: 1.3;
 }
 
-@media (max-width: 420px) {
-  .margin-mode {
-    grid-template-columns: auto 1fr;
-    row-gap: 0.15rem;
-  }
-
-  .margin-mode__desc {
-    grid-column: 2;
-  }
-}
-
 .field-hint {
   margin: 0.35rem 0 0.9rem;
   font-size: 0.85rem;
   color: var(--muted);
 }
 
+.section h2:has(+ .section-hint) {
+  margin-bottom: 0.2rem;
+}
+
+.section-hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.inline-field {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 0.9rem;
+  gap: 0.65rem;
+}
+
 .settings-days {
-  width: 6.5rem;
+  width: 4.75rem;
   text-align: right;
 }
 
-.settings-field textarea {
+.settings-cta {
+  width: 100%;
   min-height: 2.75rem;
   height: auto;
 }
@@ -486,12 +497,6 @@ label .percent-input .money-input {
   flex-direction: column;
   gap: 0.5rem;
   align-items: flex-start;
-}
-
-@media (max-width: 520px) {
-  .logo-row {
-    grid-template-columns: 1fr;
-  }
 }
 
 .catalog-row--inactive td:not(.cell-toggle) {
@@ -1186,6 +1191,10 @@ label .percent-input .money-input {
 
 .field-pair--city {
   grid-template-columns: 1fr 1fr;
+}
+
+.field-pair--half {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .customer-section label {

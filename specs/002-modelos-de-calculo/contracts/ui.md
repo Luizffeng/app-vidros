@@ -3,7 +3,7 @@
 ## Configurações › Orçamento — seção "Cálculo de margem"
 
 - Placed in the existing `quote` tab of `SettingsEditor`, above "Validade padrão".
-- Three rows, one per mode. Each row: checkbox-styled control (radio semantics: `role="radio"` / native `input type="radio"` styled as a box, one group name), mode name (Empresa / Vendedor / Autônomo) in bold, and the description from `data-model.md` beside it.
+- Three rows, one per mode. Each row: mode name (Empresa / Vendedor / Autônomo) in bold over the description from `data-model.md`, and on the right, vertically centered, a checkbox-styled control (radio semantics: native `input type="radio"` styled as a box, one group name). Right side = thumb reach for right-handed users.
 - Selecting a row changes only the screen draft. Leaving without Salvar keeps the saved mode (FR-002).
 - Salvar (existing action bar button):
   - mode unchanged → saves as today, no warning (US2 scenario 5).
@@ -16,7 +16,7 @@
 
 ## Editor — aviso de rascunho desatualizado
 
-- Shown at the top of the draft editor (below the head, above customer) when `draftOutdated(quote, catalog, settings.marginMode)` is not null. Not shown for emitted quotes.
+- Shown at the top of the draft editor (below the head, above customer) when `draftOutdated(quote, catalog, settings.marginMode)` is not null, i.e. only when repricing would change some item. Not shown for emitted quotes.
 - Warning style (yellow, compact: text left, small button right), one banner with one button "Atualizar valores". No "keep values" option. Text by flags (words in `**` rendered bold with `<strong>`), with " em DD/MM/AAAA" when the date is known (`outdatedSince`: catalog version date, `AppSettings.marginModeChangedAt`; both flags use the latest):
   - catalog only: "O **catálogo** foi atualizado em 06/10/2026."
   - margin only: "O **cálculo de margem** mudou em 07/10/2026."

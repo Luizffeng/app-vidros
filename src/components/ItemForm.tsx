@@ -595,7 +595,7 @@ export function ItemForm({
           )}
 
           {kind !== 'box' && (
-            <>
+            <div className="field-pair field-pair--half full">
               <label>
                 Largura (mm)
                 <input
@@ -614,11 +614,11 @@ export function ItemForm({
                   onChange={(e) => setHeightMm(e.target.value)}
                 />
               </label>
-            </>
+            </div>
           )}
 
           {kind === 'correr' && (
-            <label>
+            <label className="full">
               Tipo
               <select
                 value={subtype}
@@ -634,7 +634,7 @@ export function ItemForm({
 
           {kind === 'espelho' ? (
             <>
-              <label>
+              <label className="full">
                 Acabamento
                 <select
                   value={finish}
@@ -646,35 +646,37 @@ export function ItemForm({
                   <option value="Espelho Bisotado">Bisotado</option>
                 </select>
               </label>
-              <label>
-                Cor
-                <select
-                  value={espelhoColor}
-                  onChange={(e) => setEspelhoColor(e.target.value)}
-                >
-                  {espelhoColors.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Espessura
-                <select
-                  value={espelhoThickness}
-                  onChange={(e) => setEspelhoThickness(e.target.value)}
-                >
-                  {espelhoThicknesses.map((t) => (
-                    <option key={t} value={t}>
-                      {t} mm
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <div className="field-pair field-pair--half full">
+                <label>
+                  Cor
+                  <select
+                    value={espelhoColor}
+                    onChange={(e) => setEspelhoColor(e.target.value)}
+                  >
+                    {espelhoColors.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Espessura
+                  <select
+                    value={espelhoThickness}
+                    onChange={(e) => setEspelhoThickness(e.target.value)}
+                  >
+                    {espelhoThicknesses.map((t) => (
+                      <option key={t} value={t}>
+                        {t} mm
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
             </>
           ) : (
-            <>
+            <div className={kind === 'box' ? 'field-pair' : 'field-pair field-pair--half full'}>
               {kind !== 'box' && (
                 <label>
                   Espessura
@@ -703,7 +705,7 @@ export function ItemForm({
                   ))}
                 </select>
               </label>
-            </>
+            </div>
           )}
 
           {(kind === 'box' ||

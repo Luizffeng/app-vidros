@@ -306,6 +306,10 @@ export function SettingsEditor({
             <fieldset className="margin-modes" aria-labelledby="settings-margin-title">
               {MARGIN_MODES.map((mode) => (
                 <label key={mode.id} className="margin-mode">
+                  <span className="margin-mode__text">
+                    <span className="margin-mode__name">{mode.name}</span>
+                    <span className="margin-mode__desc">{mode.description}</span>
+                  </span>
                   <input
                     type="radio"
                     name="margin-mode"
@@ -313,19 +317,19 @@ export function SettingsEditor({
                     checked={draft.marginMode === mode.id}
                     onChange={() => setDraft((d) => ({ ...d, marginMode: mode.id }))}
                   />
-                  <span className="margin-mode__name">{mode.name}</span>
-                  <span className="margin-mode__desc">{mode.description}</span>
                 </label>
               ))}
             </fieldset>
           </section>
           <section className="section" aria-labelledby="settings-validity-title">
             <h2 id="settings-validity-title">Validade padrão</h2>
-            <label className="settings-field">
+            <p className="section-hint">Data do orçamento + N dias. Gravada na emissão.</p>
+            <label className="inline-field">
               Dias
               <input
                 className="settings-days"
                 inputMode="numeric"
+                maxLength={4}
                 data-select-all
                 value={String(draft.quoteValidityDays)}
                 onChange={(e) => {
@@ -337,22 +341,18 @@ export function SettingsEditor({
                 }}
               />
             </label>
-            <p className="field-hint">Data do orçamento + N dias. Gravada na emissão.</p>
           </section>
           <section className="section" aria-labelledby="settings-cta-title">
-            <h2 id="settings-cta-title">Chamada no WhatsApp</h2>
-            <label className="settings-field">
-              Texto
-              <textarea
-                rows={2}
-                maxLength={180}
-                value={draft.shareCta}
-                onChange={(e) => setDraft((d) => ({ ...d, shareCta: e.target.value }))}
-              />
-            </label>
-            <p className="field-hint">
-              Antes da validade, no fim da mensagem. Vazio, a linha sai do WhatsApp.
-            </p>
+            <h2 id="settings-cta-title">Texto final no WhatsApp</h2>
+            <p className="section-hint">Última linha da mensagem, antes da validade.</p>
+            <textarea
+              className="settings-cta"
+              rows={2}
+              maxLength={180}
+              aria-labelledby="settings-cta-title"
+              value={draft.shareCta}
+              onChange={(e) => setDraft((d) => ({ ...d, shareCta: e.target.value }))}
+            />
           </section>
         </div>
       )}
