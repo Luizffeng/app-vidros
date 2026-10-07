@@ -281,16 +281,12 @@ label .percent-input .money-input {
 }
 
 .margin-modes {
-  margin: 0 0 1.1rem;
+  margin: 0;
   padding: 0;
   border: 0;
   display: grid;
   gap: 0.45rem;
-}
-
-.margin-modes legend {
-  padding: 0;
-  margin-bottom: 0.45rem;
+  min-width: 0;
 }
 
 .margin-mode {

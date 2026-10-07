@@ -6,12 +6,13 @@ import { fileToLogoDataUrl } from '../data/logo'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
 import { filterUfInput, formatPhone, isValidUf, phoneDdd, phoneDigits } from '../domain/brazil'
 import { AppHeader, type AppSection } from './AppHeader'
+import { CollapsibleSection } from './CollapsibleSection'
 import { useDismiss } from './useDismiss'
 
-type SettingsTab = 'establishment' | 'quote' | 'logo'
+type SettingsTab = 'register' | 'quote' | 'logo'
 
 const SETTINGS_TABS: { id: SettingsTab; label: string }[] = [
-  { id: 'establishment', label: 'Estabelecimento' },
+  { id: 'register', label: 'Cadastro' },
   { id: 'quote', label: 'Orçamento' },
   { id: 'logo', label: 'Logo' },
 ]
@@ -50,7 +51,7 @@ export function SettingsEditor({
   const [cepStatus, setCepStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle')
   const [cepMessage, setCepMessage] = useState<string | null>(null)
   const [logoBusy, setLogoBusy] = useState(false)
-  const [tab, setTab] = useState<SettingsTab>('establishment')
+  const [tab, setTab] = useState<SettingsTab>('register')
   const logoInputRef = useRef<HTMLInputElement>(null)
   const [confirmMode, setConfirmMode] = useState(false)
   const saveWrapRef = useRef<HTMLDivElement>(null)
@@ -149,7 +150,7 @@ export function SettingsEditor({
       <AppHeader title="Configurações" current="settings" onNavigate={onNavigate} />
 
       <p className="lede catalog-lede">
-        Dados do estabelecimento e regras do orçamento. Aparecem no PDF do cliente.
+        Cadastro da loja, regras do orçamento e logo. Aparecem no PDF do cliente.
       </p>
 
       {error && <div className="banner error">{error}</div>}
@@ -172,188 +173,188 @@ export function SettingsEditor({
         ))}
       </div>
 
-      {tab === 'establishment' && (
-        <section
-          className="section"
-          role="tabpanel"
-          id="settings-panel-establishment"
-          aria-labelledby="settings-tab-establishment"
-        >
-          <div className="grid">
-            <label className="full">
-              Nome / razão social
-              <input
-                value={est.name}
-                onChange={(e) => setEst({ name: e.target.value })}
-              />
-            </label>
-            <label className="full">
-              Nome fantasia
-              <input
-                value={est.tradeName ?? ''}
-                onChange={(e) => setEst({ tradeName: e.target.value })}
-              />
-            </label>
-            <label>
-              CNPJ / CPF
-              <input
-                inputMode="numeric"
-                value={est.document ?? ''}
-                onChange={(e) => setEst({ document: digitsOnly(e.target.value, 14) })}
-              />
-            </label>
-            <label>
-              Telefone
-              <input
-                type="tel"
-                inputMode="numeric"
-                placeholder="(00) 00000-0000"
-                aria-invalid={Boolean(est.phone) && !phoneDdd(est.phone)}
-                value={formatPhone(est.phone)}
-                onChange={(e) => setEst({ phone: phoneDigits(e.target.value) })}
-              />
-              <span className="field-hint">Com DDD. Completa telefones de clientes sem DDD.</span>
-            </label>
-            <label className="full">
-              E-mail
-              <input
-                type="email"
-                autoComplete="email"
-                value={est.email ?? ''}
-                onChange={(e) => setEst({ email: e.target.value })}
-              />
-            </label>
-            <div className="field-pair field-pair--cep full">
+      {tab === 'register' && (
+        <div role="tabpanel" id="settings-panel-register" aria-labelledby="settings-tab-register">
+          <CollapsibleSection title="Estabelecimento" defaultOpen>
+            <div className="grid">
+              <label className="full">
+                Nome / razão social
+                <input
+                  value={est.name}
+                  onChange={(e) => setEst({ name: e.target.value })}
+                />
+              </label>
+              <label className="full">
+                Nome fantasia
+                <input
+                  value={est.tradeName ?? ''}
+                  onChange={(e) => setEst({ tradeName: e.target.value })}
+                />
+              </label>
               <label>
-                CEP
+                CNPJ / CPF
                 <input
                   inputMode="numeric"
-                  placeholder="00000-000"
-                  value={formatCep(est.cep ?? '')}
-                  onChange={(e) => {
-                    const cep = digitsOnly(e.target.value, 8)
-                    setEst({ cep })
-                    setCepStatus('idle')
-                    setCepMessage(null)
-                    if (cep.length === 8) void applyCep(cep)
-                  }}
+                  value={est.document ?? ''}
+                  onChange={(e) => setEst({ document: digitsOnly(e.target.value, 14) })}
                 />
               </label>
               <label>
-                UF
+                Telefone
                 <input
-                  maxLength={2}
-                  autoCapitalize="characters"
-                  value={est.state ?? ''}
-                  onChange={(e) => setEst({ state: filterUfInput(e.target.value, est.state) })}
-                  onBlur={(e) => {
-                    if (e.currentTarget.value && !isValidUf(e.currentTarget.value)) setEst({ state: '' })
-                  }}
-                />
-              </label>
-            </div>
-            <label className="full">
-              Rua / logradouro
-              <input
-                value={est.street ?? ''}
-                onChange={(e) => setEst({ street: e.target.value })}
-              />
-            </label>
-            <div className="field-pair field-pair--number full">
-              <label>
-                Número
-                <input
+                  type="tel"
                   inputMode="numeric"
-                  value={est.number ?? ''}
-                  onChange={(e) => setEst({ number: digitsOnly(e.target.value, 6) })}
+                  placeholder="(00) 00000-0000"
+                  aria-invalid={Boolean(est.phone) && !phoneDdd(est.phone)}
+                  value={formatPhone(est.phone)}
+                  onChange={(e) => setEst({ phone: phoneDigits(e.target.value) })}
                 />
+                <span className="field-hint">Com DDD. Completa telefones de clientes sem DDD.</span>
               </label>
-              <label>
-                Complemento
+              <label className="full">
+                E-mail
                 <input
-                  value={est.complement ?? ''}
-                  onChange={(e) => setEst({ complement: e.target.value })}
+                  type="email"
+                  autoComplete="email"
+                  value={est.email ?? ''}
+                  onChange={(e) => setEst({ email: e.target.value })}
                 />
               </label>
+              <div className="field-pair field-pair--cep full">
+                <label>
+                  CEP
+                  <input
+                    inputMode="numeric"
+                    placeholder="00000-000"
+                    value={formatCep(est.cep ?? '')}
+                    onChange={(e) => {
+                      const cep = digitsOnly(e.target.value, 8)
+                      setEst({ cep })
+                      setCepStatus('idle')
+                      setCepMessage(null)
+                      if (cep.length === 8) void applyCep(cep)
+                    }}
+                  />
+                </label>
+                <label>
+                  UF
+                  <input
+                    maxLength={2}
+                    autoCapitalize="characters"
+                    value={est.state ?? ''}
+                    onChange={(e) => setEst({ state: filterUfInput(e.target.value, est.state) })}
+                    onBlur={(e) => {
+                      if (e.currentTarget.value && !isValidUf(e.currentTarget.value)) setEst({ state: '' })
+                    }}
+                  />
+                </label>
+              </div>
+              <label className="full">
+                Rua / logradouro
+                <input
+                  value={est.street ?? ''}
+                  onChange={(e) => setEst({ street: e.target.value })}
+                />
+              </label>
+              <div className="field-pair field-pair--number full">
+                <label>
+                  Número
+                  <input
+                    inputMode="numeric"
+                    value={est.number ?? ''}
+                    onChange={(e) => setEst({ number: digitsOnly(e.target.value, 6) })}
+                  />
+                </label>
+                <label>
+                  Complemento
+                  <input
+                    value={est.complement ?? ''}
+                    onChange={(e) => setEst({ complement: e.target.value })}
+                  />
+                </label>
+              </div>
+              <div className="field-pair field-pair--city full">
+                <label>
+                  Bairro
+                  <input
+                    value={est.neighborhood ?? ''}
+                    onChange={(e) => setEst({ neighborhood: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Cidade
+                  <input
+                    value={est.city ?? ''}
+                    onChange={(e) => setEst({ city: e.target.value })}
+                  />
+                </label>
+              </div>
             </div>
-            <div className="field-pair field-pair--city full">
-              <label>
-                Bairro
-                <input
-                  value={est.neighborhood ?? ''}
-                  onChange={(e) => setEst({ neighborhood: e.target.value })}
-                />
-              </label>
-              <label>
-                Cidade
-                <input
-                  value={est.city ?? ''}
-                  onChange={(e) => setEst({ city: e.target.value })}
-                />
-              </label>
-            </div>
-          </div>
-          {cepMessage && (
-            <p className={`cep-status${cepStatus === 'error' ? ' cep-status--error' : ''}`}>
-              {cepStatus === 'loading' ? 'Buscando CEP…' : cepMessage}
-            </p>
-          )}
-        </section>
+            {cepMessage && (
+              <p className={`cep-status${cepStatus === 'error' ? ' cep-status--error' : ''}`}>
+                {cepStatus === 'loading' ? 'Buscando CEP…' : cepMessage}
+              </p>
+            )}
+          </CollapsibleSection>
+        </div>
       )}
 
       {tab === 'quote' && (
-        <section
-          className="section"
-          role="tabpanel"
-          id="settings-panel-quote"
-          aria-labelledby="settings-tab-quote"
-        >
-          <fieldset className="margin-modes">
-            <legend>Cálculo de margem</legend>
-            {MARGIN_MODES.map((mode) => (
-              <label key={mode.id} className="margin-mode">
-                <input
-                  type="radio"
-                  name="margin-mode"
-                  className="margin-mode__box"
-                  checked={draft.marginMode === mode.id}
-                  onChange={() => setDraft((d) => ({ ...d, marginMode: mode.id }))}
-                />
-                <span className="margin-mode__name">{mode.name}</span>
-                <span className="margin-mode__desc">{mode.description}</span>
-              </label>
-            ))}
-          </fieldset>
-          <label className="settings-field">
-            Validade padrão (dias)
-            <input
-              className="settings-days"
-              inputMode="numeric"
-              data-select-all
-              value={String(draft.quoteValidityDays)}
-              onChange={(e) => {
-                const n = Number(e.target.value.replace(/\D/g, ''))
-                setDraft((d) => ({
-                  ...d,
-                  quoteValidityDays: Number.isFinite(n) && n >= 1 ? Math.min(n, 3650) : d.quoteValidityDays,
-                }))
-              }}
-            />
-          </label>
-          <p className="field-hint">Data do orçamento + N dias. Gravada na emissão.</p>
-          <label className="settings-field">
-            Chamada no WhatsApp
-            <textarea
-              rows={2}
-              maxLength={180}
-              value={draft.shareCta}
-              onChange={(e) => setDraft((d) => ({ ...d, shareCta: e.target.value }))}
-            />
-          </label>
-          <p className="field-hint">
-            Antes da validade, no fim da mensagem. Vazio, a linha sai do WhatsApp.
-          </p>
-        </section>
+        <div role="tabpanel" id="settings-panel-quote" aria-labelledby="settings-tab-quote">
+          <section className="section" aria-labelledby="settings-margin-title">
+            <h2 id="settings-margin-title">Cálculo de margem</h2>
+            <fieldset className="margin-modes" aria-labelledby="settings-margin-title">
+              {MARGIN_MODES.map((mode) => (
+                <label key={mode.id} className="margin-mode">
+                  <input
+                    type="radio"
+                    name="margin-mode"
+                    className="margin-mode__box"
+                    checked={draft.marginMode === mode.id}
+                    onChange={() => setDraft((d) => ({ ...d, marginMode: mode.id }))}
+                  />
+                  <span className="margin-mode__name">{mode.name}</span>
+                  <span className="margin-mode__desc">{mode.description}</span>
+                </label>
+              ))}
+            </fieldset>
+          </section>
+          <section className="section" aria-labelledby="settings-validity-title">
+            <h2 id="settings-validity-title">Validade padrão</h2>
+            <label className="settings-field">
+              Dias
+              <input
+                className="settings-days"
+                inputMode="numeric"
+                data-select-all
+                value={String(draft.quoteValidityDays)}
+                onChange={(e) => {
+                  const n = Number(e.target.value.replace(/\D/g, ''))
+                  setDraft((d) => ({
+                    ...d,
+                    quoteValidityDays: Number.isFinite(n) && n >= 1 ? Math.min(n, 3650) : d.quoteValidityDays,
+                  }))
+                }}
+              />
+            </label>
+            <p className="field-hint">Data do orçamento + N dias. Gravada na emissão.</p>
+          </section>
+          <section className="section" aria-labelledby="settings-cta-title">
+            <h2 id="settings-cta-title">Chamada no WhatsApp</h2>
+            <label className="settings-field">
+              Texto
+              <textarea
+                rows={2}
+                maxLength={180}
+                value={draft.shareCta}
+                onChange={(e) => setDraft((d) => ({ ...d, shareCta: e.target.value }))}
+              />
+            </label>
+            <p className="field-hint">
+              Antes da validade, no fim da mensagem. Vazio, a linha sai do WhatsApp.
+            </p>
+          </section>
+        </div>
       )}
 
       {tab === 'logo' && (
@@ -363,6 +364,7 @@ export function SettingsEditor({
           id="settings-panel-logo"
           aria-labelledby="settings-tab-logo"
         >
+          <h2>Logo</h2>
           <div className="logo-row">
             <div className="logo-preview">
               {draft.logoDataUrl ? (

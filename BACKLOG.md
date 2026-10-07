@@ -20,6 +20,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Next
 
+- [ ] `feat` (G) **Usuário no Cadastro (precisa de spec):** seção expansível "Usuário" em Configurações › Cadastro com nome e telefone de quem usa o app. Futuro: orçamento guarda o vendedor na emissão e o PDF mostra nome e telefone dele (loja com vários vendedores). Decidir: perfil por usuário (Supabase `user_metadata` ou tabela `profiles` + RLS; IndexedDB no modo local), vendedor hoje não abre Configurações (tela própria "Meu perfil" ou aba liberada), snapshot no `Quote` ao emitir, linha no PDF
 - [ ] `feat` (G) **URLs por tela (precisa de spec):** hoje sem router, telas em `useState` no `App`; voltar do navegador/celular sai do app e recarregar volta pra lista. Decidir antes de codar: quais telas ganham path (ex.: `/orcamentos`, `/orcamentos/:id`, `/catalogo/:tabela`, `/configuracoes/:aba`), o que vira só estado (modal de item, prévia, envio), o que persiste entre sessões (último orçamento aberto, aba/filtro do catálogo), deep link de orçamento compartilhável internamente, gate de vendedor em rota admin. Router próprio (History API) vs lib; Cloudflare `_redirects` já faz fallback SPA
 - [ ] `test` (P) **Atualizar `scripts/validate-catalog-browser.mjs`:** seletores antigos (aba "Catálogo", título "Catálogo de preços", abas de tabela, "Salvar catálogo"); hoje o script falha logo no início
 - [ ] `data` (M) **Backup/restauração de orçamentos** (export IndexedDB/JSON). Prioridade baixa: produção usa Supabase
@@ -45,6 +46,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ### 2026-10-07
 
+- [x] `ui` Configurações: aba Estabelecimento vira **Cadastro** (Estabelecimento expansível); cada bloco é um cartão com título (Cálculo de margem, Validade padrão, Chamada no WhatsApp, Logo). Aviso de rascunho amarelo e compacto, com data; após atualizar, aviso menor "Valores atualizados"
 - [x] `feat` **Cálculo de margem** em Configurações › Orçamento: Empresa (margem sobre tudo, = antes), Vendedor (mão de obra sem margem), Autônomo (sem margem). Frete e desconto nunca têm margem. Confirmação ao salvar; rascunho desatualizado (catálogo ou cálculo) mostra aviso com "Atualizar valores"; emitidos não mudam. Spec `specs/002-modelos-de-calculo/`
 
 ### 2026-10-06

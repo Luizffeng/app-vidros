@@ -9,7 +9,8 @@ React UI. No price formulas and no Supabase queries except `LoginScreen` (passwo
 | `App.tsx` | Views `list` \| `editor` \| `catalog` \| `settings`. Quote state, persist queue, emit, revision, delete, PDF/share actions. Also customer, costs, discounts, send sheet (`SendSheet`: share PDF, text, download) and text share modal in the same file. Passes `settings.marginMode` to domain calls, `ItemForm`, `CatalogEditor`; outdated-draft banner ("Atualizar valores" → `repriceDraft`). |
 | `ItemForm.tsx` | Modal fields per product kind. Markup percent → fraction. Hides margin field/line in Autônomo mode. |
 | `CatalogEditor.tsx` | Catalog tables, version bump, calls `parseImportedCatalog`. Hides "Margem padrão" in Autônomo mode. |
-| `SettingsEditor.tsx` | Establishment, "Cálculo de margem" (confirm on change), validity, share CTA, logo file. |
+| `SettingsEditor.tsx` | Tabs Cadastro (expandable Estabelecimento), Orçamento (sections Cálculo de margem with confirm on change, Validade padrão, Chamada no WhatsApp), Logo. One card + `h2` per section. |
+| `CollapsibleSection.tsx` | `<details>` card with heading and chevron. Editor sections and Settings › Cadastro. |
 | `AppHeader.tsx` | Title + hamburger menu: Orçamentos, Catálogo, Configurações (hidden for `vendedor`), Ajuda, Sair. Owns `AppSection`. `HeaderMenu` is also used in the editor head (`App.tsx`). |
 | `selectAllOnFocus.ts` | Global listener (installed in `main.tsx`): `inputMode="decimal"` and `data-select-all` inputs select their value on focus. |
 | `LoginScreen.tsx` | Email/password form. |
