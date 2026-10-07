@@ -1,11 +1,12 @@
 import { useMemo, useRef, useState } from 'react'
-import type { AppSettings, EstablishmentInfo } from '../domain/types'
+import type { AppSettings, EstablishmentInfo, MarginMode } from '../domain/types'
 import { DEFAULT_LOGO_DATA_URL } from '../data/defaultLogo'
 import { normalizeSettings } from '../data/defaultSettings'
 import { fileToLogoDataUrl } from '../data/logo'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
 import { filterUfInput, formatPhone, isValidUf, phoneDdd, phoneDigits } from '../domain/brazil'
 import { AppHeader, type AppSection } from './AppHeader'
+import { useDismiss } from './useDismiss'
 
 type SettingsTab = 'establishment' | 'quote' | 'logo'
 
@@ -13,6 +14,24 @@ const SETTINGS_TABS: { id: SettingsTab; label: string }[] = [
   { id: 'establishment', label: 'Estabelecimento' },
   { id: 'quote', label: 'Orçamento' },
   { id: 'logo', label: 'Logo' },
+]
+
+const MARGIN_MODES: { id: MarginMode; name: string; description: string }[] = [
+  {
+    id: 'empresa',
+    name: 'Empresa',
+    description: 'Margem sobre material, adicionais do item e mão de obra.',
+  },
+  {
+    id: 'vendedor',
+    name: 'Vendedor',
+    description: 'Margem sobre material e adicionais do item. Mão de obra sem margem.',
+  },
+  {
+    id: 'autonomo',
+    name: 'Autônomo',
+    description: 'Sem margem sobre os itens. A mão de obra é o lucro.',
+  },
 ]
 
 export function SettingsEditor({
@@ -33,6 +52,9 @@ export function SettingsEditor({
   const [logoBusy, setLogoBusy] = useState(false)
   const [tab, setTab] = useState<SettingsTab>('establishment')
   const logoInputRef = useRef<HTMLInputElement>(null)
+  const [confirmMode, setConfirmMode] = useState(false)
+  const saveWrapRef = useRef<HTMLDivElement>(null)
+  useDismiss(confirmMode, saveWrapRef, () => setConfirmMode(false))
 
   const dirty = useMemo(
     () => JSON.stringify(draft) !== JSON.stringify(normalizeSettings(settings)),
@@ -77,11 +99,23 @@ export function SettingsEditor({
     }
   }
 
+  const requestSave = () => {
+    if (draft.marginMode !== normalizeSettings(settings).marginMode) {
+      setConfirmMode(true)
+      return
+    }
+    void save()
+  }
+
   const save = async () => {
+    setConfirmMode(false)
     try {
       setBusy(true)
       setError(null)
       const next = normalizeSettings(draft)
+      if (next.marginMode !== normalizeSettings(settings).marginMode) {
+        next.marginModeChangedAt = new Date().toISOString()
+      }
       await onSave(next)
       setDraft(next)
       setMessage('Configurações salvas.')
@@ -274,6 +308,22 @@ export function SettingsEditor({
           id="settings-panel-quote"
           aria-labelledby="settings-tab-quote"
         >
+          <fieldset className="margin-modes">
+            <legend>Cálculo de margem</legend>
+            {MARGIN_MODES.map((mode) => (
+              <label key={mode.id} className="margin-mode">
+                <input
+                  type="radio"
+                  name="margin-mode"
+                  className="margin-mode__box"
+                  checked={draft.marginMode === mode.id}
+                  onChange={() => setDraft((d) => ({ ...d, marginMode: mode.id }))}
+                />
+                <span className="margin-mode__name">{mode.name}</span>
+                <span className="margin-mode__desc">{mode.description}</span>
+              </label>
+            ))}
+          </fieldset>
           <label className="settings-field">
             Validade padrão (dias)
             <input
@@ -363,14 +413,32 @@ export function SettingsEditor({
           <button type="button" className="btn" onClick={() => onNavigate('list')}>
             Voltar
           </button>
-          <button
-            type="button"
-            className="btn primary"
-            disabled={busy || !dirty}
-            onClick={() => void save()}
-          >
-            {busy ? 'Salvando…' : dirty ? 'Salvar' : 'Salvo'}
-          </button>
+          <div className="emit-wrap" ref={saveWrapRef}>
+            <button
+              type="button"
+              className="btn primary"
+              disabled={busy || !dirty}
+              onClick={requestSave}
+            >
+              {busy ? 'Salvando…' : dirty ? 'Salvar' : 'Salvo'}
+            </button>
+            {confirmMode && (
+              <div className="remove-pop save-pop" role="alertdialog" aria-label="Confirmar cálculo de margem">
+                <span>
+                  Novos orçamentos passam a usar este cálculo. Rascunhos mostram um aviso para
+                  atualizar. Orçamentos emitidos não mudam.
+                </span>
+                <span className="save-pop__actions">
+                  <button type="button" className="btn remove-pop__yes" onClick={() => void save()}>
+                    Sim
+                  </button>
+                  <button type="button" className="btn" onClick={() => setConfirmMode(false)}>
+                    Não
+                  </button>
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </footer>
     </div>

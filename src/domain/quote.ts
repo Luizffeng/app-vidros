@@ -5,6 +5,7 @@ import type {
   CustomerInfo,
   ItemExtra,
   ItemInput,
+  MarginMode,
   Quote,
   QuoteItem,
 } from './types'
@@ -40,10 +41,17 @@ function normalizeCosts(raw: unknown): AdditionalCost[] {
   })
 }
 
+const MARGIN_MODES: readonly MarginMode[] = ['empresa', 'vendedor', 'autonomo']
+
+export function parseMarginMode(raw: unknown): MarginMode | undefined {
+  return MARGIN_MODES.find((mode) => mode === raw)
+}
+
 export function normalizeQuote(quote: Quote): Quote {
   const discounts = normalizeCosts(quote.discounts)
   return withTotals({
     ...quote,
+    marginMode: parseMarginMode(quote.marginMode),
     discounts,
     items: quote.items.map((item) => {
       if (item.input.kind === 'custom') return item
@@ -66,6 +74,7 @@ export function dropEmptyFreight(costs: AdditionalCost[]): AdditionalCost[] {
 export function createEmptyDraft(
   number: string,
   pricingVersion: string,
+  marginMode: MarginMode = 'empresa',
 ): Quote {
   const now = new Date().toISOString()
   return {
@@ -80,6 +89,7 @@ export function createEmptyDraft(
     additionalCosts: [],
     discounts: [],
     pricingVersion,
+    marginMode,
     itemsTotal: 0,
     additionalTotal: 0,
     discountTotal: 0,
@@ -118,11 +128,12 @@ export function addItem(
   quote: Quote,
   catalog: Catalog,
   input: ItemInput,
+  mode: MarginMode = 'empresa',
 ): Quote {
   const item: QuoteItem = {
     id: uuid(),
     input,
-    result: priceItem(catalog, input),
+    result: priceItem(catalog, input, mode),
   }
   return recomputeTotals({ ...quote, items: [...quote.items, item] })
 }
@@ -132,13 +143,80 @@ export function updateItem(
   catalog: Catalog,
   itemId: string,
   input: ItemInput,
+  mode: MarginMode = 'empresa',
 ): Quote {
   const items = quote.items.map((item) =>
     item.id === itemId
-      ? { ...item, input, result: priceItem(catalog, input) }
+      ? { ...item, input, result: priceItem(catalog, input, mode) }
       : item,
   )
   return recomputeTotals({ ...quote, items })
+}
+
+/** Which inputs changed since the draft was last fully priced; null when up to date. */
+export function draftOutdated(
+  quote: Quote,
+  catalog: Catalog,
+  mode: MarginMode,
+): { catalog: boolean; margin: boolean } | null {
+  if (quote.status !== 'draft') return null
+  if (!quote.items.some((item) => item.input.kind !== 'custom')) return null
+  const flags = {
+    catalog: quote.pricingVersion !== catalog.config.version,
+    margin: (quote.marginMode ?? 'empresa') !== mode,
+  }
+  return flags.catalog || flags.margin ? flags : null
+}
+
+/** Catalog versions are `YYYY-MM-DD` or a UTC ISO timestamp to the minute (see `bumpVersion`). */
+export function catalogVersionDate(version: string): Date | null {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(version)) {
+    const [y, m, d] = version.split('-').map(Number)
+    return new Date(y, m - 1, d)
+  }
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(version)) return new Date(`${version}Z`)
+  return null
+}
+
+/** Latest known date behind the outdated flags; null when no date is known. */
+export function outdatedSince(
+  flags: { catalog: boolean; margin: boolean },
+  catalog: Catalog,
+  marginModeChangedAt?: string,
+): Date | null {
+  const times = [
+    flags.catalog ? catalogVersionDate(catalog.config.version)?.getTime() : undefined,
+    flags.margin && marginModeChangedAt ? new Date(marginModeChangedAt).getTime() : undefined,
+  ].filter((t): t is number => t !== undefined && !Number.isNaN(t))
+  return times.length ? new Date(Math.max(...times)) : null
+}
+
+/** Reprices catalog items with today's catalog and mode. Items that no longer price keep their result. */
+export function repriceDraft(
+  quote: Quote,
+  catalog: Catalog,
+  mode: MarginMode,
+): { quote: Quote; failed: number } {
+  if (quote.status !== 'draft') throw new Error('Só rascunhos podem ser recalculados')
+  let failed = 0
+  const items = quote.items.map((item) => {
+    if (item.input.kind === 'custom') return item
+    try {
+      return { ...item, result: priceItem(catalog, item.input, mode) }
+    } catch {
+      failed += 1
+      return item
+    }
+  })
+  return {
+    quote: recomputeTotals({
+      ...quote,
+      items,
+      marginMode: mode,
+      pricingVersion: catalog.config.version,
+    }),
+    failed,
+  }
 }
 
 export function removeItem(quote: Quote, itemId: string): Quote {

@@ -5,6 +5,7 @@ import type {
   Catalog,
   CustomerInfo,
   ItemInput,
+  MarginMode,
   ProductKind,
   Quote,
 } from '../domain/types'
@@ -12,6 +13,8 @@ import {
   addItem,
   createEmptyDraft,
   createRevision,
+  draftOutdated,
+  outdatedSince,
   emitQuote,
   dropEmptyFreight,
   formatBrl,
@@ -20,6 +23,7 @@ import {
   quoteShareText,
   recomputeTotals,
   removeItem,
+  repriceDraft,
   setAdditionalCosts,
   setDiscounts,
   setCustomer,
@@ -36,6 +40,7 @@ import {
   phoneDigits,
   withDefaultDdd,
 } from '../domain/brazil'
+import { marginLabel } from '../domain/itemDescription'
 import {
   downloadBlob,
   generateQuotePdf,
@@ -80,6 +85,9 @@ export function App() {
   const [sendOpen, setSendOpen] = useState(false)
   const [listQuery, setListQuery] = useState('')
   const [listStatus, setListStatus] = useState<'all' | 'emitted' | 'draft'>('all')
+  /** Items that kept their old price after "Atualizar valores"; null = no note. */
+  const [repriceFailed, setRepriceFailed] = useState<number | null>(null)
+  const marginMode: MarginMode = settings?.marginMode ?? 'empresa'
 
   const refresh = async () => {
     const [c, list, s] = await Promise.all([
@@ -140,8 +148,9 @@ export function App() {
   const openNew = async () => {
     if (!catalog) return
     const number = await repo.nextQuoteNumber()
-    const draft = createEmptyDraft(number, catalog.config.version)
+    const draft = createEmptyDraft(number, catalog.config.version, marginMode)
     setItemModal(null)
+    setRepriceFailed(null)
     setQuote(draft)
     setView('editor')
     setError(null)
@@ -151,6 +160,7 @@ export function App() {
     const q = await repo.getQuote(id)
     if (!q) return
     setItemModal(null)
+    setRepriceFailed(null)
     if (q.status === 'draft') {
       const costs = dropEmptyFreight(q.additionalCosts)
       if (costs !== q.additionalCosts) {
@@ -185,7 +195,7 @@ export function App() {
   const onAddItem = async (input: ItemInput) => {
     if (!quote || !catalog) return
     try {
-      const next = addItem(quote, catalog, input)
+      const next = addItem(quote, catalog, input, marginMode)
       await persist(next)
       setItemModal(null)
       setError(null)
@@ -197,7 +207,7 @@ export function App() {
   const onUpdateItem = async (itemId: string, input: ItemInput) => {
     if (!quote || !catalog) return
     try {
-      const next = updateItem(quote, catalog, itemId, input)
+      const next = updateItem(quote, catalog, itemId, input, marginMode)
       await persist(next)
       setItemModal(null)
       setError(null)
@@ -210,6 +220,13 @@ export function App() {
     if (!quote) return
     if (itemModal?.mode === 'edit' && itemModal.id === itemId) setItemModal(null)
     await persist(removeItem(quote, itemId))
+  }
+
+  const onRepriceDraft = async () => {
+    if (!quote || !catalog) return
+    const { quote: next, failed } = repriceDraft(quote, catalog, marginMode)
+    await persist(next)
+    setRepriceFailed(failed)
   }
 
   const onDeleteDraft = async () => {
@@ -414,6 +431,7 @@ export function App() {
     return (
       <CatalogEditor
         catalog={catalog}
+        marginMode={marginMode}
         onSave={onSaveCatalog}
         onNavigate={goSection}
       />
@@ -503,6 +521,9 @@ export function App() {
   if (!quote) return null
 
   const readOnly = quote.status === 'emitted'
+  const outdated = draftOutdated(quote, catalog, marginMode)
+  const outdatedDate = outdated && outdatedSince(outdated, catalog, settings?.marginModeChangedAt)
+  const since = outdatedDate ? ` em ${outdatedDate.toLocaleDateString('pt-BR')}` : ''
   const editingItem =
     itemModal?.mode === 'edit' ? quote.items.find((i) => i.id === itemModal.id) : undefined
   const closeItemModal = () => {
@@ -574,6 +595,33 @@ export function App() {
 
       {error && !itemModal && <div className="banner error">{error}</div>}
 
+      {outdated && (
+        <div className="banner warn outdated-banner" role="status">
+          <span>
+            {outdated.catalog && outdated.margin ? (
+              <>O <strong>catálogo</strong> e o <strong>cálculo de margem</strong> mudaram{since}.</>
+            ) : outdated.catalog ? (
+              <>O <strong>catálogo</strong> foi atualizado{since}.</>
+            ) : (
+              <>O <strong>cálculo de margem</strong> mudou{since}.</>
+            )}
+          </span>
+          <button type="button" className="btn" onClick={() => void onRepriceDraft()}>
+            Atualizar valores
+          </button>
+        </div>
+      )}
+      {repriceFailed !== null && !outdated && (
+        <div
+          className={`banner ${repriceFailed ? 'warn' : 'ok'} outdated-banner outdated-banner--done`}
+          role="status"
+        >
+          Valores atualizados.
+          {repriceFailed === 1 && ' 1 item manteve o valor anterior.'}
+          {repriceFailed > 1 && ` ${repriceFailed} itens mantiveram o valor anterior.`}
+        </div>
+      )}
+
       <CustomerSection
         customer={quote.customer}
         disabled={readOnly}
@@ -640,10 +688,12 @@ export function App() {
                   <span>Custo</span>
                   <span>{formatBrl(item.result.breakdown.totalCost)}</span>
                 </li>
-                <li className="breakdown__margin">
-                  <span>Margem ({(item.result.breakdown.markup * 100).toFixed(0)}%)</span>
-                  <span>{formatBrl(item.result.breakdown.marginAmount)}</span>
-                </li>
+                {(item.result.breakdown.marginMode ?? 'empresa') !== 'autonomo' && (
+                  <li className="breakdown__margin">
+                    <span>{marginLabel(item.result.breakdown)}</span>
+                    <span>{formatBrl(item.result.breakdown.marginAmount)}</span>
+                  </li>
+                )}
               </ul>
             </details>
             {!readOnly && (
@@ -736,6 +786,7 @@ export function App() {
           <ItemForm
             key={itemModal.mode === 'edit' ? itemModal.id : itemModal.kind}
             catalog={catalog}
+            marginMode={marginMode}
             initial={editingItem?.input}
             lockKind={itemModal.mode === 'edit' ? editingItem?.input.kind : itemModal.kind}
             hideTitle

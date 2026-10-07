@@ -20,7 +20,7 @@ Inputs and `PricingConfig`: `src/domain/types.ts`. Human-readable rules: `BUSINE
 ## Boundaries
 
 - Read `index.ts` plus the one pricer for the `kind` in the task. Do not open the other pricers.
-- Do not change `buildBreakdown` (markup on full cost) unless the task is the margin model.
+- `buildBreakdown(parts, mode)` owns the margin rule (Empresa: margin on full cost; Vendedor: labor without margin; Autônomo: no margin). Pricers call it without a mode; `priceItem` re-applies the mode once. Do not change it unless the task is the margin model.
 - Catalog rows are inputs. Inactive or missing codes throw from `math.ts`.
 - UI percent fields live in `src/components/ItemForm.tsx`. This folder receives a fraction (`0.3`, not `30`).
 

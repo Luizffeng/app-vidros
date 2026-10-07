@@ -15,9 +15,8 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Now
 
-1. [ ] `feat` (G) **Cálculo de margem** (Configurações › Orçamento, fixo por loja): Empresa = (material + adicionais do item + mão de obra) × (1+margem) (= hoje); Vendedor = (material + adicionais do item) × (1+margem) + mão de obra; Autônomo = sem margem. Custos adicionais do orçamento (Frete) e desconto nunca têm margem. Seção com uma caixa por modo (nome + descrição), Salvar com aviso. Rascunho desatualizado (modo ou catálogo mudou) mostra aviso com "Atualizar valores"; emitidos nunca mudam. Aplicar em `priceItem` (pós-processa breakdown), sem mexer nos pricers. Autônomo esconde margem. Sem migração SQL (payload JSON, RLS existente). Spec, plano e tarefas: `specs/002-modelos-de-calculo/`
-2. [ ] `feat` (G) **Janela "Detalhes do custo":** tocar em "Detalhes do custo" abre direto um modal (substitui a lista que expande) com resumo no topo e composição (vidro, alumínio, ferragem, acessório, mão de obra) com quantidade, unidade, preço unitário e subtotal. Admin edita preço com duas ações: "Só neste orçamento" (preço próprio do orçamento) ou "Atualizar no catálogo" (confirmação; bump de versão, recalcula o rascunho aberto, outros rascunhos mostram "Atualizar valores", aviso "Catálogo atualizado"). Vendedor só visualiza. Pré-requisito: `BomLine` com `unit`, `source` (tabela + id) e acréscimo de cor nas linhas. Depende do Cálculo de margem. Spec, plano e tarefas: `specs/003-composicao-do-item/`
-3. [ ] `ui` (G) **Transições leves:** janelas (sobe no celular, cresce no computador, saída mais curta), seletor/menu/confirmações a partir do botão, seções que expandem sem salto, abas com marcador deslizante, troca de tela com direção (lista ↔ orçamento) e rolagem da lista mantida. Tabela única de durações (100–250 ms), só transform/opacity, respeita "reduzir movimento", sem biblioteca. Remove desfoque pesado das seções e da barra inferior. Medido com CPU 4× mais lenta. Spec, plano e tarefas: `specs/004-transicoes/`
+1. [ ] `feat` (G) **Janela "Detalhes do custo":** tocar em "Detalhes do custo" abre direto um modal (substitui a lista que expande) com resumo no topo e composição (vidro, alumínio, ferragem, acessório, mão de obra) com quantidade, unidade, preço unitário e subtotal. Admin edita preço com duas ações: "Só neste orçamento" (preço próprio do orçamento) ou "Atualizar no catálogo" (confirmação; bump de versão, recalcula o rascunho aberto, outros rascunhos mostram "Atualizar valores", aviso "Catálogo atualizado"). Vendedor só visualiza. Pré-requisito: `BomLine` com `unit`, `source` (tabela + id) e acréscimo de cor nas linhas. Depende do Cálculo de margem. Spec, plano e tarefas: `specs/003-composicao-do-item/`
+2. [ ] `ui` (G) **Transições leves:** janelas (sobe no celular, cresce no computador, saída mais curta), seletor/menu/confirmações a partir do botão, seções que expandem sem salto, abas com marcador deslizante, troca de tela com direção (lista ↔ orçamento) e rolagem da lista mantida. Tabela única de durações (100–250 ms), só transform/opacity, respeita "reduzir movimento", sem biblioteca. Remove desfoque pesado das seções e da barra inferior. Medido com CPU 4× mais lenta. Spec, plano e tarefas: `specs/004-transicoes/`
 
 ## Next
 
@@ -43,6 +42,10 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 - App nativo (iOS/Android)
 
 ## Done
+
+### 2026-10-07
+
+- [x] `feat` **Cálculo de margem** em Configurações › Orçamento: Empresa (margem sobre tudo, = antes), Vendedor (mão de obra sem margem), Autônomo (sem margem). Frete e desconto nunca têm margem. Confirmação ao salvar; rascunho desatualizado (catálogo ou cálculo) mostra aviso com "Atualizar valores"; emitidos não mudam. Spec `specs/002-modelos-de-calculo/`
 
 ### 2026-10-06
 

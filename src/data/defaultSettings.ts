@@ -1,5 +1,5 @@
 import type { AppSettings, EstablishmentInfo } from '../domain/types'
-import { DEFAULT_SHARE_CTA, formatAddressLines } from '../domain/quote'
+import { DEFAULT_SHARE_CTA, formatAddressLines, parseMarginMode } from '../domain/quote'
 import { DEFAULT_LOGO_DATA_URL, resolveStoredLogo } from './defaultLogo'
 
 export const DEFAULT_VALIDITY_DAYS = 15
@@ -24,6 +24,7 @@ export function defaultEstablishment(): EstablishmentInfo {
 export function defaultSettings(): AppSettings {
   return {
     quoteValidityDays: DEFAULT_VALIDITY_DAYS,
+    marginMode: 'empresa',
     establishment: defaultEstablishment(),
     logoDataUrl: DEFAULT_LOGO_DATA_URL,
     shareCta: DEFAULT_SHARE_CTA,
@@ -41,6 +42,9 @@ export function normalizeSettings(raw: Partial<AppSettings> | null | undefined):
   return {
     quoteValidityDays:
       Number.isFinite(days) && days >= 1 ? Math.min(Math.round(days), 3650) : DEFAULT_VALIDITY_DAYS,
+    marginMode: parseMarginMode(raw.marginMode) ?? base.marginMode,
+    marginModeChangedAt:
+      typeof raw.marginModeChangedAt === 'string' ? raw.marginModeChangedAt : undefined,
     establishment: {
       ...base.establishment,
       ...est,

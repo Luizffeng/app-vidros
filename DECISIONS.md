@@ -68,6 +68,12 @@ Only choices visible in code or in README / constitution / handoff. Not a change
 - **Reason/evidence:** Owner request: fixed `Frete` R$ 0 row was noise. `dropEmptyFreight` cleans legacy drafts. `BACKLOG.md` lists km freight as later.
 - **Consequence:** Do not invent a maps API. Do not reintroduce a fixed freight row unless the km backlog item is in scope.
 
+## Margin mode is a shop setting
+
+- **Decision:** "Cálculo de margem" (`empresa` | `vendedor` | `autonomo`) lives in `AppSettings.marginMode`, default `empresa`. Each priced item stores `breakdown.marginMode`; each quote stores `marginMode`. Missing values mean `empresa`. `marginModeChangedAt` dates the draft banner.
+- **Reason/evidence:** Spec `specs/002-modelos-de-calculo/`. Settings are already admin-only by RLS and stored as JSON, so no SQL migration.
+- **Consequence:** Changing the mode never reprices drafts silently. Drafts show the "Atualizar valores" banner; emitted quotes keep their stored prices. Pricers stay mode-agnostic; `priceItem` applies the mode.
+
 ## Spec Kit for larger features
 
 - **Decision:** Larger features get a new spec under `specs/`. The old MVP spec `specs/001-mvp-orcamentos/` was removed. Day-to-day queue stays `BACKLOG.md`.

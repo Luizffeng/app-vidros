@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { loadSeedCatalog } from '../../data/seedCatalog'
+import type { CorrerInput, MarginMode } from '../types'
 import {
+  buildBreakdown,
   findKitBox,
   findVidro,
   priceBox,
@@ -277,5 +279,71 @@ describe('inactive catalog items', () => {
         extras: [],
       }),
     ).toThrow(/Kit Box sem preço/)
+  })
+})
+
+describe('cálculo de margem', () => {
+  const parts = {
+    labor: 50,
+    glass: 100,
+    aluminum: 0,
+    hardware: 0,
+    accessories: 0,
+    extras: 10,
+    markup: 0.3,
+  }
+
+  it.each([
+    ['empresa', 208, 48],
+    ['vendedor', 193, 33],
+    ['autonomo', 160, 0],
+  ] as const)('%s: preço %d, margem %d', (mode, finalPrice, marginAmount) => {
+    const b = buildBreakdown(parts, mode)
+    expect(b.totalCost).toBeCloseTo(160, 10)
+    expect(b.finalPrice).toBeCloseTo(finalPrice, 10)
+    expect(b.marginAmount).toBeCloseTo(marginAmount, 10)
+    expect(b.marginPct).toBeCloseTo(marginAmount / finalPrice, 10)
+    expect(b.markup).toBe(0.3)
+    expect(b.marginMode).toBe(mode)
+  })
+
+  it('sem modo é empresa', () => {
+    expect(buildBreakdown(parts)).toEqual(buildBreakdown(parts, 'empresa'))
+  })
+
+  it('modo muda só preço e margem; BOM e custos iguais', () => {
+    const input: CorrerInput = {
+      kind: 'correr',
+      subtype: 'J4F',
+      widthMm: 1950,
+      heightMm: 754,
+      glassColor: 'Verde',
+      thicknessMm: '06',
+      profileColor: 'Fosco',
+      markup: 0.3,
+      extras: [{ id: 'e1', description: 'Adicional de altura', amount: 25 }],
+    }
+    const legacy = priceCorrer(catalog, input)
+    const byMode = Object.fromEntries(
+      (['empresa', 'vendedor', 'autonomo'] as MarginMode[]).map((m) => [m, priceItem(catalog, input, m)]),
+    )
+    expect(byMode.empresa.breakdown.finalPrice).toBeCloseTo(legacy.breakdown.finalPrice, 10)
+    for (const r of Object.values(byMode)) {
+      expect(r.bom).toEqual(legacy.bom)
+      for (const key of ['labor', 'glass', 'aluminum', 'hardware', 'accessories', 'extras', 'totalCost'] as const) {
+        expect(r.breakdown[key]).toBeCloseTo(legacy.breakdown[key], 10)
+      }
+    }
+    const b = legacy.breakdown
+    const material = b.glass + b.aluminum + b.hardware + b.accessories
+    expect(byMode.vendedor.breakdown.finalPrice).toBeCloseTo((material + b.extras) * 1.3 + b.labor, 10)
+    expect(byMode.autonomo.breakdown.finalPrice).toBeCloseTo(b.totalCost, 10)
+  })
+
+  it('item avulso ignora o modo', () => {
+    const input = { kind: 'custom', description: 'Película', amount: 80 } as const
+    for (const mode of ['empresa', 'vendedor', 'autonomo'] as const) {
+      expect(priceItem(catalog, input, mode).breakdown.finalPrice).toBe(80)
+    }
   })
 })

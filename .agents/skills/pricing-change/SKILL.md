@@ -12,7 +12,7 @@ description: Use when a task changes the price, BOM line, rounding, minimum area
 
 Not this skill:
 
-- Markup/margin model (`buildBreakdown`). That is a product decision (see `BACKLOG.md` "Modelos de cálculo"). Ask first.
+- Margin rule (`buildBreakdown` modes Empresa/Vendedor/Instalador, see `BUSINESS_RULES.md`). That is a product decision. Ask first.
 - Only catalog prices or seed rates change. That is data, not a formula.
 - A new stored field on `PricingConfig` or `ItemInput`. Use `persisted-field-change` for the field, then come back here for the formula.
 - Percent inputs in the item modal. Use `ui-change`.
@@ -44,7 +44,7 @@ Not this skill:
 - Open the other pricers, `App.tsx`, the PDF module, or seed JSON other than `src/data/seed/config.json` (default rates).
 - Restyle, rename, or "clean up" formulas outside the requested change.
 - Hardcode prices, labor rates, or color percentages.
-- Change markup-on-full-cost in `buildBreakdown`.
+- Change the three-mode margin rule in `buildBreakdown`, or apply margin to quote additional costs or discount.
 - Wire `labor.boxAvulso` into `priceBox` without an explicit ask (known unused config).
 - Move any formula into `src/components/`.
 

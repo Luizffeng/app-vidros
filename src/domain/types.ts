@@ -48,8 +48,14 @@ export interface EstablishmentInfo {
   state?: string
 }
 
+/** empresa: margem sobre tudo; vendedor: mão de obra sem margem; autonomo: sem margem */
+export type MarginMode = 'empresa' | 'vendedor' | 'autonomo'
+
 export interface AppSettings {
   quoteValidityDays: number
+  marginMode: MarginMode
+  /** ISO da última troca de `marginMode` (aviso do rascunho) */
+  marginModeChangedAt?: string
   establishment: EstablishmentInfo
   /** Data URL da logo (PNG/JPEG) — usado no PDF */
   logoDataUrl?: string
@@ -131,6 +137,8 @@ export interface CostBreakdown {
   marginPct: number
   marginAmount: number
   markup: number
+  /** Ausente = empresa (itens anteriores ao cálculo de margem) */
+  marginMode?: MarginMode
 }
 
 export interface PricingResult {
@@ -272,6 +280,8 @@ export interface Quote {
   additionalCosts: AdditionalCost[]
   discounts: AdditionalCost[]
   pricingVersion: string
+  /** Modo do último cálculo completo. Ausente = empresa */
+  marginMode?: MarginMode
   itemsTotal: number
   additionalTotal: number
   discountTotal: number

@@ -1,4 +1,4 @@
-import type { Catalog, CustomInput, ItemInput, PricingResult } from '../types'
+import type { Catalog, CustomInput, ItemInput, MarginMode, PricingResult } from '../types'
 import { priceBox } from './box'
 import { priceCorrer } from './correr'
 import { priceMaxiar } from './maxiar'
@@ -40,7 +40,7 @@ export function priceCustom(input: CustomInput): PricingResult {
   }
 }
 
-export function priceItem(catalog: Catalog, input: ItemInput): PricingResult {
+function priceByKind(catalog: Catalog, input: ItemInput): PricingResult {
   switch (input.kind) {
     case 'box':
       return priceBox(catalog, input)
@@ -61,6 +61,17 @@ export function priceItem(catalog: Catalog, input: ItemInput): PricingResult {
       return _exhaustive
     }
   }
+}
+
+/** Pricers compute costs; the margin mode is applied once here. */
+export function priceItem(
+  catalog: Catalog,
+  input: ItemInput,
+  mode: MarginMode = 'empresa',
+): PricingResult {
+  const result = priceByKind(catalog, input)
+  if (input.kind === 'custom' || mode === 'empresa') return result
+  return { ...result, breakdown: buildBreakdown(result.breakdown, mode) }
 }
 
 export * from './box'

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { isCatalogItemActive } from '../domain/catalogActive'
+import { marginLabel } from '../domain/itemDescription'
 import { priceItem } from '../domain/pricing'
 import { formatBrl } from '../domain/quote'
 import type {
@@ -8,10 +9,12 @@ import type {
   EspelhoFinish,
   ItemExtra,
   ItemInput,
+  MarginMode,
   PricingConfig,
   PricingResult,
   ProductKind,
 } from '../domain/types'
+
 export const ITEM_KINDS: { id: ProductKind; label: string }[] = [
   { id: 'box', label: 'Box' },
   { id: 'correr', label: 'Correr' },
@@ -335,6 +338,7 @@ function seedFromInput(
 
 interface Props {
   catalog: Catalog
+  marginMode: MarginMode
   onSubmit: (input: ItemInput) => void
   initial?: ItemInput
   onCancel?: () => void
@@ -346,6 +350,7 @@ interface Props {
 
 export function ItemForm({
   catalog,
+  marginMode,
   onSubmit,
   initial,
   onCancel,
@@ -447,7 +452,7 @@ export function ItemForm({
       return previewCache.current?.kind === kind ? previewCache.current.result : null
     }
     try {
-      const result = priceItem(catalog, input)
+      const result = priceItem(catalog, input, marginMode)
       previewCache.current = { kind, result }
       return result
     } catch {
@@ -455,6 +460,7 @@ export function ItemForm({
     }
   }, [
     catalog,
+    marginMode,
     kind,
     numSnap,
     glassColor,
@@ -734,15 +740,17 @@ export function ItemForm({
             </label>
           )}
 
-          <label>
-            Margem (%)
-            <input
-              className="money-input"
-              inputMode="decimal"
-              value={markup}
-              onChange={(e) => setMarkup(e.target.value)}
-            />
-          </label>
+          {marginMode !== 'autonomo' && (
+            <label>
+              Margem (%)
+              <input
+                className="money-input"
+                inputMode="decimal"
+                value={markup}
+                onChange={(e) => setMarkup(e.target.value)}
+              />
+            </label>
+          )}
           <div className="full extra-list">
             <span className="extra-list__label">Adicionais do item</span>
             {extraRows.map((row) => (
@@ -865,10 +873,12 @@ export function ItemForm({
               <span>Custo</span>
               <span>{formatBrl(preview.breakdown.totalCost)}</span>
             </li>
-            <li className="breakdown__margin">
-              <span>Margem ({(preview.breakdown.markup * 100).toFixed(0)}%)</span>
-              <span>{formatBrl(preview.breakdown.marginAmount)}</span>
-            </li>
+            {marginMode !== 'autonomo' && (
+              <li className="breakdown__margin">
+                <span>{marginLabel(preview.breakdown)}</span>
+                <span>{formatBrl(preview.breakdown.marginAmount)}</span>
+              </li>
+            )}
           </ul>
         </div>
       )}

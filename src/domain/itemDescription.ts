@@ -1,4 +1,4 @@
-import type { CorrerSubtype, ItemInput } from './types'
+import type { CorrerSubtype, CostBreakdown, ItemInput } from './types'
 
 /** Descrição do item em três linhas: tipo, cor/espessura e medida. */
 export interface ItemDescription {
@@ -97,4 +97,10 @@ export function describeItem(input: ItemInput): ItemDescription {
 
 export function itemNote(input: ItemInput): string | undefined {
   return clean(input.note) || undefined
+}
+
+/** Rótulo da linha de margem no detalhe do custo (autonomo não mostra a linha). */
+export function marginLabel(breakdown: Pick<CostBreakdown, 'markup' | 'marginMode'>): string {
+  const pct = `Margem (${(breakdown.markup * 100).toFixed(0)}%)`
+  return breakdown.marginMode === 'vendedor' ? `${pct} · sem mão de obra` : pct
 }

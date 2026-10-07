@@ -5,6 +5,7 @@ import type {
   Aluminio,
   Catalog,
   KitBox,
+  MarginMode,
   PricingConfig,
   Vidro,
 } from '../domain/types'
@@ -80,10 +81,12 @@ function parsePercent(raw: string): number | null {
 
 export function CatalogEditor({
   catalog,
+  marginMode,
   onSave,
   onNavigate,
 }: {
   catalog: Catalog
+  marginMode: MarginMode
   onSave: (catalog: Catalog) => Promise<void>
   onNavigate: (section: AppSection) => void
 }) {
@@ -206,6 +209,7 @@ export function CatalogEditor({
       {tab === 'config' && (
         <ConfigPanel
           config={draft.config}
+          showMarkup={marginMode !== 'autonomo'}
           onChange={(config) => setDraft((d) => ({ ...d, config }))}
         />
       )}
@@ -950,9 +954,11 @@ function AluminiosTable({
 
 function ConfigPanel({
   config,
+  showMarkup,
   onChange,
 }: {
   config: PricingConfig
+  showMarkup: boolean
   onChange: (config: PricingConfig) => void
 }) {
   const setLabor = (key: keyof PricingConfig['labor'], value: number) => {
@@ -999,24 +1005,28 @@ function ConfigPanel({
         </label>
       </div>
 
-      <h2 className="catalog-subhead">Margem padrão</h2>
-      <div className="grid">
-        {(Object.keys(config.defaultMarkup) as Array<keyof PricingConfig['defaultMarkup']>).map(
-          (key) => {
-            const label = MARGIN_LABELS[key]
-            return (
-              <label key={key}>
-                {label}
-                <PercentInput
-                  value={config.defaultMarkup[key]}
-                  ariaLabel={`Margem ${label}`}
-                  onCommit={(n) => setMarkup(key, n)}
-                />
-              </label>
-            )
-          },
-        )}
-      </div>
+      {showMarkup && (
+        <>
+          <h2 className="catalog-subhead">Margem padrão</h2>
+          <div className="grid">
+            {(Object.keys(config.defaultMarkup) as Array<keyof PricingConfig['defaultMarkup']>).map(
+              (key) => {
+                const label = MARGIN_LABELS[key]
+                return (
+                  <label key={key}>
+                    {label}
+                    <PercentInput
+                      value={config.defaultMarkup[key]}
+                      ariaLabel={`Margem ${label}`}
+                      onCommit={(n) => setMarkup(key, n)}
+                    />
+                  </label>
+                )
+              },
+            )}
+          </div>
+        </>
+      )}
 
       <h2 className="catalog-subhead">Acréscimo cor do alumínio</h2>
       <div className="table-wrap">

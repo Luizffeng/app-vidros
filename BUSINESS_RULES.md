@@ -25,7 +25,9 @@ Rules encoded in the current code. Locations are the evidence. Unclear items are
 ## Money
 
 - `grandTotal = itemsTotal + additionalTotal - discountTotal`. `withTotals` in `src/domain/quote.ts`.
-- Item final price for catalog kinds is `totalCost * (1 + markup)`. `marginPct` is margin / final price. `buildBreakdown` in `src/domain/pricing/math.ts`.
+- Item final price for catalog kinds depends on `AppSettings.marginMode` ("Cálculo de margem"). Empresa (default, legacy): `totalCost * (1 + markup)`. Vendedor: `(material + item extras) * (1 + markup) + labor`. Autônomo: `totalCost` (no margin; labor is the profit). Item extras always take the margin in Empresa/Vendedor. `marginPct` is margin / final price. `buildBreakdown(parts, mode)` in `src/domain/pricing/math.ts`; `priceItem(catalog, input, mode)` applies the mode once.
+- Quote additional costs (e.g. Frete) and discount are never touched by the margin. They are added/subtracted after item prices in `recomputeTotals`.
+- Drafts never reprice silently. A draft with catalog items whose `pricingVersion` differs from the catalog version, or whose `marginMode` differs from settings, shows one yellow banner with the change date and "Atualizar valores" (`draftOutdated` / `outdatedSince` / `repriceDraft` in `src/domain/quote.ts`). After the tap a smaller "Valores atualizados." note replaces it. Items that fail to reprice keep their old result. Emitted quotes never change.
 - Custom item final price is the typed amount. Cost equals that amount. Markup and margin are 0. `priceCustom` in `src/domain/pricing/index.ts`.
 - Default markup fractions live on `PricingConfig.defaultMarkup` (seed `src/data/seed/config.json`). The form shows percent and divides by 100. `ItemForm.tsx`.
 - Additional costs and discounts need a label and amount ≥ 0. Blank or invalid rows are dropped on normalize. `normalizeCosts`.
@@ -70,4 +72,4 @@ Color surcharge percents and labor numbers in the seed are data, not hardcoded i
 
 - No per-quote owner. Any authenticated user sees every quote (RLS `using (true)`).
 - No status besides draft and emitted. No “sent” or “accepted”.
-- Km freight, offline sync of IndexedDB into Supabase, and alternate margin models are backlog only (`BACKLOG.md`), not code.
+- Km freight and offline sync of IndexedDB into Supabase are backlog only (`BACKLOG.md`), not code.

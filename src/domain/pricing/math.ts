@@ -1,5 +1,5 @@
 import { isCatalogItemActive } from '../catalogActive'
-import type { Catalog, PricingConfig } from '../types'
+import type { Catalog, MarginMode, PricingConfig } from '../types'
 
 /** Excel-compatible CEILING(number, significance) */
 export function ceiling(value: number, significance: number): number {
@@ -90,16 +90,13 @@ export function buildBreakdown(parts: {
   accessories: number
   extras: number
   markup: number
-}) {
-  const totalCost =
-    parts.labor +
-    parts.glass +
-    parts.aluminum +
-    parts.hardware +
-    parts.accessories +
-    parts.extras
-  const finalPrice = totalCost * (1 + parts.markup)
-  const marginAmount = finalPrice - totalCost
+}, mode: MarginMode = 'empresa') {
+  const withoutLabor =
+    parts.glass + parts.aluminum + parts.hardware + parts.accessories + parts.extras
+  const totalCost = withoutLabor + parts.labor
+  const marginBase = mode === 'empresa' ? totalCost : mode === 'vendedor' ? withoutLabor : 0
+  const marginAmount = marginBase * parts.markup
+  const finalPrice = totalCost + marginAmount
   const marginPct = finalPrice === 0 ? 0 : marginAmount / finalPrice
   return {
     labor: parts.labor,
@@ -113,6 +110,7 @@ export function buildBreakdown(parts: {
     marginPct,
     marginAmount,
     markup: parts.markup,
+    marginMode: mode,
   }
 }
 

@@ -6,10 +6,10 @@ React UI. No price formulas and no Supabase queries except `LoginScreen` (passwo
 
 | File | Owns |
 | --- | --- |
-| `App.tsx` | Views `list` \| `editor` \| `catalog` \| `settings`. Quote state, persist queue, emit, revision, delete, PDF/share actions. Also customer, costs, discounts, send sheet (`SendSheet`: share PDF, text, download) and text share modal in the same file. |
-| `ItemForm.tsx` | Modal fields per product kind. Markup percent → fraction. |
-| `CatalogEditor.tsx` | Catalog tables, version bump, calls `parseImportedCatalog`. |
-| `SettingsEditor.tsx` | Establishment, validity, share CTA, logo file. |
+| `App.tsx` | Views `list` \| `editor` \| `catalog` \| `settings`. Quote state, persist queue, emit, revision, delete, PDF/share actions. Also customer, costs, discounts, send sheet (`SendSheet`: share PDF, text, download) and text share modal in the same file. Passes `settings.marginMode` to domain calls, `ItemForm`, `CatalogEditor`; outdated-draft banner ("Atualizar valores" → `repriceDraft`). |
+| `ItemForm.tsx` | Modal fields per product kind. Markup percent → fraction. Hides margin field/line in Autônomo mode. |
+| `CatalogEditor.tsx` | Catalog tables, version bump, calls `parseImportedCatalog`. Hides "Margem padrão" in Autônomo mode. |
+| `SettingsEditor.tsx` | Establishment, "Cálculo de margem" (confirm on change), validity, share CTA, logo file. |
 | `AppHeader.tsx` | Title + hamburger menu: Orçamentos, Catálogo, Configurações (hidden for `vendedor`), Ajuda, Sair. Owns `AppSection`. `HeaderMenu` is also used in the editor head (`App.tsx`). |
 | `selectAllOnFocus.ts` | Global listener (installed in `main.tsx`): `inputMode="decimal"` and `data-select-all` inputs select their value on focus. |
 | `LoginScreen.tsx` | Email/password form. |
