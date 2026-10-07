@@ -212,10 +212,19 @@ describe('marginMode no orçamento salvo', () => {
 
 describe('rascunho desatualizado', () => {
   const draft = fullQuote('empresa')
-  const newer: Catalog = { ...catalog, config: { ...catalog.config, version: `${catalog.config.version}-novo` } }
+  const withLabor = (labor: Partial<Catalog['config']['labor']>): Catalog => ({
+    ...catalog,
+    config: { ...catalog.config, version: `${catalog.config.version}-novo`, labor: { ...catalog.config.labor, ...labor } },
+  })
+  const newer = withLabor({ temperedPerM2: catalog.config.labor.temperedPerM2 + 5 })
 
   it('em dia: null', () => {
     expect(draftOutdated(draft, catalog, 'empresa')).toBeNull()
+  })
+
+  it('catálogo mudou só em itens que o rascunho não usa: null', () => {
+    expect(draftOutdated(draft, withLabor({}), 'empresa')).toBeNull()
+    expect(draftOutdated(draft, withLabor({ boxPerM2: catalog.config.labor.boxPerM2 + 5 }), 'empresa')).toBeNull()
   })
 
   it('só catálogo, só margem, os dois', () => {
@@ -239,6 +248,18 @@ describe('rascunho desatualizado', () => {
       amount: 80,
     })
     expect(draftOutdated(custom, catalog, 'vendedor')).toBeNull()
+  })
+
+  it('item que não precifica mais só avisa até o rascunho ser atualizado', () => {
+    const inactive: Catalog = {
+      ...catalog,
+      config: { ...catalog.config, version: 'v2' },
+      vidros: catalog.vidros.map((v) =>
+        v.tipo === 'Espelho Lapidado' && v.cor === 'Prata' ? { ...v, ativo: false } : v,
+      ),
+    }
+    expect(draftOutdated(draft, inactive, 'empresa')).toEqual({ catalog: true, margin: false })
+    expect(draftOutdated(repriceDraft(draft, inactive, 'empresa').quote, inactive, 'empresa')).toBeNull()
   })
 
   it('revisão de emitido antigo fica desatualizada', () => {

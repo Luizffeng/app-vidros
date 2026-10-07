@@ -45,9 +45,9 @@ draftOutdated(
 ): { catalog: boolean; margin: boolean } | null
 ```
 
-- `null` for emitted quotes, drafts with only custom items (or no items), and up-to-date drafts.
-- `catalog: true` when `quote.pricingVersion !== catalog.config.version`.
-- `margin: true` when `(quote.marginMode ?? 'empresa') !== mode`.
+- `null` for emitted quotes, drafts with only custom items (or no items), and drafts where repricing would change no item.
+- `catalog: true` when some catalog item priced with today's catalog and its own `breakdown.marginMode` differs (to the cent, `finalPrice` or `totalCost`) from its stored result. A catalog edit that touches no item of the draft shows nothing (owner 2026-10-07). An item that no longer prices counts only while `quote.pricingVersion !== catalog.config.version`, so the banner clears after "Atualizar valores".
+- `margin: true` when some item's mode differs from `mode` and pricing it with `mode` changes its price.
 
 ## `repriceDraft(quote, catalog, mode)` — new
 

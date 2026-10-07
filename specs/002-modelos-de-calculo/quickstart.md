@@ -22,7 +22,7 @@ Esperado nos testes (contrato em `contracts/domain.md`):
 - Partes vidro 100, adicional do item 10, mão de obra 50, margem 30%: Empresa 208, Vendedor 193, Autônomo 160.
 - Orçamento completo (espelho real + adicional do item + Frete 40 + desconto 20) nos 3 modos: Frete e desconto iguais em todos; `grandTotal = itens + 40 − 20`; diferença entre modos = só a margem sobre mão de obra / material.
 - Todos os casos `calc_*` existentes passam sem mudar valor (Empresa = hoje).
-- `draftOutdated`: só versão diferente → `{ catalog: true, margin: false }`; só modo → `{ catalog: false, margin: true }`; os dois → ambos true; emitido ou em dia → `null`.
+- `draftOutdated`: catálogo mudou em algo que o rascunho usa → `{ catalog: true, margin: false }`; mudou só em itens que ele não usa → `null`; só modo → `{ catalog: false, margin: true }`; os dois → ambos true; emitido ou em dia → `null`.
 - `repriceDraft` lança para emitido, mantém item com código inativo e conta `failed`.
 
 ## Manual (navegador, modo local)

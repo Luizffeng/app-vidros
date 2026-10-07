@@ -6,6 +6,7 @@ import type {
   ItemExtra,
   ItemInput,
   MarginMode,
+  PricingResult,
   Quote,
   QuoteItem,
 } from './types'
@@ -153,17 +154,44 @@ export function updateItem(
   return recomputeTotals({ ...quote, items })
 }
 
-/** Which inputs changed since the draft was last fully priced; null when up to date. */
+function tryPriceItem(catalog: Catalog, input: ItemInput, mode: MarginMode): PricingResult | null {
+  try {
+    return priceItem(catalog, input, mode)
+  } catch {
+    return null
+  }
+}
+
+function samePrice(a: PricingResult, b: PricingResult): boolean {
+  const cents = (n: number) => Math.round(n * 100)
+  return (
+    cents(a.breakdown.finalPrice) === cents(b.breakdown.finalPrice) &&
+    cents(a.breakdown.totalCost) === cents(b.breakdown.totalCost)
+  )
+}
+
+/**
+ * Which change would alter a draft item's price; null when repricing changes nothing.
+ * Catalog: today's catalog with the item's own mode vs the stored result. Margin: today's mode vs the item's mode.
+ */
 export function draftOutdated(
   quote: Quote,
   catalog: Catalog,
   mode: MarginMode,
 ): { catalog: boolean; margin: boolean } | null {
   if (quote.status !== 'draft') return null
-  if (!quote.items.some((item) => item.input.kind !== 'custom')) return null
-  const flags = {
-    catalog: quote.pricingVersion !== catalog.config.version,
-    margin: (quote.marginMode ?? 'empresa') !== mode,
+  const flags = { catalog: false, margin: false }
+  for (const item of quote.items) {
+    if (item.input.kind === 'custom') continue
+    const itemMode = item.result.breakdown.marginMode ?? 'empresa'
+    const withItemMode = tryPriceItem(catalog, item.input, itemMode)
+    if (withItemMode ? !samePrice(withItemMode, item.result) : quote.pricingVersion !== catalog.config.version) {
+      flags.catalog = true
+    }
+    if (itemMode !== mode && withItemMode) {
+      const withMode = tryPriceItem(catalog, item.input, mode)
+      if (withMode && !samePrice(withMode, withItemMode)) flags.margin = true
+    }
   }
   return flags.catalog || flags.margin ? flags : null
 }
