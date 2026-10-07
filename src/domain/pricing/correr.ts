@@ -6,8 +6,10 @@ import {
   findAcessorio,
   findAluminio,
   findVidro,
+  laborLine,
   roundUp,
   sumItemExtras,
+  withSurcharge,
 } from './math'
 
 function is2F(subtype: string) {
@@ -123,14 +125,21 @@ export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult
     const a = findAluminio(catalog, code)
     const total = a.valorMetro * q
     aluminumRaw += total
-    bom.push({
-      code,
-      description: a.descricao ?? code,
-      quantity: q,
-      unitPrice: a.valorMetro,
-      total,
-      category: 'aluminio',
-    })
+    bom.push(
+      withSurcharge(
+        {
+          code,
+          description: a.descricao ?? code,
+          quantity: q,
+          unitPrice: a.valorMetro,
+          total,
+          category: 'aluminio',
+          unit: 'm',
+          source: { table: 'aluminios', id: a.id },
+        },
+        surcharge,
+      ),
+    )
   }
 
   const hw = [
@@ -145,14 +154,21 @@ export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult
     const a = findAcessorio(catalog, code)
     const total = a.valor * q
     hardwareRaw += total
-    bom.push({
-      code,
-      description: a.descricao,
-      quantity: q,
-      unitPrice: a.valor,
-      total,
-      category: 'ferragem',
-    })
+    bom.push(
+      withSurcharge(
+        {
+          code,
+          description: a.descricao,
+          quantity: q,
+          unitPrice: a.valor,
+          total,
+          category: 'ferragem',
+          unit: 'un',
+          source: { table: 'acessorios', id: a.id },
+        },
+        surcharge,
+      ),
+    )
   }
 
   const acc = [
@@ -174,6 +190,8 @@ export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult
       unitPrice: a.valor,
       total,
       category: 'acessorio',
+      unit: code === 'ESCOVA' ? 'm' : 'un',
+      source: { table: 'acessorios', id: a.id },
     })
   }
 
@@ -184,9 +202,12 @@ export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult
     unitPrice: vidro.valorM2 ?? 0,
     total: glassCost,
     category: 'vidro',
+    unit: 'm2',
+    source: { table: 'vidros', id: vidro.id },
   })
 
   const labor = areaVao * config.labor.temperedPerM2
+  bom.push(laborLine(areaVao, 'm2', config.labor.temperedPerM2, labor))
   const aluminum = aluminumRaw * (1 + surcharge)
   const hardware = hardwareRaw * (1 + surcharge)
 

@@ -5,6 +5,7 @@ import {
   findAcessorio,
   findKitBox,
   findVidro,
+  laborLine,
   nearestKitSize,
   sumItemExtras,
 } from './math'
@@ -27,8 +28,10 @@ export function priceBox(catalog: Catalog, input: BoxInput): PricingResult {
   const kit = findKitBox(catalog, input.profileColor, kitSize)
   const silicone = findAcessorio(catalog, 'SILICONE ACT')
 
-  const labor = spanM * height * config.labor.boxPerM2
-  const glass = (fixedGlass + movingGlass) * height * (vidro.valorM2 ?? 0)
+  const laborM2 = spanM * height
+  const labor = laborM2 * config.labor.boxPerM2
+  const glassM2 = (fixedGlass + movingGlass) * height
+  const glass = glassM2 * (vidro.valorM2 ?? 0)
   const kitCost = kit.valor ?? 0
   const siliconeCost = silicone.valor * config.boxSiliconeQty
   const extras = sumItemExtras(input.extras)
@@ -50,10 +53,12 @@ export function priceBox(catalog: Catalog, input: BoxInput): PricingResult {
       {
         code: vidro.codigo,
         description: `Vidro box ${input.glassColor}`,
-        quantity: fixedGlass + movingGlass,
+        quantity: glassM2,
         unitPrice: vidro.valorM2 ?? 0,
         total: glass,
         category: 'vidro',
+        unit: 'm2',
+        source: { table: 'vidros', id: vidro.id },
       },
       {
         code: kit.codigo,
@@ -62,6 +67,8 @@ export function priceBox(catalog: Catalog, input: BoxInput): PricingResult {
         unitPrice: kitCost,
         total: kitCost,
         category: 'ferragem',
+        unit: 'un',
+        source: { table: 'kitBox', id: kit.id },
       },
       {
         code: silicone.codigo,
@@ -70,7 +77,10 @@ export function priceBox(catalog: Catalog, input: BoxInput): PricingResult {
         unitPrice: silicone.valor,
         total: siliconeCost,
         category: 'acessorio',
+        unit: 'un',
+        source: { table: 'acessorios', id: silicone.id },
       },
+      laborLine(laborM2, 'm2', config.labor.boxPerM2, labor),
     ],
     breakdown,
     notes: [

@@ -1,13 +1,15 @@
 import { isCatalogItemActive } from '../catalogActive'
-import type { Catalog, MaxiarInput, PricingResult } from '../types'
+import type { BomLine, Catalog, MaxiarInput, PricingResult } from '../types'
 import {
   aluminumSurcharge,
   buildBreakdown,
   ceiling,
   findAcessorio,
   findVidro,
+  laborLine,
   roundUp,
   sumItemExtras,
+  withSurcharge,
 } from './math'
 
 export function priceMaxiar(catalog: Catalog, input: MaxiarInput): PricingResult {
@@ -44,47 +46,58 @@ export function priceMaxiar(catalog: Catalog, input: MaxiarInput): PricingResult
 
   const labor = config.labor.maxiarAvulso
 
-  const bom = [
+  const hw = (a: { id: number; codigo: string; descricao: string; valor: number }): BomLine =>
+    withSurcharge(
+      {
+        code: a.codigo,
+        description: a.descricao,
+        quantity: 1,
+        unitPrice: a.valor,
+        total: a.valor,
+        category: 'ferragem',
+        unit: 'un',
+        source: { table: 'acessorios', id: a.id },
+      },
+      surcharge,
+    )
+
+  const bom: BomLine[] = [
     {
       code: vidro.codigo,
       description: `Vidro temperado ${input.glassColor} ${input.thicknessMm}mm`,
       quantity: Math.max(glassM2, 0.25),
       unitPrice: unit,
       total: glassCost,
-      category: 'vidro' as const,
+      category: 'vidro',
+      unit: 'm2',
+      source: { table: 'vidros', id: vidro.id },
     },
-    {
-      code: cantoneira.codigo,
-      description: cantoneira.descricao ?? 'Cantoneira',
-      quantity: cantQty,
-      unitPrice: cantoneira.valorMetro,
-      total: aluminumRaw,
-      category: 'aluminio' as const,
-    },
-    {
-      code: dob.codigo,
-      description: dob.descricao,
-      quantity: 1,
-      unitPrice: dob.valor,
-      total: dob.valor,
-      category: 'ferragem' as const,
-    },
-    {
-      code: haste.codigo,
-      description: haste.descricao,
-      quantity: 1,
-      unitPrice: haste.valor,
-      total: haste.valor,
-      category: 'ferragem' as const,
-    },
+    withSurcharge(
+      {
+        code: cantoneira.codigo,
+        description: cantoneira.descricao ?? 'Cantoneira',
+        quantity: cantQty,
+        unitPrice: cantoneira.valorMetro,
+        total: aluminumRaw,
+        category: 'aluminio',
+        unit: 'm',
+        source: { table: 'aluminios', id: cantoneira.id },
+      },
+      surcharge,
+    ),
+    hw(dob),
+    hw(haste),
     {
       code: silicone.codigo,
       description: silicone.descricao,
       quantity: 1,
       unitPrice: silicone.valor,
       total: silicone.valor,
-      category: 'acessorio' as const,
+      category: 'acessorio',
+      unit: 'un',
+      source: { table: 'acessorios', id: silicone.id },
     },
+    laborLine(1, 'un', config.labor.maxiarAvulso, labor),
   ]
 
   const breakdown = buildBreakdown({

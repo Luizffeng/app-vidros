@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { loadSeedCatalog } from '../data/seedCatalog'
-import type { Catalog, EspelhoInput, MarginMode, Quote } from './types'
+import type { Catalog, CorrerInput, EspelhoInput, MarginMode, Quote } from './types'
 import {
   addItem,
   catalogVersionDate,
@@ -20,6 +20,7 @@ import {
   setAdditionalCosts,
   setCustomer,
   setDiscounts,
+  setPriceOverride,
 } from './quote'
 
 const catalog = loadSeedCatalog()
@@ -330,5 +331,89 @@ describe('data do aviso de rascunho desatualizado', () => {
   it('sem data conhecida retorna null', () => {
     expect(outdatedSince({ catalog: false, margin: true }, catalog)).toBeNull()
     expect(outdatedSince({ catalog: true, margin: false }, withVersion('v3'))).toBeNull()
+  })
+})
+
+describe('preço só neste orçamento', () => {
+  const correr: CorrerInput = {
+    kind: 'correr',
+    subtype: 'J2F',
+    widthMm: 1200,
+    heightMm: 1000,
+    glassColor: 'Incolor',
+    thicknessMm: '08',
+    profileColor: 'Fosco',
+    markup: 0.3,
+    extras: [],
+  }
+  function twoItems(): Quote {
+    let q = createEmptyDraft('ORC-2026-0030', catalog.config.version)
+    q = addItem(q, catalog, correr)
+    return addItem(q, catalog, espelhoComAdicional)
+  }
+  const glassRef = (q: Quote) => q.items[0].result.bom.find((l) => l.category === 'vidro')!.source!
+
+  it('reprecifica só itens que usam o código; novos itens usam o preço', () => {
+    const q = twoItems()
+    const ref = glassRef(q)
+    const next = setPriceOverride(q, catalog, ref, 1000)
+    expect(next.priceOverrides).toEqual([{ ref, price: 1000 }])
+    expect(next.items[0].result.breakdown.glass).toBeGreaterThan(q.items[0].result.breakdown.glass)
+    expect(next.items[1].result).toBe(q.items[1].result)
+    expect(next.grandTotal).toBeGreaterThan(q.grandTotal)
+    const added = addItem(next, catalog, correr)
+    expect(added.items[2].result.breakdown.glass).toBeCloseTo(next.items[0].result.breakdown.glass, 10)
+  })
+
+  it('igual ao catálogo ou null remove; emitido não aceita', () => {
+    const q = twoItems()
+    const ref = glassRef(q)
+    const catalogValue = catalog.vidros.find((v) => v.id === ref.id)!.valorM2!
+    expect(setPriceOverride(q, catalog, ref, catalogValue).priceOverrides).toBeUndefined()
+    const set = setPriceOverride(q, catalog, ref, 1000)
+    const cleared = setPriceOverride(set, catalog, ref, null)
+    expect(cleared.priceOverrides).toBeUndefined()
+    expect(cleared.items[0].result.breakdown.glass).toBeCloseTo(q.items[0].result.breakdown.glass, 10)
+    const emitted = emitQuote(setCustomer(q, { name: 'Ana' }))
+    expect(() => setPriceOverride(emitted, catalog, ref, 1000)).toThrow()
+  })
+
+  it('rascunho com preço próprio não fica desatualizado por causa dele', () => {
+    const q = setPriceOverride(twoItems(), catalog, glassRef(twoItems()), 1000)
+    expect(draftOutdated(q, catalog, 'empresa')).toBeNull()
+  })
+
+  it('repriceDraft mantém preço próprio e larga o que ficou igual ao catálogo', () => {
+    const q = twoItems()
+    const ref = glassRef(q)
+    const set = setPriceOverride(q, catalog, ref, 1000)
+    const kept = repriceDraft(set, catalog, 'empresa').quote
+    expect(kept.priceOverrides).toEqual([{ ref, price: 1000 }])
+    expect(kept.items[0].result.breakdown.glass).toBeCloseTo(set.items[0].result.breakdown.glass, 10)
+    const sameAsCatalog: Catalog = {
+      ...catalog,
+      config: { ...catalog.config, version: 'v2' },
+      vidros: catalog.vidros.map((v) => (v.id === ref.id ? { ...v, valorM2: 1000 } : v)),
+    }
+    expect(repriceDraft(set, sameAsCatalog, 'empresa').quote.priceOverrides).toBeUndefined()
+  })
+
+  it('revisão mantém; normalizeQuote limpa inválidos e repetidos', () => {
+    const q = setPriceOverride(twoItems(), catalog, glassRef(twoItems()), 1000)
+    const emitted = emitQuote(setCustomer(q, { name: 'Ana' }))
+    expect(createRevision(emitted).priceOverrides).toEqual(q.priceOverrides)
+    const ref = glassRef(q)
+    const raw = {
+      ...q,
+      priceOverrides: [
+        { ref, price: 10 },
+        { ref: { table: 'portas', id: 1 }, price: 5 },
+        { ref: { table: 'vidros', id: 1.5 }, price: 5 },
+        { ref: { table: 'vidros', id: 2 }, price: -1 },
+        { ref, price: 20 },
+      ],
+    } as unknown as Quote
+    expect(normalizeQuote(raw).priceOverrides).toEqual([{ ref, price: 20 }])
+    expect(normalizeQuote({ ...q, priceOverrides: undefined }).priceOverrides).toBeUndefined()
   })
 })

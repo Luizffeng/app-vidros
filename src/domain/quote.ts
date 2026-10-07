@@ -4,14 +4,17 @@ import type {
   Catalog,
   CustomerInfo,
   ItemExtra,
+  CatalogRef,
   ItemInput,
   MarginMode,
+  PriceOverride,
   PricingResult,
   Quote,
   QuoteItem,
 } from './types'
 
 const DEFAULT_VALIDITY_DAYS = 15
+import { catalogPrice, sameRef, withPriceOverrides } from './catalogEdit'
 import { priceItem } from './pricing'
 import { describeItem, itemNote } from './itemDescription'
 
@@ -48,11 +51,31 @@ export function parseMarginMode(raw: unknown): MarginMode | undefined {
   return MARGIN_MODES.find((mode) => mode === raw)
 }
 
+const CATALOG_TABLES = ['vidros', 'kitBox', 'acessorios', 'aluminios'] as const
+
+/** Drops malformed entries; one per ref, last wins. */
+function normalizePriceOverrides(raw: unknown): PriceOverride[] | undefined {
+  if (!Array.isArray(raw)) return undefined
+  const valid: PriceOverride[] = []
+  for (const o of raw) {
+    const ref = o?.ref
+    const price = Number(o?.price)
+    if (!ref || !CATALOG_TABLES.includes(ref.table) || !Number.isInteger(ref.id)) continue
+    if (!Number.isFinite(price) || price < 0) continue
+    const next = { ref: { table: ref.table, id: ref.id } as CatalogRef, price }
+    const at = valid.findIndex((v) => sameRef(v.ref, next.ref))
+    if (at >= 0) valid.splice(at, 1)
+    valid.push(next)
+  }
+  return valid.length ? valid : undefined
+}
+
 export function normalizeQuote(quote: Quote): Quote {
   const discounts = normalizeCosts(quote.discounts)
   return withTotals({
     ...quote,
     marginMode: parseMarginMode(quote.marginMode),
+    priceOverrides: normalizePriceOverrides(quote.priceOverrides),
     discounts,
     items: quote.items.map((item) => {
       if (item.input.kind === 'custom') return item
@@ -134,7 +157,7 @@ export function addItem(
   const item: QuoteItem = {
     id: uuid(),
     input,
-    result: priceItem(catalog, input, mode),
+    result: priceItem(withPriceOverrides(catalog, quote.priceOverrides), input, mode),
   }
   return recomputeTotals({ ...quote, items: [...quote.items, item] })
 }
@@ -148,10 +171,34 @@ export function updateItem(
 ): Quote {
   const items = quote.items.map((item) =>
     item.id === itemId
-      ? { ...item, input, result: priceItem(catalog, input, mode) }
+      ? { ...item, input, result: priceItem(withPriceOverrides(catalog, quote.priceOverrides), input, mode) }
       : item,
   )
   return recomputeTotals({ ...quote, items })
+}
+
+/**
+ * Price only for this quote (`null` or the catalog price removes it).
+ * Reprices the items whose BOM uses the ref; the rest keep their result.
+ */
+export function setPriceOverride(
+  quote: Quote,
+  catalog: Catalog,
+  ref: CatalogRef,
+  price: number | null,
+  mode: MarginMode = 'empresa',
+): Quote {
+  if (quote.status !== 'draft') throw new Error('Só rascunhos aceitam preço próprio')
+  const others = (quote.priceOverrides ?? []).filter((o) => !sameRef(o.ref, ref))
+  const keep = price != null && price !== catalogPrice(catalog, ref)
+  const priceOverrides = keep ? [...others, { ref, price }] : others
+  const effective = withPriceOverrides(catalog, priceOverrides)
+  const items = quote.items.map((item) =>
+    item.input.kind !== 'custom' && item.result.bom.some((l) => l.source && sameRef(l.source, ref))
+      ? { ...item, result: priceItem(effective, item.input, mode) }
+      : item,
+  )
+  return recomputeTotals({ ...quote, items, priceOverrides: priceOverrides.length ? priceOverrides : undefined })
 }
 
 function tryPriceItem(catalog: Catalog, input: ItemInput, mode: MarginMode): PricingResult | null {
@@ -180,16 +227,17 @@ export function draftOutdated(
   mode: MarginMode,
 ): { catalog: boolean; margin: boolean } | null {
   if (quote.status !== 'draft') return null
+  const effective = withPriceOverrides(catalog, quote.priceOverrides)
   const flags = { catalog: false, margin: false }
   for (const item of quote.items) {
     if (item.input.kind === 'custom') continue
     const itemMode = item.result.breakdown.marginMode ?? 'empresa'
-    const withItemMode = tryPriceItem(catalog, item.input, itemMode)
+    const withItemMode = tryPriceItem(effective, item.input, itemMode)
     if (withItemMode ? !samePrice(withItemMode, item.result) : quote.pricingVersion !== catalog.config.version) {
       flags.catalog = true
     }
     if (itemMode !== mode && withItemMode) {
-      const withMode = tryPriceItem(catalog, item.input, mode)
+      const withMode = tryPriceItem(effective, item.input, mode)
       if (withMode && !samePrice(withMode, withItemMode)) flags.margin = true
     }
   }
@@ -219,18 +267,24 @@ export function outdatedSince(
   return times.length ? new Date(Math.max(...times)) : null
 }
 
-/** Reprices catalog items with today's catalog and mode. Items that no longer price keep their result. */
+/**
+ * Reprices catalog items with today's catalog, mode and this quote's own prices
+ * (those now equal to the catalog are dropped). Items that no longer price keep their result.
+ */
 export function repriceDraft(
   quote: Quote,
   catalog: Catalog,
   mode: MarginMode,
 ): { quote: Quote; failed: number } {
   if (quote.status !== 'draft') throw new Error('Só rascunhos podem ser recalculados')
+  const overrides = quote.priceOverrides?.filter((o) => o.price !== catalogPrice(catalog, o.ref))
+  const priceOverrides = overrides?.length ? overrides : undefined
+  const effective = withPriceOverrides(catalog, priceOverrides)
   let failed = 0
   const items = quote.items.map((item) => {
     if (item.input.kind === 'custom') return item
     try {
-      return { ...item, result: priceItem(catalog, item.input, mode) }
+      return { ...item, result: priceItem(effective, item.input, mode) }
     } catch {
       failed += 1
       return item
@@ -240,6 +294,7 @@ export function repriceDraft(
     quote: recomputeTotals({
       ...quote,
       items,
+      priceOverrides,
       marginMode: mode,
       pricingVersion: catalog.config.version,
     }),

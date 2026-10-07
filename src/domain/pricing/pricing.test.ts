@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { loadSeedCatalog } from '../../data/seedCatalog'
-import type { CorrerInput, MarginMode } from '../types'
+import type { CorrerInput, ItemInput, MarginMode } from '../types'
 import {
   buildBreakdown,
   findKitBox,
@@ -345,5 +345,67 @@ describe('cálculo de margem', () => {
     for (const mode of ['empresa', 'vendedor', 'autonomo'] as const) {
       expect(priceItem(catalog, input, mode).breakdown.finalPrice).toBe(80)
     }
+  })
+})
+
+describe('composição do custo (BOM)', () => {
+  const refs: ItemInput[] = [
+    { kind: 'box', spanCm: 140, glassColor: 'Incolor', profileColor: 'Fosco', markup: 0.3, extras: [] },
+    { kind: 'box', spanCm: 120, glassColor: 'Incolor', profileColor: 'Fosco', markup: 0.3, extras: [] },
+    { kind: 'box', spanCm: 140, glassColor: 'Incolor', profileColor: 'Preto', markup: 0.3, extras: [] },
+    { kind: 'correr', subtype: 'J4F', widthMm: 1950, heightMm: 754, glassColor: 'Verde', thicknessMm: '06', profileColor: 'Fosco', markup: 0.3, extras: [] },
+    { kind: 'correr', subtype: 'J2F', widthMm: 1200, heightMm: 1000, glassColor: 'Incolor', thicknessMm: '08', profileColor: 'Fosco', markup: 0.3, extras: [] },
+    { kind: 'correr', subtype: 'P2F', widthMm: 900, heightMm: 2100, glassColor: 'Fume', thicknessMm: '08', profileColor: 'Branco', markup: 0.3, extras: [] },
+    { kind: 'correr', subtype: 'P4F', widthMm: 2400, heightMm: 2100, glassColor: 'Incolor', thicknessMm: '08', profileColor: 'Preto', markup: 0.3, extras: [] },
+    { kind: 'pivotante', widthMm: 795, heightMm: 2168, glassColor: 'Incolor', thicknessMm: '08', profileColor: 'Fosco', hasLatch: true, markup: 0.3, extras: [] },
+    { kind: 'pivotante', widthMm: 800, heightMm: 2100, glassColor: 'Incolor', thicknessMm: '08', profileColor: 'Preto', hasLatch: false, markup: 0.3, extras: [] },
+    { kind: 'maxiar', widthMm: 540, heightMm: 640, glassColor: 'Incolor', thicknessMm: '08', profileColor: 'Branco', markup: 0.3, extras: [] },
+    { kind: 'fixo', widthMm: 300, heightMm: 400, glassColor: 'Incolor', thicknessMm: '08', markup: 0.3, extras: [] },
+    { kind: 'espelho', finish: 'Espelho Lapidado', widthMm: 1000, heightMm: 800, glassColor: 'Prata', thicknessMm: '04', markup: 0.3, extras: [] },
+  ]
+  const cents = (n: number) => Math.round(n * 100)
+  const groups = [
+    ['vidro', 'glass'],
+    ['aluminio', 'aluminum'],
+    ['ferragem', 'hardware'],
+    ['acessorio', 'accessories'],
+    ['mao_de_obra', 'labor'],
+  ] as const
+
+  it.each(refs.map((r) => [`${r.kind} ${'subtype' in r ? r.subtype : ''} ${'profileColor' in r ? r.profileColor : ''}`, r] as const))(
+    '%s: linhas somam o custo de cada grupo',
+    (_name, input) => {
+      const { bom, breakdown } = priceItem(catalog, input)
+      for (const [category, field] of groups) {
+        const sum = bom.filter((l) => l.category === category).reduce((s, l) => s + l.total, 0)
+        expect(cents(sum), category).toBe(cents(breakdown[field]))
+      }
+      expect(bom.filter((l) => l.category === 'mao_de_obra')).toHaveLength(1)
+      for (const line of bom) {
+        expect(line.unit, line.code).toBeDefined()
+        expect(cents(line.quantity * line.unitPrice), line.code).toBe(cents(line.total))
+        if (line.category !== 'mao_de_obra') expect(line.source, line.code).toBeDefined()
+      }
+    },
+  )
+
+  it('cor com acréscimo entra no preço unitário de alumínio e ferragem', () => {
+    const surcharge = catalog.config.aluminumColors.find((c) => c.color === 'Branco')!.surcharge
+    expect(surcharge).toBeGreaterThan(0)
+    const input = refs[5] as CorrerInput
+    const base = priceItem(catalog, { ...input, profileColor: 'Fosco' }).bom
+    const colored = priceItem(catalog, input).bom
+    for (const line of colored.filter((l) => l.category === 'aluminio' || l.category === 'ferragem')) {
+      const plain = base.find((l) => l.code === line.code)!
+      expect(line.surcharge).toBe(surcharge)
+      expect(line.unitPrice).toBeCloseTo(plain.unitPrice * (1 + surcharge), 10)
+    }
+    expect(colored.find((l) => l.category === 'vidro')!.surcharge).toBeUndefined()
+  })
+
+  it('box: vidro em m² (quantidade × unitário = total)', () => {
+    const glass = priceItem(catalog, refs[0]).bom.find((l) => l.category === 'vidro')!
+    expect(glass.unit).toBe('m2')
+    expect(glass.quantity * glass.unitPrice).toBeCloseTo(glass.total, 10)
   })
 })

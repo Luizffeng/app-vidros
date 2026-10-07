@@ -1,5 +1,20 @@
 import { isCatalogItemActive } from '../catalogActive'
-import type { Catalog, MarginMode, PricingConfig } from '../types'
+import type { BomLine, Catalog, MarginMode, PricingConfig } from '../types'
+
+export function laborLine(quantity: number, unit: 'm2' | 'un', rate: number, total: number): BomLine {
+  return { code: '', description: 'Mão de obra', quantity, unitPrice: rate, total, category: 'mao_de_obra', unit }
+}
+
+/** Breakdown applies the profile color surcharge to group totals; lines carry it too so they sum to the cost. */
+export function withSurcharge(line: BomLine, surcharge: number): BomLine {
+  if (!surcharge) return line
+  return {
+    ...line,
+    unitPrice: line.unitPrice * (1 + surcharge),
+    total: line.total * (1 + surcharge),
+    surcharge,
+  }
+}
 
 /** Excel-compatible CEILING(number, significance) */
 export function ceiling(value: number, significance: number): number {

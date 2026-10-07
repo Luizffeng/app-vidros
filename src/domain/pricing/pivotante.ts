@@ -1,4 +1,4 @@
-import type { Catalog, PivotanteInput, PricingResult } from '../types'
+import type { BomLine, Catalog, PivotanteInput, PricingResult } from '../types'
 import {
   aluminumSurcharge,
   buildBreakdown,
@@ -6,8 +6,10 @@ import {
   findAcessorio,
   findAluminio,
   findVidro,
+  laborLine,
   roundUp,
   sumItemExtras,
+  withSurcharge,
 } from './math'
 
 export function pricePivotante(
@@ -41,67 +43,60 @@ export function pricePivotante(
 
   const labor = areaVao * config.labor.temperedPerM2
 
-  const bom = [
+  const hw = (a: { id: number; codigo: string; descricao: string; valor: number }): BomLine =>
+    withSurcharge(
+      {
+        code: a.codigo,
+        description: a.descricao,
+        quantity: 1,
+        unitPrice: a.valor,
+        total: a.valor,
+        category: 'ferragem',
+        unit: 'un',
+        source: { table: 'acessorios', id: a.id },
+      },
+      surcharge,
+    )
+
+  const bom: BomLine[] = [
     {
       code: vidro.codigo,
       description: `Vidro temperado ${input.glassColor} ${input.thicknessMm}mm`,
       quantity: glassM2,
       unitPrice: vidro.valorM2 ?? 0,
       total: glassCost,
-      category: 'vidro' as const,
+      category: 'vidro',
+      unit: 'm2',
+      source: { table: 'vidros', id: vidro.id },
     },
-    {
-      code: cantoneira.codigo,
-      description: cantoneira.descricao ?? 'Cantoneira',
-      quantity: cantQty,
-      unitPrice: cantoneira.valorMetro,
-      total: aluminumRaw,
-      category: 'aluminio' as const,
-    },
-    {
-      code: kit.codigo,
-      description: kit.descricao,
-      quantity: 1,
-      unitPrice: kit.valor,
-      total: kit.valor,
-      category: 'ferragem' as const,
-    },
-    {
-      code: puxador.codigo,
-      description: puxador.descricao,
-      quantity: 1,
-      unitPrice: puxador.valor,
-      total: puxador.valor,
-      category: 'ferragem' as const,
-    },
-    ...(latchQty
-      ? [
-          {
-            code: trinco.codigo,
-            description: trinco.descricao,
-            quantity: 1,
-            unitPrice: trinco.valor,
-            total: trinco.valor,
-            category: 'ferragem' as const,
-          },
-        ]
-      : []),
-    {
-      code: cap.codigo,
-      description: cap.descricao,
-      quantity: 1,
-      unitPrice: cap.valor,
-      total: cap.valor,
-      category: 'ferragem' as const,
-    },
+    withSurcharge(
+      {
+        code: cantoneira.codigo,
+        description: cantoneira.descricao ?? 'Cantoneira',
+        quantity: cantQty,
+        unitPrice: cantoneira.valorMetro,
+        total: aluminumRaw,
+        category: 'aluminio',
+        unit: 'm',
+        source: { table: 'aluminios', id: cantoneira.id },
+      },
+      surcharge,
+    ),
+    hw(kit),
+    hw(puxador),
+    ...(latchQty ? [hw(trinco)] : []),
+    hw(cap),
     {
       code: silicone.codigo,
       description: silicone.descricao,
       quantity: 1,
       unitPrice: silicone.valor,
       total: silicone.valor,
-      category: 'acessorio' as const,
+      category: 'acessorio',
+      unit: 'un',
+      source: { table: 'acessorios', id: silicone.id },
     },
+    laborLine(areaVao, 'm2', config.labor.temperedPerM2, labor),
   ]
 
   const breakdown = buildBreakdown({

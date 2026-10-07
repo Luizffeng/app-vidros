@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { isCatalogItemActive, nextNumericId } from '../data/catalogItems'
+import { aluminioValorMetro, bumpCatalogVersion } from '../domain/catalogEdit'
 import type {
   Acessorio,
   Aluminio,
@@ -35,14 +36,6 @@ const MARGIN_LABELS: Record<keyof PricingConfig['defaultMarkup'], string> = {
 
 function cloneCatalog(catalog: Catalog): Catalog {
   return structuredClone(catalog)
-}
-
-function bumpVersion(current: string): string {
-  const day = new Date().toISOString().slice(0, 10)
-  if (current === day || current.startsWith(`${day}T`)) {
-    return new Date().toISOString().slice(0, 16)
-  }
-  return day
 }
 
 function matchesQuery(query: string, parts: Array<string | number | null | undefined>) {
@@ -111,7 +104,7 @@ export function CatalogEditor({
         ...draft,
         config: {
           ...draft.config,
-          version: bumpVersion(draft.config.version),
+          version: bumpCatalogVersion(draft.config.version),
         },
       }
       await onSave(next)
@@ -826,7 +819,7 @@ function AluminiosTable({
     const valorBarra = parseMoney(valorRaw)
     const metragemBarra = Number(metragem.replace(',', '.'))
     if (!codigo.trim() || valorBarra == null || !(metragemBarra > 0)) return
-    const valorMetro = Math.round((valorBarra / metragemBarra) * 100) / 100
+    const valorMetro = aluminioValorMetro(valorBarra, metragemBarra)
     onChange([
       ...rows,
       {
@@ -883,8 +876,7 @@ function AluminiosTable({
                     value={row.valorBarra}
                     onCommit={(valorBarra) => {
                       const v = valorBarra ?? 0
-                      const valorMetro =
-                        row.metragemBarra > 0 ? Math.round((v / row.metragemBarra) * 100) / 100 : 0
+                      const valorMetro = aluminioValorMetro(v, row.metragemBarra)
                       onChange(
                         rows.map((r) =>
                           r.id === row.id ? { ...r, valorBarra: v, valorMetro } : r,

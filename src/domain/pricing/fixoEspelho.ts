@@ -4,6 +4,7 @@ import {
   ceiling,
   findAcessorio,
   findVidro,
+  laborLine,
   roundUp,
   sumItemExtras,
 } from './math'
@@ -46,6 +47,8 @@ export function priceFixo(catalog: Catalog, input: FixoInput): PricingResult {
         unitPrice: unit,
         total: glassCost,
         category: 'vidro',
+        unit: 'm2',
+        source: { table: 'vidros', id: vidro.id },
       },
       {
         code: silicone.codigo,
@@ -54,7 +57,10 @@ export function priceFixo(catalog: Catalog, input: FixoInput): PricingResult {
         unitPrice: silicone.valor,
         total: accessories,
         category: 'acessorio',
+        unit: 'un',
+        source: { table: 'acessorios', id: silicone.id },
       },
+      laborLine(areaVao, 'm2', config.labor.temperedPerM2, labor),
     ],
     breakdown,
     notes: [
@@ -103,7 +109,10 @@ export function priceEspelho(
         unitPrice: unit,
         total: glassCost,
         category: 'vidro',
+        unit: 'm2',
+        source: { table: 'vidros', id: vidro.id },
       },
+      laborLine(areaVao, 'm2', config.labor.temperedPerM2, labor),
     ],
     breakdown,
     notes: [

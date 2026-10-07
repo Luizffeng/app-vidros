@@ -110,13 +110,34 @@ export interface Catalog {
   aluminios: Aluminio[]
 }
 
+export type CatalogTable = 'vidros' | 'kitBox' | 'acessorios' | 'aluminios'
+
+/** Linha do catálogo por tabela + id (o código pode repetir entre tabelas) */
+export interface CatalogRef {
+  table: CatalogTable
+  id: number
+}
+
+/** Preço só deste orçamento. Mesmo campo editado no catálogo: vidros valorM2, kitBox/acessorios valor, aluminios valorBarra */
+export interface PriceOverride {
+  ref: CatalogRef
+  price: number
+}
+
 export interface BomLine {
   code: string
   description: string
   quantity: number
+  /** Inclui o acréscimo de cor quando há */
   unitPrice: number
   total: number
-  category: 'vidro' | 'aluminio' | 'ferragem' | 'acessorio' | 'outro'
+  category: 'vidro' | 'aluminio' | 'ferragem' | 'acessorio' | 'mao_de_obra' | 'outro'
+  /** Ausente em itens antigos */
+  unit?: 'm2' | 'm' | 'un'
+  /** Ausente em mão de obra, avulsos e itens antigos */
+  source?: CatalogRef
+  /** Fração de acréscimo de cor aplicada (0.1 = 10%) */
+  surcharge?: number
 }
 
 export interface ItemExtra {
@@ -282,6 +303,8 @@ export interface Quote {
   pricingVersion: string
   /** Modo do último cálculo completo. Ausente = empresa */
   marginMode?: MarginMode
+  /** Preços só deste orçamento (no máximo um por ref) */
+  priceOverrides?: PriceOverride[]
   itemsTotal: number
   additionalTotal: number
   discountTotal: number
