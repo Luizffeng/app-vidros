@@ -2778,17 +2778,14 @@ textarea:focus {
   margin: 0.6rem 0 0;
 }
 
-/* data-at-top / data-at-end come from useScrollEdges. */
-.sticky-head::after,
-.action-bar::before,
-.action-bar::after {
-  transition: opacity var(--dur-sm) var(--ease-std);
+/* --head-edge / --bar-edge (0–1, follow the scroll) come from useScrollEdges. */
+.sticky-head::after {
+  opacity: var(--head-edge, 1);
 }
 
-html[data-at-top] .sticky-head::after,
-html[data-at-end] .action-bar::before,
-html[data-at-end] .action-bar::after {
-  opacity: 0;
+.action-bar::before,
+.action-bar::after {
+  opacity: var(--bar-edge, 1);
 }
 
 .cost-empty {
