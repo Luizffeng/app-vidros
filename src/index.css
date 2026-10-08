@@ -2780,7 +2780,7 @@ textarea:focus {
 
 /* --head-edge / --bar-edge (0–1, follow the scroll) come from useScrollEdges. */
 .sticky-head::after {
-  opacity: var(--head-edge, 1);
+  opacity: var(--head-edge, 0);
 }
 
 .action-bar::before,
