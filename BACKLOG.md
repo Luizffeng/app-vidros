@@ -45,6 +45,16 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Done
 
+### 2026-10-08
+
+- [x] `feat` Envio do emitido: barra com Prévia, Baixar e **Enviar**; Enviar abre popup com "Enviar PDF" (arquivo + mensagem "Olá, {nome}! Segue o orçamento {código} da {loja}." + texto final, também copiada) e "Enviar texto" (prévia com "Copiar"). Texto final padrão: "Gostaria de efetuar o pedido?".
+- [x] `feat` Mão de obra editável por item (taxa só neste item ou no catálogo) e "!" amarelo nas linhas do custo cujo preço mudou no catálogo, com "Atualizar item".
+- [x] `feat` Itens antigos recebem o detalhamento de linhas em silêncio quando o preço não muda.
+- [x] `ui` Cabeçalhos fixos no topo (lista, orçamento, catálogo, configurações com abas) e tamanho de texto estável no Android.
+- [x] `ui` Rodapé do orçamento cabe R$ 999.999,99 em 360 px (total 1,1rem, centavos menores, Enviar mais estreito); valores com algarismos de largura igual.
+- [x] `ui` Detalhes do custo: cabeçalho fixo, unidade no unitário, campo de preço menor, rolagem até o editor; Cor do vidro antes da Espessura; Configurações sem subtítulo e logo "aparece no PDF".
+- [x] `fix` PDF e WhatsApp usam nome fantasia e caem para nome/razão social.
+
 ### 2026-10-07
 
 - [x] `feat` **Janela "Detalhes do custo":** modal por item com resumo e linhas por grupo (quantidade, unidade, unitário, subtotal, "+N% cor"). Admin no rascunho edita o preço de uma linha: "Só neste orçamento" (preço próprio, vale para os itens do orçamento com o mesmo código) ou "Atualizar no catálogo" (confirmação, recalcula este rascunho, outros mostram o aviso). Vendedor e emitido só visualizam. Spec `specs/003-composicao-do-item/`
