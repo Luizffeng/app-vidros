@@ -16,9 +16,9 @@ description: "Task list for Transições leves na interface"
 
 ## Phase 1: Setup
 
-- [ ] T001 Create scripts/motion-perf-browser.mjs per research R10 (Chrome, CDP CPU 4×, long tasks + frame times for modal open/close, section toggle, tab switch, list ↔ editor, list scroll; pass/fail summary)
-- [ ] T002 Run the perf script on the current code and save the baseline numbers in specs/004-transicoes/quickstart.md (section "Baseline")
-- [ ] T003 [P] Set `reducedMotion: 'reduce'` in the Playwright context of scripts/smoke-quote-browser.mjs and scripts/validate-catalog-browser.mjs
+- [x] T001 Create scripts/motion-perf-browser.mjs per research R10 (Chrome, CDP CPU 4×, long tasks + frame times for modal open/close, section toggle, tab switch, list ↔ editor, list scroll; pass/fail summary)
+- [x] T002 Run the perf script on the current code and save the baseline numbers in specs/004-transicoes/quickstart.md (section "Baseline")
+- [x] T003 [P] Set `reducedMotion: 'reduce'` in the Playwright context of scripts/smoke-quote-browser.mjs and scripts/validate-catalog-browser.mjs
 
 ---
 

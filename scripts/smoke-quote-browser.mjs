@@ -31,6 +31,7 @@ async function main() {
   const context = await browser.newContext({
     acceptDownloads: true,
     viewport: { width: 390, height: 844 },
+    reducedMotion: 'reduce',
   })
   const page = await context.newPage()
   page.setDefaultTimeout(15000)
