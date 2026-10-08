@@ -403,7 +403,7 @@ export function SettingsEditor({
                 </button>
               )}
               <p className="muted catalog-hint">
-                PNG, JPEG ou WebP · até 5 MB · redimensionada automaticamente.
+                Aparece no PDF do orçamento. Até 5 MB.
               </p>
             </div>
           </div>
