@@ -8,6 +8,7 @@ import { filterUfInput, formatPhone, isValidUf, phoneDdd, phoneDigits } from '..
 import { AppHeader, type AppSection } from './AppHeader'
 import { CollapsibleSection } from './CollapsibleSection'
 import { useDismiss } from './useDismiss'
+import { Presence } from './usePresence'
 
 type SettingsTab = 'register' | 'quote' | 'logo'
 
@@ -422,22 +423,29 @@ export function SettingsEditor({
             >
               {busy ? 'Salvando…' : dirty ? 'Salvar' : 'Salvo'}
             </button>
-            {confirmMode && (
-              <div className="remove-pop save-pop" role="alertdialog" aria-label="Confirmar cálculo de margem">
-                <span>
-                  Novos orçamentos passam a usar este cálculo. Rascunhos mostram um aviso para
-                  atualizar. Orçamentos emitidos não mudam.
-                </span>
-                <span className="save-pop__actions">
-                  <button type="button" className="btn remove-pop__yes" onClick={() => void save()}>
-                    Sim
-                  </button>
-                  <button type="button" className="btn" onClick={() => setConfirmMode(false)}>
-                    Não
-                  </button>
-                </span>
-              </div>
-            )}
+            <Presence open={confirmMode}>
+              {(state) => (
+                <div
+                  className="remove-pop save-pop"
+                  role="alertdialog"
+                  aria-label="Confirmar cálculo de margem"
+                  data-state={state}
+                >
+                  <span>
+                    Novos orçamentos passam a usar este cálculo. Rascunhos mostram um aviso para
+                    atualizar. Orçamentos emitidos não mudam.
+                  </span>
+                  <span className="save-pop__actions">
+                    <button type="button" className="btn remove-pop__yes" onClick={() => void save()}>
+                      Sim
+                    </button>
+                    <button type="button" className="btn" onClick={() => setConfirmMode(false)}>
+                      Não
+                    </button>
+                  </span>
+                </div>
+              )}
+            </Presence>
           </div>
         </div>
       </footer>

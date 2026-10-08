@@ -1,7 +1,7 @@
 /**
  * Motion perf check (spec 004): CPU throttled 4× via CDP, records long tasks and
  * frame gaps while opening/closing a modal, toggling a section, switching tabs,
- * navigating list ↔ editor and scrolling the list.
+ * navigating list ↔ editor and scrolling the list. Reports the median of RUNS (default 3).
  * Needs a dev server in local mode (no Supabase):
  *   VITE_SUPABASE_URL= VITE_SUPABASE_ANON_KEY= npm run dev -- --host 127.0.0.1
  * Run: APP_URL=http://127.0.0.1:5173 node scripts/motion-perf-browser.mjs
@@ -15,6 +15,7 @@ const BASE = process.env.APP_URL ?? 'http://127.0.0.1:5173'
 const OUT = join(process.cwd(), 'tmp-browser-qa')
 const BASELINE = process.env.BASELINE ?? join(OUT, 'motion-perf-baseline.json')
 const CPU_RATE = Number(process.env.CPU_RATE ?? 4)
+const RUNS = Number(process.env.RUNS ?? 3)
 const LIST_SIZE = 40
 const WINDOW_MS = 700
 const MAX_LONG_TASK = 50
@@ -116,8 +117,7 @@ async function seedList(page) {
   await page.getByRole('heading', { name: 'Orçamentos', level: 1 }).waitFor()
 }
 
-async function main() {
-  const browser = await chromium.launch({ headless: true })
+async function runOnce(browser) {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
     reducedMotion: 'no-preference',
@@ -220,18 +220,45 @@ async function main() {
   } catch (err) {
     const shot = join(OUT, 'motion-perf-failure.png')
     await page.screenshot({ path: shot, fullPage: true }).catch(() => {})
-    console.error(`FAIL  exception — ${err.message} (shot ${shot})`)
+    throw new Error(`${err.message} (shot ${shot})`)
+  } finally {
+    await context.close()
+  }
+  return results
+}
+
+const median = (values) => {
+  const sorted = [...values].sort((a, b) => a - b)
+  return sorted[Math.floor(sorted.length / 2)]
+}
+
+async function main() {
+  const browser = await chromium.launch({ headless: true })
+  const runs = []
+  try {
+    for (let i = 0; i < RUNS; i++) runs.push(await runOnce(browser))
+  } catch (err) {
+    console.error(`FAIL  exception — ${err.message}`)
     await browser.close()
     process.exit(1)
   }
   await browser.close()
+
+  const results = runs[0].map((first, i) => {
+    const same = runs.map((run) => run[i])
+    const out = { name: first.name }
+    for (const key of ['frames', 'fps', 'worstFrame', 'p95Frame', 'longTasks', 'maxLongTask']) {
+      out[key] = median(same.map((r) => r[key]))
+    }
+    return out
+  })
 
   const baseline = existsSync(BASELINE) && !process.env.SAVE_BASELINE
     ? Object.fromEntries(JSON.parse(readFileSync(BASELINE, 'utf8')).map((r) => [r.name, r]))
     : null
 
   let failed = 0
-  console.log(`CPU ${CPU_RATE}× · janela ${WINDOW_MS} ms · limite tarefa ${MAX_LONG_TASK} ms · ${MIN_FPS} fps`)
+  console.log(`CPU ${CPU_RATE}× · mediana de ${RUNS} rodadas · janela ${WINDOW_MS} ms · limite tarefa ${MAX_LONG_TASK} ms · ${MIN_FPS} fps`)
   console.log('cenário                  fps  pior  p95  longas  maior' + (baseline ? '   (baseline fps/pior/maior)' : ''))
   for (const r of results) {
     const base = baseline?.[r.name]

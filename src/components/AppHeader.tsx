@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { useAccess } from '../auth/access'
 import { useDismiss } from './useDismiss'
+import { usePresence } from './usePresence'
 
 export type AppSection = 'list' | 'catalog' | 'settings'
 
@@ -74,6 +75,7 @@ export function HeaderMenu({
 }) {
   const access = useAccess()
   const [open, setOpen] = useState(false)
+  const menu = usePresence(open, 'xs')
   const wrapRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
@@ -191,12 +193,13 @@ export function HeaderMenu({
           <path d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
-      {open && (
+      {menu.mounted && (
         <div
           id={menuId}
           className="app-menu"
           role="menu"
           aria-label="Menu"
+          data-state={menu.state}
           onKeyDown={onMenuKeyDown}
         >
           {entries.map((entry, i) => (

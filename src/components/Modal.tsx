@@ -1,5 +1,6 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { motionMs } from './usePresence'
 
 export function Modal({
   title,
@@ -13,6 +14,19 @@ export function Modal({
   className?: string
 }) {
   const panelRef = useRef<HTMLDivElement>(null)
+  const [closing, setClosing] = useState(false)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+  const closeTimerRef = useRef<number | undefined>(undefined)
+
+  // Button, Esc and backdrop play the exit first; parent-driven unmounts stay instant.
+  const requestClose = () => {
+    if (closeTimerRef.current !== undefined) return
+    setClosing(true)
+    closeTimerRef.current = window.setTimeout(() => onCloseRef.current(), motionMs('sm'))
+  }
+  const requestCloseRef = useRef(requestClose)
+  requestCloseRef.current = requestClose
 
   useEffect(() => {
     const scrollY = window.scrollY
@@ -28,7 +42,7 @@ export function Modal({
     body.style.width = '100%'
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') requestCloseRef.current()
     }
     window.addEventListener('keydown', onKey)
 
@@ -39,16 +53,23 @@ export function Modal({
 
     return () => {
       window.removeEventListener('keydown', onKey)
+      window.clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = undefined
       body.style.overflow = prevOverflow
       body.style.position = prevPosition
       body.style.top = prevTop
       body.style.width = prevWidth
       window.scrollTo(0, scrollY)
     }
-  }, [onClose])
+  }, [])
 
   return createPortal(
-    <div className="modal-backdrop" role="presentation" onClick={onClose}>
+    <div
+      className="modal-backdrop"
+      role="presentation"
+      data-state={closing ? 'closing' : 'open'}
+      onClick={requestClose}
+    >
       <div
         ref={panelRef}
         className={className ? `modal ${className}` : 'modal'}
@@ -59,7 +80,7 @@ export function Modal({
       >
         <div className="modal__head">
           <h3>{title}</h3>
-          <button type="button" className="btn ghost" onClick={onClose}>
+          <button type="button" className="btn ghost" onClick={requestClose}>
             Fechar
           </button>
         </div>

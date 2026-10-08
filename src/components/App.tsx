@@ -59,6 +59,7 @@ import {
 import { CatalogEditor } from './CatalogEditor'
 import { AppHeader, HeaderMenu, type AppSection } from './AppHeader'
 import { useDismiss } from './useDismiss'
+import { Presence, usePresence } from './usePresence'
 import { CollapsibleSection } from './CollapsibleSection'
 import { CostDetailModal } from './CostDetailModal'
 import { Dropdown } from './Dropdown'
@@ -636,21 +637,23 @@ export function App() {
                 >
                   <TrashIcon />
                 </button>
-                {pendingDeleteQuote && (
-                  <div className="remove-pop" role="dialog" aria-label="Excluir rascunho">
-                    <span>Excluir rascunho?</span>
-                    <button
-                      type="button"
-                      className="btn remove-pop__yes"
-                      onClick={() => void onDeleteDraft()}
-                    >
-                      Sim
-                    </button>
-                    <button type="button" className="btn" onClick={() => setPendingDeleteQuote(false)}>
-                      Não
-                    </button>
-                  </div>
-                )}
+                <Presence open={pendingDeleteQuote}>
+                  {(state) => (
+                    <div className="remove-pop" role="dialog" aria-label="Excluir rascunho" data-state={state}>
+                      <span>Excluir rascunho?</span>
+                      <button
+                        type="button"
+                        className="btn remove-pop__yes"
+                        onClick={() => void onDeleteDraft()}
+                      >
+                        Sim
+                      </button>
+                      <button type="button" className="btn" onClick={() => setPendingDeleteQuote(false)}>
+                        Não
+                      </button>
+                    </div>
+                  )}
+                </Presence>
               </div>
             )}
             <HeaderMenu current="list" onNavigate={goSection} />
@@ -739,24 +742,26 @@ export function App() {
                 >
                   <TrashIcon />
                 </button>
-                {pendingRemoveId === item.id && (
-                  <div className="remove-pop" role="dialog" aria-label="Confirmar remoção">
-                    <span>Confirmar remoção?</span>
-                    <button
-                      type="button"
-                      className="btn remove-pop__yes"
-                      onClick={() => {
-                        setPendingRemoveId(null)
-                        void onRemoveItem(item.id)
-                      }}
-                    >
-                      Sim
-                    </button>
-                    <button type="button" className="btn" onClick={() => setPendingRemoveId(null)}>
-                      Não
-                    </button>
-                  </div>
-                )}
+                <Presence open={pendingRemoveId === item.id}>
+                  {(state) => (
+                    <div className="remove-pop" role="dialog" aria-label="Confirmar remoção" data-state={state}>
+                      <span>Confirmar remoção?</span>
+                      <button
+                        type="button"
+                        className="btn remove-pop__yes"
+                        onClick={() => {
+                          setPendingRemoveId(null)
+                          void onRemoveItem(item.id)
+                        }}
+                      >
+                        Sim
+                      </button>
+                      <button type="button" className="btn" onClick={() => setPendingRemoveId(null)}>
+                        Não
+                      </button>
+                    </div>
+                  )}
+                </Presence>
               </div>
             )}
             </div>
@@ -906,21 +911,28 @@ export function App() {
                   disabled={busy || quote.items.length === 0}
                   onClick={() => void onEmit()}
                 />
-                {emitNeedsName && !quote.customer.name?.trim() && (
-                  <div className="remove-pop emit-pop" role="alertdialog" aria-label="Nome do cliente obrigatório">
-                    <span>Preencha o nome do cliente para emitir.</span>
-                    <button
-                      type="button"
-                      className="btn primary"
-                      onClick={() => {
-                        setEmitNeedsName(false)
-                        focusCustomerName()
-                      }}
+                <Presence open={emitNeedsName && !quote.customer.name?.trim()}>
+                  {(state) => (
+                    <div
+                      className="remove-pop emit-pop"
+                      role="alertdialog"
+                      aria-label="Nome do cliente obrigatório"
+                      data-state={state}
                     >
-                      Preencher nome
-                    </button>
-                  </div>
-                )}
+                      <span>Preencha o nome do cliente para emitir.</span>
+                      <button
+                        type="button"
+                        className="btn primary"
+                        onClick={() => {
+                          setEmitNeedsName(false)
+                          focusCustomerName()
+                        }}
+                      >
+                        Preencher nome
+                      </button>
+                    </div>
+                  )}
+                </Presence>
               </div>
             )}
           </div>
@@ -1286,6 +1298,7 @@ function SendMenu({
   const buttonRef = useRef<HTMLButtonElement>(null)
   const firstRef = useRef<HTMLButtonElement>(null)
   const menuId = useId()
+  const pop = usePresence(open, 'xs')
 
   useDismiss(open, wrapRef, (reason) => {
     onOpenChange(false)
@@ -1311,8 +1324,8 @@ function SendMenu({
         <ShareIcon />
         <span>Enviar</span>
       </button>
-      {open && (
-        <div className="send-pop" id={menuId} role="menu" aria-label="Enviar orçamento">
+      {pop.mounted && (
+        <div className="send-pop" id={menuId} role="menu" aria-label="Enviar orçamento" data-state={pop.state}>
           <button ref={firstRef} type="button" role="menuitem" className="send-option" onClick={onSharePdf}>
             <span className="send-option__icon"><ShareIcon /></span>
             <span className="send-option__text">

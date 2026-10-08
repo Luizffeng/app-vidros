@@ -721,7 +721,7 @@ label .percent-input .money-input {
 
 .hero {
   padding: 2.2rem 0 1.5rem;
-  animation: rise var(--dur-lg) var(--ease-out) both;
+  animation: rise var(--dur-lg) var(--ease-out) backwards;
 }
 
 .brand,
@@ -772,7 +772,7 @@ label .percent-input .money-input {
   align-items: center;
   margin-bottom: 0.85rem;
   padding-top: 0.85rem;
-  animation: rise var(--dur-lg) var(--ease-out) both;
+  animation: rise var(--dur-lg) var(--ease-out) backwards;
 }
 
 .topbar .brand-sm {
@@ -837,7 +837,7 @@ label .percent-input .money-input {
   border-radius: var(--radius);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
   transform-origin: top right;
-  animation: menu-in var(--dur-sm) var(--ease-out) both;
+  animation: menu-in var(--dur-sm) var(--ease-out) backwards;
 }
 
 .app-menu__item {
@@ -933,7 +933,7 @@ label .percent-input .money-input {
   z-index: 10;
   padding-top: 0.85rem;
   margin-bottom: 0.85rem;
-  animation: rise var(--dur-lg) var(--ease-out) both;
+  animation: rise var(--dur-lg) var(--ease-out) backwards;
 }
 
 .quote-head__bar {
@@ -1826,7 +1826,7 @@ textarea:focus {
   border-radius: 12px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
   transform-origin: top right;
-  animation: menu-in var(--dur-sm) var(--ease-out) both;
+  animation: menu-in var(--dur-sm) var(--ease-out) backwards;
 }
 
 .dropdown__list:focus {
@@ -2209,7 +2209,7 @@ textarea:focus {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   transform-origin: bottom right;
   --pop-dir: 1;
-  animation: menu-in var(--dur-sm) var(--ease-out) both;
+  animation: menu-in var(--dur-sm) var(--ease-out) backwards;
 }
 
 .send-option {
@@ -2731,6 +2731,76 @@ textarea:focus {
   to {
     opacity: 0;
   }
+}
+
+.modal-backdrop {
+  animation: fade-in var(--dur-md) var(--ease-out) backwards;
+}
+
+.modal {
+  --modal-dy: 0px;
+  --modal-scale: var(--motion-scale);
+  animation: modal-in var(--dur-lg) var(--ease-out) backwards;
+}
+
+@media (max-width: 640px) {
+  .modal {
+    --modal-dy: var(--motion-y);
+    --modal-scale: 1;
+  }
+}
+
+.modal-backdrop[data-state='closing'] {
+  pointer-events: none;
+  animation: fade-out var(--dur-sm) var(--ease-in) both;
+}
+
+.modal-backdrop[data-state='closing'] .modal {
+  animation: modal-out var(--dur-sm) var(--ease-in) both;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    translate: 0 var(--modal-dy);
+    scale: var(--modal-scale);
+  }
+}
+
+@keyframes modal-out {
+  to {
+    opacity: 0;
+    translate: 0 var(--modal-dy);
+    scale: var(--modal-scale);
+  }
+}
+
+/* Popovers kept mounted by usePresence while they leave. */
+.app-menu[data-state='closing'],
+.dropdown__list[data-state='closing'],
+.send-pop[data-state='closing'],
+.remove-pop[data-state='closing'] {
+  pointer-events: none;
+  animation: menu-out var(--dur-xs) var(--ease-in) both;
+}
+
+.remove-pop {
+  transform-origin: right center;
+  animation: menu-in var(--dur-sm) var(--ease-out) backwards;
+}
+
+.remove-pop.emit-pop {
+  --pop-dir: 1;
+  transform-origin: bottom center;
+}
+
+.remove-pop.save-pop {
+  --pop-dir: 1;
+  transform-origin: bottom right;
+}
+
+.remove-pop.cost-confirm {
+  transform-origin: top center;
 }
 
 @media (prefers-reduced-motion: reduce) {

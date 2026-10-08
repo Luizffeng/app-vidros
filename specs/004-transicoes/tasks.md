@@ -46,11 +46,11 @@ description: "Task list for Transições leves na interface"
 
 **Independent Test**: quickstart manual steps 1–4.
 
-- [ ] T008 [US1] In src/components/Modal.tsx use `usePresence`, add internal `requestClose` (button, Esc, backdrop) that sets `data-state="closing"` then calls `onClose` after `--dur-sm`; keep focus and scroll lock/restore
-- [ ] T009 [US1] Modal backdrop/panel enter and exit styles (≤640px translateY, wider scale; closing layer `pointer-events: none`) in src/index.css
-- [ ] T010 [P] [US1] In src/components/Dropdown.tsx keep the list mounted while closing via `usePresence`; exit style in src/index.css
-- [ ] T011 [P] [US1] In src/components/AppHeader.tsx (`HeaderMenu`) use `usePresence` for the menu; exit style in src/index.css
-- [ ] T012 [US1] In src/components/App.tsx wrap both `.remove-pop` confirmations and the emit popover with `usePresence`; exit style in src/index.css
+- [x] T008 [US1] In src/components/Modal.tsx use `usePresence`, add internal `requestClose` (button, Esc, backdrop) that sets `data-state="closing"` then calls `onClose` after `--dur-sm`; keep focus and scroll lock/restore
+- [x] T009 [US1] Modal backdrop/panel enter and exit styles (≤640px translateY, wider scale; closing layer `pointer-events: none`) in src/index.css
+- [x] T010 [P] [US1] In src/components/Dropdown.tsx keep the list mounted while closing via `usePresence`; exit style in src/index.css
+- [x] T011 [P] [US1] In src/components/AppHeader.tsx (`HeaderMenu`) use `usePresence` for the menu; exit style in src/index.css
+- [x] T012 [US1] In src/components/App.tsx wrap both `.remove-pop` confirmations and the emit popover with `usePresence`; exit style in src/index.css
 
 **Checkpoint**: steps 1–4 pass; smoke script green.
 

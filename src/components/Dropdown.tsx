@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import { useDismiss } from './useDismiss'
+import { usePresence } from './usePresence'
 
 export type DropdownOption<T extends string> = { value: T; label: string }
 
@@ -18,6 +19,7 @@ export function Dropdown<T extends string>({
   className?: string
 }) {
   const [open, setOpen] = useState(false)
+  const list = usePresence(open, 'xs')
   const [activeIndex, setActiveIndex] = useState(0)
   const wrapRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -93,7 +95,7 @@ export function Dropdown<T extends string>({
           <path d="m6 9 6 6 6-6" />
         </svg>
       </button>
-      {open && (
+      {list.mounted && (
         <ul
           ref={listRef}
           id={listId}
@@ -102,6 +104,7 @@ export function Dropdown<T extends string>({
           aria-label={label}
           tabIndex={-1}
           aria-activedescendant={optionId(activeIndex)}
+          data-state={list.state}
           onKeyDown={onListKeyDown}
         >
           {options.map((option, i) => {

@@ -20,28 +20,32 @@ Tamanho: comparar `dist/assets/*.js` gzip antes/depois (≤ +2 KB).
 
 ## Baseline
 
-2026-10-08, antes da feature (commit `f0b190d`), Chromium headless 390×844, CPU 4×, janela de 700 ms por cenário, lista com 41 orçamentos. Gravado com `SAVE_BASELINE=1` em `tmp-browser-qa/motion-perf-baseline.json`; o script compara contra esse arquivo quando ele existe.
+2026-10-08, código antes da feature (commit `f0b190d`, rodado num `git worktree` na porta 5181), Chromium headless 390×844, CPU 4×, janela de 700 ms por cenário, lista com 41 orçamentos, **mediana de 5 rodadas** (uma rodada só oscila até ±40 ms nas telas pesadas). Gravado com `SAVE_BASELINE=1 RUNS=5` em `tmp-browser-qa/motion-perf-baseline.json`; o script compara contra esse arquivo quando ele existe.
 
 | Cenário | fps | Pior quadro (ms) | Tarefas longas | Maior (ms) |
 | --- | --- | --- | --- | --- |
 | rolar lista | 60 | 17 | 0 | 0 |
-| abrir / fechar seletor | 60 / 60 | 17 / 17 | 0 / 0 | 0 / 0 |
-| lista → orçamento | 45 | 183 | 2 | 111 |
-| abrir janela | 53 | 83 | 1 | 96 |
-| fechar janela | 57 | 50 | 1 | 61 |
+| abrir / fechar seletor | 59 / 60 | 33 / 17 | 0 / 0 | 0 / 0 |
+| lista → orçamento | 51 | 117 | 2 | 71 |
+| abrir janela | 55 | 67 | 1 | 75 |
+| fechar janela | 57 | 50 | 1 | 51 |
 | fechar / abrir seção Itens | 60 / 60 | 17 / 17 | 0 / 0 | 0 / 0 |
 | abrir / fechar menu | 59 / 60 | 33 / 17 | 0 / 0 | 0 / 0 |
-| orçamento → lista | 44 | 133 | 2 | 149 |
-| menu → Configurações | 59 | 33 | 0 | 0 |
-| abas Orçamento / Logo / Cadastro | 59 / 60 / 59 | 33 / 17 / 33 | 0 | 0 |
-| menu → Catálogo | 47 | 183 | 1 | 184 |
+| orçamento → lista | 41 | 150 | 2 | 154 |
+| menu → Configurações | 57 | 50 | 1 | 54 |
+| abas Orçamento / Logo / Cadastro | 59 / 60 / 60 | 33 / 17 / 17 | 0 | 0 |
+| menu → Catálogo | 47 | 183 | 1 | 192 |
 | rolar catálogo | 60 | 17 | 0 | 0 |
 
-As tarefas longas acima de 50 ms já existem antes da feature: são a renderização do React ao montar a tela ou a janela, não efeito visual. O script aceita esses cenários quando não pioram mais de 15% contra o baseline. Headless não rasteriza o desfoque como um celular real, então a melhoria de rolagem por tirar `backdrop-filter` aparece pouco aqui; conferir no passo 10 do manual.
+As tarefas longas acima de 50 ms já existem antes da feature: são a renderização do React ao montar a tela ou a janela, não efeito visual. O script aceita esses cenários quando não pioram mais de 15% (+5 ms) contra o baseline. Headless não rasteriza o desfoque como um celular real, então a melhoria de rolagem por tirar `backdrop-filter` não aparece aqui (60 fps antes e depois); conferir no passo 10 do manual.
 
 ### Após tirar o desfoque (T007)
 
-Sem `backdrop-filter` nas seções e na barra inferior e sem `rise` por seção: rolagem da lista e do catálogo segue a 60 fps (pior quadro 17 ms, igual ao baseline). Lista → orçamento melhorou: maior tarefa 111 → 68 ms, pior quadro 183 → 117 ms, 45 → 52 fps (as seções não animam mais ao montar). Abrir janela: 96 → 75 ms. Demais cenários iguais.
+Sem `backdrop-filter` nas seções e na barra inferior e sem `rise` por seção: rolagem da lista e do catálogo segue a 60 fps, pior quadro 17 ms, igual ao baseline. Demais cenários dentro da variação.
+
+### Após janelas e menus (fase US1)
+
+Mediana de 5: todos os 17 cenários passam. Fechar janela 51 → 61 ms (a desmontagem acontece depois da saída de 150 ms, mesmo custo deslocado); abrir janela 75 → 86 ms; o resto igual ou melhor.
 
 ## Manual
 
