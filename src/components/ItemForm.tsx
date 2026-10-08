@@ -677,6 +677,19 @@ export function ItemForm({
             </>
           ) : (
             <div className={kind === 'box' ? 'field-pair' : 'field-pair field-pair--half full'}>
+              <label>
+                Cor do vidro
+                <select
+                  value={glassColor}
+                  onChange={(e) => setGlassColor(e.target.value)}
+                >
+                  {cfg.glassColors.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </label>
               {kind !== 'box' && (
                 <label>
                   Espessura
@@ -692,19 +705,6 @@ export function ItemForm({
                   </select>
                 </label>
               )}
-              <label>
-                Cor do vidro
-                <select
-                  value={glassColor}
-                  onChange={(e) => setGlassColor(e.target.value)}
-                >
-                  {cfg.glassColors.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </label>
             </div>
           )}
 
