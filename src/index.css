@@ -17,6 +17,18 @@
   --action-bar-h: calc(var(--control-h) + 1.2rem + 1px);
   --font: 'Google Sans', system-ui, sans-serif;
   --display: 'Google Sans', system-ui, sans-serif;
+  /* Motion scale (specs/004-transicoes/contracts/motion.md). Animate only opacity and
+     transform/translate/scale; exits shorter than entries; nothing longer than --dur-lg. */
+  --dur-xs: 100ms;
+  --dur-sm: 150ms;
+  --dur-md: 200ms;
+  --dur-lg: 250ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.3, 0, 1, 1);
+  --ease-std: cubic-bezier(0.2, 0, 0, 1);
+  --motion-y: 12px;
+  --motion-x: 16px;
+  --motion-scale: 0.98;
   color-scheme: dark;
 }
 
@@ -709,7 +721,7 @@ label .percent-input .money-input {
 
 .hero {
   padding: 2.2rem 0 1.5rem;
-  animation: rise 0.5s ease both;
+  animation: rise var(--dur-lg) var(--ease-out) both;
 }
 
 .brand,
@@ -760,7 +772,7 @@ label .percent-input .money-input {
   align-items: center;
   margin-bottom: 0.85rem;
   padding-top: 0.85rem;
-  animation: rise 0.35s ease both;
+  animation: rise var(--dur-lg) var(--ease-out) both;
 }
 
 .topbar .brand-sm {
@@ -825,7 +837,7 @@ label .percent-input .money-input {
   border-radius: var(--radius);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
   transform-origin: top right;
-  animation: menu-in 0.14s ease-out both;
+  animation: menu-in var(--dur-sm) var(--ease-out) both;
 }
 
 .app-menu__item {
@@ -898,14 +910,21 @@ label .percent-input .money-input {
   color: var(--muted);
 }
 
+/* Popovers: individual translate/scale compose with positioning transforms (.remove-pop).
+   --pop-dir: -1 drops from above the trigger, 1 rises from below it. */
 @keyframes menu-in {
   from {
     opacity: 0;
-    transform: translateY(-4px) scale(0.98);
+    translate: 0 calc(var(--motion-y) / 3 * var(--pop-dir, -1));
+    scale: var(--motion-scale);
   }
+}
+
+@keyframes menu-out {
   to {
-    opacity: 1;
-    transform: none;
+    opacity: 0;
+    translate: 0 calc(var(--motion-y) / 3 * var(--pop-dir, -1));
+    scale: var(--motion-scale);
   }
 }
 
@@ -914,7 +933,7 @@ label .percent-input .money-input {
   z-index: 10;
   padding-top: 0.85rem;
   margin-bottom: 0.85rem;
-  animation: rise 0.35s ease both;
+  animation: rise var(--dur-lg) var(--ease-out) both;
 }
 
 .quote-head__bar {
@@ -1809,7 +1828,7 @@ textarea:focus {
   border-radius: 12px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
   transform-origin: top right;
-  animation: menu-in 0.14s ease-out both;
+  animation: menu-in var(--dur-sm) var(--ease-out) both;
 }
 
 .dropdown__list:focus {
@@ -2193,18 +2212,8 @@ textarea:focus {
   border-radius: var(--radius);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   transform-origin: bottom right;
-  animation: send-pop-in 0.14s ease-out both;
-}
-
-@keyframes send-pop-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  --pop-dir: 1;
+  animation: menu-in var(--dur-sm) var(--ease-out) both;
 }
 
 .send-option {
@@ -2400,11 +2409,7 @@ textarea:focus {
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+    translate: 0 var(--motion-y);
   }
 }
 
@@ -2716,4 +2721,33 @@ textarea:focus {
 .cost-empty {
   margin: 0;
   font-size: 0.85rem;
+}
+
+/* ---- Motion (specs/004-transicoes). Keep this block last so it wins ties. ---- */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-sm: 100ms;
+    --dur-md: 100ms;
+    --dur-lg: 100ms;
+    --motion-y: 0px;
+    --motion-x: 0px;
+    --motion-scale: 1;
+  }
+
+  .modal-backdrop {
+    backdrop-filter: none;
+  }
 }

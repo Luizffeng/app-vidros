@@ -24,8 +24,8 @@ description: "Task list for Transições leves na interface"
 
 ## Phase 2: Foundational (blocking)
 
-- [ ] T004 Add motion tokens (contracts/motion.md) to `:root`, retime `rise`/`menu-in` keyframes to use tokens and `--motion-*` variables, add the `prefers-reduced-motion` block, in src/index.css
-- [ ] T005 [P] Create src/components/usePresence.ts per contracts/motion.md
+- [x] T004 Add motion tokens (contracts/motion.md) to `:root`, retime `rise`/`menu-in` keyframes to use tokens and `--motion-*` variables, add the `prefers-reduced-motion` block, in src/index.css
+- [x] T005 [P] Create src/components/usePresence.ts per contracts/motion.md
 
 **Checkpoint**: app looks the same; reduced motion already disables existing offsets.
 
