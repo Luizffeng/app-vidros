@@ -14,13 +14,15 @@ export function CollapsibleSection({
   children: ReactNode
 }) {
   const [open, setOpen] = useState(defaultOpen)
+  // Animate only after the user toggles, so screens mount without motion.
+  const [animate, setAnimate] = useState(false)
   return (
     <details
-      className={`section collapsible-section${className ? ` ${className}` : ''}`}
+      className={`section collapsible-section${animate ? ' collapsible-section--animate' : ''}${className ? ` ${className}` : ''}`}
       open={open}
       onToggle={(e) => setOpen(e.currentTarget.open)}
     >
-      <summary className="collapsible-section__summary">
+      <summary className="collapsible-section__summary" onClick={() => setAnimate(true)}>
         <span className="collapsible-section__heading">{title}</span>
         {badge}
         <span className="collapsible-section__chevron" aria-hidden>

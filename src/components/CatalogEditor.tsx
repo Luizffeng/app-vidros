@@ -169,45 +169,47 @@ export function CatalogEditor({
         )}
       </div>
 
-      {tab === 'vidros' && (
-        <VidrosTable
-          rows={draft.vidros}
-          query={query}
-          showInactive={showInactive}
-          onChange={(vidros) => setDraft((d) => ({ ...d, vidros }))}
-        />
-      )}
-      {tab === 'kitBox' && (
-        <KitBoxTable
-          rows={draft.kitBox}
-          query={query}
-          showInactive={showInactive}
-          onChange={(kitBox) => setDraft((d) => ({ ...d, kitBox }))}
-        />
-      )}
-      {tab === 'acessorios' && (
-        <AcessoriosTable
-          rows={draft.acessorios}
-          query={query}
-          showInactive={showInactive}
-          onChange={(acessorios) => setDraft((d) => ({ ...d, acessorios }))}
-        />
-      )}
-      {tab === 'aluminios' && (
-        <AluminiosTable
-          rows={draft.aluminios}
-          query={query}
-          showInactive={showInactive}
-          onChange={(aluminios) => setDraft((d) => ({ ...d, aluminios }))}
-        />
-      )}
-      {tab === 'config' && (
-        <ConfigPanel
-          config={draft.config}
-          showMarkup={marginMode !== 'autonomo'}
-          onChange={(config) => setDraft((d) => ({ ...d, config }))}
-        />
-      )}
+      <div key={tab} className="tab-panel">
+        {tab === 'vidros' && (
+          <VidrosTable
+            rows={draft.vidros}
+            query={query}
+            showInactive={showInactive}
+            onChange={(vidros) => setDraft((d) => ({ ...d, vidros }))}
+          />
+        )}
+        {tab === 'kitBox' && (
+          <KitBoxTable
+            rows={draft.kitBox}
+            query={query}
+            showInactive={showInactive}
+            onChange={(kitBox) => setDraft((d) => ({ ...d, kitBox }))}
+          />
+        )}
+        {tab === 'acessorios' && (
+          <AcessoriosTable
+            rows={draft.acessorios}
+            query={query}
+            showInactive={showInactive}
+            onChange={(acessorios) => setDraft((d) => ({ ...d, acessorios }))}
+          />
+        )}
+        {tab === 'aluminios' && (
+          <AluminiosTable
+            rows={draft.aluminios}
+            query={query}
+            showInactive={showInactive}
+            onChange={(aluminios) => setDraft((d) => ({ ...d, aluminios }))}
+          />
+        )}
+        {tab === 'config' && (
+          <ConfigPanel
+            config={draft.config}
+            showMarkup={marginMode !== 'autonomo'}
+            onChange={(config) => setDraft((d) => ({ ...d, config }))}
+          />
+        )}
+      </div>
 
       <footer className="action-bar">
         <div className="action-bar__inner action-bar__inner--pair">

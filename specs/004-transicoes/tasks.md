@@ -62,11 +62,11 @@ description: "Task list for Transições leves na interface"
 
 **Independent Test**: quickstart manual steps 5–7.
 
-- [ ] T013 [US2] Add `interpolate-size: allow-keywords` and `details.collapsible-section::details-content` height/content-visibility transitions, plus `.collapsible-section__body` enter fade for `[open]`, in src/index.css
-- [ ] T014 [US2] In src/components/SettingsEditor.tsx add the tab indicator element, set `--tab-x`/`--tab-w` from the selected tab on change and resize, key the panel by tab id
-- [ ] T015 [US2] Tab indicator and panel fade styles in src/index.css
-- [ ] T016 [P] [US2] In src/components/CatalogEditor.tsx key the table content by `tab` so it fades on switch
-- [ ] T017 [US2] Run the perf script; if the "Itens" section height animation exceeds SC-002 with many items, add the opt-out class for that section (research R5)
+- [x] T013 [US2] Add `interpolate-size: allow-keywords` and `details.collapsible-section::details-content` height/content-visibility transitions, plus `.collapsible-section__body` enter fade for `[open]`, in src/index.css
+- [x] T014 [US2] In src/components/SettingsEditor.tsx add the tab indicator element, set `--tab-x`/`--tab-w` from the selected tab on change and resize, key the panel by tab id
+- [x] T015 [US2] Tab indicator and panel fade styles in src/index.css
+- [x] T016 [P] [US2] In src/components/CatalogEditor.tsx key the table content by `tab` so it fades on switch
+- [x] T017 [US2] Run the perf script; if the "Itens" section height animation exceeds SC-002 with many items, add the opt-out class for that section (research R5)
 
 **Checkpoint**: steps 5–7 pass.
 

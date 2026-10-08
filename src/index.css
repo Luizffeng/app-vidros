@@ -1079,8 +1079,8 @@ label .percent-input .money-input {
   background: var(--surface-2);
   color: var(--text);
   transition:
-    transform 0.2s ease,
-    background 0.15s ease;
+    transform var(--dur-md) var(--ease-std),
+    background var(--dur-sm) ease;
 }
 
 .collapsible-section__chevron svg {
@@ -2803,6 +2803,76 @@ textarea:focus {
   transform-origin: top center;
 }
 
+/* Sections: native <details> height where supported; the body fade is the fallback. */
+.collapsible-section--animate[open] .collapsible-section__body {
+  animation: fade-in var(--dur-md) var(--ease-out) backwards;
+}
+
+@supports (interpolate-size: allow-keywords) {
+  @media (prefers-reduced-motion: no-preference) {
+    :root {
+      interpolate-size: allow-keywords;
+    }
+
+    /* Opening keeps overflow clipped until the height lands, then visible again
+       (popovers and focus rings inside items); closing clips at once. */
+    .collapsible-section--animate::details-content {
+      transition:
+        height var(--dur-md) var(--ease-std),
+        content-visibility var(--dur-md) allow-discrete,
+        overflow 0s var(--dur-md) allow-discrete;
+    }
+
+    .collapsible-section--animate:not([open])::details-content {
+      height: 0;
+      overflow: clip;
+      transition:
+        height var(--dur-md) var(--ease-std),
+        content-visibility var(--dur-md) allow-discrete;
+    }
+  }
+}
+
+/* Settings tabs: one indicator slides under the selected tab. */
+.tabs {
+  position: relative;
+}
+
+.tabs__tab {
+  position: relative;
+  z-index: 1;
+}
+
+.tabs__indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--tab-w, 0);
+  translate: var(--tab-x, 0) 0;
+  border: 1px solid rgba(62, 207, 142, 0.5);
+  border-radius: 12px;
+  background: rgba(62, 207, 142, 0.18);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.tabs[data-ready] .tabs__indicator {
+  opacity: 1;
+  transition:
+    translate var(--dur-md) var(--ease-std),
+    width var(--dur-md) var(--ease-std);
+}
+
+.tabs[data-ready] .tabs__tab[aria-selected='true'] {
+  border-color: transparent;
+  background: transparent;
+}
+
+.tab-panel {
+  animation: fade-in var(--dur-sm) var(--ease-out) backwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-sm: 100ms;
@@ -2815,5 +2885,9 @@ textarea:focus {
 
   .modal-backdrop {
     backdrop-filter: none;
+  }
+
+  .tabs[data-ready] .tabs__indicator {
+    transition: none;
   }
 }

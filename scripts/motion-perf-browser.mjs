@@ -17,6 +17,7 @@ const BASELINE = process.env.BASELINE ?? join(OUT, 'motion-perf-baseline.json')
 const CPU_RATE = Number(process.env.CPU_RATE ?? 4)
 const RUNS = Number(process.env.RUNS ?? 3)
 const LIST_SIZE = 40
+const ITEMS = Number(process.env.ITEMS ?? 3)
 const WINDOW_MS = 700
 const MAX_LONG_TASK = 50
 const MIN_FPS = 50
@@ -74,7 +75,8 @@ async function measure(page, name, action) {
 async function seedList(page) {
   await page.getByRole('button', { name: 'Novo orçamento' }).click()
   await page.getByText('Rascunho', { exact: true }).waitFor()
-  for (const [w, h] of [[1000, 800], [1200, 900], [600, 600]]) {
+  for (let i = 0; i < ITEMS; i++) {
+    const [w, h] = [[1000, 800], [1200, 900], [600, 600]][i % 3]
     await page.getByRole('button', { name: 'Adicionar item' }).click()
     await page.getByRole('button', { name: 'Espelho', exact: true }).click()
     const modal = page.locator('.modal--item')

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { AppSettings, EstablishmentInfo, MarginMode } from '../domain/types'
 import { DEFAULT_LOGO_DATA_URL } from '../data/defaultLogo'
 import { normalizeSettings } from '../data/defaultSettings'
@@ -53,7 +53,28 @@ export function SettingsEditor({
   const [cepMessage, setCepMessage] = useState<string | null>(null)
   const [logoBusy, setLogoBusy] = useState(false)
   const [tab, setTab] = useState<SettingsTab>('register')
+  const tabsRef = useRef<HTMLDivElement>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
+
+  useLayoutEffect(() => {
+    const list = tabsRef.current
+    if (!list) return
+    const place = () => {
+      const selected = list.querySelector<HTMLElement>('[aria-selected="true"]')
+      if (!selected) return
+      list.style.setProperty('--tab-x', `${selected.offsetLeft}px`)
+      list.style.setProperty('--tab-w', `${selected.offsetWidth}px`)
+      if (!list.dataset.ready) {
+        // Commit the first position before enabling the transition, so it does not slide in from 0.
+        void list.offsetWidth
+        list.dataset.ready = ''
+      }
+    }
+    place()
+    const observer = new ResizeObserver(place)
+    observer.observe(list)
+    return () => observer.disconnect()
+  }, [tab])
   const [confirmMode, setConfirmMode] = useState(false)
   const saveWrapRef = useRef<HTMLDivElement>(null)
   useDismiss(confirmMode, saveWrapRef, () => setConfirmMode(false))
@@ -151,7 +172,8 @@ export function SettingsEditor({
       <div className="sticky-head">
         <AppHeader title="Configurações" current="settings" onNavigate={onNavigate} />
 
-        <div className="tabs" role="tablist" aria-label="Seções das configurações">
+        <div className="tabs" role="tablist" aria-label="Seções das configurações" ref={tabsRef}>
+          <span className="tabs__indicator" aria-hidden="true" />
           {SETTINGS_TABS.map(({ id, label }) => (
             <button
               key={id}
@@ -173,7 +195,7 @@ export function SettingsEditor({
       {message && !error && <div className="banner ok">{message}</div>}
 
       {tab === 'register' && (
-        <div role="tabpanel" id="settings-panel-register" aria-labelledby="settings-tab-register">
+        <div className="tab-panel" role="tabpanel" id="settings-panel-register" aria-labelledby="settings-tab-register">
           <CollapsibleSection title="Estabelecimento" defaultOpen>
             <div className="grid">
               <label className="full">
@@ -299,7 +321,7 @@ export function SettingsEditor({
       )}
 
       {tab === 'quote' && (
-        <div role="tabpanel" id="settings-panel-quote" aria-labelledby="settings-tab-quote">
+        <div className="tab-panel" role="tabpanel" id="settings-panel-quote" aria-labelledby="settings-tab-quote">
           <section className="section" aria-labelledby="settings-margin-title">
             <h2 id="settings-margin-title">Cálculo de margem</h2>
             <fieldset className="margin-modes" aria-labelledby="settings-margin-title">
@@ -358,7 +380,7 @@ export function SettingsEditor({
 
       {tab === 'logo' && (
         <section
-          className="section"
+          className="section tab-panel"
           role="tabpanel"
           id="settings-panel-logo"
           aria-labelledby="settings-tab-logo"

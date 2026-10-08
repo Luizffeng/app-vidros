@@ -47,6 +47,12 @@ Sem `backdrop-filter` nas seções e na barra inferior e sem `rise` por seção:
 
 Mediana de 5: todos os 17 cenários passam. Fechar janela 51 → 61 ms (a desmontagem acontece depois da saída de 150 ms, mesmo custo deslocado); abrir janela 75 → 86 ms; o resto igual ou melhor.
 
+### Após seções e abas (fase US2, T017)
+
+Mediana de 3: todos os 17 cenários passam; abrir/fechar seção Itens 60 fps sem tarefa longa; trocar abas 59–60 fps. Com `ITEMS=15`: fechar seção 57 fps, abrir 60 fps, sem tarefa longa, então a seção Itens não precisa desligar a animação de altura (research R5). Com 15 itens, montar o orçamento e a janela passa de 150 ms, mas isso é renderização (cresce com os itens), não efeito.
+
+Neste Chromium, keyframes em `::details-content` não rodam; transições sim. A abertura usa transição de `height` e segura `overflow: clip` com `overflow 0s var(--dur-md) allow-discrete` até a altura chegar.
+
 ## Manual
 
 1. Celular (390 px): abrir item novo; janela sobe de baixo; fechar por botão, Esc (computador) e toque fora; página volta ao mesmo ponto.
