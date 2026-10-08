@@ -7,6 +7,7 @@ import {
   formatDisplayQuoteCode,
   formatValidUntilDate,
   resolveQuoteValidUntil,
+  shopDisplayName,
 } from '../domain/quote'
 import { formatPhone } from '../domain/brazil'
 import { describeItem, itemNote } from '../domain/itemDescription'
@@ -22,7 +23,7 @@ export async function generateQuotePdf(
   let y = margin
 
   const est = options?.settings?.establishment
-  const brandName = (est?.tradeName || est?.name || 'Vidraçaria').toUpperCase()
+  const brandName = shopDisplayName(est).toUpperCase()
   const logoDataUrl = options?.settings?.logoDataUrl
 
   let logoW = 0
@@ -222,7 +223,7 @@ export async function generateQuotePdf(
   const estAddress = est ? formatEstablishmentAddress(est) : ''
   const footerLines: { text: string; size: number; style: 'normal' | 'bold' }[] = []
   if (est && (estAddress || est.phone || est.email || est.name)) {
-    footerLines.push({ text: est.tradeName || est.name, size: 9, style: 'bold' })
+    footerLines.push({ text: shopDisplayName(est), size: 9, style: 'bold' })
     for (const part of estAddress.split('\n').filter(Boolean)) {
       footerLines.push({ text: part, size: 8, style: 'normal' })
     }
@@ -293,20 +294,23 @@ export function canSharePdfFiles(): boolean {
 }
 
 /**
- * Compartilha o arquivo PDF pela Web Share API; senão baixa.
+ * Compartilha o arquivo PDF (com `text`, se houver) pela Web Share API; senão baixa e, com
+ * `text`, abre o WhatsApp com a mensagem. O texto também vai para a área de transferência:
+ * alguns apps (WhatsApp no iPhone) descartam o texto que acompanha um arquivo.
  * Não faça `await` antes de chamar no click: o Safari exige `navigator.share` dentro do
  * gesto do usuário (NotAllowedError cai no download).
  */
 export async function shareOrDownloadPdf(
   blob: Blob,
   filename: string,
+  text?: string,
 ): Promise<'shared' | 'cancelled' | 'downloaded'> {
   const nav = navigator as Navigator & {
     canShare?: (data?: ShareData) => boolean
   }
   if (typeof nav.share === 'function' && typeof nav.canShare === 'function') {
     const file = new File([blob], filename, { type: 'application/pdf' })
-    const data: ShareData = { title: filename.replace(/\.pdf$/i, ''), files: [file] }
+    const data: ShareData = { title: filename.replace(/\.pdf$/i, ''), files: [file], ...(text ? { text } : {}) }
     let canShareFiles = false
     try {
       canShareFiles = nav.canShare(data)
@@ -314,6 +318,7 @@ export async function shareOrDownloadPdf(
       canShareFiles = false
     }
     if (canShareFiles) {
+      if (text) void navigator.clipboard?.writeText(text).catch(() => undefined)
       try {
         await nav.share(data)
         return 'shared'
@@ -323,5 +328,6 @@ export async function shareOrDownloadPdf(
     }
   }
   downloadBlob(blob, filename)
+  if (text) window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer')
   return 'downloaded'
 }

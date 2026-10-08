@@ -3,6 +3,7 @@ import type {
   AdditionalCost,
   Catalog,
   CustomerInfo,
+  EstablishmentInfo,
   ItemExtra,
   CatalogRef,
   ItemInput,
@@ -424,7 +425,12 @@ export function createRevision(source: Quote, newId?: string): Quote {
   })
 }
 
-export const DEFAULT_SHARE_CTA = 'Gostaria de realizar o pedido?'
+/** Customer-facing shop name: nome fantasia, else nome/razão social */
+export function shopDisplayName(est?: Pick<EstablishmentInfo, 'name' | 'tradeName'>): string {
+  return est?.tradeName?.trim() || est?.name?.trim() || 'Vidraçaria'
+}
+
+export const DEFAULT_SHARE_CTA = 'Gostaria de efetuar o pedido?'
 
 /** Cliente vê tipo e cor/espessura — sem medidas */
 function shareItemBlock(item: QuoteItem, index: number): string {
@@ -474,6 +480,15 @@ export function quotePdfFilename(quote: Quote): string {
     .split(/\s+/)[0]
     .replace(/[\\/:*?"<>|.]/g, '')
   return `${firstName ? `${code}-${firstName}` : code}.pdf`
+}
+
+/** Mensagem que acompanha o arquivo PDF ao compartilhar. */
+export function pdfShareMessage(quote: Quote, options?: { shopName?: string; cta?: string }): string {
+  const firstName = quote.customer.name?.trim().split(/\s+/)[0]
+  const code = formatDisplayQuoteCode(quote.number, quote.revision)
+  const shop = options?.shopName?.trim() || 'Vidraçaria'
+  const greeting = firstName ? `Olá, ${firstName}!` : 'Olá!'
+  return [`${greeting} Segue o orçamento ${code} da ${shop}.`, options?.cta?.trim()].filter(Boolean).join('\n')
 }
 
 /** Texto curto pra WhatsApp e folha de compartilhar. Sem endereço. */

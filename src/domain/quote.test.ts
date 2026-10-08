@@ -14,7 +14,9 @@ import {
   normalizeQuote,
   outdatedSince,
   quotePdfFilename,
+  pdfShareMessage,
   quoteShareText,
+  shopDisplayName,
   repriceDraft,
   resolveQuoteValidUntil,
   setAdditionalCosts,
@@ -91,6 +93,27 @@ describe('quotePdfFilename', () => {
   })
 })
 
+describe('pdfShareMessage', () => {
+  it('saudação com primeiro nome, código, loja e fecho', () => {
+    const q = setCustomer(createEmptyDraft('ORC-2026-0001', '2026-01-01'), { name: 'Ana Paula Souza' })
+    expect(pdfShareMessage(q, { shopName: 'Forte Vidros', cta: 'Gostaria de efetuar o pedido?' })).toBe(
+      'Olá, Ana! Segue o orçamento 2026-0001-1 da Forte Vidros.\nGostaria de efetuar o pedido?',
+    )
+    expect(pdfShareMessage(setCustomer(q, {}), { shopName: 'Forte Vidros', cta: ' ' })).toBe(
+      'Olá! Segue o orçamento 2026-0001-1 da Forte Vidros.',
+    )
+  })
+})
+
+describe('shopDisplayName', () => {
+  it('usa nome fantasia, senão nome/razão social', () => {
+    expect(shopDisplayName({ name: 'Forte Vidros LTDA', tradeName: 'Forte Vidros' })).toBe('Forte Vidros')
+    expect(shopDisplayName({ name: 'Forte Vidros LTDA', tradeName: '   ' })).toBe('Forte Vidros LTDA')
+    expect(shopDisplayName({ name: ' ' })).toBe('Vidraçaria')
+    expect(shopDisplayName(undefined)).toBe('Vidraçaria')
+  })
+})
+
 describe('quoteShareText', () => {
   it('descreve tipo e cor/espessura sem medidas', () => {
     const quote = sampleQuote()
@@ -122,8 +145,8 @@ describe('quoteShareText', () => {
     const quote = sampleQuote()
     const validUntil = resolveQuoteValidUntil(quote, 15)
     const date = new Date(validUntil).toLocaleDateString('pt-BR')
-    const text = quoteShareText(quote, { cta: 'Gostaria de realizar o pedido?' })
-    expect(text).toMatch(/Gostaria de realizar o pedido\?\n\n_Validade da proposta: .+_/)
+    const text = quoteShareText(quote, { cta: 'Gostaria de efetuar o pedido?' })
+    expect(text).toMatch(/Gostaria de efetuar o pedido\?\n\n_Validade da proposta: .+_/)
     expect(text).toContain(`_Validade da proposta: ${date}_`)
   })
 

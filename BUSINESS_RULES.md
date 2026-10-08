@@ -64,6 +64,8 @@ Color surcharge percents and labor numbers in the seed are data, not hardcoded i
 
 - Internal code is `{number}-{revision}` (`formatQuoteCode`). Customer code strips a leading `ORC-` (`formatDisplayQuoteCode`). PDF filename uses the customer code.
 - PDF and WhatsApp omit item size. They show `describeItem` title and spec, optional note, final price, and extras. `src/domain/itemDescription.ts`, `quoteShareText`, `generateQuotePdf`.
+- "Enviar PDF" shares the file with `pdfShareMessage` ("Olá, {primeiro nome}! Segue o orçamento {código} da {loja}." + Texto final no WhatsApp) and also copies that message, since some apps (WhatsApp on iPhone) drop text sent with a file. Without file sharing (desktop) it downloads the PDF and opens `wa.me` with the message. `shareOrDownloadPdf`.
+- Shop name on PDF and WhatsApp is the nome fantasia; blank falls back to nome/razão social, then `Vidraçaria`. `shopDisplayName` in `src/domain/quote.ts`.
 - Legacy customer `address` string is used on the PDF only when structured lines are empty. `formatCustomerAddress`.
 - Phone: digits only, max 11, strips leading `55` and zeros. `src/domain/brazil.ts`.
 - CEP lookup needs 8 digits. Unknown CEP returns null. HTTP failure throws. `src/data/viacep.ts`.

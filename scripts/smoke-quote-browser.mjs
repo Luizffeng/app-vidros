@@ -91,22 +91,21 @@ async function main() {
     await preview.locator('canvas').first().waitFor()
     ok('prévia do PDF renderiza')
     await preview.getByRole('button', { name: 'Enviar' }).click()
-    const sheet = page.locator('.modal--send')
+    const sheet = page.locator('.send-pop')
     await sheet.waitFor()
-    ok('Enviar na prévia abre a folha de envio')
+    ok('Enviar na prévia abre o menu de envio')
 
-    await sheet.getByRole('button', { name: /^Texto/ }).click()
+    check('envio tem PDF e texto', (await sheet.locator('.send-option').count()) === 2)
+    await sheet.getByRole('menuitem', { name: /^Enviar texto/ }).click()
     const zap = page.locator('.modal--zap')
     await zap.getByText('Cliente Smoke', { exact: false }).first().waitFor()
-    ok('Texto abre prévia da mensagem')
+    ok('Enviar texto abre prévia da mensagem')
     await page.keyboard.press('Escape')
     await zap.waitFor({ state: 'detached' })
 
-    await page.locator('.action-bar').getByRole('button', { name: 'Enviar' }).click()
-    await sheet.waitFor()
     const [download] = await Promise.all([
       page.waitForEvent('download'),
-      sheet.getByRole('button', { name: /^Baixar PDF/ }).click(),
+      page.locator('.action-bar').getByRole('button', { name: 'Baixar PDF' }).click(),
     ])
     const filename = download.suggestedFilename()
     const pdfPath = join(OUT, filename)
