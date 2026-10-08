@@ -167,11 +167,9 @@ export function App() {
     return () => document.removeEventListener('pointerdown', onPointerDown)
   }, [pendingRemoveId, pendingDeleteQuote, emitNeedsName])
 
-  const filteredQuotes = useMemo(() => {
+  const searchedQuotes = useMemo(() => {
     const q = listQuery.trim().toLowerCase()
     return quotes.filter((quoteRow) => {
-      if (listStatus === 'emitted' && quoteRow.status !== 'emitted') return false
-      if (listStatus === 'draft' && quoteRow.status === 'emitted') return false
       if (!q) return true
       const hay = [
         formatQuoteCode(quoteRow.number, quoteRow.revision),
@@ -186,7 +184,12 @@ export function App() {
         .toLowerCase()
       return hay.includes(q)
     })
-  }, [quotes, listQuery, listStatus])
+  }, [quotes, listQuery])
+  const emittedCount = searchedQuotes.filter((q) => q.status === 'emitted').length
+  const filteredQuotes = useMemo(() => {
+    if (listStatus === 'all') return searchedQuotes
+    return searchedQuotes.filter((q) => (q.status === 'emitted') === (listStatus === 'emitted'))
+  }, [searchedQuotes, listStatus])
 
   const openNew = async () => {
     if (!catalog) return
@@ -543,21 +546,12 @@ export function App() {
 
   if (view === 'list') {
     return screen(
-      <div className="shell shell--wide">
+      <div className="shell shell--wide shell--with-bar">
         <div className="sticky-head">
           <AppHeader title="Orçamentos" current="list" onNavigate={goSection} />
         </div>
 
-        <section className="section">
-          <div className="section-head section-head--actions">
-            <div className="section-head__title">
-              <h2>Recentes</h2>
-              <span className="pill">{filteredQuotes.length}</span>
-            </div>
-            <button type="button" className="btn primary" onClick={() => void openNew()}>
-              Novo orçamento
-            </button>
-          </div>
+        <section aria-label="Orçamentos">
           {quotes.length > 0 && (
             <div className="list-filters">
               <SearchField
@@ -571,9 +565,9 @@ export function App() {
                 value={listStatus}
                 onChange={setListStatus}
                 options={[
-                  { value: 'all', label: 'Todos' },
-                  { value: 'emitted', label: 'Emitidos' },
-                  { value: 'draft', label: 'Rascunhos' },
+                  { value: 'all', label: `Todos (${searchedQuotes.length})` },
+                  { value: 'emitted', label: `Emitidos (${emittedCount})` },
+                  { value: 'draft', label: `Rascunhos (${searchedQuotes.length - emittedCount})` },
                 ]}
               />
             </div>
@@ -609,6 +603,15 @@ export function App() {
             </ul>
           )}
         </section>
+
+        <footer className="action-bar">
+          <div className="action-bar__inner">
+            <button type="button" className="btn primary action-bar__new" onClick={() => void openNew()}>
+              <PlusIcon />
+              Novo orçamento
+            </button>
+          </div>
+        </footer>
       </div>,
     )
   }

@@ -2136,6 +2136,20 @@ textarea:focus {
   gap: 0.5rem;
 }
 
+.action-bar__new {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.action-bar__new svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+}
+
 .action-bar__inner--pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
