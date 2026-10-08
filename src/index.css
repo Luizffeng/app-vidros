@@ -772,7 +772,6 @@ label .percent-input .money-input {
   align-items: center;
   margin-bottom: 0.85rem;
   padding-top: 0.85rem;
-  animation: rise var(--dur-lg) var(--ease-out) backwards;
 }
 
 .topbar .brand-sm {
@@ -933,7 +932,6 @@ label .percent-input .money-input {
   z-index: 10;
   padding-top: 0.85rem;
   margin-bottom: 0.85rem;
-  animation: rise var(--dur-lg) var(--ease-out) backwards;
 }
 
 .quote-head__bar {
@@ -2871,6 +2869,33 @@ textarea:focus {
 
 .tab-panel {
   animation: fade-in var(--dur-sm) var(--ease-out) backwards;
+}
+
+/* Screens: App sets data-nav on .screen for one enter. Children move, not .shell, because a
+   transformed ancestor would re-anchor the fixed .action-bar; the bar only fades. */
+.screen[data-nav='forward'] {
+  --screen-dx: var(--motion-x);
+}
+
+.screen[data-nav='back'] {
+  --screen-dx: calc(var(--motion-x) * -1);
+}
+
+.screen[data-nav='forward'] > .shell > :not(.action-bar),
+.screen[data-nav='back'] > .shell > :not(.action-bar) {
+  animation: screen-in var(--dur-lg) var(--ease-out) backwards;
+}
+
+.screen[data-nav='fade'] > .shell > *,
+.screen[data-nav] > .shell > .action-bar {
+  animation: fade-in var(--dur-md) var(--ease-out) backwards;
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    translate: var(--screen-dx, 0) 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

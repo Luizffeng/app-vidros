@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type {
   AdditionalCost,
   AppSettings,
@@ -59,7 +59,7 @@ import {
 import { CatalogEditor } from './CatalogEditor'
 import { AppHeader, HeaderMenu, type AppSection } from './AppHeader'
 import { useDismiss } from './useDismiss'
-import { Presence, usePresence } from './usePresence'
+import { motionMs, Presence, usePresence } from './usePresence'
 import { CollapsibleSection } from './CollapsibleSection'
 import { CostDetailModal } from './CostDetailModal'
 import { Dropdown } from './Dropdown'
@@ -74,11 +74,35 @@ const repo = createRepository()
 const pdfShareSupported = canSharePdfFiles()
 
 type View = 'list' | 'editor' | 'catalog' | 'settings'
+/** Screen enter direction: list → editor forward, back to the list back, menu sections fade. */
+type Nav = 'forward' | 'back' | 'fade'
 
 export function App() {
   const access = useAccess()
   const isAdmin = access.role !== 'vendedor'
   const [view, setView] = useState<View>('list')
+  const screenRef = useRef<HTMLDivElement>(null)
+  const navRef = useRef<Nav | null>(null)
+  const listScrollRef = useRef(0)
+
+  const navigate = (next: View, nav: Nav) => {
+    if (next === view) return
+    if (view === 'list') listScrollRef.current = window.scrollY
+    navRef.current = nav
+    setView(next)
+  }
+
+  // data-nav lives on the DOM only for the enter animation, so later children do not slide in.
+  useLayoutEffect(() => {
+    window.scrollTo(0, view === 'list' ? listScrollRef.current : 0)
+    const el = screenRef.current
+    const nav = navRef.current
+    navRef.current = null
+    if (!el || !nav) return
+    el.dataset.nav = nav
+    const id = window.setTimeout(() => delete el.dataset.nav, motionMs('lg'))
+    return () => window.clearTimeout(id)
+  }, [view])
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [catalog, setCatalog] = useState<Catalog | null>(null)
   const [settings, setSettings] = useState<AppSettings | null>(null)
@@ -169,7 +193,7 @@ export function App() {
     setItemModal(null)
     setRepriceFailed(null)
     setQuote(draft)
-    setView('editor')
+    navigate('editor', 'forward')
     setError(null)
   }
 
@@ -185,13 +209,13 @@ export function App() {
       if (next !== q) {
         await repo.saveQuote(next)
         setQuote(next)
-        setView('editor')
+        navigate('editor', 'forward')
         await refresh()
         return
       }
     }
     setQuote(q)
-    setView('editor')
+    navigate('editor', 'forward')
   }
 
   const saveQueueRef = useRef<Promise<void>>(Promise.resolve())
@@ -296,7 +320,7 @@ export function App() {
     await repo.deleteQuote(quote.id)
     setQuote(null)
     setItemModal(null)
-    setView('list')
+    navigate('list', 'back')
     await refresh()
   }
 
@@ -484,33 +508,39 @@ export function App() {
 
   const goSection = (section: AppSection) => {
     if (!isAdmin && section !== 'list') return
-    setView(section)
+    navigate(section, 'fade')
     if (section === 'list') void refresh()
   }
 
+  const screen = (node: ReactNode) => (
+    <div key={view} ref={screenRef} className="screen">
+      {node}
+    </div>
+  )
+
   if (view === 'catalog' && isAdmin) {
-    return (
+    return screen(
       <CatalogEditor
         catalog={catalog}
         marginMode={marginMode}
         onSave={onSaveCatalog}
         onNavigate={goSection}
-      />
+      />,
     )
   }
 
   if (view === 'settings' && isAdmin) {
-    return (
+    return screen(
       <SettingsEditor
         settings={settings}
         onSave={onSaveSettings}
         onNavigate={goSection}
-      />
+      />,
     )
   }
 
   if (view === 'list') {
-    return (
+    return screen(
       <div className="shell shell--wide">
         <div className="sticky-head">
           <AppHeader title="Orçamentos" current="list" onNavigate={goSection} />
@@ -577,7 +607,7 @@ export function App() {
             </ul>
           )}
         </section>
-      </div>
+      </div>,
     )
   }
 
@@ -595,7 +625,7 @@ export function App() {
     setError(null)
   }
 
-  return (
+  return screen(
     <div className="shell shell--with-bar">
       <div className="sticky-head">
         <header className="quote-head">
@@ -605,7 +635,7 @@ export function App() {
               className="btn btn-icon"
               aria-label="Voltar para orçamentos"
               title="Voltar para orçamentos"
-              onClick={() => { setView('list'); void refresh() }}
+              onClick={() => { navigate('list', 'back'); void refresh() }}
             >
               <BackIcon />
             </button>
@@ -970,7 +1000,7 @@ export function App() {
           onSend={() => void confirmShare()}
         />
       )}
-    </div>
+    </div>,
   )
 }
 

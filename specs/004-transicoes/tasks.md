@@ -78,9 +78,9 @@ description: "Task list for Transições leves na interface"
 
 **Independent Test**: quickstart manual step 8.
 
-- [ ] T018 [US3] In src/components/App.tsx set `data-nav` (`forward` list→editor, `back` editor→list, `fade` menu sections) before each `setView`, and key the screen root by view so the enter animation runs once per change
-- [ ] T019 [US3] In src/components/App.tsx save `window.scrollY` when leaving the list and restore it after returning
-- [ ] T020 [US3] Screen enter keyframes by `data-nav`; remove `rise` from `.topbar` and `.quote-head` to avoid double motion, in src/index.css
+- [x] T018 [US3] In src/components/App.tsx set `data-nav` (`forward` list→editor, `back` editor→list, `fade` menu sections) before each `setView`, and key the screen root by view so the enter animation runs once per change
+- [x] T019 [US3] In src/components/App.tsx save `window.scrollY` when leaving the list and restore it after returning
+- [x] T020 [US3] Screen enter keyframes by `data-nav`; remove `rise` from `.topbar` and `.quote-head` to avoid double motion, in src/index.css
 
 **Checkpoint**: step 8 passes.
 
