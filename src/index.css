@@ -1123,8 +1123,6 @@ label .percent-input .money-input {
 
 .section.collapsible-section {
   margin-bottom: 0.42rem;
-  backdrop-filter: blur(8px);
-  animation: rise 0.45s ease both;
 }
 
 .section h2,
@@ -2081,11 +2079,9 @@ textarea:focus {
   bottom: 0;
   z-index: 20;
   padding: 0.6rem 1rem calc(0.6rem + env(safe-area-inset-bottom));
-  background: rgba(10, 20, 18, 0.88);
+  background: rgba(10, 20, 18, 0.96);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 .action-bar__inner {

@@ -39,6 +39,10 @@ Tamanho: comparar `dist/assets/*.js` gzip antes/depois (≤ +2 KB).
 
 As tarefas longas acima de 50 ms já existem antes da feature: são a renderização do React ao montar a tela ou a janela, não efeito visual. O script aceita esses cenários quando não pioram mais de 15% contra o baseline. Headless não rasteriza o desfoque como um celular real, então a melhoria de rolagem por tirar `backdrop-filter` aparece pouco aqui; conferir no passo 10 do manual.
 
+### Após tirar o desfoque (T007)
+
+Sem `backdrop-filter` nas seções e na barra inferior e sem `rise` por seção: rolagem da lista e do catálogo segue a 60 fps (pior quadro 17 ms, igual ao baseline). Lista → orçamento melhorou: maior tarefa 111 → 68 ms, pior quadro 183 → 117 ms, 45 → 52 fps (as seções não animam mais ao montar). Abrir janela: 96 → 75 ms. Demais cenários iguais.
+
 ## Manual
 
 1. Celular (390 px): abrir item novo; janela sobe de baixo; fechar por botão, Esc (computador) e toque fora; página volta ao mesmo ponto.

@@ -35,8 +35,8 @@ description: "Task list for Transições leves na interface"
 
 **Goal**: remove heavy effects first so later animations start from a cheaper baseline.
 
-- [ ] T006 [US4] Remove `backdrop-filter` from `.section.collapsible-section` and `.action-bar`, compensate background opacity; remove per-section `rise` on mount, in src/index.css
-- [ ] T007 [US4] Re-run the perf script; record scroll improvement vs baseline in specs/004-transicoes/quickstart.md
+- [x] T006 [US4] Remove `backdrop-filter` from `.section.collapsible-section` and `.action-bar`, compensate background opacity; remove per-section `rise` on mount, in src/index.css
+- [x] T007 [US4] Re-run the perf script; record scroll improvement vs baseline in specs/004-transicoes/quickstart.md
 
 ---
 
