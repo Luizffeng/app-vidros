@@ -39,7 +39,7 @@ Views are `useState` in `App` (`list` \| `editor` \| `catalog` \| `settings`). T
 | `src/data/seed/` | Initial catalog JSON. |
 | `supabase/migrations/20260924120000_init.sql` | Schema, RLS, quote-number RPC, logo bucket. |
 | `assets/item-images/` | SVG/PNG diagrams. Not imported by `src/`. |
-| `specs/`, `.specify/` | Spec Kit feature specs (`002-modelos-de-calculo`, `003-composicao-do-item`, `004-transicoes`) and constitution. Not runtime. |
+| `specs/`, `.specify/` | Spec Kit feature specs (`002-modelos-de-calculo`, `003-composicao-do-item`, `004-transicoes`, `005-voltar-e-urls`) and constitution. Not runtime. |
 
 ## Where things live
 
