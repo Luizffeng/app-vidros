@@ -29,6 +29,10 @@
   --motion-y: 12px;
   --motion-x: 16px;
   --motion-scale: 0.98;
+  --page-bg:
+    radial-gradient(1200px 600px at 10% -10%, #2a5a4c 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #3a2f12 0%, transparent 50%),
+    linear-gradient(165deg, var(--bg0), var(--bg1) 45%, #0c1614);
   color-scheme: dark;
 }
 
@@ -37,11 +41,14 @@
 }
 
 /* Focused fields scroll clear of .sticky-head. Text size adjust off: Android font boosting
-   enlarges some blocks and not others. */
+   enlarges some blocks and not others. overflow-x clip: the full-bleed header layer is
+   100vw wide (clip, not hidden, so sticky keeps working). */
 html {
   scroll-padding-top: 9rem;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  background: #0c1614;
+  overflow-x: clip;
 }
 
 html,
@@ -54,11 +61,21 @@ body,
 body {
   font-family: var(--font);
   color: var(--text);
-  background:
-    radial-gradient(1200px 600px at 10% -10%, #2a5a4c 0%, transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, #3a2f12 0%, transparent 50%),
-    linear-gradient(165deg, var(--bg0), var(--bg1) 45%, #0c1614);
-  background-attachment: fixed;
+}
+
+/* Page background on a fixed viewport layer (works where background-attachment: fixed
+   does not, e.g. iOS). .sticky-head::before paints the same layer so the header matches. */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  height: 100lvh;
+  z-index: -1;
+  background: var(--page-bg);
+  pointer-events: none;
 }
 
 button,
@@ -2673,14 +2690,39 @@ textarea:focus {
   padding: 1rem 1rem 0.6rem;
 }
 
+/* Soft scroll edge: the header paints the page background (full width, anchored to the
+   viewport like body::before), so it keeps the page color. Its last 0.4rem and the 0.85rem
+   gap below fade out, so content dissolves under it instead of meeting a hard edge. At rest
+   the fade only covers the gap, so nothing is dimmed until the page scrolls. */
 .sticky-head::before {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: -0.85rem;
+  left: calc(50% - 50vw);
+  right: calc(50% - 50vw);
   z-index: -1;
-  background: #0c1815;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  background: var(--page-bg);
+  background-size: 100% 100vh;
+  background-size: 100% 100lvh;
+  background-repeat: no-repeat;
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 1.25rem), transparent);
+  mask-image: linear-gradient(#000 calc(100% - 1.25rem), transparent);
+  pointer-events: none;
+}
+
+/* Slight shade along the edge once content is under the header. */
+.sticky-head::after {
+  content: '';
+  position: absolute;
+  top: calc(100% - 0.4rem);
+  height: 1.25rem;
+  left: calc(50% - 50vw);
+  right: calc(50% - 50vw);
+  z-index: -1;
+  background: linear-gradient(transparent, rgba(4, 9, 8, 0.22) 30%, transparent);
+  pointer-events: none;
+  opacity: 0;
 }
 
 .sticky-head > .topbar,
@@ -2692,19 +2734,15 @@ textarea:focus {
   margin: 0.6rem 0 0;
 }
 
-/* Invisible at the top of the page; fills in as the page scrolls under it. */
 @supports (animation-timeline: scroll()) {
-  .sticky-head::before {
-    animation: sticky-head-fill linear both;
+  .sticky-head::after {
+    animation: edge-shade linear both;
     animation-timeline: scroll(root);
     animation-range: 0 2.5rem;
   }
 }
 
-@keyframes sticky-head-fill {
-  from {
-    opacity: 0;
-  }
+@keyframes edge-shade {
   to {
     opacity: 1;
   }
