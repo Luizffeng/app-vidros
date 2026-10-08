@@ -18,6 +18,7 @@ React UI. No price formulas and no Supabase queries except `LoginScreen` (passwo
 | `PdfPreview.tsx` | pdf.js preview of a blob. |
 | `Dropdown.tsx`, `Modal.tsx`, `SearchField.tsx`, `useDismiss.ts` | Shared widgets. `Modal` plays its exit on Fechar/Esc/backdrop before calling `onClose`. |
 | `usePresence.ts` | `usePresence(open, exit)` / `<Presence>` keep an overlay mounted with `data-state="closing"` for its exit; `motionMs` reads `--dur-*`. |
+| `useScrollEdges.ts` | Called once in `App`. Sets `data-at-top` / `data-at-end` on `<html>`; CSS hides the header line and the action bar fade from them. |
 
 Domain calls go through `src/domain/quote.ts` and `priceItem`. Persistence is the module-level `repo` from `createRepository()` inside `App.tsx`.
 

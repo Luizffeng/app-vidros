@@ -60,6 +60,7 @@ import { CatalogEditor } from './CatalogEditor'
 import { AppHeader, HeaderMenu, type AppSection } from './AppHeader'
 import { useDismiss } from './useDismiss'
 import { motionMs, Presence, usePresence } from './usePresence'
+import { useScrollEdges } from './useScrollEdges'
 import { CollapsibleSection } from './CollapsibleSection'
 import { CostDetailModal } from './CostDetailModal'
 import { Dropdown } from './Dropdown'
@@ -84,6 +85,7 @@ export function App() {
   const screenRef = useRef<HTMLDivElement>(null)
   const navRef = useRef<Nav | null>(null)
   const listScrollRef = useRef(0)
+  useScrollEdges()
 
   const navigate = (next: View, nav: Nav) => {
     if (next === view) return

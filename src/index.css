@@ -2101,7 +2101,8 @@ textarea:focus {
 }
 
 /* Mirror of .sticky-head: content fades into the page color above the line, with a slight
-   shade. The fade samples the bottom of the page background, close enough at the bottom. */
+   shade, until the page reaches the end. The fade samples the bottom of the page
+   background, close enough at the bottom. */
 .action-bar::before,
 .action-bar::after {
   content: '';
@@ -2740,7 +2741,7 @@ textarea:focus {
   pointer-events: none;
 }
 
-/* Line, plus a slight shade under it once content scrolls beneath. */
+/* Line plus a slight shade under it; shown once the page leaves the top. */
 .sticky-head::after {
   content: '';
   position: absolute;
@@ -2750,14 +2751,8 @@ textarea:focus {
   right: calc(50% - 50vw);
   z-index: -1;
   border-top: 1px solid var(--edge-line);
-  background: linear-gradient(rgba(4, 9, 8, calc(var(--edge-shade-alpha) * var(--edge-shade))), transparent);
+  background: linear-gradient(rgba(4, 9, 8, var(--edge-shade-alpha)), transparent);
   pointer-events: none;
-}
-
-@property --edge-shade {
-  syntax: '<number>';
-  inherits: false;
-  initial-value: 0;
 }
 
 .sticky-head > .topbar,
@@ -2769,18 +2764,17 @@ textarea:focus {
   margin: 0.6rem 0 0;
 }
 
-@supports (animation-timeline: scroll()) {
-  .sticky-head::after {
-    animation: edge-shade linear both;
-    animation-timeline: scroll(root);
-    animation-range: 0 2.5rem;
-  }
+/* data-at-top / data-at-end come from useScrollEdges. */
+.sticky-head::after,
+.action-bar::before,
+.action-bar::after {
+  transition: opacity var(--dur-sm) var(--ease-std);
 }
 
-@keyframes edge-shade {
-  to {
-    --edge-shade: 1;
-  }
+html[data-at-top] .sticky-head::after,
+html[data-at-end] .action-bar::before,
+html[data-at-end] .action-bar::after {
+  opacity: 0;
 }
 
 .cost-empty {
