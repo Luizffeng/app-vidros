@@ -46,8 +46,10 @@
 
 /* Focused fields scroll clear of .sticky-head. Text size adjust off: Android font boosting
    enlarges some blocks and not others. overflow-x clip: the full-bleed header layer is
-   100vw wide (clip, not hidden, so sticky keeps working). */
+   100vw wide (clip, not hidden, so sticky keeps working). No tap highlight: the pressed
+   control's own action is the feedback. */
 html {
+  -webkit-tap-highlight-color: transparent;
   scroll-padding-top: 9rem;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -88,6 +90,12 @@ select,
 textarea {
   font: inherit;
   color: inherit;
+}
+
+/* Long press on a button would select its label. */
+button {
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .shell {
@@ -1332,7 +1340,7 @@ textarea:focus {
 }
 
 .btn.primary {
-  background: linear-gradient(135deg, #e0b12a, #b8860b);
+  background: linear-gradient(135deg, #f4d26a, #dcaa2e);
   color: #1a1405;
   border: 1px solid transparent;
 }
@@ -1371,8 +1379,8 @@ textarea:focus {
 }
 
 .btn.primary:hover:not(:disabled) {
-  filter: brightness(1.08);
-  border-color: #e0b12a;
+  filter: brightness(1.05);
+  border-color: #f4d26a;
 }
 
 .btn.danger-solid {
@@ -1415,6 +1423,15 @@ textarea:focus {
   background: rgba(224, 177, 42, 0.22);
   color: rgba(26, 20, 5, 0.45);
   filter: none;
+}
+
+/* WhatsApp actions: gold button, green logo (darker than brand green to read on gold). */
+.btn.zap svg {
+  color: #0e8a3e;
+}
+
+.btn.zap:disabled svg {
+  color: inherit;
 }
 
 .btn-slot {
@@ -2319,8 +2336,8 @@ textarea:focus {
   height: 1.25rem;
 }
 
-.send-option__icon--zap svg {
-  color: #25d366;
+.send-option__icon--pdf svg {
+  color: var(--accent);
 }
 
 .send-option__text {
@@ -2948,7 +2965,13 @@ textarea:focus {
 }
 
 /* Screens: App sets data-nav on .screen for one enter. Children move, not .shell, because a
-   transformed ancestor would re-anchor the fixed .action-bar; the bar only fades. */
+   transformed ancestor would re-anchor the fixed .action-bar; the bar only fades. Clip: the
+   sliding children (and the 100vw header layer) would widen the page for one enter, and
+   Android Chrome then shows a horizontal scrollbar and re-fits the viewport. */
+.screen {
+  overflow-x: clip;
+}
+
 .screen[data-nav='forward'] {
   --screen-dx: var(--motion-x);
 }

@@ -267,18 +267,50 @@ export function downloadBlob(blob: Blob, filename: string) {
   window.setTimeout(() => URL.revokeObjectURL(url), 10_000)
 }
 
-/** Texto do orçamento: folha nativa no celular, WhatsApp no computador. */
-export async function shareQuoteText(text: string) {
-  const nav = navigator as Navigator & { share?: (data: ShareData) => Promise<void> }
-  if (typeof nav.share === 'function') {
-    try {
-      await nav.share({ title: 'Orçamento', text })
-      return
-    } catch (e) {
-      if (e instanceof DOMException && e.name === 'AbortError') return
-    }
+/**
+ * Texto do orçamento direto no WhatsApp, sem a folha de compartilhar do sistema: app no
+ * celular (o esquema `whatsapp:` mantém a página aberta; `wa.me` na mesma aba sairia do app
+ * se o Android não o desviar), WhatsApp Web/desktop no computador. Celular sem WhatsApp: a
+ * página não perde o foco, então cai na folha nativa; sem ela (ou bloqueada), `'failed'`.
+ */
+export async function shareQuoteText(text: string): Promise<'sent' | 'failed'> {
+  const encoded = encodeURIComponent(text)
+  if (!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener,noreferrer')
+    return 'sent'
   }
-  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer')
+  if (await openWhatsAppApp(`whatsapp://send?text=${encoded}`)) return 'sent'
+  const nav = navigator as Navigator & { share?: (data: ShareData) => Promise<void> }
+  if (typeof nav.share !== 'function') return 'failed'
+  try {
+    await nav.share({ title: 'Orçamento', text })
+    return 'sent'
+  } catch (e) {
+    return e instanceof DOMException && e.name === 'AbortError' ? 'sent' : 'failed'
+  }
+}
+
+/**
+ * Abrir outro app esconde a página ou tira o foco dela. A espera fica bem abaixo dos ~5 s
+ * de gesto do usuário que o Chrome dá para a folha nativa logo depois.
+ */
+function openWhatsAppApp(url: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    let left = false
+    const onLeave = () => {
+      left = true
+    }
+    document.addEventListener('visibilitychange', onLeave)
+    window.addEventListener('pagehide', onLeave)
+    window.addEventListener('blur', onLeave)
+    window.location.href = url
+    window.setTimeout(() => {
+      document.removeEventListener('visibilitychange', onLeave)
+      window.removeEventListener('pagehide', onLeave)
+      window.removeEventListener('blur', onLeave)
+      resolve(left || document.hidden)
+    }, 1500)
+  })
 }
 
 /** Navegador abre a folha do sistema com arquivo PDF (celular, Windows, macOS; não Linux/Firefox). */

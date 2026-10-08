@@ -121,6 +121,7 @@ export function App() {
   const [pdfPreviewBlob, setPdfPreviewBlob] = useState<Blob | null>(null)
   const pdfCacheRef = useRef<{ key: string; promise: Promise<Blob>; blob?: Blob } | null>(null)
   const [shareText, setShareText] = useState<string | null>(null)
+  const [shareFailed, setShareFailed] = useState(false)
   const [sendOpen, setSendOpen] = useState(false)
   const [listQuery, setListQuery] = useState('')
   const [listStatus, setListStatus] = useState<'all' | 'emitted' | 'draft'>('all')
@@ -458,13 +459,17 @@ export function App() {
 
   const confirmShare = async () => {
     if (!shareText) return
-    try {
-      await shareQuoteText(shareText)
-      setShareText(null)
-      setError(null)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
+    setShareFailed(false)
+    if ((await shareQuoteText(shareText)) === 'failed') {
+      setShareFailed(true)
+      return
     }
+    setShareText(null)
+  }
+
+  const closeShareText = () => {
+    setShareText(null)
+    setShareFailed(false)
   }
 
   const onEmit = async () => {
@@ -981,14 +986,14 @@ export function App() {
             <div className="modal__actions modal__actions--pdf">
               <button
                 type="button"
-                className="btn primary action-bar__send"
+                className="btn primary zap action-bar__send"
                 disabled={busy}
                 onClick={() => {
                   closePdfPreview()
                   setSendOpen(true)
                 }}
               >
-                <ShareIcon />
+                <WhatsAppIcon />
                 <span>Enviar</span>
               </button>
             </div>
@@ -1001,7 +1006,8 @@ export function App() {
       {shareText && (
         <WhatsAppShareModal
           text={shareText}
-          onClose={() => setShareText(null)}
+          failed={shareFailed}
+          onClose={closeShareText}
           onSend={() => void confirmShare()}
         />
       )}
@@ -1227,10 +1233,12 @@ function quoteListDate(quote: Quote): string {
 
 function WhatsAppShareModal({
   text,
+  failed,
   onClose,
   onSend,
 }: {
   text: string
+  failed: boolean
   onClose: () => void
   onSend: () => void
 }) {
@@ -1253,6 +1261,11 @@ function WhatsAppShareModal({
           ))}
         </div>
       </div>
+      {failed && (
+        <div className="banner error" role="alert">
+          Não foi possível compartilhar no momento. Faça o download do orçamento para realizar o envio.
+        </div>
+      )}
       <div className="modal__actions">
         <button type="button" className="btn zap-copy" onClick={() => void copy()}>
           {copied ? 'Copiado' : 'Copiar'}
@@ -1260,7 +1273,7 @@ function WhatsAppShareModal({
         </button>
         <button
           type="button"
-          className="btn primary zap-send"
+          className="btn primary zap zap-send"
           aria-label="Enviar no WhatsApp"
           onClick={onSend}
         >
@@ -1349,27 +1362,27 @@ function SendMenu({
       <button
         ref={buttonRef}
         type="button"
-        className="btn primary action-bar__send"
+        className="btn primary zap action-bar__send"
         disabled={disabled}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         onClick={() => onOpenChange(!open)}
       >
-        <ShareIcon />
+        <WhatsAppIcon />
         <span>Enviar</span>
       </button>
       {pop.mounted && (
-        <div className="send-pop" id={menuId} role="menu" aria-label="Enviar orçamento" data-state={pop.state}>
+        <div className="send-pop" id={menuId} role="menu" aria-label="Enviar orçamento no WhatsApp" data-state={pop.state}>
           <button ref={firstRef} type="button" role="menuitem" className="send-option" onClick={onSharePdf}>
-            <span className="send-option__icon"><ShareIcon /></span>
+            <span className="send-option__icon send-option__icon--pdf"><PdfIcon /></span>
             <span className="send-option__text">
               <strong>Enviar PDF</strong>
               <small>{canSharePdf ? 'Arquivo com a mensagem, que também é copiada' : 'Baixa o PDF e abre o WhatsApp'}</small>
             </span>
           </button>
           <button type="button" role="menuitem" className="send-option" onClick={onText}>
-            <span className="send-option__icon send-option__icon--zap"><WhatsAppIcon /></span>
+            <span className="send-option__icon"><TextIcon /></span>
             <span className="send-option__text">
               <strong>Enviar texto</strong>
               <small>Prévia, copiar ou enviar</small>
@@ -1435,10 +1448,20 @@ function DownloadIcon() {
   )
 }
 
-function ShareIcon() {
+function PdfIcon() {
   return (
     <svg {...STROKE_ICON}>
-      <path d="M12 3.5v11M8 7.5l4-4 4 4M8.5 10.5H7a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1.5" />
+      <path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z" />
+      <path d="M14 3.5v5h5M8.5 13.5h7M8.5 17h4.5" />
+    </svg>
+  )
+}
+
+function TextIcon() {
+  return (
+    <svg {...STROKE_ICON}>
+      <path d="M7 4.5h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-6.5L6 20v-3.5a1.5 1.5 0 0 1-1-1.5V6.5a2 2 0 0 1 2-2z" />
+      <path d="M8.5 9h7M8.5 12h4.5" />
     </svg>
   )
 }
