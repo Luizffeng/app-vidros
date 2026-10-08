@@ -508,7 +508,9 @@ export function App() {
   if (view === 'list') {
     return (
       <div className="shell shell--wide">
-        <AppHeader title="Orçamentos" current="list" onNavigate={goSection} />
+        <div className="sticky-head">
+          <AppHeader title="Orçamentos" current="list" onNavigate={goSection} />
+        </div>
 
         <section className="section">
           <div className="section-head section-head--actions">
@@ -591,65 +593,67 @@ export function App() {
 
   return (
     <div className="shell shell--with-bar">
-      <header className="quote-head">
-        <div className="quote-head__bar">
-          <button
-            type="button"
-            className="btn btn-icon"
-            aria-label="Voltar para orçamentos"
-            title="Voltar para orçamentos"
-            onClick={() => { setView('list'); void refresh() }}
-          >
-            <BackIcon />
-          </button>
-          <div className="quote-head__titles">
-            <h1 className="quote-head__code">{formatQuoteCode(quote.number, quote.revision)}</h1>
-            <span className={`status-pill status-pill--${readOnly ? 'emitted' : 'draft'}`}>
-              {readOnly ? 'Emitido' : 'Rascunho'}
-            </span>
-          </div>
-          {readOnly ? (
+      <div className="sticky-head">
+        <header className="quote-head">
+          <div className="quote-head__bar">
             <button
               type="button"
-              className="btn btn-icon revise"
-              aria-label="Criar uma revisão"
-              title="Criar uma revisão"
-              disabled={busy}
-              onClick={() => void onRevise()}
+              className="btn btn-icon"
+              aria-label="Voltar para orçamentos"
+              title="Voltar para orçamentos"
+              onClick={() => { setView('list'); void refresh() }}
             >
-              <RevisionIcon />
+              <BackIcon />
             </button>
-          ) : (
-            <div className="topbar__delete">
+            <div className="quote-head__titles">
+              <h1 className="quote-head__code">{formatQuoteCode(quote.number, quote.revision)}</h1>
+              <span className={`status-pill status-pill--${readOnly ? 'emitted' : 'draft'}`}>
+                {readOnly ? 'Emitido' : 'Rascunho'}
+              </span>
+            </div>
+            {readOnly ? (
               <button
                 type="button"
-                className="btn btn-icon danger-solid"
-                aria-label="Excluir rascunho"
-                title="Excluir rascunho"
-                onClick={() => setPendingDeleteQuote((open) => !open)}
+                className="btn btn-icon revise"
+                aria-label="Criar uma revisão"
+                title="Criar uma revisão"
+                disabled={busy}
+                onClick={() => void onRevise()}
               >
-                <TrashIcon />
+                <RevisionIcon />
               </button>
-              {pendingDeleteQuote && (
-                <div className="remove-pop" role="dialog" aria-label="Excluir rascunho">
-                  <span>Excluir rascunho?</span>
-                  <button
-                    type="button"
-                    className="btn remove-pop__yes"
-                    onClick={() => void onDeleteDraft()}
-                  >
-                    Sim
-                  </button>
-                  <button type="button" className="btn" onClick={() => setPendingDeleteQuote(false)}>
-                    Não
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-          <HeaderMenu current="list" onNavigate={goSection} />
-        </div>
-      </header>
+            ) : (
+              <div className="topbar__delete">
+                <button
+                  type="button"
+                  className="btn btn-icon danger-solid"
+                  aria-label="Excluir rascunho"
+                  title="Excluir rascunho"
+                  onClick={() => setPendingDeleteQuote((open) => !open)}
+                >
+                  <TrashIcon />
+                </button>
+                {pendingDeleteQuote && (
+                  <div className="remove-pop" role="dialog" aria-label="Excluir rascunho">
+                    <span>Excluir rascunho?</span>
+                    <button
+                      type="button"
+                      className="btn remove-pop__yes"
+                      onClick={() => void onDeleteDraft()}
+                    >
+                      Sim
+                    </button>
+                    <button type="button" className="btn" onClick={() => setPendingDeleteQuote(false)}>
+                      Não
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            <HeaderMenu current="list" onNavigate={goSection} />
+          </div>
+        </header>
+      </div>
 
       {error && !itemModal && <div className="banner error">{error}</div>}
 
@@ -1536,11 +1540,13 @@ function AdditionalCostsSection({
 
   return (
     <CollapsibleSection
-      className="collapsible-section--tight"
+      key={disabled ? 'read' : 'edit'}
+      className="cost-section"
       title="Custos adicionais"
       badge={<span className="pill">{costs.length}</span>}
-      defaultOpen
+      defaultOpen={!disabled || costs.length > 0}
     >
+      {disabled && costs.length === 0 && <p className="muted cost-empty">Nenhum custo adicional.</p>}
       <ul className="cost-list">
         {costs.map((c) => (
           <li key={c.id}>
@@ -1633,10 +1639,11 @@ function DiscountSection({
 
   return (
     <CollapsibleSection
-      className="collapsible-section--tight"
+      className="cost-section"
       title="Descontos"
       badge={<span className="pill">{discounts.length}</span>}
     >
+      {disabled && discounts.length === 0 && <p className="muted cost-empty">Nenhum desconto.</p>}
       <ul className="cost-list">
         {discounts.map((d) => (
           <li key={d.id}>

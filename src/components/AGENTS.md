@@ -24,6 +24,7 @@ Domain calls go through `src/domain/quote.ts` and `priceItem`. Persistence is th
 
 - Search `App.tsx` for the handler (`onEmit`, `persist`, `onDeleteDraft`, `openNew`) and read that region. Do not load the whole file, and do not read the icon functions at the bottom, unless the task is those icons.
 - `readOnly` means `quote.status === 'emitted'`. Keep emit/delete rules in the domain; the UI should keep calling `emitQuote` / checking `draft`.
+- Screen header (title, back/delete/menu, and tabs when the screen has them) sits inside `<div className="sticky-head">` so it stays on top while scrolling. Banners and content go below it.
 - `HeaderMenu` is always the last (rightmost) control in a screen header. Screen actions (delete, revise) go to its left.
 - Admin gate is `access.role !== 'vendedor'`. Role loading stays in `src/auth/access.tsx`.
 

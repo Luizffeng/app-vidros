@@ -24,6 +24,14 @@
   box-sizing: border-box;
 }
 
+/* Focused fields scroll clear of .sticky-head. Text size adjust off: Android font boosting
+   enlarges some blocks and not others. */
+html {
+  scroll-padding-top: 9rem;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 html,
 body,
 #root {
@@ -1089,26 +1097,11 @@ label .percent-input .money-input {
   padding-top: 0.4rem;
 }
 
-.collapsible-section--tight {
-  padding-top: 0.45rem;
-  padding-bottom: 0.55rem;
-  margin-bottom: 0.5rem;
-}
-
-.collapsible-section--tight .collapsible-section__summary {
-  margin-bottom: 0;
-  padding-bottom: 0.1rem;
-}
-
-.collapsible-section--tight .collapsible-section__body {
-  padding-top: 0.85rem;
-}
-
-.collapsible-section--tight .cost-list {
+.cost-section .cost-list {
   margin-bottom: 0.2rem;
 }
 
-.collapsible-section--tight .cost-list li {
+.cost-section .cost-list li {
   padding: calc(0.02rem + 1px) 0;
 }
 
@@ -1144,10 +1137,14 @@ label .percent-input .money-input {
 }
 
 .pill {
+  display: inline-block;
+  min-width: 1.6rem;
   background: var(--surface-2);
   border-radius: 999px;
   padding: 0.1rem 0.55rem;
   font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
   color: var(--muted);
 }
 
@@ -1922,6 +1919,14 @@ textarea:focus {
   padding: 0;
 }
 
+.cost-list:empty {
+  display: none;
+}
+
+.cost-list:last-child {
+  margin-bottom: 0;
+}
+
 .cost-list li {
   padding: 0.15rem 0;
 }
@@ -2028,6 +2033,7 @@ textarea:focus {
 
 .totals strong {
   color: var(--accent-2);
+  font-variant-numeric: tabular-nums;
 }
 
 .totals__grand {
@@ -2626,4 +2632,54 @@ textarea:focus {
   padding: 0.6rem 0.7rem;
   line-height: 1.35;
   box-shadow: none;
+}
+
+.sticky-head {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  margin: -1rem -1rem 0.85rem;
+  padding: 1rem 1rem 0.6rem;
+}
+
+.sticky-head::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #0c1815;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.sticky-head > .topbar,
+.sticky-head > .quote-head {
+  margin-bottom: 0;
+}
+
+.sticky-head > .tabs {
+  margin: 0.6rem 0 0;
+}
+
+/* Invisible at the top of the page; fills in as the page scrolls under it. */
+@supports (animation-timeline: scroll()) {
+  .sticky-head::before {
+    animation: sticky-head-fill linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 2.5rem;
+  }
+}
+
+@keyframes sticky-head-fill {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.cost-empty {
+  margin: 0;
+  font-size: 0.85rem;
 }

@@ -147,31 +147,29 @@ export function SettingsEditor({
 
   return (
     <div className="shell shell--wide shell--with-bar">
-      <AppHeader title="Configurações" current="settings" onNavigate={onNavigate} />
+      <div className="sticky-head">
+        <AppHeader title="Configurações" current="settings" onNavigate={onNavigate} />
 
-      <p className="lede catalog-lede">
-        Cadastro da loja, regras do orçamento e logo. Aparecem no PDF do cliente.
-      </p>
+        <div className="tabs" role="tablist" aria-label="Seções das configurações">
+          {SETTINGS_TABS.map(({ id, label }) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              id={`settings-tab-${id}`}
+              className="tabs__tab"
+              aria-selected={tab === id}
+              aria-controls={`settings-panel-${id}`}
+              onClick={() => setTab(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {error && <div className="banner error">{error}</div>}
       {message && !error && <div className="banner ok">{message}</div>}
-
-      <div className="tabs" role="tablist" aria-label="Seções das configurações">
-        {SETTINGS_TABS.map(({ id, label }) => (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            id={`settings-tab-${id}`}
-            className="tabs__tab"
-            aria-selected={tab === id}
-            aria-controls={`settings-panel-${id}`}
-            onClick={() => setTab(id)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
 
       {tab === 'register' && (
         <div role="tabpanel" id="settings-panel-register" aria-labelledby="settings-tab-register">

@@ -126,7 +126,9 @@ export function CatalogEditor({
 
   return (
     <div className="shell shell--wide shell--with-bar">
-      <AppHeader title="Catálogo" current="catalog" onNavigate={onNavigate} />
+      <div className="sticky-head">
+        <AppHeader title="Catálogo" current="catalog" onNavigate={onNavigate} />
+      </div>
 
       <p className="lede catalog-lede">
         Edite, crie ou desative itens. Orçamentos emitidos não serão alterados!
