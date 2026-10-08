@@ -41,13 +41,13 @@ export function Dropdown<T extends string>({
 
   const close = (restoreFocus: boolean) => {
     setOpen(false)
-    if (restoreFocus) buttonRef.current?.focus()
+    if (restoreFocus) buttonRef.current?.focus({ preventScroll: true })
   }
 
   useDismiss(open, wrapRef, (reason) => close(reason === 'escape'))
 
   useEffect(() => {
-    if (open) listRef.current?.focus()
+    if (open) listRef.current?.focus({ preventScroll: true })
   }, [open])
 
   const choose = (index: number) => {

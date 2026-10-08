@@ -83,7 +83,7 @@ export function HeaderMenu({
 
   const close = (restoreFocus: boolean) => {
     setOpen(false)
-    if (restoreFocus) buttonRef.current?.focus()
+    if (restoreFocus) buttonRef.current?.focus({ preventScroll: true })
   }
 
   useDismiss(open, wrapRef, (reason) => close(reason === 'escape'))
@@ -139,7 +139,7 @@ export function HeaderMenu({
     if (!open) return
     const items = itemRefs.current.filter((el): el is HTMLButtonElement => el !== null)
     const first = items.find((el) => el.getAttribute('aria-disabled') !== 'true') ?? items[0]
-    first?.focus()
+    first?.focus({ preventScroll: true })
   }, [open])
 
   const moveFocus = (delta: number | 'first' | 'last') => {
@@ -150,7 +150,7 @@ export function HeaderMenu({
     if (delta === 'first') next = 0
     else if (delta === 'last') next = order.length - 1
     else next = pos < 0 ? 0 : (pos + delta + order.length) % order.length
-    itemRefs.current[order[next]]?.focus()
+    itemRefs.current[order[next]]?.focus({ preventScroll: true })
   }
 
   const onMenuKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {

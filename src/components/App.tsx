@@ -1332,11 +1332,11 @@ function SendMenu({
 
   useDismiss(open, wrapRef, (reason) => {
     onOpenChange(false)
-    if (reason === 'escape') buttonRef.current?.focus()
+    if (reason === 'escape') buttonRef.current?.focus({ preventScroll: true })
   })
 
   useEffect(() => {
-    if (open) firstRef.current?.focus()
+    if (open) firstRef.current?.focus({ preventScroll: true })
   }, [open])
 
   return (

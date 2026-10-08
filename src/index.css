@@ -1046,8 +1046,8 @@ label .percent-input .money-input {
   list-style: none;
   cursor: pointer;
   user-select: none;
-  margin: 0 0 0.15rem;
-  padding: 0.2rem 0.35rem 0.35rem;
+  margin: 0;
+  padding: 0.2rem 0.35rem;
   border-radius: 8px;
 }
 
@@ -1094,13 +1094,10 @@ label .percent-input .money-input {
   transform: rotate(-90deg);
 }
 
-.collapsible-section:not([open]) .collapsible-section__summary {
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-
+/* Summary keeps one size open or closed (hover and focus ring); the gaps live in the
+   body, so they animate with the content. */
 .collapsible-section__body {
-  padding-top: 0.4rem;
+  padding: 0.7rem 0 0.2rem;
 }
 
 .cost-section .cost-list {
@@ -1121,6 +1118,7 @@ label .percent-input .money-input {
 
 .section.collapsible-section {
   margin-bottom: 0.42rem;
+  padding-bottom: 0.8rem;
 }
 
 .section h2,
