@@ -22,6 +22,7 @@ Inputs and `PricingConfig`: `src/domain/types.ts`. Human-readable rules: `BUSINE
 - Read `index.ts` plus the one pricer for the `kind` in the task. Do not open the other pricers.
 - `buildBreakdown(parts, mode)` owns the margin rule (Empresa: margin on full cost; Vendedor: labor without margin; Autônomo: no margin). Pricers call it without a mode; `priceItem` re-applies the mode once. Do not change it unless the task is the margin model.
 - Every BOM line has `unit` (`m2` | `m` | `un`), `source` (`{ table, id }` of the catalog row) and, when a color surcharge applies, `surcharge` with `unitPrice`/`total` already including it (`withSurcharge`). Each pricer pushes exactly one labor line (`laborLine`, category `mao_de_obra`). Line totals per group must equal the breakdown group; `pricing.test.ts` checks it. Box glass quantity is m².
+- `ItemInput.laborRate` replaces the kind's `config.labor` rate (`LABOR_KEY` in `index.ts`) inside `priceItem`; pricers still read `config.labor`.
 - Quote-only prices are applied before pricing (`withPriceOverrides` in `src/domain/catalogEdit.ts`). Pricers never read `Quote`.
 - Catalog rows are inputs. Inactive or missing codes throw from `math.ts`.
 - UI percent fields live in `src/components/ItemForm.tsx`. This folder receives a fraction (`0.3`, not `30`).

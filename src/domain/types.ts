@@ -175,7 +175,14 @@ export interface ItemNote {
   note?: string
 }
 
-export interface BoxInput extends ItemNote {
+export type LaborKey = 'boxPerM2' | 'temperedPerM2' | 'maxiarAvulso'
+
+export interface ItemLaborRate {
+  /** Taxa de mão de obra só deste item (R$/m²; maxim-ar R$/peça). Ausente = taxa do catálogo. */
+  laborRate?: number
+}
+
+export interface BoxInput extends ItemNote, ItemLaborRate {
   kind: 'box'
   spanCm: number
   glassColor: string
@@ -184,7 +191,7 @@ export interface BoxInput extends ItemNote {
   extras: ItemExtra[]
 }
 
-export interface CorrerInput extends ItemNote {
+export interface CorrerInput extends ItemNote, ItemLaborRate {
   kind: 'correr'
   subtype: CorrerSubtype
   widthMm: number
@@ -196,7 +203,7 @@ export interface CorrerInput extends ItemNote {
   extras: ItemExtra[]
 }
 
-export interface PivotanteInput extends ItemNote {
+export interface PivotanteInput extends ItemNote, ItemLaborRate {
   kind: 'pivotante'
   widthMm: number
   heightMm: number
@@ -208,7 +215,7 @@ export interface PivotanteInput extends ItemNote {
   extras: ItemExtra[]
 }
 
-export interface MaxiarInput extends ItemNote {
+export interface MaxiarInput extends ItemNote, ItemLaborRate {
   kind: 'maxiar'
   widthMm: number
   heightMm: number
@@ -219,7 +226,7 @@ export interface MaxiarInput extends ItemNote {
   extras: ItemExtra[]
 }
 
-export interface FixoInput extends ItemNote {
+export interface FixoInput extends ItemNote, ItemLaborRate {
   kind: 'fixo'
   widthMm: number
   heightMm: number
@@ -229,7 +236,7 @@ export interface FixoInput extends ItemNote {
   extras: ItemExtra[]
 }
 
-export interface EspelhoInput extends ItemNote {
+export interface EspelhoInput extends ItemNote, ItemLaborRate {
   kind: 'espelho'
   finish: EspelhoFinish
   widthMm: number

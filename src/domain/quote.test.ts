@@ -20,6 +20,8 @@ import {
   setAdditionalCosts,
   setCustomer,
   setDiscounts,
+  refreshItemDetail,
+  setItemLaborRate,
   setPriceOverride,
 } from './quote'
 
@@ -415,5 +417,99 @@ describe('preço só neste orçamento', () => {
     } as unknown as Quote
     expect(normalizeQuote(raw).priceOverrides).toEqual([{ ref, price: 20 }])
     expect(normalizeQuote({ ...q, priceOverrides: undefined }).priceOverrides).toBeUndefined()
+  })
+})
+
+describe('mão de obra só neste item', () => {
+  const catalog = loadSeedCatalog()
+  const correr: CorrerInput = {
+    kind: 'correr',
+    subtype: 'J2F',
+    widthMm: 1500,
+    heightMm: 1200,
+    glassColor: 'Incolor',
+    thicknessMm: '08',
+    profileColor: 'Fosco',
+    markup: 0.3,
+    extras: [],
+  }
+  const draft = () => {
+    let q = createEmptyDraft('ORC-2026-0030', catalog.config.version)
+    q = addItem(q, catalog, correr)
+    return addItem(q, catalog, correr)
+  }
+
+  it('muda só o item escolhido; taxa do catálogo ou null remove', () => {
+    const q = draft()
+    const [a, b] = q.items
+    const next = setItemLaborRate(q, catalog, a.id, 100)
+    expect(next.items[0].input).toMatchObject({ laborRate: 100 })
+    expect(next.items[0].result.breakdown.labor).toBeCloseTo(1.8 * 100, 6)
+    expect(next.items[1].result).toBe(b.result)
+    const same = setItemLaborRate(next, catalog, a.id, catalog.config.labor.temperedPerM2)
+    expect('laborRate' in same.items[0].input).toBe(false)
+    expect('laborRate' in setItemLaborRate(next, catalog, a.id, null).items[0].input).toBe(false)
+  })
+
+  it('emitido lança; normalize descarta taxa inválida e mantém a válida', () => {
+    const q = draft()
+    expect(() => setItemLaborRate(emitQuote(setCustomer(q, { name: 'Ana' })), catalog, q.items[0].id, 10)).toThrow()
+    const raw = {
+      ...q,
+      items: [
+        { ...q.items[0], input: { ...correr, laborRate: -1 } },
+        { ...q.items[1], input: { ...correr, laborRate: 55 } },
+      ],
+    } as Quote
+    const norm = normalizeQuote(raw)
+    expect('laborRate' in norm.items[0].input).toBe(false)
+    expect(norm.items[1].input).toMatchObject({ laborRate: 55 })
+  })
+})
+
+describe('refreshItemDetail', () => {
+  const catalog = loadSeedCatalog()
+  const correr: CorrerInput = {
+    kind: 'correr',
+    subtype: 'J2F',
+    widthMm: 1500,
+    heightMm: 1200,
+    glassColor: 'Incolor',
+    thicknessMm: '08',
+    profileColor: 'Fosco',
+    markup: 0.3,
+    extras: [],
+  }
+  const stripDetail = (q: Quote): Quote => ({
+    ...q,
+    items: q.items.map((i) => ({
+      ...i,
+      result: {
+        ...i.result,
+        bom: i.result.bom.filter((l) => l.category !== 'mao_de_obra').map(({ unit: _u, source: _s, ...l }) => l),
+      },
+    })),
+  })
+
+  it('preço igual: refaz o detalhamento sem mudar valores', () => {
+    const q = stripDetail(addItem(createEmptyDraft('ORC-2026-0031', catalog.config.version), catalog, correr))
+    const next = refreshItemDetail(q, catalog)
+    expect(next).not.toBe(q)
+    expect(next.items[0].result.bom.some((l) => l.category === 'mao_de_obra')).toBe(true)
+    expect(next.items[0].result.breakdown.finalPrice).toBe(q.items[0].result.breakdown.finalPrice)
+    expect(next.grandTotal).toBe(q.grandTotal)
+  })
+
+  it('preço diferente, item já detalhado ou emitido: não mexe', () => {
+    const q = stripDetail(addItem(createEmptyDraft('ORC-2026-0032', catalog.config.version), catalog, correr))
+    const pricier = {
+      ...catalog,
+      config: { ...catalog.config, labor: { ...catalog.config.labor, temperedPerM2: 999 } },
+    }
+    expect(refreshItemDetail(q, pricier)).toBe(q)
+    const fresh = addItem(createEmptyDraft('ORC-2026-0033', catalog.config.version), catalog, correr)
+    expect(refreshItemDetail(fresh, catalog)).toBe(fresh)
+    const emitted = stripDetail(emitQuote(setCustomer(fresh, { name: 'Ana' })))
+    expect(refreshItemDetail(emitted, catalog)).toBe(emitted)
   })
 })

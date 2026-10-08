@@ -348,6 +348,26 @@ describe('cálculo de margem', () => {
   })
 })
 
+describe('taxa de mão de obra do item', () => {
+  it('substitui só a taxa do tipo do item; materiais iguais', () => {
+    const inputs: Exclude<ItemInput, { kind: 'custom' }>[] = [
+      { kind: 'box', spanCm: 120, glassColor: 'Incolor', profileColor: 'Fosco', markup: 0.3, extras: [] },
+      {
+        kind: 'maxiar', widthMm: 600, heightMm: 400, glassColor: 'Incolor', thicknessMm: '08', profileColor: 'Fosco', markup: 0.3, extras: [],
+      },
+    ]
+    for (const input of inputs) {
+      const base = priceItem(catalog, input)
+      const own = priceItem(catalog, { ...input, laborRate: 10 })
+      const line = own.bom.find((l) => l.category === 'mao_de_obra')!
+      expect(line.unitPrice).toBe(10)
+      expect(own.breakdown.labor).toBeCloseTo(line.quantity * 10, 6)
+      expect(own.breakdown.glass).toBe(base.breakdown.glass)
+      expect(own.breakdown.aluminum).toBe(base.breakdown.aluminum)
+    }
+  })
+})
+
 describe('composição do custo (BOM)', () => {
   const refs: ItemInput[] = [
     { kind: 'box', spanCm: 140, glassColor: 'Incolor', profileColor: 'Fosco', markup: 0.3, extras: [] },

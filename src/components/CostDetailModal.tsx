@@ -1,18 +1,34 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { aluminioValorMetro } from '../domain/catalogEdit'
 import { parseMoneyBr } from '../domain/brazil'
 import { composeCost, type CostLine } from '../domain/costComposition'
 import { describeItem, marginLabel } from '../domain/itemDescription'
 import { formatBrl } from '../domain/quote'
-import type { Catalog, CatalogRef, Quote, QuoteItem } from '../domain/types'
+import type { Catalog, CatalogRef, LaborKey, Quote, QuoteItem } from '../domain/types'
 import { Modal } from './Modal'
 
 const UNIT_LABEL = { m2: 'm²', m: 'm', un: 'un' } as const
+const UNIT_NAME = { m2: 'm²', m: 'metro', un: 'unidade' } as const
+const LABOR_USED_BY: Record<LaborKey, string> = {
+  temperedPerM2: 'Correr, Pivotante, Vidro fixo e Espelho',
+  boxPerM2: 'Box',
+  maxiarAvulso: 'Maxim-ar',
+}
+
+function editLabel(line: CostLine): string {
+  if (line.barLength) return `R$ por barra (${line.barLength} m)`
+  if (line.laborKey === 'maxiarAvulso') return 'R$ por peça'
+  return `R$ por ${UNIT_NAME[line.unit ?? 'un']}`
+}
 
 function formatQty(quantity: number, unit?: CostLine['unit']): string {
   const digits = unit === 'un' && Number.isInteger(quantity) ? 0 : 3
   const n = quantity.toLocaleString('pt-BR', { maximumFractionDigits: digits })
   return unit ? `${n} ${UNIT_LABEL[unit]}` : n
+}
+
+function unitPrice(line: CostLine, value = line.unitPrice): string {
+  return line.unit ? `${formatBrl(value)}/${UNIT_LABEL[line.unit]}` : formatBrl(value)
 }
 
 function priceInput(value: number | undefined): string {
@@ -27,6 +43,9 @@ export function CostDetailModal({
   onClose,
   onSetOverride,
   onUpdateCatalog,
+  onRecalc,
+  onSetLaborRate,
+  onUpdateLaborCatalog,
 }: {
   item: QuoteItem
   quote: Quote
@@ -35,15 +54,31 @@ export function CostDetailModal({
   onClose: () => void
   onSetOverride: (ref: CatalogRef, price: number | null) => Promise<void>
   onUpdateCatalog: (ref: CatalogRef, price: number) => Promise<void>
+  onRecalc: () => Promise<void>
+  onSetLaborRate: (rate: number | null) => Promise<void>
+  onUpdateLaborCatalog: (key: LaborKey, rate: number) => Promise<void>
 }) {
   const { groups } = composeCost(item, quote, catalog, { isAdmin })
   const desc = describeItem(item.input)
   const b = item.result.breakdown
   const canEdit = isAdmin && quote.status === 'draft'
+  const oldItem = canEdit && groups.some((g) => g.lines.some((l) => l.blockedReason === 'old-item'))
   const [editing, setEditing] = useState<{ key: string; raw: string } | null>(null)
+  const [alertKey, setAlertKey] = useState<string | null>(null)
+  const editRef = useRef<HTMLDivElement>(null)
+  const alertRef = useRef<HTMLDivElement>(null)
+
   const [confirmCatalog, setConfirmCatalog] = useState(false)
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null)
+
+  useEffect(() => {
+    editRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [editing?.key, confirmCatalog])
+
+  useEffect(() => {
+    alertRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [alertKey])
 
   const run = async (action: () => Promise<void>, ok: string) => {
     setBusy(true)
@@ -51,6 +86,7 @@ export function CostDetailModal({
     try {
       await action()
       setEditing(null)
+      setAlertKey(null)
       setConfirmCatalog(false)
       setNotice({ ok: true, text: ok })
     } catch (e) {
@@ -71,6 +107,20 @@ export function CostDetailModal({
       {notice && (
         <div className={`banner ${notice.ok ? 'ok' : 'error'} cost-notice`} role="status">
           {notice.text}
+        </div>
+      )}
+
+      {oldItem && (
+        <div className="banner warn cost-old">
+          <span>Este item foi calculado com preços antigos do catálogo. Para editar, atualize o item com o catálogo atual.</span>
+          <button
+            type="button"
+            className="btn"
+            disabled={busy}
+            onClick={() => void run(onRecalc, 'Item atualizado.')}
+          >
+            Atualizar item
+          </button>
         </div>
       )}
 
@@ -140,7 +190,20 @@ export function CostDetailModal({
               return (
                 <li key={key} className="cost-line">
                   <div className="cost-line__main">
-                    <span className="cost-line__desc">{line.description}</span>
+                    <span className="cost-line__desc">
+                      {line.description}
+                      {line.catalogNow != null && (
+                        <button
+                          type="button"
+                          className="cost-line__alert"
+                          aria-label="Mudou no catálogo"
+                          aria-expanded={alertKey === key}
+                          onClick={() => setAlertKey((k) => (k === key ? null : key))}
+                        >
+                          !
+                        </button>
+                      )}
+                    </span>
                     <span className="cost-line__total">{formatBrl(line.total)}</span>
                   </div>
                   <div className="cost-line__calc">
@@ -158,41 +221,60 @@ export function CostDetailModal({
                             setEditing({ key, raw: priceInput(line.editPrice) })
                           }}
                         >
-                          {formatBrl(line.unitPrice)}
+                          {unitPrice(line)}
                         </button>
                       ) : (
-                        formatBrl(line.unitPrice)
+                        unitPrice(line)
                       )}
                     </span>
                     {line.surcharge ? (
                       <span className="cost-line__tag">+{Math.round(line.surcharge * 100)}% cor</span>
                     ) : null}
-                    {line.overridden && <span className="cost-line__tag cost-line__tag--own">preço deste orçamento</span>}
+                    {line.overridden && (
+                      <span className="cost-line__tag cost-line__tag--own">
+                        {line.laborKey ? 'taxa deste item' : 'preço deste orçamento'}
+                      </span>
+                    )}
                   </div>
 
-                  {canEdit && line.blockedReason === 'old-item' && (
-                    <p className="cost-line__hint">Recalcule o item para editar.</p>
+                  {line.catalogNow != null && alertKey === key && (
+                    <div ref={alertRef} className="banner warn cost-line__changed" role="status">
+                      <span>
+                        {line.laborKey ? 'Taxa' : 'Preço'} atualizado no catálogo: agora{' '}
+                        <strong>{unitPrice(line, line.catalogNow)}</strong> (neste item {unitPrice(line)}).
+                      </span>
+                      <button
+                        type="button"
+                        className="btn"
+                        disabled={busy}
+                        onClick={() => void run(onRecalc, 'Item atualizado.')}
+                      >
+                        Atualizar item
+                      </button>
+                    </div>
                   )}
                   {canEdit && line.blockedReason === 'inactive' && (
                     <p className="cost-line__hint">Código desativado no catálogo.</p>
                   )}
-                  {canEdit && line.overridden && line.source && !isEditing && (
+                  {canEdit && line.overridden && !isEditing && (
                     <button
                       type="button"
                       className="cost-line__link"
                       disabled={busy}
                       onClick={() =>
-                        void run(() => onSetOverride(line.source!, null), 'Preço do catálogo restaurado.')
+                        void (line.laborKey
+                          ? run(() => onSetLaborRate(null), 'Taxa do catálogo restaurada.')
+                          : run(() => onSetOverride(line.source!, null), 'Preço do catálogo restaurado.'))
                       }
                     >
-                      Voltar ao preço do catálogo
+                      {line.laborKey ? 'Voltar à taxa do catálogo' : 'Voltar ao preço do catálogo'}
                     </button>
                   )}
 
-                  {isEditing && line.source && (
-                    <div className="cost-edit">
+                  {isEditing && (line.source || line.laborKey) && (
+                    <div ref={editRef} className="cost-edit">
                       <label className="inline-field">
-                        {line.barLength ? `R$ por barra (${line.barLength} m)` : `R$ por ${UNIT_LABEL[line.unit ?? 'un']}`}
+                        {editLabel(line)}
                         <input
                           className="money-input cost-edit__input"
                           inputMode="decimal"
@@ -210,13 +292,15 @@ export function CostDetailModal({
                       <div className="cost-edit__actions">
                         <button
                           type="button"
-                          className="btn primary"
+                          className="btn"
                           disabled={busy || value == null}
                           onClick={() =>
-                            void run(() => onSetOverride(line.source!, value), 'Preço salvo só neste orçamento.')
+                            void (line.laborKey
+                              ? run(() => onSetLaborRate(value), 'Taxa salva só neste item.')
+                              : run(() => onSetOverride(line.source!, value), 'Preço salvo só neste orçamento.'))
                           }
                         >
-                          Só neste orçamento
+                          {line.laborKey ? 'Atualizar no item' : 'Atualizar no orçamento'}
                         </button>
                         <button
                           type="button"
@@ -241,8 +325,10 @@ export function CostDetailModal({
                       {confirmCatalog && value != null && (
                         <div className="remove-pop cost-confirm" role="alertdialog" aria-label="Confirmar preço no catálogo">
                           <span>
-                            Novos orçamentos usam o preço novo. Outros rascunhos mostram um aviso para
-                            atualizar. Emitidos não mudam.
+                            {line.laborKey
+                              ? `Muda a mão de obra de ${LABOR_USED_BY[line.laborKey]} nos novos orçamentos.`
+                              : 'Novos orçamentos usam o preço novo.'}{' '}
+                            Outros rascunhos mostram um aviso para atualizar. Emitidos não mudam.
                           </span>
                           <span className="save-pop__actions">
                             <button
@@ -250,7 +336,13 @@ export function CostDetailModal({
                               className="btn remove-pop__yes"
                               disabled={busy}
                               onClick={() =>
-                                void run(() => onUpdateCatalog(line.source!, value), 'Catálogo atualizado.')
+                                void run(
+                                  () =>
+                                    line.laborKey
+                                      ? onUpdateLaborCatalog(line.laborKey, value)
+                                      : onUpdateCatalog(line.source!, value),
+                                  'Catálogo atualizado.',
+                                )
                               }
                             >
                               Sim

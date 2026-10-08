@@ -6,6 +6,7 @@ import type {
   CatalogRef,
   CustomerInfo,
   ItemInput,
+  LaborKey,
   MarginMode,
   ProductKind,
   Quote,
@@ -23,11 +24,13 @@ import {
   quotePdfFilename,
   quoteShareText,
   recomputeTotals,
+  refreshItemDetail,
   removeItem,
   repriceDraft,
   setAdditionalCosts,
   setDiscounts,
   setCustomer,
+  setItemLaborRate,
   setPriceOverride,
   updateItem,
 } from '../domain/quote'
@@ -43,7 +46,7 @@ import {
   phoneDigits,
   withDefaultDdd,
 } from '../domain/brazil'
-import { bumpCatalogVersion, sameRef, setCatalogPrice } from '../domain/catalogEdit'
+import { bumpCatalogVersion, sameRef, setCatalogPrice, withPriceOverrides } from '../domain/catalogEdit'
 import {
   downloadBlob,
   generateQuotePdf,
@@ -94,6 +97,10 @@ export function App() {
   /** Items that kept their old price after "Atualizar valores"; null = no note. */
   const [repriceFailed, setRepriceFailed] = useState<number | null>(null)
   const marginMode: MarginMode = settings?.marginMode ?? 'empresa'
+  const quoteCatalog = useMemo(
+    () => (catalog ? withPriceOverrides(catalog, quote?.priceOverrides) : null),
+    [catalog, quote?.priceOverrides],
+  )
 
   const refresh = async () => {
     const [c, list, s] = await Promise.all([
@@ -169,8 +176,9 @@ export function App() {
     setRepriceFailed(null)
     if (q.status === 'draft') {
       const costs = dropEmptyFreight(q.additionalCosts)
-      if (costs !== q.additionalCosts) {
-        const next = recomputeTotals({ ...q, additionalCosts: costs })
+      let next = costs !== q.additionalCosts ? recomputeTotals({ ...q, additionalCosts: costs }) : q
+      if (catalog) next = refreshItemDetail(next, catalog)
+      if (next !== q) {
         await repo.saveQuote(next)
         setQuote(next)
         setView('editor')
@@ -251,6 +259,31 @@ export function App() {
     setCatalog(next)
     const own = quote.priceOverrides?.filter((o) => !sameRef(o.ref, ref))
     await persist(repriceDraft({ ...quote, priceOverrides: own }, next, marginMode).quote)
+  }
+
+  const onSetLaborRate = async (itemId: string, rate: number | null) => {
+    if (!quote || !catalog) return
+    await persist(setItemLaborRate(quote, catalog, itemId, rate, marginMode))
+  }
+
+  const onUpdateLaborCatalog = async (itemId: string, key: LaborKey, rate: number) => {
+    if (!quote || !catalog || !isAdmin) return
+    const next: Catalog = {
+      ...catalog,
+      config: {
+        ...catalog.config,
+        labor: { ...catalog.config.labor, [key]: rate },
+        version: bumpCatalogVersion(catalog.config.version),
+      },
+    }
+    await repo.saveCatalog(next)
+    setCatalog(next)
+    const items = quote.items.map((i) => {
+      if (i.id !== itemId || i.input.kind === 'custom') return i
+      const { laborRate: _own, ...input } = i.input
+      return { ...i, input }
+    })
+    await persist(repriceDraft({ ...quote, items }, next, marginMode).quote)
   }
 
   const onDeleteDraft = async () => {
@@ -765,6 +798,9 @@ export function App() {
           onClose={() => setCostItemId(null)}
           onSetOverride={onSetPriceOverride}
           onUpdateCatalog={onUpdateCatalogPrice}
+          onRecalc={() => persist(updateItem(quote, catalog, costItem.id, costItem.input, marginMode))}
+          onSetLaborRate={(rate) => onSetLaborRate(costItem.id, rate)}
+          onUpdateLaborCatalog={(key, rate) => onUpdateLaborCatalog(costItem.id, key, rate)}
         />
       )}
 
@@ -777,7 +813,7 @@ export function App() {
           {error && <p className="banner error">{error}</p>}
           <ItemForm
             key={itemModal.mode === 'edit' ? itemModal.id : itemModal.kind}
-            catalog={catalog}
+            catalog={quoteCatalog ?? catalog}
             marginMode={marginMode}
             initial={editingItem?.input}
             lockKind={itemModal.mode === 'edit' ? editingItem?.input.kind : itemModal.kind}

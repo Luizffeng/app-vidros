@@ -31,12 +31,35 @@ describe('composeCost', () => {
     expect(sum).toBeCloseTo(totalCost - quote.items[0].result.breakdown.extras, 6)
   })
 
-  it('admin em rascunho edita linhas do catálogo; mão de obra nunca', () => {
+  it('admin em rascunho edita todas as linhas, inclusive a taxa de mão de obra', () => {
     const quote = draftWith()
     const { groups } = composeCost(quote.items[0], quote, catalog, { isAdmin: true })
     const lines = groups.flatMap((g) => g.lines)
-    expect(lines.filter((l) => l.category !== 'mao_de_obra').every((l) => l.editable)).toBe(true)
-    expect(lines.find((l) => l.category === 'mao_de_obra')).toMatchObject({ editable: false, blockedReason: 'labor' })
+    expect(lines.every((l) => l.editable)).toBe(true)
+    expect(lines.find((l) => l.category === 'mao_de_obra')).toMatchObject({
+      laborKey: 'temperedPerM2',
+      editPrice: catalog.config.labor.temperedPerM2,
+      overridden: false,
+    })
+  })
+
+  it('taxa de mão de obra deste item', () => {
+    const base = draftWith()
+    const quote = addItem(createEmptyDraft('ORC-2026-0021', catalog.config.version), catalog, { ...correr, laborRate: 70 })
+    const labor = composeCost(quote.items[0], quote, catalog, { isAdmin: true }).groups.find(
+      (g) => g.category === 'mao_de_obra',
+    )!.lines[0]
+    expect(labor).toMatchObject({ overridden: true, editPrice: 70, unitPrice: 70 })
+    expect(quote.items[0].result.breakdown.labor).toBeGreaterThan(base.items[0].result.breakdown.labor)
+  })
+
+  it('item avulso: só resumo', () => {
+    const quote = addItem(createEmptyDraft('ORC-2026-0022', catalog.config.version), catalog, {
+      kind: 'custom',
+      description: 'Película',
+      amount: 50,
+    })
+    expect(composeCost(quote.items[0], quote, catalog, { isAdmin: true }).groups).toEqual([])
   })
 
   it('preço base sem acréscimo de cor; alumínio edita pela barra', () => {
@@ -54,7 +77,7 @@ describe('composeCost', () => {
   it('vendedor e emitido: somente leitura', () => {
     const quote = draftWith()
     const asSeller = composeCost(quote.items[0], quote, catalog, { isAdmin: false }).groups.flatMap((g) => g.lines)
-    expect(asSeller.filter((l) => l.category !== 'mao_de_obra').every((l) => l.blockedReason === 'readonly')).toBe(true)
+    expect(asSeller.every((l) => l.blockedReason === 'readonly')).toBe(true)
     const emitted = emitQuote(setCustomer(quote, { name: 'Ana' }))
     const lines = composeCost(emitted.items[0], emitted, catalog, { isAdmin: true }).groups.flatMap((g) => g.lines)
     expect(lines.some((l) => l.editable)).toBe(false)
@@ -88,5 +111,23 @@ describe('composeCost', () => {
     const line = composeCost(withOverride.items[0], withOverride, catalog, { isAdmin: true }).groups[0].lines[0]
     expect(line.overridden).toBe(true)
     expect(line.editPrice).toBe(123)
+  })
+
+  it('marca linhas cujo preço mudou no catálogo depois do item', () => {
+    const quote = draftWith()
+    const alu = quote.items[0].result.bom.find((l) => l.category === 'aluminio')!
+    const changed: Catalog = {
+      ...catalog,
+      aluminios: catalog.aluminios.map((a) => (a.id === alu.source!.id ? { ...a, valorBarra: 600, valorMetro: 100 } : a)),
+      config: { ...catalog.config, labor: { ...catalog.config.labor, temperedPerM2: 99 } },
+    }
+    const lines = composeCost(quote.items[0], quote, changed, { isAdmin: false }).groups.flatMap((g) => g.lines)
+    const flagged = lines.filter((l) => l.catalogNow != null)
+    expect(flagged.map((l) => l.code)).toEqual([alu.code, ''])
+    expect(flagged[0].catalogNow).toBeCloseTo(100 * (1 + alu.surcharge!), 6)
+    expect(flagged[1]).toMatchObject({ category: 'mao_de_obra', catalogNow: 99 })
+    expect(composeCost(quote.items[0], quote, catalog, { isAdmin: true }).groups.flatMap((g) => g.lines).some((l) => l.catalogNow != null)).toBe(false)
+    const emitted = emitQuote(setCustomer(quote, { name: 'Ana' }))
+    expect(composeCost(emitted.items[0], emitted, changed, { isAdmin: true }).groups.flatMap((g) => g.lines).some((l) => l.catalogNow != null)).toBe(false)
   })
 })

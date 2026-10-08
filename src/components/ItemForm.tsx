@@ -93,6 +93,12 @@ function parsePositive(raw: string): number | null {
   return n
 }
 
+/** The form has no labor field; an edit keeps the item's own rate. */
+function keepLaborRate(input: ItemInput, initial?: ItemInput): ItemInput {
+  if (input.kind === 'custom' || !initial || initial.kind === 'custom' || initial.kind !== input.kind) return input
+  return initial.laborRate == null ? input : { ...input, laborRate: initial.laborRate }
+}
+
 function draftInput(fields: {
   kind: ProductKind
   spanCm: string
@@ -452,7 +458,7 @@ export function ItemForm({
       return previewCache.current?.kind === kind ? previewCache.current.result : null
     }
     try {
-      const result = priceItem(catalog, input, marginMode)
+      const result = priceItem(catalog, keepLaborRate(input, initial), marginMode)
       previewCache.current = { kind, result }
       return result
     } catch {
@@ -460,6 +466,7 @@ export function ItemForm({
     }
   }, [
     catalog,
+    initial,
     marginMode,
     kind,
     numSnap,
@@ -538,7 +545,8 @@ export function ItemForm({
       return
     }
     const trimmedNote = note.trim()
-    onSubmit(trimmedNote ? { ...input, note: trimmedNote } : input)
+    const kept = keepLaborRate(input, initial)
+    onSubmit(trimmedNote ? { ...kept, note: trimmedNote } : kept)
     setFormError(null)
   }
 

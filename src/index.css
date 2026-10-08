@@ -2376,10 +2376,41 @@ textarea:focus {
 .modal--cost {
   width: min(560px, 100%);
   max-height: min(92vh, 760px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.modal--cost .modal__head {
+  flex: none;
+  margin: 0;
+  padding: 0.85rem 1.1rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .modal--cost .modal__body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
   gap: 0.7rem;
+  padding: 0.85rem 1.1rem 1.1rem;
+}
+
+.cost-old {
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+.cost-old .btn {
+  min-height: 2rem;
+  padding: 0 0.7rem;
+  font-size: 0.85rem;
 }
 
 .cost-item {
@@ -2444,6 +2475,45 @@ textarea:focus {
 
 .cost-line__desc {
   min-width: 0;
+}
+
+.cost-line__alert {
+  display: inline-grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-left: 0.4rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #e0b02a;
+  color: #1a1404;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  vertical-align: 0.05rem;
+  cursor: pointer;
+}
+
+.cost-line__alert[aria-expanded='true'] {
+  box-shadow: 0 0 0 2px rgba(224, 176, 42, 0.4);
+}
+
+.cost-line__changed {
+  margin: 0.35rem 0 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.8rem;
+}
+
+.cost-line__changed .btn {
+  min-height: 1.9rem;
+  padding: 0 0.65rem;
+  font-size: 0.82rem;
 }
 
 .cost-line__calc {
@@ -2521,7 +2591,8 @@ textarea:focus {
 }
 
 .cost-edit .cost-edit__input {
-  width: 7.5rem;
+  /* fits 9999,99 */
+  width: calc(7ch + 1.1rem + 2px);
 }
 
 .cost-edit .cost-line__hint {

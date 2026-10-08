@@ -78,7 +78,8 @@ Only choices visible in code or in README / constitution / handoff. Not a change
 
 - **Decision:** `BomLine` carries `unit`, `source` (catalog table + id) and `surcharge`; aluminum/hardware unit prices include the color surcharge, and each pricer adds one `mao_de_obra` line, so lines sum to the breakdown. Quote-only prices live in `Quote.priceOverrides` (JSON payload, no migration) and are applied through `withPriceOverrides` before pricing.
 - **Reason/evidence:** Spec `specs/003-composicao-do-item/`. Owners check items line by line against the spreadsheet and need a one-off price without touching the catalog.
-- **Consequence:** "Só neste orçamento" is gated in the UI only (it edits a draft the user can already edit). "Atualizar no catálogo" is gated by catalog RLS (admin write). Items saved before these fields show lines read-only until recalculated. Do not change breakdown math to fit the lines.
+- **Labor:** the labor rate is per item (`ItemInput.laborRate`), not a quote override, because one catalog rate (Temperado) serves several kinds and the owner adjusts labor per job.
+- **Consequence:** "Só neste orçamento" / "Só neste item" are gated in the UI only (it edits a draft the user can already edit). "Atualizar no catálogo" is gated by catalog RLS (admin write). Items saved before these fields show lines read-only until recalculated. Do not change breakdown math to fit the lines.
 
 ## Spec Kit for larger features
 

@@ -15,7 +15,7 @@ import type {
 
 const DEFAULT_VALIDITY_DAYS = 15
 import { catalogPrice, sameRef, withPriceOverrides } from './catalogEdit'
-import { priceItem } from './pricing'
+import { LABOR_KEY, priceItem } from './pricing'
 import { describeItem, itemNote } from './itemDescription'
 
 function normalizeExtras(raw: unknown): ItemExtra[] {
@@ -70,6 +70,12 @@ function normalizePriceOverrides(raw: unknown): PriceOverride[] | undefined {
   return valid.length ? valid : undefined
 }
 
+function normalizeLaborRate(raw: unknown): { laborRate?: number } {
+  if (raw == null) return {}
+  const rate = Number(raw)
+  return Number.isFinite(rate) && rate >= 0 ? { laborRate: rate } : {}
+}
+
 export function normalizeQuote(quote: Quote): Quote {
   const discounts = normalizeCosts(quote.discounts)
   return withTotals({
@@ -79,9 +85,10 @@ export function normalizeQuote(quote: Quote): Quote {
     discounts,
     items: quote.items.map((item) => {
       if (item.input.kind === 'custom') return item
+      const { laborRate, ...input } = item.input
       return {
         ...item,
-        input: { ...item.input, extras: normalizeExtras(item.input.extras) },
+        input: { ...input, extras: normalizeExtras(input.extras), ...normalizeLaborRate(laborRate) },
       }
     }),
   })
@@ -199,6 +206,50 @@ export function setPriceOverride(
       : item,
   )
   return recomputeTotals({ ...quote, items, priceOverrides: priceOverrides.length ? priceOverrides : undefined })
+}
+
+/**
+ * Labor rate only for this item (`null` or the catalog rate removes it).
+ */
+export function setItemLaborRate(
+  quote: Quote,
+  catalog: Catalog,
+  itemId: string,
+  rate: number | null,
+  mode: MarginMode = 'empresa',
+): Quote {
+  if (quote.status !== 'draft') throw new Error('Só rascunhos aceitam mão de obra própria')
+  const item = quote.items.find((i) => i.id === itemId)
+  if (!item || item.input.kind === 'custom') return quote
+  const { laborRate: _old, ...base } = item.input
+  const keep = rate != null && rate !== catalog.config.labor[LABOR_KEY[base.kind]]
+  return updateItem(quote, catalog, itemId, keep ? { ...base, laborRate: rate } : base, mode)
+}
+
+/** Lines carry unit and catalog origin, plus one labor line (items priced before that lack them). */
+export function hasLineDetail(result: PricingResult): boolean {
+  return (
+    result.bom.some((l) => l.category === 'mao_de_obra') &&
+    result.bom.every((l) => l.unit && (l.category === 'mao_de_obra' || l.source))
+  )
+}
+
+/**
+ * Draft items without line detail get it when repricing with today's catalog and their own
+ * mode keeps the price to the cent. Returns the same quote when nothing changes.
+ */
+export function refreshItemDetail(quote: Quote, catalog: Catalog): Quote {
+  if (quote.status !== 'draft') return quote
+  const effective = withPriceOverrides(catalog, quote.priceOverrides)
+  let changed = false
+  const items = quote.items.map((item) => {
+    if (item.input.kind === 'custom' || hasLineDetail(item.result)) return item
+    const next = tryPriceItem(effective, item.input, item.result.breakdown.marginMode ?? 'empresa')
+    if (!next || !samePrice(next, item.result)) return item
+    changed = true
+    return { ...item, result: next }
+  })
+  return changed ? { ...quote, items } : quote
 }
 
 function tryPriceItem(catalog: Catalog, input: ItemInput, mode: MarginMode): PricingResult | null {

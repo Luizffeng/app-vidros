@@ -1,4 +1,4 @@
-import type { Catalog, CustomInput, ItemInput, MarginMode, PricingResult } from '../types'
+import type { Catalog, CustomInput, ItemInput, LaborKey, MarginMode, PricingResult, ProductKind } from '../types'
 import { priceBox } from './box'
 import { priceCorrer } from './correr'
 import { priceMaxiar } from './maxiar'
@@ -63,13 +63,29 @@ function priceByKind(catalog: Catalog, input: ItemInput): PricingResult {
   }
 }
 
-/** Pricers compute costs; the margin mode is applied once here. */
+/** Which `config.labor` rate each kind uses. */
+export const LABOR_KEY: Record<Exclude<ProductKind, 'custom'>, LaborKey> = {
+  box: 'boxPerM2',
+  correr: 'temperedPerM2',
+  pivotante: 'temperedPerM2',
+  maxiar: 'maxiarAvulso',
+  fixo: 'temperedPerM2',
+  espelho: 'temperedPerM2',
+}
+
+function withLaborRate(catalog: Catalog, input: ItemInput): Catalog {
+  if (input.kind === 'custom' || input.laborRate == null) return catalog
+  const labor = { ...catalog.config.labor, [LABOR_KEY[input.kind]]: input.laborRate }
+  return { ...catalog, config: { ...catalog.config, labor } }
+}
+
+/** Pricers compute costs; the margin mode and the item's own labor rate are applied here. */
 export function priceItem(
   catalog: Catalog,
   input: ItemInput,
   mode: MarginMode = 'empresa',
 ): PricingResult {
-  const result = priceByKind(catalog, input)
+  const result = priceByKind(withLaborRate(catalog, input), input)
   if (input.kind === 'custom' || mode === 'empresa') return result
   return { ...result, breakdown: buildBreakdown(result.breakdown, mode) }
 }
