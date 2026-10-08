@@ -15,15 +15,12 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Now
 
-1. [ ] `ui` (G) **Transições leves:** janelas (sobe no celular, cresce no computador, saída mais curta), seletor/menu/confirmações a partir do botão, seções que expandem sem salto, abas com marcador deslizante, troca de tela com direção (lista ↔ orçamento) e rolagem da lista mantida. Tabela única de durações (100–250 ms), só transform/opacity, respeita "reduzir movimento", sem biblioteca. Remove desfoque pesado das seções e da barra inferior. Medido com CPU 4× mais lenta. Spec, plano e tarefas: `specs/004-transicoes/`
-
 ## Next
 
 - [ ] `refactor` (M) **Unificar componentes parecidos:** inventário de componentes e classes CSS que fazem a mesma coisa de jeitos diferentes; para cada grupo, decidir um só (ou um componente misto com variantes) e migrar. Objetivo: menos componentes, desenvolvimento mais rápido, agentes entendem mais fácil. Candidatos já vistos: popovers de confirmação (`.remove-pop`, `.emit-pop`, `.save-pop`), avisos (`.banner` ok/error/warn, `outdated-banner`), seção fixa vs expansível (`.section` + `h2` vs `CollapsibleSection`), `.grid` vs `.field-pair`, `Dropdown` vs `select` nativo (decidido: padrão é o `Dropdown` customizado, migrar os `<select>` nativos que restam; linhas da lista mais baixas que hoje, `.dropdown__option` com `min-height: 2.75rem`, alvo ~2.25rem; conferir em 360 px e com fonte grande do sistema), botões de ação (`IconAction`, `ActionButton`, `.btn-icon`). Resultado vira tabela em `src/components/AGENTS.md`. Fazer junto ou logo antes da revisão de espaço vertical
 - [ ] `ui` (M) **Revisão de espaço vertical no app todo:** aplicar as regras de `.agents/skills/ui-change/SKILL.md` (passo 5: dica sob o título da seção, campos relacionados na mesma linha, campos curtos inline, controle à direita, mídia + ações em colunas) em editor, cliente, custos, catálogo e modais; medir altura antes/depois em 360/390 px
 - [ ] `feat` (G) **Usuário no Cadastro (precisa de spec):** seção expansível "Usuário" em Configurações › Cadastro com nome e telefone de quem usa o app. Futuro: orçamento guarda o vendedor na emissão e o PDF mostra nome e telefone dele (loja com vários vendedores). Decidir: perfil por usuário (Supabase `user_metadata` ou tabela `profiles` + RLS; IndexedDB no modo local), vendedor hoje não abre Configurações (tela própria "Meu perfil" ou aba liberada), snapshot no `Quote` ao emitir, linha no PDF
 - [ ] `feat` (G) **URLs por tela (precisa de spec):** hoje sem router, telas em `useState` no `App`; voltar do navegador/celular sai do app e recarregar volta pra lista. Decidir antes de codar: quais telas ganham path (ex.: `/orcamentos`, `/orcamentos/:id`, `/catalogo/:tabela`, `/configuracoes/:aba`), o que vira só estado (modal de item, prévia, envio), o que persiste entre sessões (último orçamento aberto, aba/filtro do catálogo), deep link de orçamento compartilhável internamente, gate de vendedor em rota admin. Router próprio (History API) vs lib; Cloudflare `_redirects` já faz fallback SPA
-- [ ] `test` (P) **Atualizar `scripts/validate-catalog-browser.mjs`:** seletores antigos (aba "Catálogo", título "Catálogo de preços", abas de tabela, "Salvar catálogo"); hoje o script falha logo no início
 - [ ] `data` (M) **Backup/restauração de orçamentos** (export IndexedDB/JSON). Prioridade baixa: produção usa Supabase
 
 ## Blocked
@@ -37,6 +34,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 - [ ] `feat` (G) **PWA:** install, cache, uso offline
 - [ ] `feat` (P) **Web Share / atalhos mobile** (base Web Share já no PDF desktop/mobile quando o browser permitir)
 - [ ] `data` (M) **Botão admin "enviar dados deste navegador"** (IndexedDB local → Supabase)
+- [ ] `ui` (M) **Movimento extra:** entrada/saída de cada item na lista, arrastar para fechar janela no celular, animação dos totais. Fora do escopo da spec 004; usar os tokens de movimento
 
 ## Fora (por enquanto)
 
@@ -47,6 +45,8 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ### 2026-10-08
 
+- [x] `ui` **Transições leves:** janelas escurecem o fundo e sobem (celular) ou crescem (computador), saem mais rápido; seletor, menu, Enviar e confirmações abrem a partir do botão e fecham suave; seções expandem sem salto; abas de Configurações com marcador deslizante; lista → orçamento entra pela direita, voltar pela esquerda na mesma rolagem; menu troca com esmaecer. Uma tabela de durações (100–250 ms), respeita "reduzir movimento", sem biblioteca, +1,4 KB. Sem desfoque nas seções e na barra inferior. Spec `specs/004-transicoes/`
+- [x] `test` `scripts/motion-perf-browser.mjs` (CPU 4×, mediana de 3, compara com baseline) e `scripts/validate-catalog-browser.mjs` atualizado para a tela atual do catálogo; scripts de navegador rodam com animação reduzida
 - [x] `feat` Envio do emitido: barra com Prévia, Baixar e **Enviar**; Enviar abre popup com "Enviar PDF" (arquivo + mensagem "Olá, {nome}! Segue o orçamento {código} da {loja}." + texto final, também copiada) e "Enviar texto" (prévia com "Copiar"). Texto final padrão: "Gostaria de efetuar o pedido?".
 - [x] `feat` Mão de obra editável por item (taxa só neste item ou no catálogo) e "!" amarelo nas linhas do custo cujo preço mudou no catálogo, com "Atualizar item".
 - [x] `feat` Itens antigos recebem o detalhamento de linhas em silêncio quando o preço não muda.

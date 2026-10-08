@@ -81,6 +81,12 @@ Only choices visible in code or in README / constitution / handoff. Not a change
 - **Labor:** the labor rate is per item (`ItemInput.laborRate`), not a quote override, because one catalog rate (Temperado) serves several kinds and the owner adjusts labor per job.
 - **Consequence:** "Só neste orçamento" / "Só neste item" are gated in the UI only (it edits a draft the user can already edit). "Atualizar no catálogo" is gated by catalog RLS (admin write). Items saved before these fields show lines read-only until recalculated. Do not change breakdown math to fit the lines.
 
+## Motion is CSS tokens plus one presence hook
+
+- **Decision:** One duration/easing/distance scale in `:root`; overlays leave through `usePresence`; screens enter by `data-nav` on a keyed `.screen` root; sections use native `<details>` height transitions. Only opacity and transform. No animation library, no View Transitions API, no backdrop blur over scrolling content.
+- **Reason/evidence:** Spec `specs/004-transicoes/` (research R1–R9): low-end phones, ≤ 2 KB budget, interaction never blocked (View Transitions blocks input during the snapshot). `scripts/motion-perf-browser.mjs` baseline vs after.
+- **Consequence:** New animations reuse the tokens and the "Motion" block at the end of `index.css` and stay covered by its `prefers-reduced-motion` rule. Screen changes go through `navigate` in `App.tsx`. Do not transform `.shell` (it holds the fixed `.action-bar`).
+
 ## Spec Kit for larger features
 
 - **Decision:** Larger features get a new spec under `specs/`. The old MVP spec `specs/001-mvp-orcamentos/` was removed. Day-to-day queue stays `BACKLOG.md`.

@@ -53,6 +53,14 @@ Mediana de 3: todos os 17 cenários passam; abrir/fechar seção Itens 60 fps se
 
 Neste Chromium, keyframes em `::details-content` não rodam; transições sim. A abertura usa transição de `height` e segura `overflow: clip` com `overflow 0s var(--dur-md) allow-discrete` até a altura chegar.
 
+### Final (T021, T022)
+
+- Desempenho, mediana de 3 com todas as fases: 17/17 passam. Rolagem, seletor, menu, seções e abas a 59–60 fps sem tarefa longa; telas e janelas dentro de 15% do baseline (custo de renderização, não de efeito).
+- Reduzir movimento (Playwright `reducedMotion: 'reduce'`, conferido por estilo calculado no meio do efeito): janela, menu, troca de tela sem `translate`/`scale` (só esmaecer de 100 ms); seção abre e fecha na hora; marcador da aba pula sem deslizar.
+- Fumaça do orçamento 16/16 e catálogo 17/17 com animação reduzida, sem espera extra.
+- Tamanho gzip: JS principal 260.963 → 261.703 B (+740), CSS 7.956 → 8.625 B (+669); total +1,4 KB (limite 2 KB).
+- Pendente, só manual: passo 10 em celular real (fluidez da rolagem sem desfoque) e passo 9 com "reduzir movimento" do sistema.
+
 ## Manual
 
 1. Celular (390 px): abrir item novo; janela sobe de baixo; fechar por botão, Esc (computador) e toque fora; página volta ao mesmo ponto.

@@ -27,7 +27,8 @@ Nothing else by default. Open `scripts/validate-catalog-browser.mjs` only for ca
 2. Open the URL with the browser tool. Viewports: 390×844 first (sales staff use phones), 360 wide for tight rows, 1280 wide only if desktop layout changed.
 3. Local mode starts with the seed catalog and admin UI (no login). For emitted-only features (PDF preview, download, share, WhatsApp text): "Novo orçamento", add an item, fill the customer name, "Emitir".
 4. Save screenshots under `tmp-browser-qa/` (gitignored). Do not write `tmp-*.png` to the repo root.
-5. Quote flow regression (create → item → emit → PDF preview/download): `APP_URL=http://127.0.0.1:5173 node scripts/smoke-quote-browser.mjs`. Catalog regression: `APP_URL=http://127.0.0.1:5173 node scripts/validate-catalog-browser.mjs`. It uses Playwright Chromium; if the browser binary is missing, `npx playwright install chromium` needs network.
+5. Quote flow regression (create → item → emit → PDF preview/download): `APP_URL=http://127.0.0.1:5173 node scripts/smoke-quote-browser.mjs`. Catalog regression (edit price, save, new vidro, search, deactivate, situation filter, table switch, reset): `APP_URL=http://127.0.0.1:5173 node scripts/validate-catalog-browser.mjs`. Both run with `reducedMotion: 'reduce'`, so they need no waits for animations; keep that in new scripts. They use Playwright Chromium; if the browser binary is missing, `npx playwright install chromium` needs network. Inside the agent sandbox the Playwright cache path is redirected: run outside it with `PLAYWRIGHT_BROWSERS_PATH=$HOME/.cache/ms-playwright`.
+   Motion or perf change: `APP_URL=… node scripts/motion-perf-browser.mjs` (CPU 4×, median of `RUNS`=3, compares with `tmp-browser-qa/motion-perf-baseline.json`; write a baseline from the code before the change with `SAVE_BASELINE=1`, e.g. a `git worktree` of the previous commit on another port).
 6. Stop the dev server if you started it.
 
 ## Scope

@@ -88,12 +88,12 @@ description: "Task list for Transições leves na interface"
 
 ## Phase 7: Polish & Cross-Cutting
 
-- [ ] T021 Run the perf script (all checks) and reduced-motion manual pass (quickstart step 9); record results in specs/004-transicoes/quickstart.md
-- [ ] T022 Compare gzip size of `dist/assets/*.js` before/after (≤ +2 KB)
-- [ ] T023 [P] Document motion tokens, `usePresence`, and "transform/opacity only" rule in src/components/AGENTS.md
-- [ ] T024 [P] Add "use motion tokens; no new animation library" to .agents/skills/ui-change/SKILL.md and reduced-motion/perf script notes to .agents/skills/browser-check/SKILL.md
-- [ ] T025 Run `npm test`, `npm run lint`, `npm run build`, smoke and catalog browser scripts
-- [ ] T026 Add the item to Done in BACKLOG.md
+- [x] T021 Run the perf script (all checks) and reduced-motion manual pass (quickstart step 9); record results in specs/004-transicoes/quickstart.md
+- [x] T022 Compare gzip size of `dist/assets/*.js` before/after (≤ +2 KB)
+- [x] T023 [P] Document motion tokens, `usePresence`, and "transform/opacity only" rule in src/components/AGENTS.md
+- [x] T024 [P] Add "use motion tokens; no new animation library" to .agents/skills/ui-change/SKILL.md and reduced-motion/perf script notes to .agents/skills/browser-check/SKILL.md
+- [x] T025 Run `npm test`, `npm run lint`, `npm run build`, smoke and catalog browser scripts
+- [x] T026 Add the item to Done in BACKLOG.md
 
 ---
 

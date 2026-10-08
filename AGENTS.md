@@ -47,7 +47,7 @@ Views are `useState` in `App` (`list` \| `editor` \| `catalog` \| `settings`). T
 - **Business logic:** `src/domain/quote.ts`, `src/domain/pricing/`. Rules: [BUSINESS_RULES.md](BUSINESS_RULES.md).
 - **Auth:** Supabase email/password. Gate: `src/auth/access.tsx`. Real write lock: RLS in the migration. UI hide: `AppHeader.tsx`, `App.tsx` (`isAdmin`).
 - **State:** React `useState` inside `App`. Only context is `AccessContext`. No Redux/Zustand.
-- **Tests:** colocated `*.test.ts` under `src/`. Run `npm test`. Browser scripts (not in `npm test`, need a local-mode dev server): `scripts/smoke-quote-browser.mjs` (create → item → emit → PDF), `scripts/validate-catalog-browser.mjs` (catalog CRUD, stale UI selectors).
+- **Tests:** colocated `*.test.ts` under `src/`. Run `npm test`. Browser scripts (not in `npm test`, need a local-mode dev server): `scripts/smoke-quote-browser.mjs` (create → item → emit → PDF), `scripts/validate-catalog-browser.mjs` (catalog edit/save/filter), `scripts/motion-perf-browser.mjs` (transitions at 4× CPU vs a baseline).
 - **Config / env:** `.env.example`, `src/vite-env.d.ts`. Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Missing either value means local mode.
 - **Integrations:** Supabase (Auth, Postgres, Storage bucket `logos`), ViaCEP, WhatsApp `wa.me`, Cloudflare Pages.
 

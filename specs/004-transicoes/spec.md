@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-07
 
-**Status**: Draft
+**Status**: Implemented (2026-10-08)
 
 **Input**: Dono, 2026-10-07: "Quero planejar efeitos de transição no app: telas, dropdown/select, expansão de seções, troca de tabs, abertura de modal. A intenção é mostrar uma visibilidade dos componentes para o cliente não se perder, mas também precisa ser bem leve para não prejudicar a experiência em celulares e computadores de baixa potência. Podemos seguir padrões de mercado bem avaliados para casos parecidos de sucesso, sem perder a simplicidade da plataforma."
 
