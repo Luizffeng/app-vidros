@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { useBackLayer } from '../nav/useBackLayer'
 import { motionMs } from './usePresence'
 
 export function Modal({
@@ -27,6 +28,7 @@ export function Modal({
   }
   const requestCloseRef = useRef(requestClose)
   requestCloseRef.current = requestClose
+  useBackLayer(true, () => requestCloseRef.current())
 
   useEffect(() => {
     const scrollY = window.scrollY

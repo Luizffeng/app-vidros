@@ -3,7 +3,7 @@ import { useAccess } from '../auth/access'
 import { useDismiss } from './useDismiss'
 import { usePresence } from './usePresence'
 
-export type AppSection = 'list' | 'catalog' | 'settings'
+export type AppSection = 'home' | 'list' | 'catalog' | 'settings'
 
 type MenuEntry = {
   id: string
@@ -26,7 +26,14 @@ const ICON_PROPS = {
   'aria-hidden': true,
 } as const
 
-const QuotesIcon = () => (
+export const HomeIcon = () => (
+  <svg {...ICON_PROPS}>
+    <path d="m3 10.5 9-7 9 7" />
+    <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" />
+  </svg>
+)
+
+export const QuotesIcon = () => (
   <svg {...ICON_PROPS}>
     <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
     <path d="M14 3v5h5" />
@@ -34,7 +41,7 @@ const QuotesIcon = () => (
   </svg>
 )
 
-const CatalogIcon = () => (
+export const CatalogIcon = () => (
   <svg {...ICON_PROPS}>
     <rect x="3" y="3" width="7" height="7" rx="1.5" />
     <rect x="14" y="3" width="7" height="7" rx="1.5" />
@@ -43,14 +50,14 @@ const CatalogIcon = () => (
   </svg>
 )
 
-const GearIcon = () => (
+export const GearIcon = () => (
   <svg {...ICON_PROPS}>
     <circle cx="12" cy="12" r="3" />
     <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
   </svg>
 )
 
-const HelpIcon = () => (
+export const HelpIcon = () => (
   <svg {...ICON_PROPS}>
     <circle cx="12" cy="12" r="9" />
     <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
@@ -88,17 +95,25 @@ export function HeaderMenu({
 
   useDismiss(open, wrapRef, (reason) => close(reason === 'escape'))
 
-  const entries: MenuEntry[] = []
   const isAdmin = access.role !== 'vendedor'
+  const entries: MenuEntry[] = [
+    {
+      id: 'home',
+      label: 'Início',
+      icon: <HomeIcon />,
+      current: current === 'home',
+      onSelect: () => onNavigate('home'),
+    },
+    {
+      id: 'list',
+      label: 'Orçamentos',
+      icon: <QuotesIcon />,
+      current: current === 'list',
+      onSelect: () => onNavigate('list'),
+    },
+  ]
   if (isAdmin) {
     entries.push(
-      {
-        id: 'list',
-        label: 'Orçamentos',
-        icon: <QuotesIcon />,
-        current: current === 'list',
-        onSelect: () => onNavigate('list'),
-      },
       {
         id: 'catalog',
         label: 'Catálogo',
@@ -121,7 +136,7 @@ export function HeaderMenu({
     icon: <HelpIcon />,
     tag: 'em breve',
     disabled: true,
-    dividerBefore: isAdmin,
+    dividerBefore: true,
   })
   if (access.signOut) {
     const signOut = access.signOut
@@ -233,13 +248,23 @@ export function AppHeader({
   title,
   current,
   onNavigate,
+  onBack,
 }: {
   title: string
   current: AppSection
   onNavigate: (section: AppSection) => void
+  /** Arrow to the screen below (Início); same as the device back. */
+  onBack?: () => void
 }) {
   return (
     <header className="topbar app-header">
+      {onBack && (
+        <button type="button" className="btn btn-icon app-header__back" aria-label="Voltar" title="Voltar" onClick={onBack}>
+          <svg {...ICON_PROPS}>
+            <path d="M19 12H5M11 6l-6 6 6 6" />
+          </svg>
+        </button>
+      )}
       <div className="app-header__titles">
         <p className="brand-sm">App Vidros</p>
         <h1 className="title-sm">{title}</h1>

@@ -87,8 +87,8 @@ async function seedList(page) {
   }
   await page.locator('#customer-name').fill('Cliente Perf')
   await page.waitForTimeout(300)
-  await page.getByRole('button', { name: 'Voltar para orçamentos' }).click()
-  await page.getByRole('heading', { name: 'Orçamentos', level: 1 }).waitFor()
+  await page.getByRole('button', { name: 'Voltar', exact: true }).click()
+  await page.getByRole('heading', { name: 'Início', level: 1 }).waitFor()
   await page.evaluate(async (count) => {
     const db = await new Promise((resolve, reject) => {
       const req = indexedDB.open('forte-vidros')
@@ -115,7 +115,7 @@ async function seedList(page) {
     })
     db.close()
   }, LIST_SIZE)
-  await page.reload({ waitUntil: 'networkidle' })
+  await page.goto(`${BASE.replace(/\/$/, '')}/orcamentos`, { waitUntil: 'networkidle' })
   await page.getByRole('heading', { name: 'Orçamentos', level: 1 }).waitFor()
 }
 
@@ -186,7 +186,7 @@ async function runOnce(browser) {
 
     results.push(
       await measure(page, 'orçamento → lista', async () => {
-        await page.getByRole('button', { name: 'Voltar para orçamentos' }).click()
+        await page.getByRole('button', { name: 'Voltar', exact: true }).click()
         await page.getByRole('heading', { name: 'Orçamentos', level: 1 }).waitFor()
       }),
     )

@@ -819,6 +819,7 @@ label .percent-input .money-input {
 }
 
 .app-header__titles {
+  flex: 1;
   min-width: 0;
 }
 
@@ -2962,6 +2963,225 @@ textarea:focus {
 
 .tab-panel {
   animation: fade-in var(--dur-sm) var(--ease-out) backwards;
+}
+
+/* Início: banner carousel edge to edge of the shell, then a 2-column grid of square tiles. */
+.carousel {
+  margin: 0 -1rem 0.75rem;
+}
+
+.carousel__track {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1rem;
+  padding: 0 1rem;
+  scrollbar-width: none;
+}
+
+.carousel__track::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel__slide {
+  flex: 0 0 88%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  height: 6.75rem;
+  border-radius: var(--radius);
+  border: 1px solid rgba(212, 160, 23, 0.35);
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(212, 160, 23, 0.22), transparent 60%),
+    linear-gradient(150deg, var(--bg2), var(--bg1));
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.carousel__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
+  width: 100%;
+  height: 100%;
+  padding: 0.85rem 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+}
+
+button.carousel__body,
+a.carousel__body {
+  cursor: pointer;
+}
+
+.carousel__title {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.carousel__text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.carousel__dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.15rem;
+  margin-top: 0.2rem;
+}
+
+.carousel__dot {
+  width: 1.5rem;
+  height: 1.25rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.carousel__dot::before {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: rgba(245, 241, 232, 0.3);
+  transition:
+    scale var(--dur-sm) var(--ease-std),
+    background-color var(--dur-sm) var(--ease-std);
+}
+
+.carousel__dot[aria-current='true']::before {
+  background: var(--accent);
+  scale: 1.3;
+}
+
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.tile {
+  position: relative;
+  /* Near square: two rows plus the carousel fit a 360 × 640 screen above the action bar. */
+  aspect-ratio: 1 / 0.94;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: scale var(--dur-xs) var(--ease-std);
+}
+
+.tile:active:not([aria-disabled='true']) {
+  scale: 0.97;
+}
+
+.tile:hover:not([aria-disabled='true']) {
+  background: var(--surface-2);
+}
+
+.tile[aria-disabled='true'] {
+  cursor: default;
+  color: var(--muted);
+}
+
+.tile__icon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: auto;
+  border-radius: 12px;
+  background: rgba(212, 160, 23, 0.14);
+  color: var(--accent);
+}
+
+.tile[aria-disabled='true'] .tile__icon {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.tile__icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.tile__badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: var(--danger);
+  color: #1b0d0d;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.tile--alert {
+  border-color: rgba(255, 107, 107, 0.45);
+}
+
+.tile__title {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.tile__summary {
+  display: grid;
+  gap: 0.05rem;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  color: var(--muted);
+}
+
+.tile--alert .tile__summary {
+  color: #ffc9c9;
+}
+
+.tile__attention {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+@media (min-width: 600px) {
+  .tile-grid {
+    grid-template-columns: repeat(2, minmax(0, 16rem));
+    justify-content: center;
+  }
 }
 
 /* Screens: App sets data-nav on .screen for one enter. Children move, not .shell, because a

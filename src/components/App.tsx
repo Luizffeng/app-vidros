@@ -37,6 +37,17 @@ import {
   updateItem,
 } from '../domain/quote'
 import { useAccess } from '../auth/access'
+import {
+  clearCreateDraft,
+  clearEditDraft,
+  clearItemDrafts,
+  pruneItemDrafts,
+  readItemDraft,
+  saveCreateDraft,
+  saveEditDraft,
+  type ItemDraftRecord,
+  type ItemFormState,
+} from '../data/itemDraft'
 import { createRepository } from '../data/repository'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
 import {
@@ -70,41 +81,55 @@ import { ItemBlockHead } from './ItemBlockHead'
 import { Modal } from './Modal'
 import { PdfPreview } from './PdfPreview'
 import { SettingsEditor } from './SettingsEditor'
+import { HomeScreen } from './HomeScreen'
+import { getRoute, goTop, push, replace, up } from '../nav/navigator'
+import type { Route } from '../nav/routes'
+import { useBackLayer } from '../nav/useBackLayer'
+import { useRoute } from '../nav/useRoute'
 
 const repo = createRepository()
 const pdfShareSupported = canSharePdfFiles()
 
-type View = 'list' | 'editor' | 'catalog' | 'settings'
-/** Screen enter direction: list → editor forward, back to the list back, menu sections fade. */
-type Nav = 'forward' | 'back' | 'fade'
+const kindLabel = (kind: ProductKind) => ITEM_KINDS.find((k) => k.id === kind)?.label ?? kind
+
+const SECTION_ROUTES: Record<AppSection, Route> = {
+  home: { screen: 'home' },
+  list: { screen: 'quotes' },
+  catalog: { screen: 'catalog', tab: 'vidros' },
+  settings: { screen: 'settings', tab: 'register' },
+}
 
 export function App() {
   const access = useAccess()
   const isAdmin = access.role !== 'vendedor'
-  const [view, setView] = useState<View>('list')
+  const { route, nav } = useRoute()
+  const screenKey = route.screen
+  const navRef = useRef(nav)
+  navRef.current = nav
   const screenRef = useRef<HTMLDivElement>(null)
-  const navRef = useRef<Nav | null>(null)
   const listScrollRef = useRef(0)
   useScrollEdges()
 
-  const navigate = (next: View, nav: Nav) => {
-    if (next === view) return
-    if (view === 'list') listScrollRef.current = window.scrollY
-    navRef.current = nav
-    setView(next)
-  }
+  // Only while the list is the current route: the clamp after switching screens does not count.
+  useEffect(() => {
+    if (screenKey !== 'quotes') return
+    const onScroll = () => {
+      if (getRoute().route.screen === 'quotes') listScrollRef.current = window.scrollY
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [screenKey])
 
   // data-nav lives on the DOM only for the enter animation, so later children do not slide in.
   useLayoutEffect(() => {
-    window.scrollTo(0, view === 'list' ? listScrollRef.current : 0)
+    window.scrollTo(0, screenKey === 'quotes' ? listScrollRef.current : 0)
     const el = screenRef.current
-    const nav = navRef.current
-    navRef.current = null
-    if (!el || !nav) return
-    el.dataset.nav = nav
+    const enter = navRef.current
+    if (!el || !enter) return
+    el.dataset.nav = enter
     const id = window.setTimeout(() => delete el.dataset.nav, motionMs('lg'))
     return () => window.clearTimeout(id)
-  }, [view])
+  }, [screenKey])
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [catalog, setCatalog] = useState<Catalog | null>(null)
   const [settings, setSettings] = useState<AppSettings | null>(null)
@@ -117,14 +142,24 @@ export function App() {
   const [itemModal, setItemModal] = useState<
     null | { mode: 'pick' } | { mode: 'create'; kind: ProductKind } | { mode: 'edit'; id: string }
   >(null)
+  const [itemDraft, setItemDraft] = useState<ItemDraftRecord | null>(null)
+  const itemFormRef = useRef<{ state: ItemFormState; dirty: boolean } | null>(null)
+  /** Bumped to remount the item form after "Descartar alterações". */
+  const [itemFormVersion, setItemFormVersion] = useState(0)
   const [costItemId, setCostItemId] = useState<string | null>(null)
   const [pdfPreviewBlob, setPdfPreviewBlob] = useState<Blob | null>(null)
   const pdfCacheRef = useRef<{ key: string; promise: Promise<Blob>; blob?: Blob } | null>(null)
   const [shareText, setShareText] = useState<string | null>(null)
   const [shareFailed, setShareFailed] = useState(false)
   const [sendOpen, setSendOpen] = useState(false)
-  const [listQuery, setListQuery] = useState('')
-  const [listStatus, setListStatus] = useState<'all' | 'emitted' | 'draft'>('all')
+  const [listQuery, setListQuery] = useState(() => (route.screen === 'quotes' ? (route.q ?? '') : ''))
+  const [listStatus, setListStatus] = useState<'all' | 'emitted' | 'draft'>(() =>
+    route.screen === 'quotes' ? (route.filter ?? 'all') : 'all',
+  )
+  const [notice, setNotice] = useState<string | null>(null)
+  const dropQuoteOnLeaveRef = useRef(false)
+  /** Quote set in state right before its route is pushed (the route may render first). */
+  const openingRef = useRef<string | null>(null)
   /** Items that kept their old price after "Atualizar valores"; null = no note. */
   const [repriceFailed, setRepriceFailed] = useState<number | null>(null)
   const marginMode: MarginMode = settings?.marginMode ?? 'empresa'
@@ -142,11 +177,61 @@ export function App() {
     setCatalog(c)
     setQuotes(list)
     setSettings(s)
+    return list
   }
 
+  const bootedRef = useRef(false)
   useEffect(() => {
-    void refresh().catch((e) => setError(String(e)))
-  }, [])
+    const onList = screenKey === 'quotes' || screenKey === 'home'
+    if (bootedRef.current && !onList) return
+    bootedRef.current = true
+    void refresh()
+      .then((list) => {
+        if (onList) pruneItemDrafts(new Set(list.map((q) => q.id)))
+      })
+      .catch((e) => setError(String(e)))
+  }, [screenKey])
+
+  useEffect(() => {
+    if (screenKey !== 'quotes') return
+    return () => setNotice(null)
+  }, [screenKey])
+
+  useEffect(() => {
+    if (screenKey !== 'quotes') return
+    const id = window.setTimeout(() => {
+      const q = listQuery.trim()
+      replace({
+        screen: 'quotes',
+        ...(listStatus !== 'all' ? { filter: listStatus } : {}),
+        ...(q ? { q } : {}),
+      })
+    }, 300)
+    return () => window.clearTimeout(id)
+  }, [screenKey, listQuery, listStatus])
+
+  useEffect(() => {
+    if (!isAdmin && (route.screen === 'catalog' || route.screen === 'settings')) replace({ screen: 'home' })
+  }, [isAdmin, route])
+
+  const quoteId = quote?.id
+  const quoteEmitted = quote?.status === 'emitted'
+  useEffect(() => {
+    if (!quoteId) return setItemDraft(null)
+    if (quoteEmitted) {
+      clearItemDrafts(quoteId)
+      return setItemDraft(null)
+    }
+    setItemDraft(readItemDraft(quoteId))
+  }, [quoteId, quoteEmitted])
+
+  const confirmOpen =
+    Boolean(pendingRemoveId) || pendingDeleteQuote || (emitNeedsName && !quote?.customer.name?.trim())
+  useBackLayer(confirmOpen, () => {
+    setPendingRemoveId(null)
+    setPendingDeleteQuote(false)
+    setEmitNeedsName(false)
+  })
 
   useEffect(() => {
     if (!pendingRemoveId && !pendingDeleteQuote && !emitNeedsName) return
@@ -199,13 +284,14 @@ export function App() {
     setItemModal(null)
     setRepriceFailed(null)
     setQuote(draft)
-    navigate('editor', 'forward')
+    openingRef.current = draft.id
+    push({ screen: 'quote', id: draft.id })
     setError(null)
   }
 
-  const openQuote = async (id: string) => {
-    const q = await repo.getQuote(id)
-    if (!q) return
+  const loadQuote = async (id: string): Promise<boolean> => {
+    const q = await repo.getQuote(id).catch(() => null)
+    if (!q) return false
     setItemModal(null)
     setRepriceFailed(null)
     if (q.status === 'draft') {
@@ -215,14 +301,43 @@ export function App() {
       if (next !== q) {
         await repo.saveQuote(next)
         setQuote(next)
-        navigate('editor', 'forward')
-        await refresh()
-        return
+        void refresh()
+        return true
       }
     }
     setQuote(q)
-    navigate('editor', 'forward')
+    return true
   }
+
+  const openQuote = async (id: string) => {
+    if (!(await loadQuote(id))) return
+    openingRef.current = id
+    push({ screen: 'quote', id })
+  }
+
+  // Deep link, reload, browser forward: the route names a quote not loaded yet.
+  useEffect(() => {
+    if (route.screen !== 'quote') {
+      openingRef.current = null
+      if (dropQuoteOnLeaveRef.current) {
+        dropQuoteOnLeaveRef.current = false
+        setQuote(null)
+      }
+      return
+    }
+    if (quote?.id === route.id || openingRef.current === route.id) return
+    let cancelled = false
+    void loadQuote(route.id).then((found) => {
+      if (cancelled || found) return
+      setNotice('Orçamento não encontrado.')
+      replace({ screen: 'quotes' }, 'fade')
+    })
+    return () => {
+      cancelled = true
+    }
+    // loadQuote reads catalog only to refresh item details; the route is the trigger.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [route])
 
   const saveQueueRef = useRef<Promise<void>>(Promise.resolve())
   const latestSavedRef = useRef<Quote | null>(null)
@@ -245,6 +360,8 @@ export function App() {
     try {
       const next = addItem(quote, catalog, input, marginMode)
       await persist(next)
+      setItemDraft(clearCreateDraft(quote.id))
+      itemFormRef.current = null
       setItemModal(null)
       setError(null)
     } catch (e) {
@@ -257,6 +374,8 @@ export function App() {
     try {
       const next = updateItem(quote, catalog, itemId, input, marginMode)
       await persist(next)
+      setItemDraft(clearEditDraft(quote.id, itemId))
+      itemFormRef.current = null
       setItemModal(null)
       setError(null)
     } catch (e) {
@@ -267,6 +386,7 @@ export function App() {
   const onRemoveItem = async (itemId: string) => {
     if (!quote) return
     if (itemModal?.mode === 'edit' && itemModal.id === itemId) setItemModal(null)
+    setItemDraft(clearEditDraft(quote.id, itemId))
     await persist(removeItem(quote, itemId))
   }
 
@@ -324,9 +444,10 @@ export function App() {
     if (!quote || quote.status !== 'draft') return
     setPendingDeleteQuote(false)
     await repo.deleteQuote(quote.id)
-    setQuote(null)
+    clearItemDrafts(quote.id)
     setItemModal(null)
-    navigate('list', 'back')
+    dropQuoteOnLeaveRef.current = true
+    up()
     await refresh()
   }
 
@@ -482,6 +603,8 @@ export function App() {
       setBusy(true)
       const validityDays = settings?.quoteValidityDays ?? 15
       const emitted = emitQuote(quote, validityDays)
+      clearItemDrafts(quote.id)
+      setItemDraft(null)
       await persist(emitted)
       setError(null)
     } catch (e) {
@@ -517,44 +640,69 @@ export function App() {
   }
 
   const goSection = (section: AppSection) => {
-    if (!isAdmin && section !== 'list') return
-    navigate(section, 'fade')
-    if (section === 'list') void refresh()
+    if (!isAdmin && (section === 'catalog' || section === 'settings')) return
+    goTop(SECTION_ROUTES[section])
   }
 
   const screen = (node: ReactNode) => (
-    <div key={view} ref={screenRef} className="screen">
+    <div key={screenKey} ref={screenRef} className="screen">
       {node}
     </div>
   )
 
-  if (view === 'catalog' && isAdmin) {
+  if (route.screen === 'home') {
+    return screen(
+      <HomeScreen
+        quotes={quotes}
+        catalogVersion={catalog.config.version}
+        settings={settings}
+        isAdmin={isAdmin}
+        onNavigate={goSection}
+        onOpen={(target) => (target.screen === 'home' ? goSection('home') : push(target, 'fade'))}
+        onNew={() => void openNew()}
+      />,
+    )
+  }
+
+  if (route.screen === 'catalog') {
+    if (!isAdmin) return null
     return screen(
       <CatalogEditor
         catalog={catalog}
         marginMode={marginMode}
+        tab={route.tab}
+        onTabChange={(tab) => replace({ screen: 'catalog', tab })}
         onSave={onSaveCatalog}
         onNavigate={goSection}
       />,
     )
   }
 
-  if (view === 'settings' && isAdmin) {
+  if (route.screen === 'settings') {
+    if (!isAdmin) return null
     return screen(
       <SettingsEditor
         settings={settings}
+        tab={route.tab}
+        onTabChange={(tab) => replace({ screen: 'settings', tab })}
         onSave={onSaveSettings}
         onNavigate={goSection}
       />,
     )
   }
 
-  if (view === 'list') {
+  if (route.screen === 'quotes') {
     return screen(
       <div className="shell shell--wide shell--with-bar">
         <div className="sticky-head">
-          <AppHeader title="Orçamentos" current="list" onNavigate={goSection} />
+          <AppHeader title="Orçamentos" current="list" onNavigate={goSection} onBack={up} />
         </div>
+
+        {notice && (
+          <div className="banner warn" role="status">
+            {notice}
+          </div>
+        )}
 
         <section aria-label="Orçamentos">
           {quotes.length > 0 && (
@@ -621,7 +769,7 @@ export function App() {
     )
   }
 
-  if (!quote) return null
+  if (!quote || quote.id !== route.id) return screen(null)
 
   const readOnly = quote.status === 'emitted'
   const costItem = costItemId ? quote.items.find((i) => i.id === costItemId) : undefined
@@ -631,8 +779,35 @@ export function App() {
   const editingItem =
     itemModal?.mode === 'edit' ? quote.items.find((i) => i.id === itemModal.id) : undefined
   const closeItemModal = () => {
+    itemFormRef.current = null
     setItemModal(null)
     setError(null)
+  }
+  /** Back, Esc, Fechar, outside tap: what was typed stays as an item draft. */
+  const keepItemModal = () => {
+    const form = itemFormRef.current
+    if (form && itemModal?.mode === 'create') {
+      setItemDraft(form.dirty ? saveCreateDraft(quote.id, form.state) : clearCreateDraft(quote.id))
+    } else if (form && itemModal?.mode === 'edit') {
+      setItemDraft(
+        form.dirty
+          ? saveEditDraft(quote.id, itemModal.id, form.state)
+          : clearEditDraft(quote.id, itemModal.id),
+      )
+    }
+    closeItemModal()
+  }
+  /** "Cancelar" discards on purpose. */
+  const discardItemModal = () => {
+    if (itemModal?.mode === 'create') setItemDraft(clearCreateDraft(quote.id))
+    else if (itemModal?.mode === 'edit') setItemDraft(clearEditDraft(quote.id, itemModal.id))
+    closeItemModal()
+  }
+  const createDraft = itemDraft?.create
+  const editDraft = itemModal?.mode === 'edit' ? itemDraft?.edits[itemModal.id] : undefined
+  const openAddItem = () => {
+    setError(null)
+    setItemModal(createDraft ? { mode: 'create', kind: createDraft.kind } : { mode: 'pick' })
   }
 
   return screen(
@@ -643,9 +818,9 @@ export function App() {
             <button
               type="button"
               className="btn btn-icon"
-              aria-label="Voltar para orçamentos"
-              title="Voltar para orçamentos"
-              onClick={() => { navigate('list', 'back'); void refresh() }}
+              aria-label="Voltar"
+              title="Voltar"
+              onClick={up}
             >
               <BackIcon />
             </button>
@@ -808,16 +983,27 @@ export function App() {
           </article>
         ))}
 
-        {!readOnly && (
-          <div className="items-toolbar">
+        {!readOnly && createDraft && !itemModal && (
+          <div className="banner warn outdated-banner item-draft-banner" role="status">
+            <span>
+              Item não terminado: <strong>{kindLabel(createDraft.kind)}</strong>
+            </span>
+            <button type="button" className="btn" onClick={openAddItem}>
+              Continuar
+            </button>
             <button
               type="button"
-              className="btn primary"
-              onClick={() => {
-                setError(null)
-                setItemModal({ mode: 'pick' })
-              }}
+              className="btn ghost"
+              onClick={() => setItemDraft(clearCreateDraft(quote.id))}
             >
+              Descartar
+            </button>
+          </div>
+        )}
+
+        {!readOnly && (
+          <div className="items-toolbar">
+            <button type="button" className="btn primary" onClick={openAddItem}>
               Adicionar item
             </button>
           </div>
@@ -860,18 +1046,44 @@ export function App() {
         <Modal
           className="modal--item"
           title={itemModal.mode === 'edit' ? 'Editar item' : 'Adicionar item'}
-          onClose={closeItemModal}
+          onClose={keepItemModal}
         >
           {error && <p className="banner error">{error}</p>}
+          {editDraft && itemModal.mode === 'edit' && (
+            <div className="banner warn outdated-banner" role="status">
+              <span>Alterações não salvas recuperadas.</span>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  setItemDraft(clearEditDraft(quote.id, itemModal.id))
+                  itemFormRef.current = null
+                  setItemFormVersion((v) => v + 1)
+                }}
+              >
+                Descartar alterações
+              </button>
+            </div>
+          )}
           <ItemForm
-            key={itemModal.mode === 'edit' ? itemModal.id : itemModal.kind}
+            key={`${itemModal.mode === 'edit' ? itemModal.id : itemModal.kind}-${itemFormVersion}`}
             catalog={quoteCatalog ?? catalog}
             marginMode={marginMode}
             initial={editingItem?.input}
+            initialState={
+              itemModal.mode === 'edit'
+                ? editDraft
+                : createDraft?.kind === itemModal.kind
+                  ? createDraft
+                  : undefined
+            }
+            onStateChange={(state, dirty) => {
+              itemFormRef.current = { state, dirty }
+            }}
             lockKind={itemModal.mode === 'edit' ? editingItem?.input.kind : itemModal.kind}
             hideTitle
             submitLabel={itemModal.mode === 'edit' ? 'Salvar alterações' : 'Adicionar item'}
-            onCancel={closeItemModal}
+            onCancel={discardItemModal}
             onSubmit={(input) => {
               if (itemModal.mode === 'edit') void onUpdateItem(itemModal.id, input)
               else void onAddItem(input)

@@ -1,8 +1,9 @@
 import { useEffect, useRef, type RefObject } from 'react'
+import { useBackLayer } from '../nav/useBackLayer'
 
-export type DismissReason = 'outside' | 'escape'
+export type DismissReason = 'outside' | 'escape' | 'back'
 
-/** Fecha popovers ao tocar/clicar fora de `containerRef` ou ao apertar Esc. */
+/** Fecha popovers ao tocar/clicar fora de `containerRef`, ao apertar Esc ou no voltar do aparelho. */
 export function useDismiss(
   open: boolean,
   containerRef: RefObject<HTMLElement | null>,
@@ -12,6 +13,7 @@ export function useDismiss(
   useEffect(() => {
     onDismissRef.current = onDismiss
   })
+  useBackLayer(open, () => onDismissRef.current('back'))
 
   useEffect(() => {
     if (!open) return

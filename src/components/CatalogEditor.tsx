@@ -10,14 +10,17 @@ import type {
   PricingConfig,
   Vidro,
 } from '../domain/types'
+import { up } from '../nav/navigator'
+import type { CatalogTab } from '../nav/routes'
+import { useLeaveGuard } from '../nav/useLeaveGuard'
 import { AppHeader, type AppSection } from './AppHeader'
 import { Dropdown } from './Dropdown'
 import { Modal } from './Modal'
 import { SearchField } from './SearchField'
 
-type Tab = 'vidros' | 'kitBox' | 'acessorios' | 'aluminios' | 'config'
+const DISCARD_MESSAGE = 'Descartar as alterações não salvas do catálogo?'
 
-const TABS: { value: Tab; label: string }[] = [
+const TABS: { value: CatalogTab; label: string }[] = [
   { value: 'vidros', label: 'Vidros' },
   { value: 'kitBox', label: 'Kit Box' },
   { value: 'acessorios', label: 'Acessórios' },
@@ -75,16 +78,19 @@ function parsePercent(raw: string): number | null {
 export function CatalogEditor({
   catalog,
   marginMode,
+  tab,
+  onTabChange,
   onSave,
   onNavigate,
 }: {
   catalog: Catalog
   marginMode: MarginMode
+  tab: CatalogTab
+  onTabChange: (tab: CatalogTab) => void
   onSave: (catalog: Catalog) => Promise<void>
   onNavigate: (section: AppSection) => void
 }) {
   const [draft, setDraft] = useState(() => cloneCatalog(catalog))
-  const [tab, setTab] = useState<Tab>('vidros')
   const [query, setQuery] = useState('')
   const [showInactive, setShowInactive] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -95,6 +101,7 @@ export function CatalogEditor({
     () => JSON.stringify(draft) !== JSON.stringify(catalog),
     [draft, catalog],
   )
+  useLeaveGuard(dirty, DISCARD_MESSAGE)
 
   const save = async () => {
     try {
@@ -118,7 +125,7 @@ export function CatalogEditor({
   }
 
   const discardChanges = () => {
-    if (!confirm('Descartar as alterações não salvas do catálogo?')) return
+    if (!confirm(DISCARD_MESSAGE)) return
     setDraft(cloneCatalog(catalog))
     setMessage(null)
     setError(null)
@@ -127,7 +134,7 @@ export function CatalogEditor({
   return (
     <div className="shell shell--wide shell--with-bar">
       <div className="sticky-head">
-        <AppHeader title="Catálogo" current="catalog" onNavigate={onNavigate} />
+        <AppHeader title="Catálogo" current="catalog" onNavigate={onNavigate} onBack={up} />
       </div>
 
       <p className="lede catalog-lede">
@@ -143,7 +150,7 @@ export function CatalogEditor({
           label="Tabela do catálogo"
           value={tab}
           onChange={(next) => {
-            setTab(next)
+            onTabChange(next)
             setQuery('')
           }}
           options={TABS}

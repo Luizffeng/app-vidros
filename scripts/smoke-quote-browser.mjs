@@ -1,5 +1,5 @@
 /**
- * Browser smoke: novo orçamento → item → detalhes do custo → nome → emitir → prévia e download do PDF.
+ * Browser smoke: Início → novo orçamento → item → detalhes do custo → nome → emitir → prévia e download do PDF.
  * Needs a dev server in local mode (no Supabase):
  *   VITE_SUPABASE_URL= VITE_SUPABASE_ANON_KEY= npm run dev -- --host 127.0.0.1
  * Run: APP_URL=http://127.0.0.1:5173 node scripts/smoke-quote-browser.mjs
@@ -114,7 +114,10 @@ async function main() {
     check('nome do PDF', /^\d{4}-\d{4}-1-Cliente\.pdf$/.test(filename), filename)
     check('arquivo é PDF', readFileSync(pdfPath).subarray(0, 4).toString() === '%PDF', pdfPath)
 
-    await page.getByRole('button', { name: 'Voltar para orçamentos' }).click()
+    await page.getByRole('button', { name: 'Voltar', exact: true }).click()
+    await page.getByRole('heading', { name: 'Início', level: 1 }).waitFor()
+    ok('voltar do orçamento criado no Início volta ao Início')
+    await page.getByRole('button', { name: /^Orçamentos:/ }).click()
     await page.getByRole('heading', { name: 'Orçamentos', level: 1 }).waitFor()
     check(
       'lista mostra emitido',

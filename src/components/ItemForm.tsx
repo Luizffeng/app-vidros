@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { ItemFormState } from '../data/itemDraft'
 import { isCatalogItemActive } from '../domain/catalogActive'
 import { marginLabel } from '../domain/itemDescription'
 import { priceItem } from '../domain/pricing'
@@ -85,6 +86,27 @@ function seedExtraRows(initial?: ItemInput): ExtraDraft[] {
           committed: true,
         }))
   return [...committed, blankExtra()]
+}
+
+function restoreExtraRows(rows: ItemFormState['extraRows']): ExtraDraft[] {
+  const restored = rows.map((row) => ({ ...row, id: crypto.randomUUID() }))
+  return restored.some((row) => !row.committed) ? restored : [...restored, blankExtra()]
+}
+
+/** Empty extra rows and surrounding spaces do not count as typing. */
+function sameFormState(a: ItemFormState, b: ItemFormState): boolean {
+  const norm = (s: ItemFormState) => {
+    const fields: Record<string, unknown> = {
+      ...s,
+      note: s.note.trim(),
+      customDesc: s.customDesc.trim(),
+      extraRows: s.extraRows
+        .filter((r) => r.description.trim() || r.amount.trim())
+        .map((r) => [r.description.trim(), r.amount.trim(), r.committed]),
+    }
+    return JSON.stringify(Object.keys(fields).sort().map((key) => [key, fields[key]]))
+  }
+  return norm(a) === norm(b)
 }
 
 function parsePositive(raw: string): number | null {
@@ -347,6 +369,10 @@ interface Props {
   marginMode: MarginMode
   onSubmit: (input: ItemInput) => void
   initial?: ItemInput
+  /** Unfinished input to restore (item draft); wins over `initial`. */
+  initialState?: ItemFormState
+  /** Raw fields on every change; `dirty` = differs from the form as first opened without a draft. */
+  onStateChange?: (state: ItemFormState, dirty: boolean) => void
   onCancel?: () => void
   title?: string
   submitLabel?: string
@@ -359,6 +385,8 @@ export function ItemForm({
   marginMode,
   onSubmit,
   initial,
+  initialState,
+  onStateChange,
   onCancel,
   title = 'Adicionar item',
   submitLabel = 'Adicionar ao orçamento',
@@ -366,30 +394,71 @@ export function ItemForm({
   lockKind,
 }: Props) {
   const cfg = catalog.config
-  const seeded = seedFromInput(catalog, initial)
-  const startKind = lockKind ?? seeded.kind
+  const [pristine] = useState((): ItemFormState => {
+    const seeded = seedFromInput(catalog, initial)
+    return {
+      ...seeded,
+      kind: lockKind ?? seeded.kind,
+      markup:
+        !initial && lockKind && lockKind !== 'custom' ? pctStr(cfg.defaultMarkup[lockKind]) : seeded.markup,
+      extraRows: seedExtraRows(initial).map(({ description, amount, committed }) => ({
+        description,
+        amount,
+        committed,
+      })),
+      note: initial?.note ?? '',
+    }
+  })
+  const start = initialState ?? pristine
 
-  const [kind, setKind] = useState<ProductKind>(startKind)
-  const [spanCm, setSpanCm] = useState(seeded.spanCm)
-  const [widthMm, setWidthMm] = useState(seeded.widthMm)
-  const [heightMm, setHeightMm] = useState(seeded.heightMm)
-  const [glassColor, setGlassColor] = useState(seeded.glassColor)
-  const [profileColor, setProfileColor] = useState(seeded.profileColor)
-  const [thicknessMm, setThicknessMm] = useState(seeded.thicknessMm)
-  const [subtype, setSubtype] = useState<CorrerSubtype>(seeded.subtype)
-  const [hasLatch, setHasLatch] = useState(seeded.hasLatch)
-  const [finish, setFinish] = useState<EspelhoFinish>(seeded.finish)
-  const [espelhoColor, setEspelhoColor] = useState(seeded.espelhoColor)
-  const [espelhoThickness, setEspelhoThickness] = useState(seeded.espelhoThickness)
-  const [markup, setMarkup] = useState(
-    !initial && lockKind && lockKind !== 'custom'
-      ? pctStr(cfg.defaultMarkup[lockKind])
-      : seeded.markup,
+  const [kind, setKind] = useState<ProductKind>(start.kind)
+  const [spanCm, setSpanCm] = useState(start.spanCm)
+  const [widthMm, setWidthMm] = useState(start.widthMm)
+  const [heightMm, setHeightMm] = useState(start.heightMm)
+  const [glassColor, setGlassColor] = useState(start.glassColor)
+  const [profileColor, setProfileColor] = useState(start.profileColor)
+  const [thicknessMm, setThicknessMm] = useState(start.thicknessMm)
+  const [subtype, setSubtype] = useState<CorrerSubtype>(start.subtype)
+  const [hasLatch, setHasLatch] = useState(start.hasLatch)
+  const [finish, setFinish] = useState<EspelhoFinish>(start.finish)
+  const [espelhoColor, setEspelhoColor] = useState(start.espelhoColor)
+  const [espelhoThickness, setEspelhoThickness] = useState(start.espelhoThickness)
+  const [markup, setMarkup] = useState(start.markup)
+  const [extraRows, setExtraRows] = useState<ExtraDraft[]>(() =>
+    initialState ? restoreExtraRows(initialState.extraRows) : seedExtraRows(initial),
   )
-  const [extraRows, setExtraRows] = useState(seedExtraRows(initial))
-  const [customDesc, setCustomDesc] = useState(seeded.customDesc)
-  const [customAmount, setCustomAmount] = useState(seeded.customAmount)
-  const [note, setNote] = useState(initial?.note ?? '')
+  const [customDesc, setCustomDesc] = useState(start.customDesc)
+  const [customAmount, setCustomAmount] = useState(start.customAmount)
+  const [note, setNote] = useState(start.note)
+
+  const formState: ItemFormState = {
+    kind,
+    spanCm,
+    widthMm,
+    heightMm,
+    glassColor,
+    profileColor,
+    thicknessMm,
+    subtype,
+    hasLatch,
+    finish,
+    espelhoColor,
+    espelhoThickness,
+    markup,
+    extraRows: extraRows.map(({ description, amount, committed }) => ({ description, amount, committed })),
+    customDesc,
+    customAmount,
+    note,
+  }
+  const stateKey = JSON.stringify(formState)
+  const onStateChangeRef = useRef(onStateChange)
+  useEffect(() => {
+    onStateChangeRef.current = onStateChange
+  })
+  useEffect(() => {
+    const state = JSON.parse(stateKey) as ItemFormState
+    onStateChangeRef.current?.(state, !sameFormState(state, pristine))
+  }, [stateKey, pristine])
   const [formError, setFormError] = useState<string | null>(null)
   const [numSnap, setNumSnap] = useState({
     spanCm,

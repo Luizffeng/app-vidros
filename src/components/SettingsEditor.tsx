@@ -5,12 +5,13 @@ import { normalizeSettings } from '../data/defaultSettings'
 import { fileToLogoDataUrl } from '../data/logo'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
 import { filterUfInput, formatPhone, isValidUf, phoneDdd, phoneDigits } from '../domain/brazil'
+import { up } from '../nav/navigator'
+import type { SettingsTab } from '../nav/routes'
+import { useLeaveGuard } from '../nav/useLeaveGuard'
 import { AppHeader, type AppSection } from './AppHeader'
 import { CollapsibleSection } from './CollapsibleSection'
 import { useDismiss } from './useDismiss'
 import { Presence } from './usePresence'
-
-type SettingsTab = 'register' | 'quote' | 'logo'
 
 const SETTINGS_TABS: { id: SettingsTab; label: string }[] = [
   { id: 'register', label: 'Cadastro' },
@@ -38,10 +39,14 @@ const MARGIN_MODES: { id: MarginMode; name: string; description: string }[] = [
 
 export function SettingsEditor({
   settings,
+  tab,
+  onTabChange,
   onSave,
   onNavigate,
 }: {
   settings: AppSettings
+  tab: SettingsTab
+  onTabChange: (tab: SettingsTab) => void
   onSave: (settings: AppSettings) => Promise<void>
   onNavigate: (section: AppSection) => void
 }) {
@@ -52,7 +57,6 @@ export function SettingsEditor({
   const [cepStatus, setCepStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle')
   const [cepMessage, setCepMessage] = useState<string | null>(null)
   const [logoBusy, setLogoBusy] = useState(false)
-  const [tab, setTab] = useState<SettingsTab>('register')
   const tabsRef = useRef<HTMLDivElement>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
 
@@ -83,6 +87,7 @@ export function SettingsEditor({
     () => JSON.stringify(draft) !== JSON.stringify(normalizeSettings(settings)),
     [draft, settings],
   )
+  useLeaveGuard(dirty)
 
   const setEst = (patch: Partial<EstablishmentInfo>) => {
     setDraft((d) => ({
@@ -170,7 +175,7 @@ export function SettingsEditor({
   return (
     <div className="shell shell--wide shell--with-bar">
       <div className="sticky-head">
-        <AppHeader title="Configurações" current="settings" onNavigate={onNavigate} />
+        <AppHeader title="Configurações" current="settings" onNavigate={onNavigate} onBack={up} />
 
         <div className="tabs" role="tablist" aria-label="Seções das configurações" ref={tabsRef}>
           <span className="tabs__indicator" aria-hidden="true" />
@@ -183,7 +188,7 @@ export function SettingsEditor({
               className="tabs__tab"
               aria-selected={tab === id}
               aria-controls={`settings-panel-${id}`}
-              onClick={() => setTab(id)}
+              onClick={() => onTabChange(id)}
             >
               {label}
             </button>
@@ -433,7 +438,7 @@ export function SettingsEditor({
 
       <footer className="action-bar">
         <div className="action-bar__inner action-bar__inner--pair">
-          <button type="button" className="btn" onClick={() => onNavigate('list')}>
+          <button type="button" className="btn" onClick={up}>
             Voltar
           </button>
           <div className="emit-wrap" ref={saveWrapRef}>
