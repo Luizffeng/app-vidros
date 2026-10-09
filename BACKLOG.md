@@ -48,7 +48,8 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ### 2026-10-09
 
-- [x] `fix` **Enviar PDF só com o arquivo:** o compartilhamento não leva mais título nem mensagem junto (a mensagem segue copiada). Teste para o WhatsApp voltar a mostrar a miniatura do PDF enviado pelo Chrome no Android
+- [x] `ui` **Enviar volta ao ícone de compartilhar:** o PDF passa pela folha do sistema (não vai direto ao WhatsApp), então o botão Enviar (barra e prévia) volta ao ícone de compartilhar; o logo do WhatsApp fica só em "Enviar no WhatsApp" do texto
+- [x] `fix` **Miniatura do PDF no WhatsApp (testado, sem solução pela web):** PDF enviado pelo Chrome no Android chega sem miniatura; o mesmo arquivo anexado dentro do WhatsApp tem. Mandar só o arquivo (sem título/mensagem) não mudou nada e foi desfeito
 
 ### 2026-10-08
 

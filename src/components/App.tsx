@@ -986,14 +986,14 @@ export function App() {
             <div className="modal__actions modal__actions--pdf">
               <button
                 type="button"
-                className="btn primary zap action-bar__send"
+                className="btn primary action-bar__send"
                 disabled={busy}
                 onClick={() => {
                   closePdfPreview()
                   setSendOpen(true)
                 }}
               >
-                <WhatsAppIcon />
+                <ShareIcon />
                 <span>Enviar</span>
               </button>
             </div>
@@ -1362,23 +1362,23 @@ function SendMenu({
       <button
         ref={buttonRef}
         type="button"
-        className="btn primary zap action-bar__send"
+        className="btn primary action-bar__send"
         disabled={disabled}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         onClick={() => onOpenChange(!open)}
       >
-        <WhatsAppIcon />
+        <ShareIcon />
         <span>Enviar</span>
       </button>
       {pop.mounted && (
-        <div className="send-pop" id={menuId} role="menu" aria-label="Enviar orçamento no WhatsApp" data-state={pop.state}>
+        <div className="send-pop" id={menuId} role="menu" aria-label="Enviar orçamento" data-state={pop.state}>
           <button ref={firstRef} type="button" role="menuitem" className="send-option" onClick={onSharePdf}>
             <span className="send-option__icon send-option__icon--pdf"><PdfIcon /></span>
             <span className="send-option__text">
               <strong>Enviar PDF</strong>
-              <small>{canSharePdf ? 'Arquivo; a mensagem fica copiada' : 'Baixa o PDF e abre o WhatsApp'}</small>
+              <small>{canSharePdf ? 'Arquivo com a mensagem, que também é copiada' : 'Baixa o PDF e abre o WhatsApp'}</small>
             </span>
           </button>
           <button type="button" role="menuitem" className="send-option" onClick={onText}>
@@ -1444,6 +1444,14 @@ function DownloadIcon() {
   return (
     <svg {...STROKE_ICON}>
       <path d="M12 4v11M7 10.5l5 5 5-5M4.5 19.5h15" />
+    </svg>
+  )
+}
+
+function ShareIcon() {
+  return (
+    <svg {...STROKE_ICON}>
+      <path d="M12 3.5v11M8 7.5l4-4 4 4M8.5 10.5H7a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1.5" />
     </svg>
   )
 }

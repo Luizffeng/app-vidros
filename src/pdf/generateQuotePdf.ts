@@ -326,10 +326,9 @@ export function canSharePdfFiles(): boolean {
 }
 
 /**
- * Compartilha só o arquivo PDF pela Web Share API; `text` vai para a área de transferência
- * (o WhatsApp descarta texto junto de arquivo e, com ele, parece não gerar a miniatura do
- * PDF vindo do Chrome no Android). Sem compartilhamento de arquivo: baixa e, com `text`,
- * abre o WhatsApp com a mensagem.
+ * Compartilha o arquivo PDF (com `text`, se houver) pela Web Share API; senão baixa e, com
+ * `text`, abre o WhatsApp com a mensagem. O texto também vai para a área de transferência:
+ * o WhatsApp descarta o texto que acompanha um arquivo.
  * Não faça `await` antes de chamar no click: o Safari exige `navigator.share` dentro do
  * gesto do usuário (NotAllowedError cai no download).
  */
@@ -343,7 +342,7 @@ export async function shareOrDownloadPdf(
   }
   if (typeof nav.share === 'function' && typeof nav.canShare === 'function') {
     const file = new File([blob], filename, { type: 'application/pdf' })
-    const data: ShareData = { files: [file] }
+    const data: ShareData = { title: filename.replace(/\.pdf$/i, ''), files: [file], ...(text ? { text } : {}) }
     let canShareFiles = false
     try {
       canShareFiles = nav.canShare(data)
