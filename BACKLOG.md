@@ -42,9 +42,13 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 ## Fora (por enquanto)
 
 - Sync Google Sheets em runtime
-- App nativo (iOS/Android)
+- App nativo (iOS/Android). Ganho conhecido: só app nativo (ex.: Android empacotado com Capacitor) manda o PDF direto ao WhatsApp, sem a folha de compartilhar do sistema; pelo navegador, arquivo só sai por essa folha. A tela de legenda do WhatsApp continua de qualquer jeito
 
 ## Done
+
+### 2026-10-09
+
+- [x] `fix` **Enviar PDF só com o arquivo:** o compartilhamento não leva mais título nem mensagem junto (a mensagem segue copiada). Teste para o WhatsApp voltar a mostrar a miniatura do PDF enviado pelo Chrome no Android
 
 ### 2026-10-08
 

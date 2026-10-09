@@ -1378,7 +1378,7 @@ function SendMenu({
             <span className="send-option__icon send-option__icon--pdf"><PdfIcon /></span>
             <span className="send-option__text">
               <strong>Enviar PDF</strong>
-              <small>{canSharePdf ? 'Arquivo com a mensagem, que também é copiada' : 'Baixa o PDF e abre o WhatsApp'}</small>
+              <small>{canSharePdf ? 'Arquivo; a mensagem fica copiada' : 'Baixa o PDF e abre o WhatsApp'}</small>
             </span>
           </button>
           <button type="button" role="menuitem" className="send-option" onClick={onText}>
