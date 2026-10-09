@@ -75,20 +75,6 @@ export function BannerCarousel({
           )
         })}
       </div>
-      {banners.length > 1 && (
-        <div className="carousel__dots">
-          {banners.map((banner, i) => (
-            <button
-              key={banner.id}
-              type="button"
-              className="carousel__dot"
-              aria-label={banner.title}
-              aria-current={i === active ? 'true' : undefined}
-              onClick={() => goTo(i)}
-            />
-          ))}
-        </div>
-      )}
     </section>
   )
 }

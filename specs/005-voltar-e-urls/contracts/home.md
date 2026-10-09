@@ -4,16 +4,18 @@
 
 ```text
 ┌ sticky head: "App Vidros" / "Início" ······ [menu] ┐
-│ ┌ banner carousel (full width, ~2:1, next peeks) ┐ │
-│ └──────────────── • ○ ○ ──────────────────────────┘ │
+│ ┌ banner carousel (full width, next peeks) ──────┐ │
+│ └─────────────────────────────────────────────────┘ │
 │ ┌ Orçamentos ┐ ┌ Catálogo ┐                         │
 │ │ icon       │ │ icon     │   square tiles, radius  │
 │ │ summary    │ │ summary  │   = --radius, gap 12 px │
 │ └────────────┘ └──────────┘                         │
 │ ┌ Configurações ┐ ┌ Ajuda ┐                         │
 │ └───────────────┘ └───────┘                         │
-└ action bar: [ + Novo orçamento ] ───────────────────┘
+└─────────────────────────────────────────────────────┘
 ```
+
+No action bar and no "Novo orçamento" (owner, 2026-10-09): new quotes start from the Orçamentos list.
 
 Wide screens: content max 560 px (same as `.shell`), tiles max ~260 px.
 
@@ -38,12 +40,12 @@ Wide screens: content max 560 px (same as `.shell`), tiles max ~260 px.
 | Auto advance | every 5000 ms, wraps last → first |
 | Pause | while pointer down on the carousel; while focus inside; page hidden; carousel < 50% visible |
 | Resume | 5000 ms after the last interaction ends |
-| Manual | swipe (scroll-snap), dots |
+| Manual | swipe (scroll-snap); no dots, the next slide peeks |
 | Reduced motion | no auto advance, instant scroll |
 | Height | fixed ratio; text clamps to 2 lines; no layout shift between slides |
 | Action | `route` → in-app push (back returns to Início); `url` → new tab |
 
-Accessibility (W3C APG carousel): region `aria-roledescription="carrossel"` + `aria-label="Avisos"`; each slide `role="group"` `aria-roledescription="banner"` `aria-label="1 de 3"`; dots are buttons named by slide title, current one `aria-current="true"`; no live region while auto advancing.
+Accessibility (W3C APG carousel): region `aria-roledescription="carrossel"` + `aria-label="Avisos"`; each slide `role="group"` `aria-roledescription="banner"` `aria-label="1 de 3"`; no live region while auto advancing.
 
 ## Motion
 

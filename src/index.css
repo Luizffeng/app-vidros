@@ -3042,40 +3042,6 @@ a.carousel__body {
   color: var(--text);
 }
 
-.carousel__dots {
-  display: flex;
-  justify-content: center;
-  gap: 0.15rem;
-  margin-top: 0.2rem;
-}
-
-.carousel__dot {
-  width: 1.5rem;
-  height: 1.25rem;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-}
-
-.carousel__dot::before {
-  content: '';
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 999px;
-  background: rgba(245, 241, 232, 0.3);
-  transition:
-    scale var(--dur-sm) var(--ease-std),
-    background-color var(--dur-sm) var(--ease-std);
-}
-
-.carousel__dot[aria-current='true']::before {
-  background: var(--accent);
-  scale: 1.3;
-}
-
 .tile-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3084,8 +3050,7 @@ a.carousel__body {
 
 .tile {
   position: relative;
-  /* Near square: two rows plus the carousel fit a 360 × 640 screen above the action bar. */
-  aspect-ratio: 1 / 0.94;
+  aspect-ratio: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;

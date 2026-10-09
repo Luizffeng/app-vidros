@@ -37,6 +37,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 - [ ] `feat` (P) **Web Share / atalhos mobile** (base Web Share já no PDF desktop/mobile quando o browser permitir)
 - [ ] `data` (M) **Botão admin "enviar dados deste navegador"** (IndexedDB local → Supabase)
 - [ ] `feat` (M) **Banners do Início: modelos e gatilhos:** depois da Página inicial; novos modelos visuais de banner e regras de quando mostrar (ex.: por data, por uso, por versão). Hoje banners fixos do app
+- [ ] `feat` (M) **Início: rodapé institucional ao rolar (junto com a spec SaaS):** abaixo dos blocos, sem barra fixa, lista simples de links em tom discreto. Proposta: Fale com o suporte (WhatsApp/SAC, e-mail, horário), Novidades da versão, Termos de uso, Política de privacidade (LGPD), Excluir minha conta e dados, dados do fornecedor (razão social, CNPJ, endereço; exigência para quem vende plano online), versão do app. Blocos e carrossel continuam cabendo sem rolar em 360 × 640
 - [ ] `feat` (M) **Tela de novidades do app:** destino do banner "Confira os detalhes das últimas atualizações"; lista do que mudou em cada versão
 - [ ] `ui` (P) **Voltar no Android: CloseWatcher:** quando o Chrome estável suportar sem ativação do usuário, trocar as entradas de histórico das janelas por `CloseWatcher` (fica mais simples que contar entradas em `src/nav/navigator.ts`)
 - [ ] `ui` (P) **Confirmação de sair sem salvar com visual do app:** hoje Catálogo/Configurações usam `window.confirm` (`useLeaveGuard`); trocar por um diálogo próprio

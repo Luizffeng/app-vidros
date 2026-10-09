@@ -39,7 +39,7 @@ Total +6.38 KB, under the combined 7 KB budget (nav 3 + home 4); includes the it
 9. **Item edit draft**: edit an item, change width, back → total unchanged; reopen edit → changed width shown, with discard.
 10. **Início tiles**: with 2 emitted expiring in ≤ 7 days and 5 drafts → "2 vencendo · 5 rascunhos"; clear establishment phone → Configurações shows "!" + "Complete o cadastro da loja", tap → Cadastro tab.
 11. **Carousel**: wait 5 s → next slide; hold finger → no change; swipe both ways; turn on "Remover animações" (Android) → no auto advance.
-12. **Layout**: 360 × 640 viewport → carousel + 2 tile rows + action bar visible without scrolling.
+12. **Layout**: 360 × 640 viewport → carousel + 2 tile rows visible without scrolling; no action bar, no carousel dots.
 
 ## Expected outcomes
 

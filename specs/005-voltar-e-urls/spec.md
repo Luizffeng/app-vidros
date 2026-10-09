@@ -62,7 +62,7 @@ O vendedor está montando um orçamento e abre a janela de item (ou a prévia do
 
 ### User Story 2 - Voltar volta uma tela; só sai do app no Início (Priority: P1)
 
-Sem janela aberta, o voltar volta para a tela anterior. Orçamentos, Catálogo e Configurações voltam para o Início; o orçamento volta para a tela de onde foi aberto (lista de Orçamentos, ou Início quando criado pelo "Novo orçamento" do Início). No Início, o voltar sai do app normalmente. Orçamentos, Catálogo e Configurações ganham também uma seta de voltar no topo, que leva ao Início.
+Sem janela aberta, o voltar volta para a tela anterior. Orçamentos, Catálogo e Configurações voltam para o Início; o orçamento volta para a lista de Orçamentos (de onde é aberto ou criado). No Início, o voltar sai do app normalmente. Orçamentos, Catálogo e Configurações ganham também uma seta de voltar no topo, que leva ao Início.
 
 **Why this priority**: completa o fluxo do dono: o vendedor nunca é jogado para fora no meio do trabalho.
 
@@ -74,7 +74,7 @@ Sem janela aberta, o voltar volta para a tela anterior. Orçamentos, Catálogo e
 2. **Given** lista de orçamentos, **When** aperta voltar (ou a seta do topo), **Then** vai para o Início.
 3. **Given** Catálogo ou Configurações, **When** aperta voltar (ou a seta do topo), **Then** vai para o Início.
 4. **Given** Início, sem janela aberta, **When** aperta voltar, **Then** sai do app como qualquer site (comportamento padrão do aparelho).
-5. **Given** orçamento criado pelo "Novo orçamento" do Início, **When** aperta voltar, **Then** volta para o Início.
+5. **Given** orçamento criado pelo "Novo orçamento" da lista, **When** aperta voltar, **Then** volta para a lista.
 6. **Given** voltou do orçamento para a lista com o voltar, **When** aperta "avançar" no navegador do computador, **Then** reabre o mesmo orçamento.
 7. **Given** a seta de voltar do app, **When** toca nela, **Then** o resultado é o mesmo do voltar do aparelho, e o voltar seguinte do aparelho não reabre a tela de onde saiu.
 

@@ -57,13 +57,20 @@ async function addMirror(page) {
   await modal.waitFor({ state: 'detached' })
 }
 
+async function newQuote(page) {
+  await page.getByRole('button', { name: /^Orçamentos:/ }).click()
+  await heading(page, 'Orçamentos')
+  await page.getByRole('button', { name: 'Novo orçamento' }).click()
+  await page.getByText('Rascunho', { exact: true }).waitFor()
+}
+
 async function overlays(page) {
   await page.goto(`${BASE}/`, { waitUntil: 'networkidle' })
   await heading(page, 'Início')
   ok('abre no Início', path(page))
+  check('Início sem "Novo orçamento" e sem barra inferior', (await page.locator('.action-bar').count()) === 0)
 
-  await page.getByRole('button', { name: 'Novo orçamento' }).click()
-  await page.getByText('Rascunho', { exact: true }).waitFor()
+  await newQuote(page)
   const quoteUrl = path(page)
   check('orçamento tem endereço próprio', /^\/orcamentos\/[^/]+$/.test(quoteUrl), quoteUrl)
   await addMirror(page)
@@ -110,16 +117,18 @@ async function overlays(page) {
   await page.locator('.modal').waitFor({ state: 'detached' })
   await page.waitForTimeout(200)
   await back(page)
-  await heading(page, 'Início')
-  ok('fechar pelo botão e voltar: um toque leva ao Início')
+  await heading(page, 'Orçamentos')
+  ok('fechar pelo botão e voltar: um toque leva à lista')
 
   await page.goForward({ waitUntil: 'commit' })
   await page.getByText('Rascunho', { exact: true }).waitFor()
   check('avançar reabre o orçamento', path(page) === quoteUrl, path(page))
 
   await page.getByRole('button', { name: 'Voltar', exact: true }).click()
+  await heading(page, 'Orçamentos')
+  ok('seta do orçamento volta à lista')
+  await back(page)
   await heading(page, 'Início')
-  ok('seta do orçamento volta ao Início')
   await back(page)
   check('voltar no Início sai do app', !page.url().startsWith(BASE), page.url())
   return quoteUrl
@@ -193,8 +202,7 @@ async function screens(page, quoteUrl) {
 
 async function itemDrafts(page) {
   await page.goto(`${BASE}/`, { waitUntil: 'networkidle' })
-  await page.getByRole('button', { name: 'Novo orçamento' }).click()
-  await page.getByText('Rascunho', { exact: true }).waitFor()
+  await newQuote(page)
   await addMirror(page)
   const modal = page.locator('.modal--item')
   const banner = page.locator('.item-draft-banner')
@@ -251,15 +259,20 @@ async function home(browser) {
   await heading(page, 'Início')
   const tiles = page.locator('.tile')
   const last = await tiles.last().boundingBox()
-  const bar = await page.locator('.action-bar').boundingBox()
   check(
     '360×640: carrossel e duas linhas de blocos sem rolar',
-    last && bar && last.y + last.height <= bar.y + 1,
-    `bloco termina em ${Math.round(last?.y + last?.height)}, barra em ${Math.round(bar?.y)}`,
+    last && last.y + last.height <= 640,
+    `bloco termina em ${Math.round(last?.y + last?.height)}`,
   )
+  check('carrossel sem bolinhas', (await page.locator('.carousel button:not(.carousel__body)').count()) === 0)
   await page.screenshot({ path: join(OUT, 'home-360.png') })
 
-  const current = () => page.locator('.carousel__dot[aria-current="true"]').getAttribute('aria-label')
+  const slideAt = (p) =>
+    p.locator('.carousel__track').evaluate((track) => {
+      const step = track.children[1] ? track.children[1].offsetLeft - track.children[0].offsetLeft : 1
+      return Math.round(track.scrollLeft / step)
+    })
+  const current = () => slideAt(page)
   const first = await current()
   await page.waitForTimeout(5600)
   const second = await current()
@@ -278,12 +291,9 @@ async function home(browser) {
   const reduced = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })
   const still = await reduced.newPage()
   await still.goto(`${BASE}/`, { waitUntil: 'networkidle' })
-  const before = await still.locator('.carousel__dot[aria-current="true"]').getAttribute('aria-label')
+  const before = await slideAt(still)
   await still.waitForTimeout(5600)
-  check(
-    'reduzir movimento: sem troca automática',
-    (await still.locator('.carousel__dot[aria-current="true"]').getAttribute('aria-label')) === before,
-  )
+  check('reduzir movimento: sem troca automática', (await slideAt(still)) === before)
   await reduced.close()
 }
 

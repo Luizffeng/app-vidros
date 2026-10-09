@@ -53,7 +53,6 @@ export function HomeScreen({
   isAdmin,
   onNavigate,
   onOpen,
-  onNew,
 }: {
   quotes: readonly Quote[]
   catalogVersion: string
@@ -61,7 +60,6 @@ export function HomeScreen({
   isAdmin: boolean
   onNavigate: (section: AppSection) => void
   onOpen: (route: Route) => void
-  onNew: () => void
 }) {
   const banners = useMemo(() => visibleBanners(BANNERS, new Date()), [])
   const summary = useMemo(
@@ -82,7 +80,7 @@ export function HomeScreen({
   const catalogLine = updatedOn ? `Atualizado em ${updatedOn.toLocaleDateString('pt-BR')}` : undefined
 
   return (
-    <div className="shell shell--with-bar home">
+    <div className="shell home">
       <div className="sticky-head">
         <AppHeader title="Início" current="home" onNavigate={onNavigate} />
       </div>
@@ -124,17 +122,6 @@ export function HomeScreen({
         )}
         <Tile title="Ajuda" icon={<HelpIcon />} label="Ajuda: em breve" summary="Em breve" disabled />
       </nav>
-
-      <footer className="action-bar">
-        <div className="action-bar__inner">
-          <button type="button" className="btn primary action-bar__new" onClick={onNew}>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-            Novo orçamento
-          </button>
-        </div>
-      </footer>
     </div>
   )
 }

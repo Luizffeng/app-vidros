@@ -73,6 +73,8 @@ async function measure(page, name, action) {
 }
 
 async function seedList(page) {
+  await page.getByRole('button', { name: /^Orçamentos:/ }).click()
+  await page.getByRole('heading', { name: 'Orçamentos', level: 1 }).waitFor()
   await page.getByRole('button', { name: 'Novo orçamento' }).click()
   await page.getByText('Rascunho', { exact: true }).waitFor()
   for (let i = 0; i < ITEMS; i++) {
@@ -88,7 +90,7 @@ async function seedList(page) {
   await page.locator('#customer-name').fill('Cliente Perf')
   await page.waitForTimeout(300)
   await page.getByRole('button', { name: 'Voltar', exact: true }).click()
-  await page.getByRole('heading', { name: 'Início', level: 1 }).waitFor()
+  await page.getByRole('heading', { name: 'Orçamentos', level: 1 }).waitFor()
   await page.evaluate(async (count) => {
     const db = await new Promise((resolve, reject) => {
       const req = indexedDB.open('forte-vidros')

@@ -18,6 +18,7 @@
 - Q: De onde vêm os banners? → A: Fixos do app, publicados junto com cada versão (sempre pelo menos 2). Ex.: "Em breve teremos …", "Sabia que no plano anual você economiza R$ …?", "Confira os detalhes das últimas atualizações". Modelos e gatilhos de banner ficam para depois.
 - Q: O carrossel passa sozinho? → A: Sim, com troca rápida; pausa ao tocar; dá para arrastar para o próximo ou o anterior.
 - Q: Onde fica o "Continuar {código}"? → A: Sai do Início. O orçamento em andamento aparece só como rascunho na lista de Orçamentos.
+- Q (dono, depois da implementação): O Início tem "Novo orçamento", bolinhas no carrossel e barra inferior? → A: Não. Novo orçamento fica só na lista de Orçamentos; o carrossel indica o próximo banner pela borda que aparece; o Início não tem barra inferior. Conteúdo institucional (SAC, política de privacidade) virá abaixo dos blocos, ao rolar, em spec futura.
 - Q: Como fica o Início para o vendedor? → A: O papel Vendedor fica desativado por ora (usuários iniciais são autônomos e controlam catálogo e configurações). Todos veem o mesmo Início.
 
 ## Contexto
@@ -63,7 +64,7 @@ Tocar em qualquer parte do bloco abre o módulo.
 
 ### User Story 2 - Banners com avisos e novidades (Priority: P1)
 
-No topo do Início, um carrossel de ponta a ponta mostra os banners publicados com o app (no mínimo 2). Os banners trocam sozinhos; o usuário pode arrastar para o próximo ou o anterior; enquanto o dedo está sobre o banner, a troca para. Pontinhos mostram quantos são e qual está na tela. Um banner pode ter uma ação (abrir uma tela do app ou um endereço externo) ou ser só informativo.
+No topo do Início, um carrossel de ponta a ponta mostra os banners publicados com o app (no mínimo 2). Os banners trocam sozinhos; o usuário pode arrastar para o próximo ou o anterior; enquanto o dedo está sobre o banner, a troca para. A borda do próximo banner aparece à direita (sem pontinhos). Um banner pode ter uma ação (abrir uma tela do app ou um endereço externo) ou ser só informativo.
 
 **Why this priority**: é o canal do app para avisar novidades, mudanças e ofertas, pedido explícito do dono.
 
@@ -76,14 +77,14 @@ No topo do Início, um carrossel de ponta a ponta mostra os banners publicados c
 3. **Given** dedo segurando o banner, **When** passam mais de 5 s, **Then** o banner não troca; volta a contar ao soltar.
 4. **Given** banner com ação, **When** toca nele, **Then** abre a tela do app indicada (voltar retorna ao Início) ou o endereço externo em outra aba.
 5. **Given** banner sem ação, **When** toca nele, **Then** nada acontece além de pausar a troca.
-6. **Given** "reduzir movimento" ligado no aparelho, **When** abre o Início, **Then** os banners não trocam sozinhos (só arrastando ou pelos pontinhos).
+6. **Given** "reduzir movimento" ligado no aparelho, **When** abre o Início, **Then** os banners não trocam sozinhos (só arrastando).
 7. **Given** app em segundo plano ou Início fora da tela, **When** volta, **Then** a troca continua de onde parou, sem pular vários banners de uma vez.
 8. **Given** banner com período de exibição (ex.: "Em breve" até 30/11), **When** a data passa, **Then** ele não aparece mais; se sobrarem menos de 2, aparecem os banners padrão do app.
 
 ### Edge Cases
 
 - Primeiro uso (nenhum orçamento, cadastro vazio): carrossel normal; Orçamentos "Nenhum orçamento ainda"; Configurações com "!" e "Complete o cadastro da loja".
-- Dados carregando (rede lenta): grade aparece com espaços reservados nos resumos; banners e "Novo orçamento" funcionam na hora (banners não dependem da rede).
+- Dados carregando (rede lenta): grade aparece com espaços reservados nos resumos; banners funcionam na hora (banners não dependem da rede).
 - Falha ao carregar orçamentos ou configurações: o bloco afetado mostra "Não foi possível carregar"; os outros funcionam.
 - Banner com imagem que não carrega: mostra o título e o texto sobre o fundo padrão.
 - Texto de banner longo: cortado em 2 linhas com reticências; o banner não cresce de altura.
@@ -96,7 +97,7 @@ No topo do Início, um carrossel de ponta a ponta mostra os banners publicados c
 ### Functional Requirements
 
 - **FR-001**: O Início MUST ser a primeira tela ao abrir o app pelo ícone ou pelo endereço raiz, e o destino do voltar de Orçamentos, Catálogo e Configurações (spec 005).
-- **FR-002**: O Início MUST ter "Novo orçamento" na barra inferior, com o mesmo comportamento do botão da lista de Orçamentos.
+- **FR-002**: O Início MUST NOT ter barra inferior nem "Novo orçamento"; criar orçamento fica na lista de Orçamentos.
 - **FR-003**: O topo MUST ter um carrossel de largura total com os banners do app (mínimo 2, máximo 5 visíveis ao mesmo tempo), pontinhos de posição e a borda do banner seguinte visível.
 - **FR-004**: O carrossel MUST trocar sozinho a cada 5 s, em ciclo; MUST pausar enquanto o dedo/ponteiro está sobre ele ou o foco do teclado está nele; MUST permitir arrastar para o próximo e o anterior; cada interação MUST reiniciar a contagem.
 - **FR-005**: Com "reduzir movimento" ligado, o carrossel MUST NOT trocar sozinho; troca sem deslize.
@@ -120,7 +121,7 @@ No topo do Início, um carrossel de ponta a ponta mostra os banners publicados c
 
 ### Measurable Outcomes
 
-- **SC-001**: Em um celular de 360 × 640 px, o carrossel e as duas linhas de blocos aparecem sem rolar, com "Novo orçamento" visível na barra.
+- **SC-001**: Em um celular de 360 × 640 px, o carrossel e as duas linhas de blocos aparecem sem rolar.
 - **SC-002**: Do toque no ícone até entrar em qualquer módulo: 1 toque.
 - **SC-003**: 100% das pendências obrigatórias de Configurações aparecem no bloco com o motivo escrito.
 - **SC-004**: O banner não troca enquanto o usuário toca ou segura; com "reduzir movimento", 0 trocas automáticas.

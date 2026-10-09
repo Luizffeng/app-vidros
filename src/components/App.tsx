@@ -659,7 +659,6 @@ export function App() {
         isAdmin={isAdmin}
         onNavigate={goSection}
         onOpen={(target) => (target.screen === 'home' ? goSection('home') : push(target, 'fade'))}
-        onNew={() => void openNew()}
       />,
     )
   }
