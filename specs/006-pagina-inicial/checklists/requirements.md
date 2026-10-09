@@ -1,7 +1,7 @@
-# Specification Quality Checklist: Botão voltar dentro do app e endereço por tela
+# Specification Quality Checklist: Página inicial (Início)
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2026-10-08
+**Created**: 2026-10-09
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -31,5 +31,4 @@
 
 ## Notes
 
-- 2026-10-09: clarificado com o dono: Início como tela raiz (voltar de Orçamentos/Catálogo/Configurações vai ao Início; só lá sai do app), item digitado vira item em rascunho (US4, FR-016 a FR-019). Reabrir pelo ícone abre o Início (FR-020); atalho "Continuar" retirado no desenho da spec 006. Depende da spec da Página inicial. Sem perguntas em aberto.
-- 2026-10-08: escrita a partir do relato do dono (voltar do Android sai do app no meio do orçamento) + item do backlog "URLs por tela". Sem marcadores abertos; três pontos assumidos e marcados "a refinar" em Assumptions: voltar na tela inicial sai do app; formulário de item descarta como "Cancelar"; sem lembrar último orçamento fora do endereço. Bons candidatos para `/speckit-clarify`.
+- 2026-10-09: escrita a partir do pedido do dono e do item de backlog. Redesenhada no mesmo dia pelo dono: carrossel de banners fixos do app (troca a cada 5 s, pausa ao tocar, arrasto) + grade 2 colunas de blocos por módulo com resumo e alerta. Sem resumo do mês, sem busca, sem "Continuar"; papel Vendedor desativado. Benchmark em `benchmark.md`. Sem perguntas em aberto.

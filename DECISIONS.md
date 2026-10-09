@@ -7,6 +7,7 @@ Only choices visible in code or in README / constitution / handoff. Not a change
 - **Decision:** One establishment. Roles `admin` and `vendedor`. Users are created in the Supabase dashboard. Signup stays off outside the app.
 - **Reason/evidence:** README “Não é SaaS”. Migration header and `handle_new_user` default `vendedor`. No signup call in `LoginScreen.tsx`. No company table.
 - **Consequence:** Do not add tenants, billing, or open registration unless the product ask changes. New users are vendedores until SQL promotes them.
+- **Under revision (2026-10-09):** the owner wants a SaaS (several shops, plans) that stays simple for non-technical users, and the `vendedor` role disabled until there is demand. Both change only through their own specs (backlog: "SaaS", "Login, contas e autorização"); until then this decision holds in code.
 
 ## Storage behind `QuoteRepository`
 
