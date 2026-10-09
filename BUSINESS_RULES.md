@@ -22,6 +22,18 @@ Rules encoded in the current code. Locations are the evidence. Unclear items are
 - Revision clones the quote, new id, `revision + 1`, `parentId` = source `parentId` or source id, status draft, clears `emittedAt` and `validUntil`, keeps the same `number`. `createRevision`.
 - UI delete runs only when `status === 'draft'`. `onDeleteDraft` in `App.tsx`. The repository delete has no status check.
 
+## Navigation and unsaved input
+
+- Device back closes the open window first (item form, picker, menus, confirms, previews). With nothing open it goes back one screen. Início is the root; back there leaves the app. `src/nav/navigator.ts`.
+- Leaving Catálogo or Configurações with unsaved changes asks first. Cancel keeps the screen and the edits. `useLeaveGuard`.
+- Item draft: closing the item form by back, Esc, Fechar or outside tap keeps the typed values in this browser (localStorage `app-vidros:item-draft:{quoteId}`), one new item plus edits per existing item. The editor shows "Item não terminado: {tipo}" with Continuar / Descartar. "Cancelar", saving the item, emitting or deleting the quote clear it. Drafts of quotes no longer in the list are removed when the list or Início loads. Never used by pricing, PDF or share text. `src/data/itemDraft.ts`.
+
+## Início
+
+- Orçamentos tile: "N vencendo" counts emitted quotes whose validity ends today through the next 7 days (`EXPIRING_DAYS`), shown before the draft count. `quoteTileSummary` in `src/domain/home.ts`.
+- Catálogo tile shows the date of the catalog version. Configurações tile shows "!" while both nome and nome fantasia are blank, or the phone is blank, and opens the Cadastro tab. `catalogUpdatedOn`, `settingsPending`.
+- Banners: at most 5, filtered by optional start/end dates; fewer than 2 falls back to the defaults. Placeholder copy in `src/data/banners.ts`, edited in code. Autoplay every 5 s, paused on touch, focus, hidden page, or off screen; off with reduced motion.
+
 ## Money
 
 - `grandTotal = itemsTotal + additionalTotal - discountTotal`. `withTotals` in `src/domain/quote.ts`.

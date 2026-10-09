@@ -8,6 +8,8 @@ Web app for one glass shop to price measured openings, save a draft, emit an imm
 
 ## User-facing capabilities
 
+- Início: banner carousel and tiles per module with what needs attention.
+- One URL per screen; device back closes the open window, then goes back one screen. Unsaved item input survives as an item draft.
 - Quote list with search and filter Todos / Emitidos / Rascunhos.
 - Draft items: box, correr (J2F, J4F, P2F, P4F), pivotante, maxim-ar, vidro fixo, espelho, or free-text (`custom`).
 - Per-item extras, quote-level additional costs (freight typed as one), discounts, per-item markup.
@@ -22,7 +24,9 @@ Web app for one glass shop to price measured openings, save a draft, emit an imm
 
 | Module | Path | Notes |
 | --- | --- | --- |
-| Shell / quotes UI | `src/components/App.tsx` | Views and persist queue. |
+| Shell / quotes UI | `src/components/App.tsx` | Screen per route and persist queue. |
+| Navigation | `src/nav/` | Routes, history, back layers, leave guards. |
+| Início | `src/components/HomeScreen.tsx` | Tiles from `src/domain/home.ts`, banners from `src/data/banners.ts`. |
 | Item form | `src/components/ItemForm.tsx` | Inputs per `ProductKind`. |
 | Catalog | `src/components/CatalogEditor.tsx` | Bumps `config.version` on save. |
 | Settings | `src/components/SettingsEditor.tsx` | Tabs: establishment, quote, logo. |

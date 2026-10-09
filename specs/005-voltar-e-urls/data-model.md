@@ -56,12 +56,16 @@ ItemDraftRecord = {
   savedAt: string                 // ISO
 }
 
-ItemFormState = {
+ItemFormState = {                 // flat, one key per ItemForm input (src/data/itemDraft.ts)
   kind: ProductKind
-  fields: Record<string, string>  // raw inputs: spanCm, widthMm, heightMm, colors, thickness, subtype, latch, finish, markup, custom desc/amount, note
-  extras: { description: string, amount: string }[]  // ItemForm extraRows, committed only
+  spanCm, widthMm, heightMm, glassColor, profileColor, thicknessMm, subtype,
+  finish, espelhoColor, espelhoThickness, markup, customDesc, customAmount, note: string
+  hasLatch: boolean
+  extraRows: { description: string, amount: string, committed: boolean }[]
 }
 ```
+
+"Differ" is compared with sorted keys, trimmed text, and empty extra rows ignored.
 
 Rules:
 

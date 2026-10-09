@@ -5,7 +5,8 @@ Single-page app. Domain functions are pure. Persistence is one interface with tw
 ```
 main.tsx
   AccessProvider          supabase session + profiles.role, or local passthrough
-    App.tsx               view state, calls repo + domain
+    App.tsx               renders the route's screen, calls repo + domain
+      nav/navigator       URL <-> screen, history entries for screens and overlays
       domain/quote.ts     totals, emit, revision, share text
       domain/pricing      priceItem(catalog, input) -> PricingResult
       pdf/generateQuotePdf
@@ -16,7 +17,8 @@ main.tsx
 
 ## Modules
 
-- **UI** (`src/components/`): list, editor, catalog, settings. `App.tsx` owns quote state and is the only component that calls `createRepository()`.
+- **UI** (`src/components/`): Início, list, editor, catalog, settings. `App.tsx` owns quote state and is the only component that calls `createRepository()`.
+- **Navigation** (`src/nav/`): `routes.ts` parses/formats paths (`/`, `/orcamentos?filtro=&busca=`, `/orcamentos/:id`, `/catalogo/:tab`, `/configuracoes/:tab`). `navigator.ts` keeps `history` in step: `push`/`replace` for screens, `goTop` from the menu and tiles (back to Início, then push), `up` for the header arrow, `pushLayer` for overlays, `addGuard` for unsaved editors. Each entry's state is `{app, idx, layer?}`; the path stack is in sessionStorage. A fresh deep link becomes Início → parents → screen. Overlay pops caused by the app's own `history.back()` are counted and ignored.
 - **Domain** (`src/domain/`): no fetch, no DOM. `types.ts` is the contract. `quote.ts` mutates quote snapshots. `pricing/` prices one item.
 - **Data** (`src/data/`): adapters, seed load, catalog/settings normalize, CEP, logo resize.
 - **Auth** (`src/auth/access.tsx`): blocks the tree until login when a Supabase client exists.
@@ -24,7 +26,7 @@ main.tsx
 
 ## Data flow
 
-1. Boot loads catalog, settings, and quote list through the repository.
+1. Boot loads catalog, settings, and quote list through the repository, then renders the screen in the URL (Início by default). `/orcamentos/:id` loads that quote; unknown id goes to the list with a notice.
 2. New draft: `nextQuoteNumber()` then `createEmptyDraft` (`src/domain/quote.ts`). Number shape `ORC-{year}-{seq}` is produced by the adapter, not by the domain.
 3. Add/edit item: `addItem` / `updateItem` call `priceItem` and store both `input` and `result` on the item.
 4. `persist` in `App.tsx` updates React state immediately, then `saveQuote` on a queue so an older save cannot finish last.

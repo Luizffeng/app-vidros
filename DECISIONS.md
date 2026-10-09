@@ -86,7 +86,13 @@ Only choices visible in code or in README / constitution / handoff. Not a change
 
 - **Decision:** One duration/easing/distance scale in `:root`; overlays leave through `usePresence`; screens enter by `data-nav` on a keyed `.screen` root; sections use native `<details>` height transitions. Only opacity and transform. No animation library, no View Transitions API, no backdrop blur over scrolling content.
 - **Reason/evidence:** Spec `specs/004-transicoes/` (research R1–R9): low-end phones, ≤ 2 KB budget, interaction never blocked (View Transitions blocks input during the snapshot). `scripts/motion-perf-browser.mjs` baseline vs after.
-- **Consequence:** New animations reuse the tokens and the "Motion" block at the end of `index.css` and stay covered by its `prefers-reduced-motion` rule. Screen changes go through `navigate` in `App.tsx`. Do not transform `.shell` (it holds the fixed `.action-bar`).
+- **Consequence:** New animations reuse the tokens and the "Motion" block at the end of `index.css` and stay covered by its `prefers-reduced-motion` rule. Screen changes go through `src/nav/navigator.ts`, which sets the direction (`data-nav`). Do not transform `.shell` (it holds the fixed `.action-bar`).
+
+## Own History API router; overlays are back layers
+
+- **Decision:** No router library. `src/nav/` maps paths to screens (`routes.ts`) and owns `history` (`navigator.ts`). Every open overlay pushes one history entry (`useBackLayer`, already inside `Modal` and `useDismiss`), so device back closes the top overlay first. Início (`/`) is the root; a fresh deep link rebuilds the parent chain. Tabs and list filters change the URL with `replace`, never a new entry. Unsaved Catálogo/Configurações ask with `window.confirm` (`useLeaveGuard`).
+- **Reason/evidence:** Specs `specs/005-voltar-e-urls/` and `specs/006-pagina-inicial/` (research R1–R4): Android back left the app with a modal open. A router library would add bundle size and still not cover overlays. `useRoute` uses `useState` + `subscribe`, not `useSyncExternalStore`, because the sync render cost ~30 ms on "lista → orçamento" at 4× CPU.
+- **Consequence:** A new overlay must go through `Modal`/`useDismiss` or call `useBackLayer`. A new screen needs a `Route` in `routes.ts` and a branch in `App.tsx`. Cloudflare `_redirects` already serves `index.html` for every path. Unsaved item input is kept in localStorage per quote (`src/data/itemDraft.ts`), not in the quote.
 
 ## Spec Kit for larger features
 

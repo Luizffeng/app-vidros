@@ -15,6 +15,17 @@
 | `APP_URL=http://127.0.0.1:5173 node scripts/nav-back-browser.mjs` | scenarios below (uses `page.goBack()`, same `popstate` as Android back) |
 | `node scripts/smoke-quote-browser.mjs` · `validate-catalog-browser.mjs` · `motion-perf-browser.mjs` | existing flows still pass (start at Início) |
 
+## Baseline
+
+Main chunk gzip, `vite build` with Supabase env set (2026-10-09):
+
+| Asset | Before (`44e3f5d`) | After 005 + 006 | Delta |
+| --- | --- | --- | --- |
+| `index-*.js` | 262.84 KB | 268.56 KB | +5.72 KB |
+| `index-*.css` | 8.87 KB | 9.53 KB | +0.66 KB |
+
+Total +6.38 KB, under the combined 7 KB budget (nav 3 + home 4); includes the item draft.
+
 ## Scenarios (script + manual on Android)
 
 1. **Overlays**: open orçamento → Adicionar item → tipo → back: form closes, still on orçamento. Repeat for prévia do PDF, Enviar menu, Enviar texto, Detalhes do custo, header menu, dropdown, "Excluir rascunho?" confirm. One back per overlay, never leaves the app.

@@ -12,7 +12,7 @@ App Vidros: single-shop SPA to build, emit, and share glass quotes for one estab
 
 ## Stack
 
-React 19, Vite, TypeScript. No router. Vitest (node). Oxlint. Persist via `QuoteRepository`: Supabase when `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set, else IndexedDB. PDF: jsPDF in the browser. Host: Cloudflare Pages (`public/_redirects`).
+React 19, Vite, TypeScript. No router library (own History API router in `src/nav/`). Vitest (node). Oxlint. Persist via `QuoteRepository`: Supabase when `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set, else IndexedDB. PDF: jsPDF in the browser. Host: Cloudflare Pages (`public/_redirects`).
 
 ## Entry points
 
@@ -24,7 +24,7 @@ React 19, Vite, TypeScript. No router. Vitest (node). Oxlint. Persist via `Quote
 | `src/domain/pricing/index.ts` `priceItem` | Pricing dispatch. |
 | `src/domain/types.ts` | Shared models and `QuoteRepository`. |
 
-Views are `useState` in `App` (`list` \| `editor` \| `catalog` \| `settings`). There is no URL router.
+Screens come from the URL (`src/nav/routes.ts`): `/` Início, `/orcamentos`, `/orcamentos/:id`, `/catalogo/:tab`, `/configuracoes/:tab`. Change them only through `src/nav/navigator.ts`. Overlays take one history entry each (`useBackLayer`), so device back closes them first.
 
 ## Folders
 
@@ -32,7 +32,8 @@ Views are `useState` in `App` (`list` \| `editor` \| `catalog` \| `settings`). T
 | --- | --- |
 | `src/domain/` | Quote lifecycle, totals, share text, item labels. No I/O. |
 | `src/domain/pricing/` | Pure price functions. See `src/domain/pricing/AGENTS.md`. |
-| `src/data/` | Repository adapters, seed, catalog normalize, ViaCEP, logo bytes. |
+| `src/data/` | Repository adapters, seed, catalog normalize, ViaCEP, logo bytes, Início banners, item drafts (localStorage). |
+| `src/nav/` | Routes, history navigator, `useRoute`, `useBackLayer`, `useLeaveGuard`. |
 | `src/auth/access.tsx` | Session gate and role. |
 | `src/components/` | UI. See `src/components/AGENTS.md`. |
 | `src/pdf/generateQuotePdf.ts` | Client PDF, download, Web Share, `wa.me`. |
@@ -46,8 +47,8 @@ Views are `useState` in `App` (`list` \| `editor` \| `catalog` \| `settings`). T
 - **API calls:** `src/data/supabaseRepository.ts`, `src/data/supabaseClient.ts`, `src/auth/access.tsx`, `src/components/LoginScreen.tsx`, `src/data/viacep.ts`. No app-owned HTTP server.
 - **Business logic:** `src/domain/quote.ts`, `src/domain/pricing/`. Rules: [BUSINESS_RULES.md](BUSINESS_RULES.md).
 - **Auth:** Supabase email/password. Gate: `src/auth/access.tsx`. Real write lock: RLS in the migration. UI hide: `AppHeader.tsx`, `App.tsx` (`isAdmin`).
-- **State:** React `useState` inside `App`. Only context is `AccessContext`. No Redux/Zustand.
-- **Tests:** colocated `*.test.ts` under `src/`. Run `npm test`. Browser scripts (not in `npm test`, need a local-mode dev server): `scripts/smoke-quote-browser.mjs` (create → item → emit → PDF), `scripts/validate-catalog-browser.mjs` (catalog edit/save/filter), `scripts/motion-perf-browser.mjs` (transitions at 4× CPU vs a baseline).
+- **State:** React `useState` inside `App`; current screen from the URL via `useRoute`. Only context is `AccessContext`. No Redux/Zustand.
+- **Tests:** colocated `*.test.ts` under `src/`. Run `npm test`. Browser scripts (not in `npm test`, need a local-mode dev server): `scripts/smoke-quote-browser.mjs` (create → item → emit → PDF), `scripts/validate-catalog-browser.mjs` (catalog edit/save/filter), `scripts/motion-perf-browser.mjs` (transitions at 4× CPU vs a baseline), `scripts/nav-back-browser.mjs` (back button, URLs, item draft, Início).
 - **Config / env:** `.env.example`, `src/vite-env.d.ts`. Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Missing either value means local mode.
 - **Integrations:** Supabase (Auth, Postgres, Storage bucket `logos`), ViaCEP, WhatsApp `wa.me`, Cloudflare Pages.
 
