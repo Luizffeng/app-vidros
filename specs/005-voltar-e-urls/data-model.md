@@ -59,7 +59,7 @@ ItemDraftRecord = {
 ItemFormState = {
   kind: ProductKind
   fields: Record<string, string>  // raw inputs: spanCm, widthMm, heightMm, colors, thickness, subtype, latch, finish, markup, custom desc/amount, note
-  extras: { ref: string, qty: string }[]
+  extras: { description: string, amount: string }[]  // ItemForm extraRows, committed only
 }
 ```
 
