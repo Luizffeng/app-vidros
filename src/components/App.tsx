@@ -71,6 +71,7 @@ import { CatalogEditor } from './CatalogEditor'
 import { AppHeader, HeaderMenu, type AppSection } from './AppHeader'
 import { useDismiss } from './useDismiss'
 import { ConfirmPop } from './ConfirmPop'
+import { IconButton } from './IconButton'
 import { motionMs, usePresence } from './usePresence'
 import { useScrollEdges } from './useScrollEdges'
 import { CollapsibleSection } from './CollapsibleSection'
@@ -241,7 +242,7 @@ export function App() {
       if (!(target instanceof Element)) return
       if (
         target.closest('.confirm-pop') ||
-        target.closest('.icon-btn--remove') ||
+        target.closest('.item-remove') ||
         target.closest('.topbar__delete') ||
         target.closest('.emit-wrap')
       )
@@ -761,7 +762,7 @@ export function App() {
 
         <footer className="action-bar">
           <div className="action-bar__inner">
-            <button type="button" className="btn primary action-bar__new" onClick={() => void openNew()}>
+            <button type="button" className="btn primary with-icon action-bar__new" onClick={() => void openNew()}>
               <PlusIcon />
               Novo orçamento
             </button>
@@ -817,15 +818,9 @@ export function App() {
       <div className="sticky-head">
         <header className="quote-head">
           <div className="quote-head__bar">
-            <button
-              type="button"
-              className="btn btn-icon"
-              aria-label="Voltar"
-              title="Voltar"
-              onClick={up}
-            >
+            <IconButton label="Voltar" onClick={up}>
               <BackIcon />
-            </button>
+            </IconButton>
             <div className="quote-head__titles">
               <h1 className="quote-head__code">{formatQuoteCode(quote.number, quote.revision)}</h1>
               <span className={`status-pill status-pill--${readOnly ? 'emitted' : 'draft'}`}>
@@ -833,27 +828,18 @@ export function App() {
               </span>
             </div>
             {readOnly ? (
-              <button
-                type="button"
-                className="btn btn-icon revise"
-                aria-label="Criar uma revisão"
-                title="Criar uma revisão"
-                disabled={busy}
-                onClick={() => void onRevise()}
-              >
+              <IconButton label="Criar uma revisão" tone="revise" disabled={busy} onClick={() => void onRevise()}>
                 <RevisionIcon />
-              </button>
+              </IconButton>
             ) : (
               <div className="topbar__delete">
-                <button
-                  type="button"
-                  className="btn btn-icon danger-solid"
-                  aria-label="Excluir rascunho"
-                  title="Excluir rascunho"
+                <IconButton
+                  label="Excluir rascunho"
+                  tone="danger-solid"
                   onClick={() => setPendingDeleteQuote((open) => !open)}
                 >
                   <TrashIcon />
-                </button>
+                </IconButton>
                 <ConfirmPop
                   open={pendingDeleteQuote}
                   place="below"
@@ -929,27 +915,28 @@ export function App() {
             </button>
             {!readOnly && (
               <div className="item-block__actions">
-                <button
-                  type="button"
-                  className="icon-btn icon-btn--edit"
-                  aria-label="Editar"
+                <IconButton
+                  label="Editar"
+                  size="sm"
+                  tone="edit"
                   onClick={() => {
                     setError(null)
                     setItemModal({ mode: 'edit', id: item.id })
                   }}
                 >
                   <PencilIcon />
-                </button>
-                <button
-                  type="button"
-                  className="icon-btn icon-btn--remove"
-                  aria-label="Remover"
+                </IconButton>
+                <IconButton
+                  label="Remover"
+                  size="sm"
+                  tone="danger"
+                  className="item-remove"
                   onClick={() =>
                     setPendingRemoveId((current) => (current === item.id ? null : item.id))
                   }
                 >
                   <TrashIcon />
-                </button>
+                </IconButton>
                 <ConfirmPop
                   open={pendingRemoveId === item.id}
                   label="Confirmar remoção"
@@ -1113,17 +1100,17 @@ export function App() {
             <BarTotal value={quote.grandTotal} />
           </div>
           <div className="action-bar__buttons">
-            <IconAction
+            <IconButton
               label="Prévia do PDF"
               disabled={busy || quote.items.length === 0}
               onClick={() => void onPreviewPdf()}
             >
               <EyeIcon />
-            </IconAction>
+            </IconButton>
             {readOnly && (
-              <IconAction label="Baixar PDF" disabled={busy} onClick={() => void onDownloadPdf()}>
+              <IconButton label="Baixar PDF" disabled={busy} onClick={() => void onDownloadPdf()}>
                 <DownloadIcon />
-              </IconAction>
+              </IconButton>
             )}
             {readOnly ? (
               <SendMenu
@@ -1181,7 +1168,7 @@ export function App() {
             <div className="modal__actions modal__actions--pdf">
               <button
                 type="button"
-                className="btn primary action-bar__send"
+                className="btn primary with-icon action-bar__send"
                 disabled={busy}
                 onClick={() => {
                   closePdfPreview()
@@ -1462,13 +1449,13 @@ function WhatsAppShareModal({
         </div>
       )}
       <div className="modal__actions">
-        <button type="button" className="btn zap-copy" onClick={() => void copy()}>
+        <button type="button" className="btn with-icon" onClick={() => void copy()}>
           {copied ? 'Copiado' : 'Copiar'}
           {copied ? <CheckIcon /> : <CopyIcon />}
         </button>
         <button
           type="button"
-          className="btn primary zap zap-send"
+          className="btn primary with-icon zap"
           aria-label="Enviar no WhatsApp"
           onClick={onSend}
         >
@@ -1557,7 +1544,7 @@ function SendMenu({
       <button
         ref={buttonRef}
         type="button"
-        className="btn primary action-bar__send"
+        className="btn primary with-icon action-bar__send"
         disabled={disabled}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -1586,33 +1573,6 @@ function SendMenu({
         </div>
       )}
     </div>
-  )
-}
-
-function IconAction({
-  label,
-  disabled,
-  className,
-  onClick,
-  children,
-}: {
-  label: string
-  disabled?: boolean
-  className?: string
-  onClick: () => void
-  children: ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      className={`btn btn-icon${className ? ` ${className}` : ''}`}
-      aria-label={label}
-      title={label}
-      disabled={disabled}
-      onClick={onClick}
-    >
-      {children}
-    </button>
   )
 }
 

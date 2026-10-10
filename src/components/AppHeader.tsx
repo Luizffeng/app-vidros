@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { useAccess } from '../auth/access'
+import { IconButton } from './IconButton'
 import { useDismiss } from './useDismiss'
 import { usePresence } from './usePresence'
 
@@ -188,11 +189,10 @@ export function HeaderMenu({
 
   return (
     <div className="app-header__menu" ref={wrapRef}>
-      <button
+      <IconButton
         ref={buttonRef}
-        type="button"
-        className="btn btn-icon app-header__menu-btn"
-        aria-label="Menu"
+        label="Menu"
+        className="app-header__menu-btn"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
@@ -207,7 +207,7 @@ export function HeaderMenu({
         <svg {...ICON_PROPS}>
           <path d="M4 6h16M4 12h16M4 18h16" />
         </svg>
-      </button>
+      </IconButton>
       {menu.mounted && (
         <div
           id={menuId}
@@ -259,11 +259,11 @@ export function AppHeader({
   return (
     <header className="topbar app-header">
       {onBack && (
-        <button type="button" className="btn btn-icon app-header__back" aria-label="Voltar" title="Voltar" onClick={onBack}>
+        <IconButton label="Voltar" className="app-header__back" onClick={onBack}>
           <svg {...ICON_PROPS}>
             <path d="M19 12H5M11 6l-6 6 6 6" />
           </svg>
-        </button>
+        </IconButton>
       )}
       <div className="app-header__titles">
         <p className="brand-sm">App Vidros</p>

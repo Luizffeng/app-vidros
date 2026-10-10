@@ -481,19 +481,6 @@ label .percent-input .money-input {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
 }
 
-.zap-copy {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-}
-
-.zap-copy svg {
-  width: 1.1rem;
-  height: 1.1rem;
-  flex: none;
-}
-
 .modal--zap .modal__actions .btn {
   white-space: nowrap;
 }
@@ -507,19 +494,6 @@ label .percent-input .money-input {
   .zap-send__long {
     display: none;
   }
-}
-
-.zap-send {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-}
-
-.zap-send svg {
-  width: 1.15rem;
-  height: 1.15rem;
-  flex: none;
 }
 
 .zap-preview p {
@@ -1620,34 +1594,29 @@ textarea:focus {
   color: var(--muted);
 }
 
-.icon-btn {
+.btn.btn-icon--sm {
   width: 1.7rem;
   height: 1.7rem;
-  padding: 0;
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: var(--text);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
 }
 
-.icon-btn:hover {
+.btn.btn-icon--sm:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.06);
 }
 
-.icon-btn--edit {
+.btn.btn-icon--sm svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.btn-icon--edit {
   color: #f0a04a;
 }
 
-.icon-btn--remove {
+.btn-icon--danger {
   color: #e05a5a;
-}
-
-.icon-btn svg {
-  width: 1.05rem;
-  height: 1.05rem;
 }
 
 /* ConfirmPop: the trigger's wrapper is position: relative. */
@@ -2204,16 +2173,6 @@ textarea:focus {
 
 .action-bar__new {
   flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-}
-
-.action-bar__new svg {
-  width: 1.15rem;
-  height: 1.15rem;
-  flex: none;
 }
 
 .action-bar__inner--pair {
@@ -2263,18 +2222,14 @@ textarea:focus {
   width: 100%;
 }
 
-.action-bar__send {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.btn.with-icon.action-bar__send {
   gap: 0.3rem;
   padding: 0 0.65rem;
 }
 
-.action-bar__send svg {
+.btn.with-icon.action-bar__send svg {
   width: 1.4rem;
   height: 1.4rem;
-  flex: none;
 }
 
 .send-wrap {
