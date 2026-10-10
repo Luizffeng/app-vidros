@@ -1,25 +1,46 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { useDismiss } from './useDismiss'
 import { usePresence } from './usePresence'
 
 export type DropdownOption<T extends string> = { value: T; label: string }
 
-export function Dropdown<T extends string>({
-  value,
-  options,
-  onChange,
-  label,
-  className,
-}: {
+type DropdownProps<T extends string> = {
   value: T
   options: readonly DropdownOption<T>[]
   onChange: (value: T) => void
   /** Nome acessível do controle (ex.: "Filtrar por status"). */
   label: string
   className?: string
-}) {
+}
+
+/** Form field: visible caption plus a full-width Dropdown. Not a <label>: a label would re-click the button when an option is picked. */
+export function DropdownField<T extends string>({ className, ...props }: DropdownProps<T>) {
+  return (
+    <div className={`field${className ? ` ${className}` : ''}`}>
+      <span aria-hidden="true">{props.label}</span>
+      <Dropdown {...props} className="dropdown--field" />
+    </div>
+  )
+}
+
+function visibleBox(el: HTMLElement): { top: number; bottom: number } {
+  let top = 0
+  let bottom = window.innerHeight
+  for (let p = el.parentElement; p; p = p.parentElement) {
+    const { overflowY } = getComputedStyle(p)
+    if (overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'hidden') {
+      const r = p.getBoundingClientRect()
+      top = Math.max(top, r.top)
+      bottom = Math.min(bottom, r.bottom)
+    }
+  }
+  return { top, bottom }
+}
+
+export function Dropdown<T extends string>({ value, options, onChange, label, className }: DropdownProps<T>) {
   const [open, setOpen] = useState(false)
   const list = usePresence(open, 'xs')
+  const [above, setAbove] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const wrapRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -45,6 +66,16 @@ export function Dropdown<T extends string>({
   }
 
   useDismiss(open, wrapRef, (reason) => close(reason === 'escape'))
+
+  useLayoutEffect(() => {
+    const button = buttonRef.current
+    const listEl = listRef.current
+    if (!open || !button || !listEl) return
+    const b = button.getBoundingClientRect()
+    const box = visibleBox(button)
+    const spaceBelow = box.bottom - b.bottom
+    setAbove(spaceBelow < listEl.offsetHeight + 8 && b.top - box.top > spaceBelow)
+  }, [open, list.mounted])
 
   useEffect(() => {
     if (open) listRef.current?.focus({ preventScroll: true })
@@ -105,6 +136,7 @@ export function Dropdown<T extends string>({
           tabIndex={-1}
           aria-activedescendant={optionId(activeIndex)}
           data-state={list.state}
+          data-place={above ? 'above' : undefined}
           onKeyDown={onListKeyDown}
         >
           {options.map((option, i) => {

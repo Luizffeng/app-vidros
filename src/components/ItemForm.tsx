@@ -16,6 +16,19 @@ import type {
   ProductKind,
 } from '../domain/types'
 import { Banner } from './Banner'
+import { DropdownField, type DropdownOption } from './Dropdown'
+
+const CORRER_SUBTYPES: DropdownOption<CorrerSubtype>[] = [
+  { value: 'J2F', label: 'Janela 2 folhas (J2F)' },
+  { value: 'J4F', label: 'Janela 4 folhas (J4F)' },
+  { value: 'P2F', label: 'Porta 2 folhas (P2F)' },
+  { value: 'P4F', label: 'Porta 4 folhas (P4F)' },
+]
+
+const ESPELHO_FINISHES: DropdownOption<EspelhoFinish>[] = [
+  { value: 'Espelho Lapidado', label: 'Lapidado' },
+  { value: 'Espelho Bisotado', label: 'Bisotado' },
+]
 
 export const ITEM_KINDS: { id: ProductKind; label: string }[] = [
   { id: 'box', label: 'Box' },
@@ -696,92 +709,54 @@ export function ItemForm({
           )}
 
           {kind === 'correr' && (
-            <label className="full">
-              Tipo
-              <select
-                value={subtype}
-                onChange={(e) => setSubtype(e.target.value as CorrerSubtype)}
-              >
-                <option value="J2F">Janela 2 folhas (J2F)</option>
-                <option value="J4F">Janela 4 folhas (J4F)</option>
-                <option value="P2F">Porta 2 folhas (P2F)</option>
-                <option value="P4F">Porta 4 folhas (P4F)</option>
-              </select>
-            </label>
+            <DropdownField
+              className="full"
+              label="Tipo"
+              value={subtype}
+              options={CORRER_SUBTYPES}
+              onChange={setSubtype}
+            />
           )}
 
           {kind === 'espelho' ? (
             <>
-              <label className="full">
-                Acabamento
-                <select
-                  value={finish}
-                  onChange={(e) => {
-                    setFinish(e.target.value as EspelhoFinish)
-                  }}
-                >
-                  <option value="Espelho Lapidado">Lapidado</option>
-                  <option value="Espelho Bisotado">Bisotado</option>
-                </select>
-              </label>
+              <DropdownField
+                className="full"
+                label="Acabamento"
+                value={finish}
+                options={ESPELHO_FINISHES}
+                onChange={setFinish}
+              />
               <div className="field-pair field-pair--half full">
-                <label>
-                  Cor
-                  <select
-                    value={espelhoColor}
-                    onChange={(e) => setEspelhoColor(e.target.value)}
-                  >
-                    {espelhoColors.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  Espessura
-                  <select
-                    value={espelhoThickness}
-                    onChange={(e) => setEspelhoThickness(e.target.value)}
-                  >
-                    {espelhoThicknesses.map((t) => (
-                      <option key={t} value={t}>
-                        {t} mm
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <DropdownField
+                  label="Cor"
+                  value={espelhoColor}
+                  options={espelhoColors.map((c) => ({ value: c, label: c }))}
+                  onChange={setEspelhoColor}
+                />
+                <DropdownField
+                  label="Espessura"
+                  value={espelhoThickness}
+                  options={espelhoThicknesses.map((t) => ({ value: t, label: `${t} mm` }))}
+                  onChange={setEspelhoThickness}
+                />
               </div>
             </>
           ) : (
             <div className={kind === 'box' ? 'field-pair' : 'field-pair field-pair--half full'}>
-              <label>
-                Cor do vidro
-                <select
-                  value={glassColor}
-                  onChange={(e) => setGlassColor(e.target.value)}
-                >
-                  {cfg.glassColors.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <DropdownField
+                label="Cor do vidro"
+                value={glassColor}
+                options={cfg.glassColors.map((c) => ({ value: c, label: c }))}
+                onChange={setGlassColor}
+              />
               {kind !== 'box' && (
-                <label>
-                  Espessura
-                  <select
-                    value={thicknessMm}
-                    onChange={(e) => setThicknessMm(e.target.value)}
-                  >
-                    {cfg.temperedThicknessesMm.map((t) => (
-                      <option key={t} value={t}>
-                        {t} mm
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <DropdownField
+                  label="Espessura"
+                  value={thicknessMm}
+                  options={cfg.temperedThicknessesMm.map((t) => ({ value: t, label: `${t} mm` }))}
+                  onChange={setThicknessMm}
+                />
               )}
             </div>
           )}
@@ -790,20 +765,15 @@ export function ItemForm({
             kind === 'correr' ||
             kind === 'pivotante' ||
             kind === 'maxiar') && (
-            <label>
-              Cor do perfil
-              <select
-                value={profileColor}
-                onChange={(e) => setProfileColor(e.target.value)}
-              >
-                {cfg.aluminumColors.map((c) => (
-                  <option key={c.color} value={c.color}>
-                    {c.color}
-                    {c.surcharge ? ` (+${c.surcharge * 100}%)` : ''}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <DropdownField
+              label="Cor do perfil"
+              value={profileColor}
+              options={cfg.aluminumColors.map((c) => ({
+                value: c.color,
+                label: c.surcharge ? `${c.color} (+${c.surcharge * 100}%)` : c.color,
+              }))}
+              onChange={setProfileColor}
+            />
           )}
 
           {kind === 'pivotante' && (

@@ -1159,7 +1159,8 @@ label .percent-input .money-input {
   gap: 0.5rem;
 }
 
-.field-pair > label {
+.field-pair > label,
+.field-pair > .field {
   min-width: 0;
 }
 
@@ -1199,7 +1200,8 @@ label .percent-input .money-input {
   border-radius: 8px;
 }
 
-label {
+label,
+.field {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
@@ -1870,13 +1872,44 @@ textarea:focus {
   outline: none;
 }
 
+.dropdown__list[data-place='above'] {
+  --pop-dir: 1;
+  top: auto;
+  bottom: calc(100% + 0.35rem);
+  transform-origin: bottom right;
+}
+
+.dropdown--field .dropdown__button {
+  width: 100%;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.dropdown--field .dropdown__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.dropdown--field .dropdown__list {
+  left: 0;
+  right: auto;
+  transform-origin: top left;
+}
+
+.dropdown--field .dropdown__list[data-place='above'] {
+  transform-origin: bottom left;
+}
+
 .dropdown__option {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1.25rem;
-  min-height: 2.75rem;
-  padding: 0 0.75rem;
+  min-height: 2.25rem;
+  padding: 0.3rem 0.75rem;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
