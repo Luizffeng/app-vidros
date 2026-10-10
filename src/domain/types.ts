@@ -318,6 +318,57 @@ export interface Quote {
   grandTotal: number
 }
 
+/** Vidraçaria dona dos dados. Datas em ISO. */
+export interface Account {
+  id: string
+  name: string
+  /** Só dígitos */
+  whatsapp: string
+  plan: 'trial' | 'active'
+  trialEndsAt: string
+  /** Ausente com plano ativo = sem prazo */
+  activeUntil?: string
+  disabledAt?: string
+  termsAcceptedAt: string
+  marketingOptInAt?: string
+  createdAt: string
+}
+
+export type AccountStateKind = 'trial' | 'active' | 'expired' | 'disabled'
+
+export interface AccountState {
+  kind: AccountStateKind
+  /** Só em `expired` */
+  reason?: 'trial' | 'subscription'
+  /** Fim do teste ou da assinatura; ausente sem prazo */
+  endsAt?: string
+  /** Dias até `endsAt`, arredondado para cima; ausente sem prazo ou vencido */
+  daysLeft?: number
+  /** Faltam 7 dias ou menos */
+  warn: boolean
+  canWrite: boolean
+}
+
+export interface Suggestion {
+  id: string
+  body: string
+  status: 'recebida' | 'respondida' | 'feita'
+  reply?: string
+  repliedAt?: string
+  shippedVersion?: string
+  createdAt: string
+}
+
+export interface AccountService {
+  /** null = sessão sem conta (falta "Sua vidraçaria") */
+  getMyAccount(): Promise<Account | null>
+  createAccount(input: { name: string; whatsapp: string; marketingOptIn: boolean }): Promise<Account>
+  setMarketingOptIn(value: boolean): Promise<void>
+  listSuggestions(): Promise<Suggestion[]>
+  sendSuggestion(body: string): Promise<void>
+  deleteMyAccount(): Promise<void>
+}
+
 export interface QuoteRepository {
   listQuotes(): Promise<Quote[]>
   getQuote(id: string): Promise<Quote | null>

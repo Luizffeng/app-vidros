@@ -22,7 +22,7 @@ Turn the single-shop app into one account per vidraçaria. Supabase gets an `acc
 
 **Project Type**: single-page web app + Supabase backend (no app-owned server)
 
-**Performance Goals**: sign up to Início ≤ 2 min with Google (SC-001); account load adds one RPC (`get_my_account`) to boot, in parallel with the session check
+**Performance Goals**: sign up to Início ≤ 2 min with Google (SC-001); account load adds one query (`accounts`, one row by RLS) to boot, after the session check
 
 **Constraints**: usable at 360 px; no new npm dependency; RLS is the only security boundary; never test against production; cutover window of minutes (R15)
 

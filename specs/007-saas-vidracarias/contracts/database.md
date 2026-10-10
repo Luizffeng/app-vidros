@@ -14,12 +14,13 @@ New migration `supabase/migrations/20261010120000_accounts.sql`. Shapes below ar
 | RPC | Input | Output | Rule |
 | --- | --- | --- | --- |
 | `create_account(p_name text, p_whatsapp text, p_marketing_opt_in boolean)` | | `accounts` row | Fails if caller already has an account. Inserts account (`plan 'trial'`, `trial_ends_at now() + 30 days`, `terms_accepted_at now()`, opt-in date when true) and sets `profiles.account_id`. |
-| `get_my_account()` | | `accounts` row or null | Caller's account. |
 | `set_marketing_opt_in(p_value boolean)` | | void | Sets/clears `marketing_opt_in_at`. Allowed when expired. |
 | `next_quote_number()` | | text `ORC-YYYY-NNNN` | Now per `(current_account_id(), year)`; raises `sem permissão` unless `account_can_write()`. |
 | `delete_my_account()` | | void | Deletes the caller's account (cascade) and `auth.users` row. Client removes the logo object first. |
 
 Revoke `execute` from `public` on all of the above; grant to `authenticated`.
+
+The caller's account is read with `select * from accounts` (RLS returns at most one row). `account_id` on `quotes`, `catalog`, `settings`, `suggestions` defaults to `current_account_id()`, so the app never sends it; upserts on `catalog`/`settings` use `on_conflict=account_id`.
 
 ## Policies
 

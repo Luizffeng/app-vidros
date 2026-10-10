@@ -20,9 +20,9 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 
 ## Phase 1: Setup
 
-- [ ] T001 Add `supabase` CLI as devDependency in package.json; run `npx supabase init` to create supabase/config.toml (auth: `enable_signup = true`, `enable_confirmations = false`, site_url `http://127.0.0.1:5179`); add `supabase/.temp/` and `.env.staging.local` to .gitignore
-- [ ] T002 Add npm scripts in package.json: `db:start` (`supabase start`), `db:reset` (`supabase db reset`, applies all migrations), `dev:staging` (`vite --mode staging --host 127.0.0.1 --port 5179 --strictPort`); document in specs/007-saas-vidracarias/quickstart.md how to write `.env.staging.local` from `supabase status` output
-- [ ] T003 Run `npm run db:start` and `npm run db:reset` with only the init migration; confirm the current app works against it (`npm run dev:staging`, sign in with a user created in local Studio)
+- [X] T001 Add `supabase` CLI as devDependency in package.json; run `npx supabase init` to create supabase/config.toml (auth: `enable_signup = true`, `enable_confirmations = false`, site_url `http://127.0.0.1:5179`); add `supabase/.temp/` and `.env.staging.local` to .gitignore
+- [X] T002 Add npm scripts in package.json: `db:start` (`supabase start`), `db:stop`, `db:reset` (`supabase db reset`, applies all migrations), `dev:staging` (`vite --mode staging --host 127.0.0.1 --port 5179 --strictPort`); document in specs/007-saas-vidracarias/quickstart.md how to write `.env.staging.local` from `supabase status` output
+- [X] T003 Run `npm run db:start` and `npm run db:reset` with only the init migration; confirm the current app works against it (`npm run dev:staging`, sign in with a user created in local Studio)
 
 ---
 
@@ -30,17 +30,17 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 
 **Purpose**: per-account data and write lock in the database, account in the app context. After this phase production behavior is unchanged for Forte Vidros.
 
-- [ ] T004 Write supabase/migrations/20261010120000_accounts.sql steps 1–3 per contracts/database.md: `accounts`, `suggestions`, nullable `account_id` columns, Forte Vidros account insert (name from `settings.payload->'establishment'->>'name'`, fallback 'Forte Vidros'), backfill of `profiles` and all data rows
-- [ ] T005 Same migration, steps 4–5: not null, primary keys (`catalog`/`settings` → `account_id`, `quote_counters` → `(account_id, year)`), index `quotes (account_id, updated_at desc)`, helpers `current_account_id()`/`account_can_write()`, RPCs `create_account`, `get_my_account`, `set_marketing_opt_in`, per-account `next_quote_number`, `delete_my_account`, all policies (table "Policies"), storage policies by folder, trigger `handle_new_user` inserting role `admin`; revoke/grant
-- [ ] T006 Same migration, step 6: `settings.logo_path = account_id || '/logo.png'` where not null
-- [ ] T007 [P] Add `Account` type and `AccountState` to src/domain/types.ts per data-model.md (fields camelCase: `trialEndsAt`, `activeUntil`, `plan`, `disabledAt`, `termsAcceptedAt`, `marketingOptInAt`)
-- [ ] T008 [P] Implement `accountState(account, now)`, `shortId(id)`, `supportMessage(kind, account)` in src/domain/account.ts per data-model "Derived state" (warn ≤ 7 days, `canWrite`)
-- [ ] T009 [P] Unit tests in src/domain/account.test.ts: trial day 1/23/29/30/31, warn boundary at 7 and 8 days, active without end, active with end before/after, disabled, expired reason trial vs subscription, `daysLeft` rounding across midnight
-- [ ] T010 Create src/data/accountService.ts: interface `AccountService { getMyAccount(); createAccount(input); setMarketingOptIn(value); listSuggestions(); sendSuggestion(body); deleteMyAccount() }`, `SupabaseAccountService` (RPCs + `suggestions` table) and `LocalAccountService` (fixed active account, suggestions in localStorage); factory `createAccountService()` mirroring `createRepository()` in src/data/repository.ts
-- [ ] T011 Update src/data/supabaseRepository.ts: catalog/settings read without `id` filter and upsert with `account_id`; quotes upsert with `account_id`; logo path `{accountId}/logo.png`; constructor receives `accountId`; map RLS write errors to "Sua conta está em modo consulta." when the account cannot write
-- [ ] T012 Update src/auth/access.tsx: `Access` gains `account: Account | null` and `accountState`; after session, call `getMyAccount()`; role always `admin` (R14); expose `refreshAccount()`; local mode uses `LocalAccountService`; repository created with the account id
-- [ ] T013 Replace `is_admin`-based UI gates with full access where they hide Catálogo/Configurações (src/components/AppHeader.tsx, src/components/App.tsx, src/components/HomeScreen.tsx); keep `vendedor` type paths dormant
-- [ ] T014 Run `npm test`, `npm run lint`, `npm run build`, existing local-mode browser scripts; fix regressions
+- [X] T004 Write supabase/migrations/20261010120000_accounts.sql steps 1–3 per contracts/database.md: `accounts`, `suggestions`, nullable `account_id` columns, Forte Vidros account insert (name from `settings.payload->'establishment'->>'name'`, fallback 'Forte Vidros'), backfill of `profiles` and all data rows
+- [X] T005 Same migration, steps 4–5: not null, primary keys (`catalog`/`settings` → `account_id`, `quote_counters` → `(account_id, year)`), index `quotes (account_id, updated_at desc)`, helpers `current_account_id()`/`account_can_write()`, `account_id` defaults to `current_account_id()`, RPCs `create_account`, `set_marketing_opt_in`, per-account `next_quote_number`, `delete_my_account`, all policies (table "Policies"), storage policies by folder, trigger `handle_new_user` inserting role `admin`; revoke/grant
+- [X] T006 Same migration, step 6: `settings.logo_path = account_id || '/logo.png'` where not null
+- [X] T007 [P] Add `Account`, `AccountState`, `Suggestion`, `AccountService` to src/domain/types.ts per data-model.md (fields camelCase: `trialEndsAt`, `activeUntil`, `plan`, `disabledAt`, `termsAcceptedAt`, `marketingOptInAt`)
+- [X] T008 [P] Implement `accountState(account, now)`, `shortId(id)`, `supportMessage(kind, account)` in src/domain/account.ts per data-model "Derived state" (warn ≤ 7 days, `canWrite`)
+- [X] T009 [P] Unit tests in src/domain/account.test.ts: trial day 1/23/29/30/31, warn boundary at 7 and 8 days, active without end, active with end before/after, disabled, expired reason trial vs subscription, `daysLeft` rounding across midnight
+- [X] T010 Create src/data/accountService.ts: interface `AccountService { getMyAccount(); createAccount(input); setMarketingOptIn(value); listSuggestions(); sendSuggestion(body); deleteMyAccount() }`, `SupabaseAccountService` (RPCs + `suggestions` table) and `LocalAccountService` (fixed active account, suggestions in localStorage); factory `createAccountService()` mirroring `createRepository()` in src/data/repository.ts
+- [X] T011 Update src/data/supabaseRepository.ts: catalog/settings read without `id` filter, upsert `on_conflict=account_id` (column default fills `account_id`); logo path `{account id}/logo.png` via `current_account_id()`; map RLS write errors to "Sua conta está em modo consulta. Nada foi gravado."
+- [X] T012 Update src/auth/access.tsx: `Access` gains `account`, `accountState`, `accounts` (service); after session, call `getMyAccount()`; role always `admin` (R14); expose `refreshAccount()`; session without account shows a temporary "fale com o suporte" screen until T029
+- [X] T013 Full access in the UI: gates already check `role !== 'vendedor'` and the role is now always `admin`, so no component change; `vendedor` paths stay dormant
+- [X] T014 Run `npm test`, `npm run lint`, `npm run build`, existing local-mode browser scripts; fix regressions
 
 **Checkpoint**: local Supabase with the new migration; signed-in Forte Vidros user sees the same data; writes go through the account.
 
@@ -52,9 +52,9 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 
 **Independent Test**: `node scripts/tenant-isolation.mjs` passes.
 
-- [ ] T015 [US3] Create scripts/tenant-isolation.mjs: creates users A and B via local auth admin API (service key from `supabase status`), calls `create_account` for each, then with each JWT through REST: A writes quote/catalog/settings/logo/suggestion; B cannot select/update/delete them; each gets `ORC-YYYY-0001`; B opening A's quote id returns nothing
-- [ ] T016 [US3] Extend scripts/tenant-isolation.mjs: set A `trial_ends_at` in the past (service key) → A insert/update/delete on quotes/catalog/settings/logo and `next_quote_number` fail; A select and suggestion insert succeed; restore with `plan 'active'` → writes succeed
-- [ ] T017 [US3] Handle "Orçamento não encontrado" for a quote URL of another account in src/components/App.tsx (same path as a deleted quote) and verify in the browser against local Supabase with two accounts
+- [X] T015 [US3] Create scripts/tenant-isolation.mjs: creates users A and B via local auth admin API (service key from `supabase status`), calls `create_account` for each, then with each JWT through REST: A writes quote/catalog/settings/logo/suggestion; B cannot select/update/delete them; each gets `ORC-YYYY-0001`; B opening A's quote id returns nothing
+- [X] T016 [US3] Extend scripts/tenant-isolation.mjs: set A `trial_ends_at` in the past (service key) → A insert/update/delete on quotes/catalog/settings/logo and `next_quote_number` fail; A select and suggestion insert succeed; restore with `plan 'active'` → writes succeed
+- [X] T017 [US3] "Orçamento não encontrado" for a quote URL of another account: existing path in src/components/App.tsx (RLS returns nothing, same as a deleted quote); verified in the browser against local Supabase with two accounts
 
 **Checkpoint**: isolation and write lock proven at the server.
 
@@ -66,9 +66,9 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 
 **Independent Test**: rehearsal on local Supabase with a copy of production-shaped data.
 
-- [ ] T018 [US4] Document the rehearsal in specs/007-saas-vidracarias/quickstart.md: the owner exports production `quotes`, `catalog`, `settings`, `quote_counters`, `profiles` into tmp-browser-qa/ (gitignored; contains customer data, never committed), load into the local DB with only the init migration, then apply the accounts migration
-- [ ] T019 [US4] Rehearse: compare quote count, numbers, `grandTotal` sum, counters, catalog version before/after; next quote continues the sequence; logo moved to `{account_id}/logo.png` loads in the PDF; Início shows no trial line and no Primeiros passos card
-- [ ] T020 [US4] Write the production cutover checklist in specs/007-saas-vidracarias/quickstart.md "Production cutover" with exact SQL checks and the logo move command; owner decides extra logins (default: keep mapped to Forte Vidros)
+- [X] T018 [US4] Document the rehearsal in specs/007-saas-vidracarias/quickstart.md: the owner exports production `quotes`, `catalog`, `settings`, `quote_counters`, `profiles` into tmp-browser-qa/ (gitignored; contains customer data, never committed), load into the local DB with only the init migration, then apply the accounts migration
+- [ ] T019 [US4] (done with synthetic data 2026-10-10; pending the owner's production export) Rehearse: compare quote count, numbers, `grandTotal` sum, counters, catalog version before/after; next quote continues the sequence; logo moved to `{account_id}/logo.png` loads in the PDF; Início shows no trial line and no Primeiros passos card
+- [X] T020 [US4] Write the production cutover checklist in specs/007-saas-vidracarias/quickstart.md "Production cutover" with exact SQL checks and the logo move command; owner decides extra logins (default: keep mapped to Forte Vidros)
 
 **Checkpoint**: delivery step 1 ready to ship (owner runs the cutover).
 
@@ -76,9 +76,9 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 
 ## Phase 5: Operator snippets (supports US4, US5, US6)
 
-- [ ] T021 [P] Create supabase/operator/find-account.sql, extend-trial.sql, activate.sql, disable.sql per contracts/database.md (parameters at the top, commented examples)
-- [ ] T022 [P] Create supabase/operator/accounts-to-contact.sql (FR-028: expired trials without subscription, WhatsApp, opt-in, expiry date, emitted quotes with `validUntil` in the next 7 days) and supabase/operator/suggestions.sql (list, reply, mark done)
-- [ ] T023 Run every snippet against local Supabase with the isolation script data
+- [X] T021 [P] Create supabase/operator/find-account.sql, extend-trial.sql, activate.sql, disable.sql per contracts/database.md (parameters at the top, commented examples)
+- [X] T022 [P] Create supabase/operator/accounts-to-contact.sql (FR-028: expired trials without subscription, WhatsApp, opt-in, expiry date, emitted quotes with `validUntil` in the next 7 days) and supabase/operator/suggestions.sql (list, reply, mark done)
+- [X] T023 Run every snippet against local Supabase with the isolation script data
 
 ---
 
@@ -166,7 +166,7 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 - [ ] T057 [P] [US7] Create src/components/HomeFooter.tsx (links per contracts/ui.md, company data from src/data/legal.ts, app version) below the tiles in src/components/HomeScreen.tsx; carousel and tiles still fit 360 × 640 without scrolling
 - [ ] T058 [US7] "Excluir minha conta e dados": `ConfirmPop` with "Digite EXCLUIR" → remove logo via Storage → `deleteMyAccount()` → sign out → entry screen
 - [ ] T059 [US7] Opt-in checkbox row in Configurações › Cadastro (src/components/SettingsEditor.tsx) calling `setMarketingOptIn`
-- [ ] T060 [US7] Extend scripts/tenant-isolation.mjs: `delete_my_account` removes account rows, suggestions and auth user; other account untouched
+- [X] T060 [US7] (done early, with Phase 3) Extend scripts/tenant-isolation.mjs: `delete_my_account` removes account rows, suggestions and auth user; other account untouched
 
 **Checkpoint**: delivery step 4 ready.
 

@@ -31,11 +31,53 @@ Never run these against production Supabase. Data model: [data-model.md](data-mo
 7. **Footer and delete (US7)**: footer fits below the tiles at 360 × 640; delete a throwaway account → entry screen, login fails, rows gone.
 8. **360 px (SC-006)**: entry, setup, task screens, `/ajuda`, expired notice without horizontal scroll.
 
+## Local setup
+
+```bash
+npm run db:start          # first time pulls Docker images (~3 min)
+npx supabase status -o env  # API_URL and ANON_KEY
+```
+
+Write `.env.staging.local` (gitignored) with `VITE_SUPABASE_URL=<API_URL>` and `VITE_SUPABASE_ANON_KEY=<ANON_KEY>`, then `npm run dev:staging` (port 5179). `npm run db:reset` reapplies all migrations on an empty database. Studio: http://127.0.0.1:54323. E-mails (password recovery): http://127.0.0.1:54324.
+
+## Rehearsal with production-shaped data (US4)
+
+The production export contains customer data: keep it in `tmp-browser-qa/` (gitignored), never commit it, delete it after the rehearsal.
+
+1. Owner exports from the production SQL Editor (Download CSV) `profiles`, `quotes`, `catalog`, `settings`, `quote_counters`.
+2. Move `20261010120000_accounts.sql` out of `supabase/migrations/` temporarily, `npm run db:reset` (init schema only), import the CSVs in local Studio, move the file back, `npx supabase migration up --local`.
+3. Run the "before" and "after" checks below locally; they must match.
+
+Rehearsed 2026-10-10 with synthetic data (settings, catalog, one quote, counter, one profile, logo path): Forte Vidros account created active without end, all rows and the counter backfilled, logo path moved to the account folder, profile role `admin`.
+
 ## Production cutover (US4)
 
-1. Back up: Supabase dashboard backup + `select count(*), max(payload->>'number')` on `quotes`, `select * from quote_counters`.
-2. Apply `20261010120000_accounts.sql` outside working hours.
-3. Move logo `shop/logo.png` → `{forte_account_id}/logo.png` (Storage API or dashboard).
-4. Deploy the app (push to `main`).
-5. Verify: same quote count, numbers and totals; next quote continues the sequence; logo in the PDF; no trial line and no Primeiros passos card.
-6. Only then: Auth → enable sign ups and providers in production.
+Apply by pasting the migration in the Supabase SQL Editor (production has no CLI migration history; `db push` would try to rerun the init migration).
+
+1. **Backup**: Dashboard → Database → Backups (confirm a recent one), then save the "before" result:
+
+   ```sql
+   select count(*) as orcamentos,
+          sum((payload->>'grandTotal')::numeric) as soma_totais,
+          max(payload->>'number') as ultimo_numero
+     from public.quotes;
+   select * from public.quote_counters order by year;
+   select md5(payload::text) as catalogo from public.catalog;
+   select md5(payload::text) as config, logo_path from public.settings;
+   select count(*) as logins from public.profiles;
+   ```
+
+2. **Migrate** (outside working hours): paste and run `supabase/migrations/20261010120000_accounts.sql`.
+3. **After** checks: run the same queries (catalog and settings no longer have `id`; the hashes must match), plus:
+
+   ```sql
+   select left(id::text, 8) as codigo, name, plan, active_until from public.accounts;  -- 1 row, active, null
+   select count(*) from public.profiles where account_id is null;                       -- 0
+   select count(*) from public.quotes where account_id is null;                         -- 0
+   ```
+
+4. **Logo**: Dashboard → Storage → `logos` → `shop/logo.png` → Move to `<account id>/logo.png` (the full id from step 3, same value as in `settings.logo_path`).
+5. **Deploy**: merge the app changes into `main` (Cloudflare builds). Between steps 2 and 5 the app is down (the old app filters by `id = 'current'`, which no longer exists, and the new app needs `accounts`), so steps 2–5 should take minutes.
+6. **Verify in the app**: same quotes, numbers and totals; next quote continues the sequence; logo in the PDF; Catálogo and Configurações save.
+7. **Extra logins**: all existing logins now belong to the Forte Vidros account with full access (decision default). To remove one: Authentication → Users → delete.
+8. Sign ups stay disabled in production until BACKLOG "Abrir cadastro em produção" is unblocked.

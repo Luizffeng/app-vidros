@@ -6,17 +6,18 @@ import { defaultSettings, normalizeSettings } from './defaultSettings'
 import { loadSeedCatalog } from './seedCatalog'
 
 const LOGO_BUCKET = 'logos'
-const LOGO_PATH = 'shop/logo.png'
 
-type CatalogRow = { id: string; payload: Catalog }
-type SettingsRow = { id: string; payload: Partial<AppSettings>; logo_path: string | null }
+type CatalogRow = { payload: Catalog }
+type SettingsRow = { payload: Partial<AppSettings>; logo_path: string | null }
 type QuoteRow = { id: string; updated_at: string; payload: Quote }
+
+function isDenied(error: { message: string; code?: string }): boolean {
+  return error.code === '42501' || /row-level security/i.test(error.message)
+}
 
 function fail(error: { message: string; code?: string } | null): void {
   if (!error) return
-  if (error.code === '42501' || /row-level security/i.test(error.message)) {
-    throw new Error('Sem permissão para gravar.')
-  }
+  if (isDenied(error)) throw new Error('Sua conta está em modo consulta. Nada foi gravado.')
   throw new Error(error.message)
 }
 
@@ -79,51 +80,43 @@ export class SupabaseQuoteRepository implements QuoteRepository {
     fail(error)
   }
 
+  /** RLS já limita catálogo e configurações à conta da sessão; `account_id` vem do default da coluna. */
   async getCatalog(): Promise<Catalog> {
-    const { data, error } = await this.supabase
-      .from('catalog')
-      .select('payload')
-      .eq('id', 'current')
-      .maybeSingle()
+    const { data, error } = await this.supabase.from('catalog').select('payload').maybeSingle()
     fail(error)
-    const row = data as Pick<CatalogRow, 'payload'> | null
+    const row = data as CatalogRow | null
     if (row?.payload) return normalizeCatalog(row.payload)
 
     const seed = normalizeCatalog(loadSeedCatalog())
-    const inserted = await this.supabase.from('catalog').insert({
-      id: 'current',
-      payload: seed,
-    })
+    const inserted = await this.supabase.from('catalog').insert({ payload: seed })
     if (inserted.error?.code === '23505') return this.getCatalog()
+    if (inserted.error && isDenied(inserted.error)) return seed
     fail(inserted.error)
     return seed
   }
 
   async saveCatalog(catalog: Catalog): Promise<void> {
     const normalized = normalizeCatalog(catalog)
-    const { error } = await this.supabase.from('catalog').upsert({
-      id: 'current',
-      payload: normalized,
-      updated_at: new Date().toISOString(),
-    })
+    const { error } = await this.supabase
+      .from('catalog')
+      .upsert({ payload: normalized, updated_at: new Date().toISOString() }, { onConflict: 'account_id' })
     fail(error)
   }
 
-  async getSettings(): Promise<AppSettings> {
-    const { data, error } = await this.supabase
-      .from('settings')
-      .select('payload, logo_path')
-      .eq('id', 'current')
-      .maybeSingle()
+  private async logoPath(): Promise<string> {
+    const { data, error } = await this.supabase.rpc('current_account_id')
     fail(error)
-    const row = data as Pick<SettingsRow, 'payload' | 'logo_path'> | null
+    if (typeof data !== 'string') throw new Error('Conta não encontrada.')
+    return `${data}/logo.png`
+  }
+
+  async getSettings(): Promise<AppSettings> {
+    const { data, error } = await this.supabase.from('settings').select('payload, logo_path').maybeSingle()
+    fail(error)
+    const row = data as SettingsRow | null
     if (!row) {
       const fresh = defaultSettings()
-      const inserted = await this.supabase.from('settings').insert({
-        id: 'current',
-        payload: fresh,
-        logo_path: null,
-      })
+      const inserted = await this.supabase.from('settings').insert({ payload: fresh, logo_path: null })
       if (inserted.error?.code === '23505') return this.getSettings()
       if (inserted.error) return fresh
       return fresh
@@ -139,28 +132,29 @@ export class SupabaseQuoteRepository implements QuoteRepository {
 
   async saveSettings(settings: AppSettings): Promise<void> {
     const normalized = normalizeSettings(settings)
+    const path = await this.logoPath()
     let logoPath: string | null = null
     if (normalized.logoDataUrl) {
       const uploaded = await this.supabase.storage
         .from(LOGO_BUCKET)
-        .upload(LOGO_PATH, dataUrlToBlob(normalized.logoDataUrl), {
+        .upload(path, dataUrlToBlob(normalized.logoDataUrl), {
           upsert: true,
           contentType: 'image/png',
         })
       fail(uploaded.error)
-      logoPath = LOGO_PATH
+      logoPath = path
     } else {
-      await this.supabase.storage.from(LOGO_BUCKET).remove([LOGO_PATH])
+      await this.supabase.storage.from(LOGO_BUCKET).remove([path])
     }
 
     const { logoDataUrl: _logo, ...payload } = normalized
     void _logo
-    const { error } = await this.supabase.from('settings').upsert({
-      id: 'current',
-      payload,
-      logo_path: logoPath,
-      updated_at: new Date().toISOString(),
-    })
+    const { error } = await this.supabase
+      .from('settings')
+      .upsert(
+        { payload, logo_path: logoPath, updated_at: new Date().toISOString() },
+        { onConflict: 'account_id' },
+      )
     fail(error)
   }
 

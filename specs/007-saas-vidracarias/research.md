@@ -46,7 +46,7 @@ Each entry: Decision, Rationale, Alternatives considered.
 
 ## R6. Account creation after first sign-in
 
-**Decision**: after sign-in, `AccessProvider` loads the caller's account. If none exists, it shows `AccountSetupScreen` (nome da vidraçaria, WhatsApp, aceite dos termos, opt-in de ofertas desmarcado). Submit calls RPC `create_account(name, whatsapp, marketing_opt_in)`, which inserts `accounts` (trial 30 days, `terms_accepted_at = now()`), sets `profiles.account_id`, and returns the account. Catalog and settings rows are created lazily by the repository on first read, as today (catalog from the example catalog, settings with name and WhatsApp prefilled).
+**Decision**: after sign-in, `AccessProvider` loads the caller's account (`select` on `accounts`; RLS returns only the caller's row). If none exists, it shows `AccountSetupScreen` (nome da vidraçaria, WhatsApp, aceite dos termos, opt-in de ofertas desmarcado). Submit calls RPC `create_account(name, whatsapp, marketing_opt_in)`, which inserts `accounts` (trial 30 days, `terms_accepted_at = now()`), sets `profiles.account_id`, and returns the account. Catalog and settings rows are created lazily by the repository on first read, as today (catalog from the example catalog, settings with name and WhatsApp prefilled).
 
 **Rationale**: one form for every provider (Google gives no shop name). The trigger `handle_new_user` keeps creating `profiles`, now with `account_id null` and role `admin`.
 
