@@ -27,10 +27,10 @@ Layout, copy, buttons, modals, filters, sticky bars, input masks, mobile fit, ad
    - UI copy is pt-BR and matches existing labels.
    - Motion: use the `--dur-*` / `--ease-*` / `--motion-*` tokens and the "Motion" block at the end of `index.css`; only `opacity` and `transform`/`translate`/`scale`; new overlays use `usePresence` and `useBackLayer` (via `Modal`/`useDismiss`, so device back closes them); screen changes use `push`/`replace`/`goTop`/`up` from `src/nav/navigator.ts`, never local view state. No animation library. Rules: `src/components/AGENTS.md` (Motion).
 5. Vertical space (phones first; owner rule 2026-10-07). New or touched components follow these; a full-app review is in `BACKLOG.md`:
-   - Section = `.section` card + `h2`. Its explanation goes right under the title (`.section-hint`), not under the field. Do not repeat the title as the field label (use `aria-labelledby`).
-   - Related fields share a row, also at ≤420px where `.grid` collapses: `.field-pair` with `--half` (width + height, thickness + color) or a sized variant (`--cep`, `--number`).
+   - Section = `Section` (or `CollapsibleSection`). Its explanation goes in `hint`, right under the title, not under the field. Do not repeat the title as the field label. A short field note can go in the label in parentheses ("Observação (sai no PDF e no WhatsApp)").
+   - Related fields share a row, also at ≤420px where `.grid` collapses: `.field-pair` with `--half` (width + height, thickness + color), `--trail` (long field + short value such as margin or price) or a sized variant (`--cep`, `--number`). A grid of short values only (catalog money/percent) uses `.grid--pairs` and keeps 2 columns on phones.
    - Short values (days, %, quantity up to 4 digits): inline label + input sized to content (`.inline-field`, about 4.5–6rem), not a full-width row.
-   - Choice rows (radio/checkbox): text left, control right and vertically centered (right-thumb reach).
+   - Choice rows (radio/checkbox): text left, control right and vertically centered (right-thumb reach). Single checkbox: `label.check-field__box.check-field__box--row`.
    - Media + actions side by side (preview left, buttons and hint right) when it fits 360px.
    - Full width only for long text or selects with long options. A lone short field does not leave an empty grid cell on desktop: give it `full` or pair it.
    - Check 360 and 390 px; compare the height before and after.

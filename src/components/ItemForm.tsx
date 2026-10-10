@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { ItemFormState } from '../data/itemDraft'
 import { isCatalogItemActive } from '../domain/catalogActive'
 import { marginLabel } from '../domain/itemDescription'
@@ -633,6 +633,35 @@ export function ItemForm({
     setFormError(null)
   }
 
+  const glassColorField = (
+    <DropdownField
+      label="Cor do vidro"
+      value={glassColor}
+      options={cfg.glassColors.map((c) => ({ value: c, label: c }))}
+      onChange={setGlassColor}
+    />
+  )
+  const markupInput = (
+    <input
+      className="money-input"
+      inputMode="decimal"
+      value={markup}
+      onChange={(e) => setMarkup(e.target.value)}
+    />
+  )
+  const withMargin = (field: ReactNode) =>
+    marginMode === 'autonomo' ? (
+      <div className="full">{field}</div>
+    ) : (
+      <div className="field-pair field-pair--trail full">
+        {field}
+        <label>
+          Margem (%)
+          {markupInput}
+        </label>
+      </div>
+    )
+
   return (
     <div className="item-form">
       {!hideTitle && <h3>{title}</h3>}
@@ -653,13 +682,13 @@ export function ItemForm({
 
       <div className="item-form__fields">
       {kind === 'custom' ? (
-        <div className="grid">
-          <label className="full">
+        <div className="field-pair field-pair--trail">
+          <label>
             Descrição
             <input
               value={customDesc}
               onChange={(e) => setCustomDesc(e.target.value)}
-              placeholder="Ex.: Aplicação de película"
+              placeholder="Ex.: Película"
             />
           </label>
           <label>
@@ -675,14 +704,17 @@ export function ItemForm({
       ) : (
         <div className="grid">
           {kind === 'box' && (
-            <label>
-              Vão (cm)
-              <input
-                inputMode="decimal"
-                value={spanCm}
-                onChange={(e) => setSpanCm(e.target.value)}
-              />
-            </label>
+            <div className="field-pair field-pair--number full">
+              <label>
+                Vão (cm)
+                <input
+                  inputMode="decimal"
+                  value={spanCm}
+                  onChange={(e) => setSpanCm(e.target.value)}
+                />
+              </label>
+              {glassColorField}
+            </div>
           )}
 
           {kind !== 'box' && (
@@ -720,13 +752,14 @@ export function ItemForm({
 
           {kind === 'espelho' ? (
             <>
-              <DropdownField
-                className="full"
-                label="Acabamento"
-                value={finish}
-                options={ESPELHO_FINISHES}
-                onChange={setFinish}
-              />
+              {withMargin(
+                <DropdownField
+                  label="Acabamento"
+                  value={finish}
+                  options={ESPELHO_FINISHES}
+                  onChange={setFinish}
+                />,
+              )}
               <div className="field-pair field-pair--half full">
                 <DropdownField
                   label="Cor"
@@ -743,61 +776,46 @@ export function ItemForm({
               </div>
             </>
           ) : (
-            <div className={kind === 'box' ? 'field-pair' : 'field-pair field-pair--half full'}>
-              <DropdownField
-                label="Cor do vidro"
-                value={glassColor}
-                options={cfg.glassColors.map((c) => ({ value: c, label: c }))}
-                onChange={setGlassColor}
-              />
-              {kind !== 'box' && (
+            kind !== 'box' && (
+              <div className="field-pair field-pair--half full">
+                {glassColorField}
                 <DropdownField
                   label="Espessura"
                   value={thicknessMm}
                   options={cfg.temperedThicknessesMm.map((t) => ({ value: t, label: `${t} mm` }))}
                   onChange={setThicknessMm}
                 />
-              )}
-            </div>
+              </div>
+            )
           )}
 
-          {(kind === 'box' ||
-            kind === 'correr' ||
-            kind === 'pivotante' ||
-            kind === 'maxiar') && (
-            <DropdownField
-              label="Cor do perfil"
-              value={profileColor}
-              options={cfg.aluminumColors.map((c) => ({
-                value: c.color,
-                label: c.surcharge ? `${c.color} (+${c.surcharge * 100}%)` : c.color,
-              }))}
-              onChange={setProfileColor}
-            />
-          )}
+          {(kind === 'box' || kind === 'correr' || kind === 'pivotante' || kind === 'maxiar') &&
+            withMargin(
+              <DropdownField
+                label="Cor do perfil"
+                value={profileColor}
+                options={cfg.aluminumColors.map((c) => ({
+                  value: c.color,
+                  label: c.surcharge ? `${c.color} (+${c.surcharge * 100}%)` : c.color,
+                }))}
+                onChange={setProfileColor}
+              />,
+            )}
 
-          {kind === 'pivotante' && (
-            <label className="check-field">
-              Incluir trinco
-              <span className="check-field__box">
-                <input
-                  type="checkbox"
-                  checked={hasLatch}
-                  onChange={(e) => setHasLatch(e.target.checked)}
-                />
-                <span>{hasLatch ? 'Sim' : 'Não'}</span>
-              </span>
+          {kind === 'fixo' && marginMode !== 'autonomo' && (
+            <label className="inline-field full">
+              Margem (%)
+              {markupInput}
             </label>
           )}
 
-          {marginMode !== 'autonomo' && (
-            <label>
-              Margem (%)
+          {kind === 'pivotante' && (
+            <label className="check-field__box check-field__box--row full">
+              <span>Incluir trinco</span>
               <input
-                className="money-input"
-                inputMode="decimal"
-                value={markup}
-                onChange={(e) => setMarkup(e.target.value)}
+                type="checkbox"
+                checked={hasLatch}
+                onChange={(e) => setHasLatch(e.target.checked)}
               />
             </label>
           )}
@@ -866,14 +884,13 @@ export function ItemForm({
       )}
 
       <label className="item-form__note">
-        Observação
+        Observação (sai no PDF e no WhatsApp)
         <input
           value={note}
           maxLength={120}
           placeholder="Ex.: Banheiro, quarto, 2º andar"
           onChange={(e) => setNote(e.target.value)}
         />
-        <span className="field-hint">Sai no PDF e no texto do WhatsApp.</span>
       </label>
 
       {formError && <Banner tone="error">{formError}</Banner>}

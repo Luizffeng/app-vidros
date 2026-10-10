@@ -978,7 +978,7 @@ function ConfigPanel({
 
   return (
     <Section className="catalog-section" title="Mão de obra">
-      <div className="grid">
+      <div className="grid grid--pairs">
         <label>
           Box avulso (R$)
           <MoneyInput
@@ -1012,7 +1012,7 @@ function ConfigPanel({
       {showMarkup && (
         <>
           <h2 className="catalog-subhead">Margem padrão</h2>
-          <div className="grid">
+          <div className="grid grid--pairs">
             {(Object.keys(config.defaultMarkup) as Array<keyof PricingConfig['defaultMarkup']>).map(
               (key) => {
                 const label = MARGIN_LABELS[key]

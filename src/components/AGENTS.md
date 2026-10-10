@@ -35,7 +35,7 @@ One way per job. Reuse these before writing new markup or CSS; if a case does no
 | Notice (saved, error, outdated, draft) | `Banner` (`tone` ok/warn/error; `actions` for buttons, which wrap under the text on narrow screens). Errors get `role="alert"`, others `role="status"` | `div.banner.ok`, `outdated-banner`, custom grids |
 | Card with a title | `Section` (`title`, `count`, `hint`, `actions`); collapsible: `CollapsibleSection` (`title`, `count`) | hand-built `section` + `h2` + `.section-head` |
 | Pick one of a list | `DropdownField` in forms, `Dropdown` in toolbars. The list opens upward when the scroll area has no room below | native `<select>`; wrapping a `Dropdown` in `<label>` (re-clicks the button on pick) |
-| Form layout | `.grid` container (2 columns, 1 under 420px) with `.full` for full-width rows; `.field-pair--half`/`--cep`/`--number`/`--name` for rows that stay side by side on phones | new column classes per form |
+| Form layout | `.grid` container (2 columns, 1 under 420px; `.grid--pairs` keeps 2 for short values) with `.full` for full-width rows; `.field-pair--half`/`--trail`/`--cep`/`--number`/`--name` for rows that stay side by side on phones; a lone short value is `.inline-field`; a single checkbox is `.check-field__box--row` | new column classes per form |
 
 Domain calls go through `src/domain/quote.ts` and `priceItem`. Persistence is the module-level `repo` from `createRepository()` inside `App.tsx`.
 

@@ -412,6 +412,16 @@ label .percent-input .money-input {
   gap: 0.65rem;
 }
 
+.inline-field .money-input {
+  flex: none;
+  width: 6.75rem;
+}
+
+.check-field__box--row {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
 .settings-days {
   width: 4.75rem;
   text-align: right;
@@ -629,10 +639,6 @@ label .percent-input .money-input {
 
 .item-form__note {
   margin: 0.75rem 0 0.5rem;
-}
-
-.item-form__note .field-hint {
-  margin: 0;
 }
 
 .modal--item .kind-grid {
@@ -1178,6 +1184,10 @@ label .percent-input .money-input {
 
 .field-pair--half {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.field-pair--trail {
+  grid-template-columns: minmax(0, 1fr) 6.75rem;
 }
 
 .customer-section label {
@@ -2479,7 +2489,7 @@ textarea:focus {
 }
 
 @media (max-width: 420px) {
-  .grid {
+  .grid:not(.grid--pairs) {
     grid-template-columns: 1fr;
   }
 }

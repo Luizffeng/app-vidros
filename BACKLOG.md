@@ -17,7 +17,6 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Next
 
-- [ ] `ui` (M) **Revisão de espaço vertical no app todo:** aplicar as regras de `.agents/skills/ui-change/SKILL.md` (passo 5: dica sob o título da seção, campos relacionados na mesma linha, campos curtos inline, controle à direita, mídia + ações em colunas) em editor, cliente, custos, catálogo e modais; medir altura antes/depois em 360/390 px
 - [ ] `feat` (G) **Usuário no Cadastro (precisa de spec):** seção expansível "Usuário" em Configurações › Cadastro com nome e telefone de quem usa o app. Futuro: orçamento guarda o vendedor na emissão e o PDF mostra nome e telefone dele (loja com vários vendedores). Decidir: perfil por usuário (Supabase `user_metadata` ou tabela `profiles` + RLS; IndexedDB no modo local), vendedor hoje não abre Configurações (tela própria "Meu perfil" ou aba liberada), snapshot no `Quote` ao emitir, linha no PDF
 - [ ] `feat` (G) **SaaS para vidraçarias (precisa de spec):** decidido 2026-10-09: o app vira SaaS, priorizando simplicidade e experiência para um público pouco adepto de tecnologia. Spec própria: cadastro de loja e conta (sem atrito), várias lojas isoladas (dados, catálogo, logo por loja), planos (ex.: mensal/anual) e cobrança, período de teste, catálogo inicial por loja, migração da Forte Vidros como primeira loja, suporte. Liga com **Login, contas e autorização** e com o banner "plano anual" do Início
 - [ ] `ui` (P) **Mostrar senha no login:** botão de olho no campo senha da tela de login (`LoginScreen.tsx`) para ver/ocultar o que foi digitado
@@ -52,6 +51,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ### 2026-10-10
 
+- [x] `ui` **Revisão de espaço vertical:** modal do item com campos curtos lado a lado no celular (Vão + Cor do vidro, Cor do perfil + Margem, Acabamento + Margem, Descrição + Valor), Margem do vidro fixo em linha, "Incluir trinco" numa linha só com a caixa à direita, dica da Observação no rótulo. Catálogo › Mão de obra/margem em 2 colunas no celular. Altura em 360 px: Box 848→676, Correr 923→826, Pivotante 923→805, Maxim-ar/Espelho 848→751, Vidro fixo 773→730, Avulso 419→322, Catálogo config 1489→1113. Editor, Detalhes do custo e Configurações já estavam dentro das regras
 - [x] `refactor` **Unificar componentes parecidos:** um jeito por tarefa, tabela "Shared patterns" em `src/components/AGENTS.md`. `ConfirmPop` para todas as confirmações em linha; `IconButton` para botões só de ícone e `.btn.with-icon` para ícone + texto; `Banner` para avisos (botões passam para baixo do texto em tela estreita); `Section` para cartões fixos com título, contador, dica e ações; `DropdownField` no lugar dos `<select>` nativos do item (opções de 2.25rem, lista abre para cima quando não cabe). `.grid` e `.field-pair` ficam (papéis diferentes), `--city` virou `--half`
 
 ### 2026-10-09
