@@ -57,7 +57,7 @@ When the quote uses example prices: `ConfirmPop` on Emitir: "Este orçamento usa
 
 ## Fale com a gente (`/ajuda`)
 
-- `Section` "Fale com a gente": hours and typical reply ("Seg. a sex., 8h às 18h. Respondemos em até 1 hora nesse horário."). Primary "Conversar no WhatsApp" → `wa.me/{suporte}?text=Olá! Sou da {nome} ({shortId}).`
+- `Section` "Fale com a gente": hours and typical reply ("Seg. a sex., 10h às 16h. Respondemos em até 1 hora nesse horário. Fora dele, no próximo dia útil."). Primary "Conversar no WhatsApp" → `wa.me/{suporte}?text=Olá! Sou da {nome} ({shortId}).`
 - `Section` "Sugestões" with `count`: textarea "O que faria o app melhor para você?" + "Enviar". List newest first: date, text, status pill (Recebida / Respondida / Feita na versão X), reply below in a quoted block.
 - Works when expired.
 

@@ -4,12 +4,11 @@ Never run these against production Supabase. Data model: [data-model.md](data-mo
 
 ## Prerequisites (owner)
 
-1. **Staging Supabase project** (or `supabase start` with Docker) with both migrations applied, and a `.env.staging.local` with its URL and anon key (never edit `.env`).
-2. Auth providers on staging: sign ups on, Confirm email off, Google OAuth (test client), redirect `http://127.0.0.1:5179/`.
-3. Inputs from the owner before opening sign ups in production:
-   - Support WhatsApp, e-mail, hours, typical reply time (`src/data/support.ts`).
-   - Termos de uso, Política de privacidade, razão social, CNPJ, endereço (`src/data/legal.ts`).
-   - Plausible total range for a box padrão (e.g. 1,20 × 1,90 m, incolor 8 mm) and a janela de correr 2 folhas (e.g. 1,20 × 1,00 m) — used by the example-catalog test.
+1. **Local Supabase** (decided 2026-10-10): `npx supabase start` with Docker (available on the dev machine), both migrations applied, and a `.env.staging.local` pointing at it (never edit `.env`). Sign ups on, Confirm email off in `supabase/config.toml`. A cloud staging project is needed only to test Google/Facebook OAuth end to end; the owner logs in to Supabase himself.
+2. Inputs from the owner before opening sign ups in production:
+   - Support WhatsApp and e-mail (pending: company number). Hours decided: seg. a sex., 10h às 16h, reply within 1 hour in that window (`src/data/support.ts`).
+   - Razão social, CNPJ, endereço (pending: CNPJ being created). Legal drafts in [legal/](legal/) need those fields and a lawyer's review.
+   - Plausible totals: same inputs priced with the Forte Vidros seed, ±10% (decided). Inputs: box padrão 1,20 × 1,90 m incolor 8 mm; janela de correr 2 folhas 1,20 × 1,00 m incolor 8 mm.
    - Decision on extra existing Forte Vidros logins: map to the Forte Vidros account (default) or delete.
 
 ## Automated

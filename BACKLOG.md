@@ -29,6 +29,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 ## Blocked
 
 - [ ] `feat` (M) **Porta de Correr 1 Folha:** novo cálculo em `priceItem` + teste de paridade. Aguardando o dono refinar o cálculo (planilha/orçamento real, BOM, medidas exemplo)
+- [ ] `docs` (P) **Abrir cadastro em produção (spec 007):** aguarda CNPJ (razão social, endereço), número de WhatsApp da empresa e revisão jurídica dos rascunhos em [legal/](specs/007-saas-vidracarias/legal/). Dono também vai registrar a marca AppVidros no INPI. O desenvolvimento das entregas 1–4 não depende disso (Supabase local)
 
 ## Later
 

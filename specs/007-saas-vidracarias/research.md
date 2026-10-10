@@ -54,7 +54,7 @@ Each entry: Decision, Rationale, Alternatives considered.
 
 ## R7. Example catalog with flags, not a second seed file
 
-**Decision**: pure `toExampleCatalog(seed)` in `src/data/exampleCatalog.ts`: copies the current seed, rounds each price to a "nice" value (≥ 100 → multiple of 10; 20–100 → multiple of 5; < 20 → whole real), and sets `exemplo: true` on every row of `vidros`, `kitBox`, `acessorios`, `aluminios` and on `config`. Editing a price or tapping "Confirmar preços" in a Primeiros passos task clears the flag for that row (or table). Unit test: box padrão and janela de correr totals from the example catalog stay within the owner's plausible range (spec US2 scenario 3; range is an input from the owner, see quickstart).
+**Decision**: pure `toExampleCatalog(seed)` in `src/data/exampleCatalog.ts`: copies the current seed, rounds each price to a "nice" value (≥ 100 → multiple of 10; 20–100 → multiple of 5; < 20 → whole real), and sets `exemplo: true` on every row of `vidros`, `kitBox`, `acessorios`, `aluminios` and on `config`. Editing a price or tapping "Confirmar preços" in a Primeiros passos task clears the flag for that row (or table). Unit test: box padrão and janela de correr totals from the example catalog stay within ±10% of the same quotes priced with the current Forte Vidros seed (owner's decision 2026-10-10: Forte Vidros prices are the plausible reference; spec US2 scenario 3).
 
 **Rationale**: owner asked for round prices close to real ones. Deriving from the current seed keeps them close to market without a second JSON to maintain. Flags reuse the `ativo?` pattern (optional, absent = false) so existing catalogs need no migration.
 
@@ -112,7 +112,7 @@ Only "Dispensar" is stored: `AppSettings.onboardingDismissedAt?: string`. Existi
 
 ## R15. Rollout order and testing environment
 
-**Decision**: never test against production. Use a staging Supabase project (or `supabase start` locally with Docker) with the new migration applied; run `scripts/tenant-isolation.mjs` (two accounts, direct REST calls with each JWT) against it. Production cutover: apply migration → move logo object to `{account_id}/logo.png` → deploy app in the same window; the old app cannot write after the migration (no `id = 'current'`), so the window should be minutes, outside working hours.
+**Decision**: never test against production. Use a local Supabase (`npx supabase start`, Docker is available on the dev machine) with the new migration applied; a cloud staging project only for OAuth checks, created by the owner after he logs in; run `scripts/tenant-isolation.mjs` (two accounts, direct REST calls with each JWT) against it. Production cutover: apply migration → move logo object to `{account_id}/logo.png` → deploy app in the same window; the old app cannot write after the migration (no `id = 'current'`), so the window should be minutes, outside working hours.
 
 ## R16. Banners
 
