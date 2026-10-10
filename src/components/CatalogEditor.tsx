@@ -18,6 +18,7 @@ import { Banner } from './Banner'
 import { Dropdown } from './Dropdown'
 import { Modal } from './Modal'
 import { SearchField } from './SearchField'
+import { Section } from './Section'
 
 const DISCARD_MESSAGE = 'Descartar as alterações não salvas do catálogo?'
 
@@ -421,16 +422,16 @@ function VidrosTable({
   }
 
   return (
-    <section className="section catalog-section">
-      <div className="section-head section-head--actions">
-        <div className="section-head__title">
-          <h2>Vidros</h2>
-          <span className="pill">{filtered.length}/{rows.length}</span>
-        </div>
+    <Section
+      className="catalog-section"
+      title="Vidros"
+      count={`${filtered.length}/${rows.length}`}
+      actions={
         <button type="button" className="btn primary" onClick={() => setOpen(true)}>
           Adicionar vidro
         </button>
-      </div>
+      }
+    >
       <div className="table-wrap">
         <table className="catalog-table">
           <thead>
@@ -514,7 +515,7 @@ function VidrosTable({
           </div>
         </Modal>
       )}
-    </section>
+    </Section>
   )
 }
 
@@ -570,16 +571,16 @@ function KitBoxTable({
   }
 
   return (
-    <section className="section catalog-section">
-      <div className="section-head section-head--actions">
-        <div className="section-head__title">
-          <h2>Kit Box</h2>
-          <span className="pill">{filtered.length}/{rows.length}</span>
-        </div>
+    <Section
+      className="catalog-section"
+      title="Kit Box"
+      count={`${filtered.length}/${rows.length}`}
+      actions={
         <button type="button" className="btn primary" onClick={() => setOpen(true)}>
           Adicionar kit
         </button>
-      </div>
+      }
+    >
       <div className="table-wrap">
         <table className="catalog-table">
           <thead>
@@ -663,7 +664,7 @@ function KitBoxTable({
           </div>
         </Modal>
       )}
-    </section>
+    </Section>
   )
 }
 
@@ -712,16 +713,16 @@ function AcessoriosTable({
   }
 
   return (
-    <section className="section catalog-section">
-      <div className="section-head section-head--actions">
-        <div className="section-head__title">
-          <h2>Acessórios</h2>
-          <span className="pill">{filtered.length}/{rows.length}</span>
-        </div>
+    <Section
+      className="catalog-section"
+      title="Acessórios"
+      count={`${filtered.length}/${rows.length}`}
+      actions={
         <button type="button" className="btn primary" onClick={() => setOpen(true)}>
           Adicionar acessório
         </button>
-      </div>
+      }
+    >
       <div className="table-wrap">
         <table className="catalog-table">
           <thead>
@@ -794,7 +795,7 @@ function AcessoriosTable({
           </div>
         </Modal>
       )}
-    </section>
+    </Section>
   )
 }
 
@@ -849,16 +850,16 @@ function AluminiosTable({
   }
 
   return (
-    <section className="section catalog-section">
-      <div className="section-head section-head--actions">
-        <div className="section-head__title">
-          <h2>Alumínios</h2>
-          <span className="pill">{filtered.length}/{rows.length}</span>
-        </div>
+    <Section
+      className="catalog-section"
+      title="Alumínios"
+      count={`${filtered.length}/${rows.length}`}
+      actions={
         <button type="button" className="btn primary" onClick={() => setOpen(true)}>
           Adicionar alumínio
         </button>
-      </div>
+      }
+    >
       <div className="table-wrap">
         <table className="catalog-table catalog-table--aluminios">
           <thead>
@@ -952,7 +953,7 @@ function AluminiosTable({
           </div>
         </Modal>
       )}
-    </section>
+    </Section>
   )
 }
 
@@ -976,8 +977,7 @@ function ConfigPanel({
   }
 
   return (
-    <section className="section catalog-section">
-      <h2>Mão de obra</h2>
+    <Section className="catalog-section" title="Mão de obra">
       <div className="grid">
         <label>
           Box avulso (R$)
@@ -1062,6 +1062,6 @@ function ConfigPanel({
           </tbody>
         </table>
       </div>
-    </section>
+    </Section>
   )
 }

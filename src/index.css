@@ -397,10 +397,6 @@ label .percent-input .money-input {
   color: var(--muted);
 }
 
-.section h2:has(+ .section-hint) {
-  margin-bottom: 0.2rem;
-}
-
 .section-hint {
   margin: 0 0 0.75rem;
   font-size: 0.85rem;
@@ -545,18 +541,6 @@ label .percent-input .money-input {
   .catalog-toggle:hover {
     background: rgba(245, 241, 232, 0.1);
   }
-}
-
-.section-head--actions {
-  justify-content: space-between;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.section-head__title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .modal-backdrop {
@@ -1120,13 +1104,24 @@ label .percent-input .money-input {
 
 .section-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
 
+.section-head:has(+ .section-hint) {
+  margin-bottom: 0.2rem;
+}
+
 .section-head h2 {
   margin: 0;
+}
+
+.section-head__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
 }
 
 .pill {

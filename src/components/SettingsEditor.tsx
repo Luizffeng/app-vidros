@@ -11,6 +11,7 @@ import { useLeaveGuard } from '../nav/useLeaveGuard'
 import { AppHeader, type AppSection } from './AppHeader'
 import { Banner } from './Banner'
 import { CollapsibleSection } from './CollapsibleSection'
+import { Section } from './Section'
 import { useDismiss } from './useDismiss'
 import { ConfirmPop } from './ConfirmPop'
 
@@ -328,9 +329,8 @@ export function SettingsEditor({
 
       {tab === 'quote' && (
         <div className="tab-panel" role="tabpanel" id="settings-panel-quote" aria-labelledby="settings-tab-quote">
-          <section className="section" aria-labelledby="settings-margin-title">
-            <h2 id="settings-margin-title">Cálculo de margem</h2>
-            <fieldset className="margin-modes" aria-labelledby="settings-margin-title">
+          <Section title="Cálculo de margem">
+            <fieldset className="margin-modes" aria-label="Cálculo de margem">
               {MARGIN_MODES.map((mode) => (
                 <label key={mode.id} className="margin-mode">
                   <span className="margin-mode__text">
@@ -347,10 +347,8 @@ export function SettingsEditor({
                 </label>
               ))}
             </fieldset>
-          </section>
-          <section className="section" aria-labelledby="settings-validity-title">
-            <h2 id="settings-validity-title">Validade padrão</h2>
-            <p className="section-hint">Data do orçamento + N dias. Gravada na emissão.</p>
+          </Section>
+          <Section title="Validade padrão" hint="Data do orçamento + N dias. Gravada na emissão.">
             <label className="inline-field">
               Dias
               <input
@@ -368,30 +366,28 @@ export function SettingsEditor({
                 }}
               />
             </label>
-          </section>
-          <section className="section" aria-labelledby="settings-cta-title">
-            <h2 id="settings-cta-title">Texto final no WhatsApp</h2>
-            <p className="section-hint">Última linha da mensagem, antes da validade.</p>
+          </Section>
+          <Section title="Texto final no WhatsApp" hint="Última linha da mensagem, antes da validade.">
             <textarea
               className="settings-cta"
               rows={2}
               maxLength={180}
-              aria-labelledby="settings-cta-title"
+              aria-label="Texto final no WhatsApp"
               value={draft.shareCta}
               onChange={(e) => setDraft((d) => ({ ...d, shareCta: e.target.value }))}
             />
-          </section>
+          </Section>
         </div>
       )}
 
       {tab === 'logo' && (
-        <section
-          className="section tab-panel"
+        <Section
+          title="Logo"
+          className="tab-panel"
           role="tabpanel"
           id="settings-panel-logo"
           aria-labelledby="settings-tab-logo"
         >
-          <h2>Logo</h2>
           <div className="logo-row">
             <div className="logo-preview">
               {draft.logoDataUrl ? (
@@ -434,7 +430,7 @@ export function SettingsEditor({
               </p>
             </div>
           </div>
-        </section>
+        </Section>
       )}
 
       <footer className="action-bar">

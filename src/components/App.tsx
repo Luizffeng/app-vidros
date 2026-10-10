@@ -896,7 +896,7 @@ export function App() {
             )}
           </>
         }
-        badge={<span className="pill">{quote.items.length}</span>}
+        count={quote.items.length}
         defaultOpen
       >
         {quote.items.map((item) => (
@@ -1801,7 +1801,7 @@ function AdditionalCostsSection({
       key={disabled ? 'read' : 'edit'}
       className="cost-section"
       title="Custos adicionais"
-      badge={<span className="pill">{costs.length}</span>}
+      count={costs.length}
       defaultOpen={!disabled || costs.length > 0}
     >
       {disabled && costs.length === 0 && <p className="muted cost-empty">Nenhum custo adicional.</p>}
@@ -1899,7 +1899,7 @@ function DiscountSection({
     <CollapsibleSection
       className="cost-section"
       title="Descontos"
-      badge={<span className="pill">{discounts.length}</span>}
+      count={discounts.length}
     >
       {disabled && discounts.length === 0 && <p className="muted cost-empty">Nenhum desconto.</p>}
       <ul className="cost-list">

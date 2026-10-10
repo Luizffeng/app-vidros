@@ -2,13 +2,13 @@ import { useState, type ReactNode } from 'react'
 
 export function CollapsibleSection({
   title,
-  badge,
+  count,
   defaultOpen = false,
   className,
   children,
 }: {
   title: ReactNode
-  badge?: ReactNode
+  count?: ReactNode
   defaultOpen?: boolean
   className?: string
   children: ReactNode
@@ -24,7 +24,7 @@ export function CollapsibleSection({
     >
       <summary className="collapsible-section__summary" onClick={() => setAnimate(true)}>
         <span className="collapsible-section__heading">{title}</span>
-        {badge}
+        {count != null && <span className="pill">{count}</span>}
         <span className="collapsible-section__chevron" aria-hidden>
           <ChevronIcon />
         </span>
