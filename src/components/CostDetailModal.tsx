@@ -5,6 +5,7 @@ import { composeCost, type CostLine } from '../domain/costComposition'
 import { describeItem, marginLabel } from '../domain/itemDescription'
 import { formatBrl } from '../domain/quote'
 import type { Catalog, CatalogRef, LaborKey, Quote, QuoteItem } from '../domain/types'
+import { ConfirmPop } from './ConfirmPop'
 import { Modal } from './Modal'
 
 const UNIT_LABEL = { m2: 'm²', m: 'm', un: 'un' } as const
@@ -322,37 +323,32 @@ export function CostDetailModal({
                           Cancelar
                         </button>
                       </div>
-                      {confirmCatalog && value != null && (
-                        <div className="remove-pop cost-confirm" role="alertdialog" aria-label="Confirmar preço no catálogo">
-                          <span>
+                      <ConfirmPop
+                        open={confirmCatalog && value != null}
+                        place="static"
+                        block
+                        alert
+                        busy={busy}
+                        label="Confirmar preço no catálogo"
+                        message={
+                          <>
                             {line.laborKey
                               ? `Muda a mão de obra de ${LABOR_USED_BY[line.laborKey]} nos novos orçamentos.`
                               : 'Novos orçamentos usam o preço novo.'}{' '}
                             Outros rascunhos mostram um aviso para atualizar. Emitidos não mudam.
-                          </span>
-                          <span className="save-pop__actions">
-                            <button
-                              type="button"
-                              className="btn remove-pop__yes"
-                              disabled={busy}
-                              onClick={() =>
-                                void run(
-                                  () =>
-                                    line.laborKey
-                                      ? onUpdateLaborCatalog(line.laborKey, value)
-                                      : onUpdateCatalog(line.source!, value),
-                                  'Catálogo atualizado.',
-                                )
-                              }
-                            >
-                              Sim
-                            </button>
-                            <button type="button" className="btn" onClick={() => setConfirmCatalog(false)}>
-                              Não
-                            </button>
-                          </span>
-                        </div>
-                      )}
+                          </>
+                        }
+                        onYes={() =>
+                          void run(
+                            () =>
+                              line.laborKey
+                                ? onUpdateLaborCatalog(line.laborKey, value!)
+                                : onUpdateCatalog(line.source!, value!),
+                            'Catálogo atualizado.',
+                          )
+                        }
+                        onNo={() => setConfirmCatalog(false)}
+                      />
                     </div>
                   )}
                 </li>

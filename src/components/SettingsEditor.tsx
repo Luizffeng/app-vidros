@@ -11,7 +11,7 @@ import { useLeaveGuard } from '../nav/useLeaveGuard'
 import { AppHeader, type AppSection } from './AppHeader'
 import { CollapsibleSection } from './CollapsibleSection'
 import { useDismiss } from './useDismiss'
-import { Presence } from './usePresence'
+import { ConfirmPop } from './ConfirmPop'
 
 const SETTINGS_TABS: { id: SettingsTab; label: string }[] = [
   { id: 'register', label: 'Cadastro' },
@@ -450,29 +450,16 @@ export function SettingsEditor({
             >
               {busy ? 'Salvando…' : dirty ? 'Salvar' : 'Salvo'}
             </button>
-            <Presence open={confirmMode}>
-              {(state) => (
-                <div
-                  className="remove-pop save-pop"
-                  role="alertdialog"
-                  aria-label="Confirmar cálculo de margem"
-                  data-state={state}
-                >
-                  <span>
-                    Novos orçamentos passam a usar este cálculo. Rascunhos mostram um aviso para
-                    atualizar. Orçamentos emitidos não mudam.
-                  </span>
-                  <span className="save-pop__actions">
-                    <button type="button" className="btn remove-pop__yes" onClick={() => void save()}>
-                      Sim
-                    </button>
-                    <button type="button" className="btn" onClick={() => setConfirmMode(false)}>
-                      Não
-                    </button>
-                  </span>
-                </div>
-              )}
-            </Presence>
+            <ConfirmPop
+              open={confirmMode}
+              place="above"
+              block
+              alert
+              label="Confirmar cálculo de margem"
+              message="Novos orçamentos passam a usar este cálculo. Rascunhos mostram um aviso para atualizar. Orçamentos emitidos não mudam."
+              onYes={() => void save()}
+              onNo={() => setConfirmMode(false)}
+            />
           </div>
         </div>
       </footer>

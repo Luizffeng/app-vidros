@@ -70,7 +70,8 @@ import {
 import { CatalogEditor } from './CatalogEditor'
 import { AppHeader, HeaderMenu, type AppSection } from './AppHeader'
 import { useDismiss } from './useDismiss'
-import { motionMs, Presence, usePresence } from './usePresence'
+import { ConfirmPop } from './ConfirmPop'
+import { motionMs, usePresence } from './usePresence'
 import { useScrollEdges } from './useScrollEdges'
 import { CollapsibleSection } from './CollapsibleSection'
 import { CostDetailModal } from './CostDetailModal'
@@ -239,7 +240,7 @@ export function App() {
       const target = event.target
       if (!(target instanceof Element)) return
       if (
-        target.closest('.remove-pop') ||
+        target.closest('.confirm-pop') ||
         target.closest('.icon-btn--remove') ||
         target.closest('.topbar__delete') ||
         target.closest('.emit-wrap')
@@ -853,23 +854,14 @@ export function App() {
                 >
                   <TrashIcon />
                 </button>
-                <Presence open={pendingDeleteQuote}>
-                  {(state) => (
-                    <div className="remove-pop" role="dialog" aria-label="Excluir rascunho" data-state={state}>
-                      <span>Excluir rascunho?</span>
-                      <button
-                        type="button"
-                        className="btn remove-pop__yes"
-                        onClick={() => void onDeleteDraft()}
-                      >
-                        Sim
-                      </button>
-                      <button type="button" className="btn" onClick={() => setPendingDeleteQuote(false)}>
-                        Não
-                      </button>
-                    </div>
-                  )}
-                </Presence>
+                <ConfirmPop
+                  open={pendingDeleteQuote}
+                  place="below"
+                  label="Excluir rascunho"
+                  message="Excluir rascunho?"
+                  onYes={() => void onDeleteDraft()}
+                  onNo={() => setPendingDeleteQuote(false)}
+                />
               </div>
             )}
             <HeaderMenu current="list" onNavigate={goSection} />
@@ -958,26 +950,16 @@ export function App() {
                 >
                   <TrashIcon />
                 </button>
-                <Presence open={pendingRemoveId === item.id}>
-                  {(state) => (
-                    <div className="remove-pop" role="dialog" aria-label="Confirmar remoção" data-state={state}>
-                      <span>Confirmar remoção?</span>
-                      <button
-                        type="button"
-                        className="btn remove-pop__yes"
-                        onClick={() => {
-                          setPendingRemoveId(null)
-                          void onRemoveItem(item.id)
-                        }}
-                      >
-                        Sim
-                      </button>
-                      <button type="button" className="btn" onClick={() => setPendingRemoveId(null)}>
-                        Não
-                      </button>
-                    </div>
-                  )}
-                </Presence>
+                <ConfirmPop
+                  open={pendingRemoveId === item.id}
+                  label="Confirmar remoção"
+                  message="Confirmar remoção?"
+                  onYes={() => {
+                    setPendingRemoveId(null)
+                    void onRemoveItem(item.id)
+                  }}
+                  onNo={() => setPendingRemoveId(null)}
+                />
               </div>
             )}
             </div>
@@ -1172,28 +1154,20 @@ export function App() {
                   disabled={busy || quote.items.length === 0}
                   onClick={() => void onEmit()}
                 />
-                <Presence open={emitNeedsName && !quote.customer.name?.trim()}>
-                  {(state) => (
-                    <div
-                      className="remove-pop emit-pop"
-                      role="alertdialog"
-                      aria-label="Nome do cliente obrigatório"
-                      data-state={state}
-                    >
-                      <span>Preencha o nome do cliente para emitir.</span>
-                      <button
-                        type="button"
-                        className="btn primary"
-                        onClick={() => {
-                          setEmitNeedsName(false)
-                          focusCustomerName()
-                        }}
-                      >
-                        Preencher nome
-                      </button>
-                    </div>
-                  )}
-                </Presence>
+                <ConfirmPop
+                  open={emitNeedsName && !quote.customer.name?.trim()}
+                  place="above"
+                  alert
+                  warn
+                  tone="primary"
+                  label="Nome do cliente obrigatório"
+                  message="Preencha o nome do cliente para emitir."
+                  yesLabel="Preencher nome"
+                  onYes={() => {
+                    setEmitNeedsName(false)
+                    focusCustomerName()
+                  }}
+                />
               </div>
             )}
           </div>
