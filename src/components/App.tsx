@@ -622,8 +622,10 @@ export function App() {
   const onRevise = async () => {
     if (!quote) return
     const rev = createRevision(quote)
-    await persist(rev)
-    setQuote(rev)
+    openingRef.current = rev.id
+    const saving = persist(rev)
+    replace({ screen: 'quote', id: rev.id })
+    await saving
   }
 
   const onSaveCatalog = async (next: Catalog) => {

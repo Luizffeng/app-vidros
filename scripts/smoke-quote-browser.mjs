@@ -116,6 +116,20 @@ async function main() {
     check('nome do PDF', /^\d{4}-\d{4}-1-Cliente\.pdf$/.test(filename), filename)
     check('arquivo é PDF', readFileSync(pdfPath).subarray(0, 4).toString() === '%PDF', pdfPath)
 
+    const emittedUrl = new URL(page.url()).pathname
+    await page.getByRole('button', { name: 'Criar uma revisão' }).click()
+    await page.getByRole('heading', { level: 1, name: /-2$/ }).waitFor()
+    const revisionUrl = new URL(page.url()).pathname
+    check(
+      'revisão abre como rascunho no próprio endereço',
+      revisionUrl !== emittedUrl && /^\/orcamentos\/[^/]+$/.test(revisionUrl) &&
+        (await page.getByText('Rascunho', { exact: true }).count()) === 1,
+      `${emittedUrl} → ${revisionUrl}`,
+    )
+    await page.reload({ waitUntil: 'networkidle' })
+    await page.getByRole('heading', { level: 1, name: /-2$/ }).waitFor()
+    ok('recarregar mantém a revisão')
+
     await page.getByRole('button', { name: 'Voltar', exact: true }).click()
     await page.getByRole('heading', { name: 'Orçamentos', level: 1 }).waitFor()
     ok('voltar do orçamento volta à lista')
