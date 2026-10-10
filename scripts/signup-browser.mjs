@@ -1,0 +1,192 @@
+/**
+ * Browser check for spec 007 (cadastro, teste grátis, vencimento) against local Supabase.
+ * Needs `npm run db:start` and `npm run dev:staging` (port 5179). Never run against production.
+ * Run: node scripts/signup-browser.mjs   (APP_URL defaults to http://127.0.0.1:5179)
+ */
+import { execFileSync } from 'node:child_process'
+import { mkdirSync } from 'node:fs'
+import { join } from 'node:path'
+import { createClient } from '@supabase/supabase-js'
+import { chromium } from 'playwright'
+
+const status = JSON.parse(
+  execFileSync('npx', ['supabase', 'status', '-o', 'json'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }),
+)
+if (!/^http:\/\/(127\.0\.0\.1|localhost)/.test(status.API_URL)) throw new Error(`Recusado: ${status.API_URL} não é local.`)
+const admin = createClient(status.API_URL, status.SERVICE_ROLE_KEY, { auth: { persistSession: false } })
+
+const BASE = (process.env.APP_URL ?? 'http://127.0.0.1:5179').replace(/\/$/, '')
+if (!/^http:\/\/(127\.0\.0\.1|localhost)/.test(BASE)) throw new Error(`Recusado: ${BASE} não é local.`)
+const OUT = join(process.cwd(), 'tmp-browser-qa')
+mkdirSync(OUT, { recursive: true })
+
+const results = []
+function check(name, cond, detail = '') {
+  results.push({ name, pass: Boolean(cond) })
+  console.log(`${cond ? 'PASS' : 'FAIL'}  ${name}${detail ? ` — ${detail}` : ''}`)
+}
+
+const EMAIL = `cadastro-${Date.now()}@teste.local`
+const PASSWORD = 'teste-123456'
+const SHOP = 'Vidraçaria Teste Cadastro'
+
+async function h1(page, name) {
+  await page.getByRole('heading', { level: 1, name }).waitFor()
+}
+
+async function account() {
+  const { data } = await admin.from('accounts').select('*').eq('name', SHOP).single()
+  return data
+}
+
+async function quoteCount(accountId) {
+  const { count } = await admin.from('quotes').select('id', { count: 'exact', head: true }).eq('account_id', accountId)
+  return count
+}
+
+async function signOut(page) {
+  await page.getByRole('button', { name: 'Menu' }).click()
+  await page.getByRole('menuitem', { name: 'Sair' }).click()
+}
+
+const browser = await chromium.launch()
+const page = await browser.newPage({ viewport: { width: 360, height: 640 }, acceptDownloads: true })
+const errors = []
+page.on('pageerror', (e) => errors.push(e.message))
+
+try {
+  // Páginas públicas sem login
+  await page.goto(`${BASE}/termos`, { waitUntil: 'networkidle' })
+  await h1(page, 'Termos de uso')
+  check('termos abrem sem login', await page.getByText('Rascunho (2026-10-10).').isVisible())
+  await page.getByRole('link', { name: 'Política de Privacidade' }).first().click()
+  await h1(page, 'Privacidade')
+  check('link interno abre a privacidade', new URL(page.url()).pathname === '/privacidade')
+  await page.getByRole('button', { name: 'Voltar' }).click()
+  await h1(page, 'Termos de uso')
+  await page.getByRole('button', { name: 'Voltar' }).click()
+  await page.getByRole('button', { name: 'Criar conta grátis' }).waitFor()
+  check('voltar sem login chega na entrada', new URL(page.url()).pathname === '/')
+  check('sem horizontal scroll na entrada', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+
+  // Cadastro por e-mail
+  await page.getByRole('button', { name: 'Criar conta grátis' }).click()
+  await h1(page, 'Criar conta grátis')
+  check('Google escondido quando desligado', (await page.getByRole('button', { name: 'Continuar com Google' }).count()) === 0)
+  await page.getByLabel('E-mail').fill(EMAIL)
+  await page.getByLabel('Senha', { exact: true }).fill(PASSWORD)
+  await page.getByRole('button', { name: 'Criar conta', exact: true }).click()
+  await h1(page, 'Sua vidraçaria')
+  check('login novo cai em "Sua vidraçaria"', true)
+
+  await page.getByLabel('Nome da vidraçaria').fill(SHOP)
+  await page.getByLabel('WhatsApp da loja').fill('37999990000')
+  check('WhatsApp com máscara', (await page.getByLabel('WhatsApp da loja').inputValue()) === '(37) 99999-0000')
+  check('opt-in desmarcado', !(await page.getByLabel('Quero receber novidades e ofertas pelo WhatsApp').isChecked()))
+  await page.getByRole('button', { name: 'Começar teste grátis de 30 dias' }).click()
+  await h1(page, 'Início')
+  check('teste de 30 dias no Início', await page.getByText('Teste grátis: faltam 30 dias').isVisible())
+  const acc = await account()
+  check('conta criada em teste', acc?.plan === 'trial' && acc.whatsapp === '37999990000' && !acc.marketing_opt_in_at)
+
+  // Configurações preenchidas com a conta, sem o logo da Forte Vidros
+  await page.goto(`${BASE}/configuracoes/cadastro`, { waitUntil: 'networkidle' })
+  await page.getByLabel('Nome / razão social').waitFor()
+  check('nome da loja vem do cadastro', (await page.getByLabel('Nome / razão social').inputValue()) === SHOP)
+  check('telefone vem do cadastro', (await page.getByLabel('Telefone').first().inputValue()) === '(37) 99999-0000')
+  await page.goto(`${BASE}/configuracoes/logo`, { waitUntil: 'networkidle' })
+  check('conta nova sem logo', await page.getByText('Sem logo').isVisible())
+
+  // Orçamento emitido para os testes de vencimento
+  await page.goto(`${BASE}/orcamentos`, { waitUntil: 'networkidle' })
+  await page.getByRole('button', { name: 'Novo orçamento' }).click()
+  await page.getByRole('heading', { level: 1, name: /^ORC-/ }).waitFor()
+  check('primeiro número da conta', /^ORC-\d{4}-0001/.test(await page.getByRole('heading', { level: 1 }).innerText()))
+  await page.getByRole('button', { name: 'Adicionar item' }).click()
+  await page.getByRole('button', { name: 'Espelho', exact: true }).click()
+  const modal = page.locator('.modal--item')
+  await modal.getByLabel('Largura (mm)').fill('1000')
+  await modal.getByLabel('Altura (mm)').fill('800')
+  await modal.getByRole('button', { name: 'Adicionar item' }).click()
+  await modal.waitFor({ state: 'detached' })
+  await page.locator('#customer-name').fill('Cliente Cadastro')
+  await page.getByRole('button', { name: 'Emitir' }).click()
+  await page.getByText('Emitido', { exact: true }).waitFor()
+  const emittedUrl = page.url()
+  check('emite com a conta em teste', true)
+
+  // Aviso de 7 dias
+  await admin.from('accounts').update({ trial_ends_at: new Date(Date.now() + 6 * 864e5).toISOString() }).eq('id', acc.id)
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' })
+  await h1(page, 'Início')
+  check('aviso a 6 dias', await page.getByText('Seu teste grátis termina em 6 dias.').isVisible())
+  check('aviso oferece assinar', await page.getByRole('link', { name: 'Quero assinar' }).isVisible())
+
+  // Vencido: só consulta
+  await admin.from('accounts').update({ trial_ends_at: new Date(Date.now() - 864e5).toISOString() }).eq('id', acc.id)
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' })
+  await h1(page, 'Início')
+  check('banner de vencido sem falar de preço', await page.getByText(/Seu teste grátis terminou em .*Seus orçamentos continuam aqui/).isVisible())
+  const before = await quoteCount(acc.id)
+  await page.goto(`${BASE}/orcamentos`, { waitUntil: 'networkidle' })
+  await page.getByRole('button', { name: 'Novo orçamento' }).click()
+  await page.getByRole('dialog', { name: 'Seu teste grátis terminou' }).waitFor()
+  check('Novo orçamento abre o aviso', true)
+  check('aviso oferece assinar', await page.getByRole('dialog').getByRole('link', { name: 'Quero assinar' }).isVisible())
+  check('sem horizontal scroll no aviso', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+  await page.getByRole('dialog').getByRole('button', { name: 'Fechar' }).click()
+  await page.getByRole('dialog').waitFor({ state: 'detached' })
+  check('nenhum rascunho criado', (await quoteCount(acc.id)) === before && new URL(page.url()).pathname === '/orcamentos')
+
+  await page.goto(emittedUrl, { waitUntil: 'networkidle' })
+  await page.getByText('Emitido', { exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Criar uma revisão' }).click()
+  await page.getByRole('dialog', { name: 'Seu teste grátis terminou' }).waitFor()
+  check('Revisar abre o aviso', true)
+  await page.keyboard.press('Escape')
+  await page.getByRole('dialog').waitFor({ state: 'detached' })
+  check('revisão não criada', (await quoteCount(acc.id)) === before)
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.locator('.action-bar').getByRole('button', { name: 'Baixar PDF' }).click(),
+  ])
+  check('PDF baixa com a conta vencida', /\.pdf$/.test(download.suggestedFilename()), download.suggestedFilename())
+
+  await page.goto(`${BASE}/configuracoes/cadastro`, { waitUntil: 'networkidle' })
+  await page.getByLabel('Nome / razão social').fill(`${SHOP} 2`)
+  await page.getByRole('button', { name: 'Salvar' }).first().click()
+  await page.getByRole('dialog', { name: 'Seu teste grátis terminou' }).waitFor()
+  check('salvar configurações abre o aviso', true)
+  await page.keyboard.press('Escape')
+  const settings = await admin.from('settings').select('payload').eq('account_id', acc.id).single()
+  check('configurações não gravadas', settings.data?.payload?.establishment?.name === SHOP)
+
+  // Sair e entrar de novo cai na mesma conta
+  await admin.from('accounts').update({ trial_ends_at: new Date(Date.now() + 30 * 864e5).toISOString() }).eq('id', acc.id)
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' })
+  await h1(page, 'Início')
+  await signOut(page)
+  await page.getByRole('button', { name: 'Já tenho conta' }).click()
+  await page.getByLabel('E-mail').fill(EMAIL)
+  await page.getByLabel('Senha', { exact: true }).fill(PASSWORD)
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click()
+  await h1(page, 'Início')
+  check('entrar de novo cai na mesma conta', await page.getByText('Teste grátis: faltam 30 dias').isVisible())
+
+  check('sem erros de página', errors.length === 0, errors.join(' | '))
+} catch (error) {
+  await page.screenshot({ path: join(OUT, 'signup-browser-fail.png'), fullPage: true }).catch(() => {})
+  check('roteiro completo', false, error instanceof Error ? error.message : String(error))
+} finally {
+  await browser.close()
+  const users = await admin.auth.admin.listUsers()
+  const user = users.data?.users.find((u) => u.email === EMAIL)
+  if (user) {
+    await admin.from('accounts').delete().eq('name', SHOP)
+    await admin.auth.admin.deleteUser(user.id)
+  }
+}
+
+const failed = results.filter((r) => !r.pass)
+console.log(`\n${results.length - failed.length}/${results.length} ok`)
+process.exit(failed.length ? 1 : 0)

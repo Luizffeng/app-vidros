@@ -1,6 +1,6 @@
 # Components
 
-React UI. No price formulas and no Supabase queries except `LoginScreen` (password sign-in).
+React UI. No price formulas and no Supabase queries except `EntryScreen` (sign-in, sign-up, password reset).
 
 ## Files
 
@@ -9,7 +9,7 @@ React UI. No price formulas and no Supabase queries except `LoginScreen` (passwo
 | `App.tsx` | Renders the screen of `useRoute()` (`home` \| `quotes` \| `quote` \| `catalog` \| `settings`); screen changes only through `src/nav/navigator.ts` (`push`, `replace`, `goTop` for menu/tiles, `up` for the header arrow). List scroll restore, list filter/search in the URL, quote load by URL id, item draft banner and restore (`src/data/itemDraft.ts`). Quote state, persist queue, emit, revision, delete, PDF/share actions. Also customer, costs, discounts, emitted action bar (Prévia, Baixar PDF, Enviar), send popover (`SendMenu` above Enviar: "Enviar PDF" with `pdfShareMessage`, "Enviar texto") and text share modal ("Copiar" + Enviar) in the same file. Passes `settings.marginMode` to domain calls, `ItemForm`, `CatalogEditor`; outdated-draft banner ("Atualizar valores" → `repriceDraft`). |
 | `CostDetailModal.tsx` | "Detalhes do custo" window per item: summary + `composeCost` groups; admin draft edits a line price via `onSetOverride` (→ `setPriceOverride`) or `onUpdateCatalog` (→ `onUpdateCatalogPrice` in `App.tsx`: catalog save + reprice); labor line via `onSetLaborRate` (→ `setItemLaborRate`) or `onUpdateLaborCatalog`. `ItemForm` keeps an item's `laborRate` on edit and previews with the quote's own prices. |
 | `ItemForm.tsx` | Modal fields per product kind. Markup percent → fraction. Hides margin field/line in Autônomo mode. `initialState` restores an item draft; `onStateChange(state, dirty)` reports raw input. |
-| `HomeScreen.tsx` | Início: `BannerCarousel`, tiles (Orçamentos, Catálogo, Configurações, Ajuda "Em breve") with summaries from `src/domain/home.ts`. No action bar. |
+| `HomeScreen.tsx` | Início: account banner (warn ≤ 7 days, expired, disabled), `BannerCarousel`, tiles (Orçamentos, Catálogo, Configurações, Ajuda "Em breve") with summaries from `src/domain/home.ts`, trial line "Teste grátis: faltam N dias". No action bar. |
 | `BannerCarousel.tsx`, `useCarouselAutoplay.ts` | One fixed banner frame; slides scroll-snap inside it (no peek), dots over the frame's bottom edge, banners from `src/data/banners.ts`; autoplay 5 s with pauses. |
 | `CatalogEditor.tsx` | Catalog tables (table dropdown, search, situation filter), version bump. Hides "Margem padrão" in Autônomo mode. Tab comes from the URL; unsaved edits use `useLeaveGuard`. |
 | `SettingsEditor.tsx` | Tab comes from the URL; unsaved edits use `useLeaveGuard`. Tabs Cadastro (expandable Estabelecimento), Orçamento (sections Cálculo de margem with confirm on change, Validade padrão, Texto final no WhatsApp), Logo (preview + actions side by side). One `Section` per block, explanation in its `hint`. Sliding tab indicator (`.tabs__indicator`). |
@@ -17,7 +17,10 @@ React UI. No price formulas and no Supabase queries except `LoginScreen` (passwo
 | `Section.tsx`, `Banner.tsx`, `ConfirmPop.tsx`, `IconButton.tsx` | Shared building blocks; see "Shared patterns" below. |
 | `AppHeader.tsx` | Title, optional back arrow (`onBack`), hamburger menu: Início, Orçamentos, Catálogo, Configurações (hidden for `vendedor`), Ajuda, Sair. Owns `AppSection` and the section icons. `HeaderMenu` is also used in the editor head (`App.tsx`). |
 | `selectAllOnFocus.ts` | Global listener (installed in `main.tsx`): `inputMode="decimal"` and `data-select-all` inputs select their value on focus. |
-| `LoginScreen.tsx` | Email/password form. |
+| `EntryScreen.tsx` | No session: "Criar conta grátis" / "Já tenho conta", Google (when on), e-mail/senha, "Esqueci a senha"; `NewPasswordScreen` after the reset link; `PasswordField`, `LegalLinks`. |
+| `AccountSetupScreen.tsx` | Session without account: "Sua vidraçaria" form → `createAccount`. |
+| `PublicPage.tsx` | `/termos`, `/privacidade`, `/novidades` from markdown in `src/content/` (`parseMarkdown`). |
+| `ExpiredNotice.tsx` | Modal opened by `blocked()` in `App.tsx` when the account is read-only; WhatsApp links from `src/data/support.ts`. |
 | `PdfPreview.tsx` | pdf.js preview of a blob. |
 | `Dropdown.tsx`, `Modal.tsx`, `SearchField.tsx`, `useDismiss.ts` | Shared widgets. `Dropdown` (filters, catalog table picker) and `DropdownField` (form field with caption) replace native `<select>`. `Modal` plays its exit on Fechar/Esc/backdrop/device back before calling `onClose`. `Modal` and `useDismiss` call `useBackLayer`, so every overlay built on them takes one history entry. |
 | `usePresence.ts` | `usePresence(open, exit)` / `<Presence>` keep an overlay mounted with `data-state="closing"` for its exit; `motionMs` reads `--dur-*`. |
@@ -42,7 +45,8 @@ Domain calls go through `src/domain/quote.ts` and `priceItem`. Persistence is th
 ## Boundaries
 
 - Search `App.tsx` for the handler (`onEmit`, `persist`, `onDeleteDraft`, `openNew`) and read that region. Do not load the whole file, and do not read the icon functions at the bottom, unless the task is those icons.
-- `readOnly` means `quote.status === 'emitted'`. Keep emit/delete rules in the domain; the UI should keep calling `emitQuote` / checking `draft`.
+- In the editor, `emitted` is `quote.status === 'emitted'` (status pill, Revisar, PDF/Enviar bar); `readOnly` is `emitted` or an account that cannot write (fields disabled). Keep emit/delete rules in the domain; the UI should keep calling `emitQuote` / checking `draft`.
+- Any new write handler in `App.tsx` starts with `blocked()` (opens `ExpiredNotice` when the account is read-only).
 - Screen header (title, back/delete/menu, and tabs when the screen has them) sits inside `<div className="sticky-head">` so it stays on top while scrolling. Banners and content go below it.
 - `HeaderMenu` is always the last (rightmost) control in a screen header. Screen actions (delete, revise) go to its left.
 - Admin gate is `access.role !== 'vendedor'`. Role loading stays in `src/auth/access.tsx`.

@@ -26,7 +26,7 @@ Turn the single-shop app into one account per vidraçaria. Supabase gets an `acc
 
 **Constraints**: usable at 360 px; no new npm dependency; RLS is the only security boundary; never test against production; cutover window of minutes (R15)
 
-**Scale/Scope**: tens to low hundreds of accounts in phase 1. New files: `src/domain/account.ts`, `src/domain/onboarding.ts`, `src/data/exampleCatalog.ts`, `src/data/accountService.ts` (Supabase + local), `src/data/support.ts`, `src/data/legal.ts`, `src/data/releaseNotes.ts`, components `EntryScreen`, `AccountSetupScreen`, `OnboardingCard`, `OnboardingTask`, `SupportScreen`, `ExpiredNotice`, `HomeFooter`, `PublicPage`; 1 migration; `supabase/operator/*.sql`; 2 scripts. Edits: `access.tsx`, `supabaseRepository.ts`, `catalogItems.ts` (flags), `defaultSettings.ts`, `types.ts`, `routes.ts`, `App.tsx` (write gates), `HomeScreen.tsx`, `AppHeader.tsx`, `CatalogEditor.tsx`, `SettingsEditor.tsx`, `banners.ts`, `index.css`, docs.
+**Scale/Scope**: tens to low hundreds of accounts in phase 1. New files: `src/domain/account.ts`, `src/domain/onboarding.ts`, `src/data/exampleCatalog.ts`, `src/data/accountService.ts` (Supabase + local), `src/data/support.ts`, `src/content/` (legal drafts, novidades, `parseMarkdown`), components `EntryScreen`, `AccountSetupScreen`, `OnboardingCard`, `OnboardingTask`, `SupportScreen`, `ExpiredNotice`, `HomeFooter`, `PublicPage`; 1 migration; `supabase/operator/*.sql`; 2 scripts. Edits: `access.tsx`, `supabaseRepository.ts`, `catalogItems.ts` (flags), `defaultSettings.ts`, `types.ts`, `routes.ts`, `App.tsx` (write gates), `HomeScreen.tsx`, `AppHeader.tsx`, `CatalogEditor.tsx`, `SettingsEditor.tsx`, `banners.ts`, `index.css`, docs.
 
 ## Constitution Check
 
@@ -86,7 +86,7 @@ src/
 ├── data/
 │   ├── accountService.ts         # AccountService: Supabase + local
 │   ├── exampleCatalog.ts (+ .test.ts)
-│   ├── support.ts · legal.ts · releaseNotes.ts
+│   ├── support.ts   (legal + novidades markdown in src/content/)
 │   └── supabaseRepository.ts     # account_id on writes, per-account logo path
 ├── auth/access.tsx               # account in context, setup gate, public routes
 ├── nav/routes.ts                 # /ajuda, /primeiros-passos/:t, /novidades, /termos, /privacidade

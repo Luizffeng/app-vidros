@@ -34,19 +34,15 @@ export const DEFAULT_BANNERS: Banner[] = [
 /** Published with each app version; the owner edits this list. */
 export const BANNERS: Banner[] = [
   {
-    id: 'em-breve-ajuda',
-    title: 'Em breve: Ajuda',
-    text: 'Dicas rápidas para tirar medidas e montar cada tipo de item.',
-  },
-  {
-    id: 'plano-anual',
-    title: 'Plano anual vem aí',
-    text: 'Sabia que no plano anual você vai economizar? Fique de olho nas novidades.',
+    id: 'fale-com-a-gente',
+    title: 'Fale com a gente',
+    text: 'Dúvida ou sugestão? Respondemos em até 1 hora, de segunda a sexta, das 10h às 16h.',
   },
   {
     id: 'novidades',
     title: 'Novidades do app',
-    text: 'Agora o botão voltar do celular funciona dentro do app, e você tem esta tela de Início.',
+    text: 'Veja o que mudou: tela de Início, botão voltar do celular e mais.',
+    action: { route: { screen: 'page', page: 'news' } },
   },
 ]
 

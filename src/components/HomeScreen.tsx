@@ -1,9 +1,12 @@
 import { useMemo, type ReactNode } from 'react'
 import { BANNERS, visibleBanners } from '../data/banners'
+import { supportWhatsAppUrl } from '../data/support'
+import { supportMessage, type SupportIntent } from '../domain/account'
 import { catalogUpdatedOn, quoteTileSummary, settingsPending } from '../domain/home'
-import type { AppSettings, Quote } from '../domain/types'
+import type { Account, AccountState, AppSettings, Quote } from '../domain/types'
 import type { Route } from '../nav/routes'
 import { AppHeader, CatalogIcon, GearIcon, HelpIcon, QuotesIcon, type AppSection } from './AppHeader'
+import { Banner } from './Banner'
 import { BannerCarousel } from './BannerCarousel'
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
@@ -46,11 +49,56 @@ function Tile({
   )
 }
 
+const dayMonth = (iso?: string) =>
+  iso ? new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : ''
+
+function AccountBanner({ account, state }: { account: Account; state: AccountState }) {
+  if (!state.warn && state.kind !== 'expired' && state.kind !== 'disabled') return null
+  const subscription = state.reason === 'subscription'
+  const link = (intent: SupportIntent, label: string) => (
+    <a
+      className="btn"
+      href={supportWhatsAppUrl(supportMessage(intent, account))}
+      target="_blank"
+      rel="noreferrer"
+    >
+      {label}
+    </a>
+  )
+  if (state.kind === 'disabled') {
+    return (
+      <Banner tone="warn" actions={link('talk', 'Falar com a gente')}>
+        Sua conta está suspensa. Seus orçamentos continuam aqui para consulta.
+      </Banner>
+    )
+  }
+  if (state.kind === 'expired') {
+    return (
+      <Banner tone="warn" actions={link('talk', 'Falar com a gente')}>
+        {subscription ? 'Sua assinatura venceu' : 'Seu teste grátis terminou'} em {dayMonth(state.endsAt)}.
+        Seus orçamentos continuam aqui para consulta.
+      </Banner>
+    )
+  }
+  const days = plural(state.daysLeft ?? 0, 'dia', 'dias')
+  return subscription ? (
+    <Banner tone="warn" actions={link('renew', 'Renovar')}>
+      Sua assinatura vence em {days}.
+    </Banner>
+  ) : (
+    <Banner tone="warn" actions={link('subscribe', 'Quero assinar')}>
+      Seu teste grátis termina em {days}.
+    </Banner>
+  )
+}
+
 export function HomeScreen({
   quotes,
   catalogVersion,
   settings,
   isAdmin,
+  account,
+  accountState,
   onNavigate,
   onOpen,
 }: {
@@ -58,6 +106,8 @@ export function HomeScreen({
   catalogVersion: string
   settings: AppSettings
   isAdmin: boolean
+  account: Account | null
+  accountState: AccountState
   onNavigate: (section: AppSection) => void
   onOpen: (route: Route) => void
 }) {
@@ -84,6 +134,8 @@ export function HomeScreen({
       <div className="sticky-head">
         <AppHeader title="Início" current="home" onNavigate={onNavigate} />
       </div>
+
+      {account && <AccountBanner account={account} state={accountState} />}
 
       <BannerCarousel banners={banners} onRoute={onOpen} />
 
@@ -122,6 +174,12 @@ export function HomeScreen({
         )}
         <Tile title="Ajuda" icon={<HelpIcon />} label="Ajuda: em breve" summary="Em breve" disabled />
       </nav>
+
+      {accountState.kind === 'trial' && !accountState.warn && (
+        <p className="muted home__trial">
+          Teste grátis: faltam {plural(accountState.daysLeft ?? 0, 'dia', 'dias')}
+        </p>
+      )}
     </div>
   )
 }

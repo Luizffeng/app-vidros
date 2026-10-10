@@ -22,6 +22,9 @@ describe('routes', () => {
       { screen: 'settings', tab: 'register' },
       { screen: 'settings', tab: 'quote' },
       { screen: 'settings', tab: 'logo' },
+      { screen: 'page', page: 'terms' },
+      { screen: 'page', page: 'privacy' },
+      { screen: 'page', page: 'news' },
     ]
     for (const route of routes) expect(parseUrl(formatRoute(route))).toEqual(route)
   })
@@ -30,6 +33,9 @@ describe('routes', () => {
     expect(formatRoute({ screen: 'catalog', tab: 'kitBox' })).toBe('/catalogo/kit-box')
     expect(formatRoute({ screen: 'settings', tab: 'register' })).toBe('/configuracoes/cadastro')
     expect(formatRoute({ screen: 'quotes', filter: 'draft' })).toBe('/orcamentos?filtro=rascunhos')
+    expect(formatRoute({ screen: 'page', page: 'terms' })).toBe('/termos')
+    expect(formatRoute({ screen: 'page', page: 'privacy' })).toBe('/privacidade')
+    expect(formatRoute({ screen: 'page', page: 'news' })).toBe('/novidades')
   })
 
   it('falls back to the first tab and to home', () => {
@@ -37,6 +43,7 @@ describe('routes', () => {
     expect(parseRoute('/catalogo/xyz')).toEqual({ screen: 'catalog', tab: 'vidros' })
     expect(parseRoute('/configuracoes/')).toEqual({ screen: 'settings', tab: 'register' })
     expect(parseRoute('/nada/aqui')).toEqual({ screen: 'home' })
+    expect(parseRoute('/termos/extra')).toEqual({ screen: 'home' })
     expect(parseRoute('/')).toEqual({ screen: 'home' })
   })
 
@@ -54,5 +61,7 @@ describe('routes', () => {
     expect(sameScreen({ screen: 'catalog', tab: 'vidros' }, { screen: 'catalog', tab: 'config' })).toBe(true)
     expect(sameScreen({ screen: 'quote', id: 'a' }, { screen: 'quote', id: 'b' })).toBe(false)
     expect(sameScreen({ screen: 'quotes' }, { screen: 'home' })).toBe(false)
+    expect(sameScreen({ screen: 'page', page: 'terms' }, { screen: 'page', page: 'privacy' })).toBe(false)
+    expect(ancestors({ screen: 'page', page: 'news' })).toEqual([{ screen: 'home' }])
   })
 })

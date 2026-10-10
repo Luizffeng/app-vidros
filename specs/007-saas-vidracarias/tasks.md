@@ -88,16 +88,16 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 
 **Independent Test**: quickstart manual scenario 1 and `scripts/signup-browser.mjs` (e-mail method).
 
-- [ ] T024 [P] [US1] Add routes `/termos`, `/privacidade`, `/novidades`, `/ajuda`, `/primeiros-passos/:tarefa` to src/nav/routes.ts with parents per contracts/ui.md; tests in src/nav/routes.test.ts
-- [ ] T025 [P] [US1] Create src/data/legal.ts from specs/007-saas-vidracarias/legal/*.md (sections as data, placeholders kept) and src/data/releaseNotes.ts (current version + short list)
-- [ ] T026 [US1] Create src/components/PublicPage.tsx (title + sections, back to entry or Início) and let `AccessProvider` render public routes without a session (R13)
-- [ ] T027 [US1] Create src/components/EntryScreen.tsx replacing LoginScreen usage: tagline, "Criar conta grátis" / "Já tenho conta", method list (Google via `signInWithOAuth`, e-mail form reusing the password field with show/hide and "Esqueci a senha" via `resetPasswordForEmail`), links to termos/privacidade; sign up vs sign in by mode
-- [ ] T028 [US1] Handle password recovery return (`PASSWORD_RECOVERY` auth event) with a "Nova senha" form in src/components/EntryScreen.tsx, then land in the app
-- [ ] T029 [US1] Create src/components/AccountSetupScreen.tsx per contracts/ui.md (nome, WhatsApp masked, opt-in unchecked, terms text with links, "Começar teste grátis de 30 dias"); on submit `createAccount` then `refreshAccount()`; `AccessProvider` shows it when session exists and account is null
-- [ ] T030 [US1] Prefill settings on first load for a new account (establishment name and phone from the account) in src/data/supabaseRepository.ts `getSettings` fallback
-- [ ] T031 [US1] Trial line on Início ("Teste grátis: faltam {n} dias") in src/components/HomeScreen.tsx from `accountState`
-- [ ] T032 [US1] Create scripts/signup-browser.mjs (Playwright, local Supabase): sign up by e-mail → setup → Início with trial line; sign out and sign in again lands in the same account
-- [ ] T033 [US1] Configure Google provider in supabase/config.toml (env vars, disabled by default) and document cloud staging OAuth check in specs/007-saas-vidracarias/quickstart.md
+- [X] T024 [P] [US1] Add routes `/termos`, `/privacidade`, `/novidades` (screen `page`) to src/nav/routes.ts with parent Início; tests in src/nav/routes.test.ts. `/ajuda` and `/primeiros-passos/:tarefa` come with T054 and T049
+- [X] T025 [P] [US1] Legal drafts moved to src/content/legal/*.md (single source, placeholders kept), release notes in src/content/novidades.md, imported with `?raw` by src/content/pages.ts and rendered by `parseMarkdown` (src/content/markdown.ts, tested)
+- [X] T026 [US1] Create src/components/PublicPage.tsx (title + sections, back to entry or Início) and let `AccessProvider` render public routes without a session (R13)
+- [X] T027 [US1] Create src/components/EntryScreen.tsx replacing LoginScreen usage: tagline, "Criar conta grátis" / "Já tenho conta", method list (Google via `signInWithOAuth`, e-mail form reusing the password field with show/hide and "Esqueci a senha" via `resetPasswordForEmail`), links to termos/privacidade; sign up vs sign in by mode
+- [X] T028 [US1] Handle password recovery return (`PASSWORD_RECOVERY` auth event) with a "Nova senha" form in src/components/EntryScreen.tsx, then land in the app
+- [X] T029 [US1] Create src/components/AccountSetupScreen.tsx per contracts/ui.md (nome, WhatsApp masked, opt-in unchecked, terms text with links, "Começar teste grátis de 30 dias"); on submit `createAccount` then `refreshAccount()`; `AccessProvider` shows it when session exists and account is null
+- [X] T030 [US1] Prefill settings on first load for a new account (establishment name and phone from the account) in src/data/supabaseRepository.ts `getSettings` fallback; new accounts start without logo (the embedded default is Forte Vidros', kept only in local mode; Supabase "Restaurar padrão" became "Remover logo")
+- [X] T031 [US1] Trial line on Início ("Teste grátis: faltam {n} dias") in src/components/HomeScreen.tsx from `accountState`
+- [X] T032 [US1] Create scripts/signup-browser.mjs (Playwright, local Supabase): sign up by e-mail → setup → Início with trial line; sign out and sign in again lands in the same account
+- [X] T033 [US1] Configure Google provider in supabase/config.toml (env vars, disabled by default) and document cloud staging OAuth check in specs/007-saas-vidracarias/quickstart.md
 
 **Checkpoint**: new accounts can be created locally; legal pages public.
 
@@ -109,13 +109,13 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 
 **Independent Test**: quickstart manual scenarios 5 and 6; signup script expiry step.
 
-- [ ] T034 [P] [US6] Create src/components/ExpiredNotice.tsx (Modal) per contracts/ui.md: title/body by reason and date, primary "Quero assinar"/"Renovar" → `wa.me` with `supportMessage`, secondary "Falar com a gente" → `/ajuda`, close returns without changes
-- [ ] T035 [US6] Gate write paths in src/components/App.tsx: `openNew`, revise, duplicate, emit, item add/edit/remove, draft delete, catalog save, settings save → open `ExpiredNotice` when `!accountState.canWrite`, before creating any draft or revision
-- [ ] T036 [US6] Read-only drafts when expired in src/components/App.tsx (inputs disabled, no autosave) while PDF and WhatsApp resend of emitted quotes keep working
-- [ ] T037 [US6] Warn and expired banners on Início in src/components/HomeScreen.tsx with `Banner tone="warn"` per contracts/ui.md (no price talk after expiry)
-- [ ] T038 [P] [US6] Create src/data/support.ts (WhatsApp placeholder, e-mail placeholder, hours "Seg. a sex., 10h às 16h", reply "até 1 hora") used by `supportMessage` links
-- [ ] T039 [US6] Extend scripts/signup-browser.mjs: expire via service key → Novo orçamento opens the notice and quote count is unchanged; Revisar opens the notice; PDF download works
-- [ ] T040 [US6] Update src/data/banners.ts: remove the "plano anual" promise (R16), add a support banner
+- [X] T034 [P] [US6] Create src/components/ExpiredNotice.tsx (Modal) per contracts/ui.md: title/body by reason and date, primary "Quero assinar"/"Renovar" → `wa.me` with `supportMessage`, secondary "Falar com a gente" (WhatsApp until `/ajuda` exists, switched in T054), close returns without changes
+- [X] T035 [US6] Gate write paths in src/components/App.tsx: `openNew`, revise, emit, draft delete, `persist` (every item/customer/cost change), catalog price updates, catalog save, settings save → `blocked()` opens `ExpiredNotice` when `!accountState.canWrite`, before creating any draft or revision (no duplicate action exists yet)
+- [X] T036 [US6] Read-only drafts when expired in src/components/App.tsx (inputs disabled, no autosave, warn banner "Rascunho só para consulta") while PDF and WhatsApp resend of emitted quotes keep working
+- [X] T037 [US6] Warn and expired banners on Início in src/components/HomeScreen.tsx with `Banner tone="warn"` per contracts/ui.md (no price talk after expiry)
+- [X] T038 [P] [US6] Create src/data/support.ts (WhatsApp placeholder, e-mail placeholder, hours "Seg. a sex., 10h às 16h", reply "até 1 hora") used by `supportMessage` links
+- [X] T039 [US6] Extend scripts/signup-browser.mjs: expire via service key → Novo orçamento opens the notice and quote count is unchanged; Revisar opens the notice; PDF download works
+- [X] T040 [US6] Update src/data/banners.ts: remove the "plano anual" promise (R16) and "Em breve: Ajuda", add a support banner; "Novidades" opens `/novidades`
 
 **Checkpoint**: delivery step 2 ready (sign up stays closed in production until legal text and company data exist).
 
@@ -152,7 +152,7 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 
 - [ ] T053 [US5] Create src/components/SupportScreen.tsx per contracts/ui.md: hours/reply Section, "Conversar no WhatsApp", "Sugestões" Section with count, textarea + "Enviar", list with status pill and reply; offline send keeps the text and shows an error Banner
 - [ ] T054 [US5] Wire `/ajuda` in src/components/App.tsx; enable the Ajuda tile ("Fale com a gente") in src/components/HomeScreen.tsx and the Ajuda menu item in src/components/AppHeader.tsx
-- [ ] T055 [US5] "Você pediu, a gente fez" entries in src/data/releaseNotes.ts rendered on `/novidades`; suggestion with `shipped_version` shows "Feito na versão X"
+- [ ] T055 [US5] "Você pediu, a gente fez" entries in src/content/novidades.md rendered on `/novidades`; suggestion with `shipped_version` shows "Feito na versão X"
 - [ ] T056 [US5] Verify ≤ 2 taps to `/ajuda` from Início, Orçamentos, Catálogo, editor, and from `ExpiredNotice`
 
 ---
@@ -163,7 +163,7 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 
 **Independent Test**: quickstart manual scenario 7.
 
-- [ ] T057 [P] [US7] Create src/components/HomeFooter.tsx (links per contracts/ui.md, company data from src/data/legal.ts, app version) below the tiles in src/components/HomeScreen.tsx; carousel and tiles still fit 360 × 640 without scrolling
+- [ ] T057 [P] [US7] Create src/components/HomeFooter.tsx (links per contracts/ui.md, company data in a small src/data/company.ts shared with the placeholders in src/content/legal/, app version) below the tiles in src/components/HomeScreen.tsx; carousel and tiles still fit 360 × 640 without scrolling
 - [ ] T058 [US7] "Excluir minha conta e dados": `ConfirmPop` with "Digite EXCLUIR" → remove logo via Storage → `deleteMyAccount()` → sign out → entry screen
 - [ ] T059 [US7] Opt-in checkbox row in Configurações › Cadastro (src/components/SettingsEditor.tsx) calling `setMarketingOptIn`
 - [X] T060 [US7] (done early, with Phase 3) Extend scripts/tenant-isolation.mjs: `delete_my_account` removes account rows, suggestions and auth user; other account untouched

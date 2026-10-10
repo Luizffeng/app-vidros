@@ -104,7 +104,7 @@ Only "Dispensar" is stored: `AppSettings.onboardingDismissedAt?: string`. Existi
 
 ## R13. Public pages outside the login gate
 
-**Decision**: `/termos`, `/privacidade` and `/novidades` render without a session (checked in `AccessProvider` before the gate). Text lives in `src/data/legal.ts` and `src/data/releaseNotes.ts`; owner provides final legal text (placeholder until then blocks opening sign ups).
+**Decision**: `/termos`, `/privacidade` and `/novidades` render without a session (checked in `AccessProvider` before the gate). Text lives in markdown under `src/content/` (legal drafts and `novidades.md`), rendered by a small tested parser; owner provides final legal text (placeholder until then blocks opening sign ups).
 
 ## R14. Roles in phase 1
 

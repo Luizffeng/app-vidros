@@ -286,7 +286,7 @@ Abaixo dos blocos do Início, ao rolar, um rodapé discreto com: Fale com a gent
 - O provedor atual de autenticação e banco continua; contas, isolamento e bloqueio de vencimento usam as regras de acesso do servidor.
 - Modo local (sem servidor configurado) continua existindo para desenvolvimento, como uma conta única sem teste.
 - Atendimento: segunda a sexta, 10h às 16h, primeira resposta em até 1 hora nesse horário (decidido 2026-10-10). WhatsApp e e-mail do suporte dependem do número da empresa.
-- Termos de uso e política de privacidade partem dos rascunhos em `legal/`, completados com razão social, CNPJ e endereço (CNPJ em criação) e revisados por advogado antes de abrir o cadastro.
+- Termos de uso e política de privacidade partem dos rascunhos em `src/content/legal/`, completados com razão social, CNPJ e endereço (CNPJ em criação) e revisados por advogado antes de abrir o cadastro.
 - Faixa de preço plausível do catálogo de exemplo: os mesmos orçamentos calculados com os preços da Forte Vidros, ±10% (decidido 2026-10-10).
 - Assinatura da fase 1 é combinada pelo WhatsApp e liberada manualmente pelo operador até uma data.
 - Mensagens de oferta pelo WhatsApp seguem as regras do WhatsApp para empresas e só vão para quem consentiu (FR-005).

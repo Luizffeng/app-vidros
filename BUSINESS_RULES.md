@@ -5,11 +5,13 @@ Rules encoded in the current code. Locations are the evidence. Unclear items are
 ## Access
 
 - Without Supabase env, role is `local` and the UI is the admin UI, because admin means “not vendedor”. `src/auth/access.tsx`, `src/components/App.tsx` (`isAdmin`).
-- With Supabase, no session shows `LoginScreen`. Failed password shows a generic invalid message. `src/components/LoginScreen.tsx`.
-- `profiles.role === 'admin'` is admin. Any other value, error, or missing row becomes `vendedor`. `loadRole` in `src/auth/access.tsx`.
-- Vendedor does not see Catálogo or Configurações. `src/components/AppHeader.tsx`, `goSection` in `App.tsx`.
-- Database: any authenticated user can read and write quotes, including delete. Only admin can insert/update catalog and settings, or write the `logos` bucket. `supabase/migrations/20260924120000_init.sql`.
-- New auth user is inserted as `vendedor`. `handle_new_user` in the same migration.
+- With Supabase, no session shows `EntryScreen`: "Criar conta grátis" only when the project allows sign ups (`GET /auth/v1/settings`), Google only when that provider is on, e-mail/senha, "Esqueci a senha". Failed password shows a generic invalid message. `src/components/EntryScreen.tsx`, `fetchAuthOptions` in `src/data/supabaseClient.ts`.
+- `/termos`, `/privacidade`, `/novidades` open with or without a session. `src/auth/access.tsx`, `src/components/PublicPage.tsx`.
+- One account (vidraçaria) per login. A session without an account shows "Sua vidraçaria" (`create_account`: name, WhatsApp 10–13 digits, opt-in unchecked) and starts a 30-day trial. `src/components/AccountSetupScreen.tsx`, `supabase/migrations/20261010120000_accounts.sql`.
+- Every signed-in user is admin of their own account (`vendedor` is dormant). Database: read own account only; write own account only while `account_can_write()` (trial or subscription not ended, not disabled). Same migration.
+- Account state: warn from 7 days before the end; expired or disabled is read-only. `accountState` in `src/domain/account.ts` (mirrors `account_can_write`).
+- Read-only: every write path opens `ExpiredNotice` instead (new quote, revision, emit, draft delete, item changes, catalog and settings save); drafts show disabled; PDF download and resend of emitted quotes keep working. `blocked()` in `App.tsx`.
+- New account settings start with the account name and WhatsApp and no logo. The embedded logo (Forte Vidros) is only the local-mode default. `freshSettings` in `src/data/supabaseRepository.ts`.
 
 ## Quote status
 

@@ -244,6 +244,12 @@ export function HeaderMenu({
   )
 }
 
+export const BackArrowIcon = () => (
+  <svg {...ICON_PROPS}>
+    <path d="M19 12H5M11 6l-6 6 6 6" />
+  </svg>
+)
+
 export function AppHeader({
   title,
   current,
@@ -260,9 +266,7 @@ export function AppHeader({
     <header className="topbar app-header">
       {onBack && (
         <IconButton label="Voltar" className="app-header__back" onClick={onBack}>
-          <svg {...ICON_PROPS}>
-            <path d="M19 12H5M11 6l-6 6 6 6" />
-          </svg>
+          <BackArrowIcon />
         </IconButton>
       )}
       <div className="app-header__titles">

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { AppSettings, Catalog, Quote, QuoteRepository } from '../domain/types'
+import { phoneDigits } from '../domain/brazil'
 import { normalizeQuote } from '../domain/quote'
 import { normalizeCatalog } from './catalogItems'
 import { defaultSettings, normalizeSettings } from './defaultSettings'
@@ -115,7 +116,7 @@ export class SupabaseQuoteRepository implements QuoteRepository {
     fail(error)
     const row = data as SettingsRow | null
     if (!row) {
-      const fresh = defaultSettings()
+      const fresh = await this.freshSettings()
       const inserted = await this.supabase.from('settings').insert({ payload: fresh, logo_path: null })
       if (inserted.error?.code === '23505') return this.getSettings()
       if (inserted.error) return fresh
@@ -128,6 +129,22 @@ export class SupabaseQuoteRepository implements QuoteRepository {
     if (file.error || !file.data) return settings
     settings.logoDataUrl = await blobToDataUrl(file.data)
     return settings
+  }
+
+  /** Conta nova: nome e WhatsApp do cadastro, sem logo (o logo embutido é da Forte Vidros). */
+  private async freshSettings(): Promise<AppSettings> {
+    const base = defaultSettings()
+    const { data } = await this.supabase.from('accounts').select('name, whatsapp').maybeSingle()
+    const account = data as { name: string; whatsapp: string } | null
+    return {
+      ...base,
+      logoDataUrl: undefined,
+      establishment: {
+        ...base.establishment,
+        name: account?.name ?? base.establishment.name,
+        phone: phoneDigits(account?.whatsapp ?? ''),
+      },
+    }
   }
 
   async saveSettings(settings: AppSettings): Promise<void> {

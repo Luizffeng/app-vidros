@@ -6,7 +6,7 @@
 
 Estes Termos de Uso regulam o uso do AppVidros, aplicativo de orçamentos para vidraçarias, oferecido por **[RAZÃO SOCIAL]**, inscrita no CNPJ sob o nº **[CNPJ]**, com sede em **[ENDEREÇO COMPLETO]** ("AppVidros", "nós").
 
-Ao criar uma conta, você ("Usuário", "você") declara que leu, entendeu e aceita estes Termos e a [Política de Privacidade](politica-de-privacidade.md). Se não concordar, não use o AppVidros.
+Ao criar uma conta, você ("Usuário", "você") declara que leu, entendeu e aceita estes Termos e a [Política de Privacidade](/privacidade). Se não concordar, não use o AppVidros.
 
 ## 1. O que é o AppVidros
 
@@ -61,7 +61,7 @@ d) revender ou sublicenciar o AppVidros sem autorização por escrito.
 
 6.3. Cada conta só acessa os próprios dados. Não vendemos nem compartilhamos seus dados com terceiros para fins comerciais.
 
-6.4. O tratamento dos seus dados pessoais está descrito na [Política de Privacidade](politica-de-privacidade.md).
+6.4. O tratamento dos seus dados pessoais está descrito na [Política de Privacidade](/privacidade).
 
 ## 7. Comunicações
 

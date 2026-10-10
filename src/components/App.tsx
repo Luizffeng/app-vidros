@@ -82,6 +82,8 @@ import { SearchField } from './SearchField'
 import { ITEM_KINDS, ItemForm } from './ItemForm'
 import { ItemBlockHead } from './ItemBlockHead'
 import { Modal } from './Modal'
+import { ExpiredNotice } from './ExpiredNotice'
+import { PublicPage } from './PublicPage'
 import { PdfPreview } from './PdfPreview'
 import { SettingsEditor } from './SettingsEditor'
 import { HomeScreen } from './HomeScreen'
@@ -92,6 +94,7 @@ import { useRoute } from '../nav/useRoute'
 
 const repo = createRepository()
 const pdfShareSupported = canSharePdfFiles()
+const BLOCKED_MESSAGE = 'Sua conta está em modo consulta. Nada foi gravado.'
 
 const kindLabel = (kind: ProductKind) => ITEM_KINDS.find((k) => k.id === kind)?.label ?? kind
 
@@ -105,6 +108,14 @@ const SECTION_ROUTES: Record<AppSection, Route> = {
 export function App() {
   const access = useAccess()
   const isAdmin = access.role !== 'vendedor'
+  const canWrite = access.accountState.canWrite
+  const [expiredNotice, setExpiredNotice] = useState(false)
+  /** Conta vencida: abre o aviso no lugar da ação. O servidor também recusa a gravação. */
+  const blocked = () => {
+    if (canWrite) return false
+    setExpiredNotice(true)
+    return true
+  }
   const { route, nav } = useRoute()
   const screenKey = route.screen
   const navRef = useRef(nav)
@@ -281,7 +292,7 @@ export function App() {
   }, [searchedQuotes, listStatus])
 
   const openNew = async () => {
-    if (!catalog) return
+    if (!catalog || blocked()) return
     const number = await repo.nextQuoteNumber()
     const draft = createEmptyDraft(number, catalog.config.version, marginMode)
     setItemModal(null)
@@ -297,7 +308,7 @@ export function App() {
     if (!q) return false
     setItemModal(null)
     setRepriceFailed(null)
-    if (q.status === 'draft') {
+    if (q.status === 'draft' && canWrite) {
       const costs = dropEmptyFreight(q.additionalCosts)
       let next = costs !== q.additionalCosts ? recomputeTotals({ ...q, additionalCosts: costs }) : q
       if (catalog) next = refreshItemDetail(next, catalog)
@@ -348,6 +359,7 @@ export function App() {
   // Atualiza a tela antes de salvar: inputs controlados esperando a rede perdem
   // teclas. Saves em fila evitam que uma versão antiga termine por último.
   const persist = async (q: Quote) => {
+    if (blocked()) return
     setQuote(q)
     latestSavedRef.current = q
     const save = saveQueueRef.current.then(() =>
@@ -394,7 +406,7 @@ export function App() {
   }
 
   const onRepriceDraft = async () => {
-    if (!quote || !catalog) return
+    if (!quote || !catalog || blocked()) return
     const { quote: next, failed } = repriceDraft(quote, catalog, marginMode)
     await persist(next)
     setRepriceFailed(failed)
@@ -406,7 +418,7 @@ export function App() {
   }
 
   const onUpdateCatalogPrice = async (ref: CatalogRef, price: number) => {
-    if (!quote || !catalog || !isAdmin) return
+    if (!quote || !catalog || !isAdmin || blocked()) return
     const priced = setCatalogPrice(catalog, ref, price)
     const next: Catalog = {
       ...priced,
@@ -424,7 +436,7 @@ export function App() {
   }
 
   const onUpdateLaborCatalog = async (itemId: string, key: LaborKey, rate: number) => {
-    if (!quote || !catalog || !isAdmin) return
+    if (!quote || !catalog || !isAdmin || blocked()) return
     const next: Catalog = {
       ...catalog,
       config: {
@@ -597,7 +609,7 @@ export function App() {
   }
 
   const onEmit = async () => {
-    if (!quote) return
+    if (!quote || blocked()) return
     if (!quote.customer.name?.trim()) {
       setEmitNeedsName(true)
       return
@@ -618,12 +630,13 @@ export function App() {
   }
 
   const onSaveSettings = async (next: AppSettings) => {
+    if (blocked()) throw new Error(BLOCKED_MESSAGE)
     await repo.saveSettings(next)
     setSettings(next)
   }
 
   const onRevise = async () => {
-    if (!quote) return
+    if (!quote || blocked()) return
     const rev = createRevision(quote)
     openingRef.current = rev.id
     const saving = persist(rev)
@@ -632,6 +645,7 @@ export function App() {
   }
 
   const onSaveCatalog = async (next: Catalog) => {
+    if (blocked()) throw new Error(BLOCKED_MESSAGE)
     await repo.saveCatalog(next)
     setCatalog(next)
   }
@@ -639,7 +653,7 @@ export function App() {
   if (!catalog || !settings) {
     return (
       <div className="shell">
-        <p className="muted">Carregando…</p>
+        {error ? <Banner tone="error">{error}</Banner> : <p className="muted">Carregando…</p>}
       </div>
     )
   }
@@ -652,8 +666,17 @@ export function App() {
   const screen = (node: ReactNode) => (
     <div key={screenKey} ref={screenRef} className="screen">
       {node}
+      {expiredNotice && access.account && (
+        <ExpiredNotice
+          account={access.account}
+          state={access.accountState}
+          onClose={() => setExpiredNotice(false)}
+        />
+      )}
     </div>
   )
+
+  if (route.screen === 'page') return screen(<PublicPage page={route.page} />)
 
   if (route.screen === 'home') {
     return screen(
@@ -662,6 +685,8 @@ export function App() {
         catalogVersion={catalog.config.version}
         settings={settings}
         isAdmin={isAdmin}
+        account={access.account}
+        accountState={access.accountState}
         onNavigate={goSection}
         onOpen={(target) => (target.screen === 'home' ? goSection('home') : push(target, 'fade'))}
       />,
@@ -771,7 +796,9 @@ export function App() {
 
   if (!quote || quote.id !== route.id) return screen(null)
 
-  const readOnly = quote.status === 'emitted'
+  const emitted = quote.status === 'emitted'
+  /** Emitido, ou rascunho de conta em modo consulta */
+  const readOnly = emitted || !canWrite
   const costItem = costItemId ? quote.items.find((i) => i.id === costItemId) : undefined
   const outdated = draftOutdated(quote, catalog, marginMode)
   const outdatedDate = outdated && outdatedSince(outdated, catalog, settings?.marginModeChangedAt)
@@ -820,11 +847,11 @@ export function App() {
             </IconButton>
             <div className="quote-head__titles">
               <h1 className="quote-head__code">{formatQuoteCode(quote.number, quote.revision)}</h1>
-              <span className={`status-pill status-pill--${readOnly ? 'emitted' : 'draft'}`}>
-                {readOnly ? 'Emitido' : 'Rascunho'}
+              <span className={`status-pill status-pill--${emitted ? 'emitted' : 'draft'}`}>
+                {emitted ? 'Emitido' : 'Rascunho'}
               </span>
             </div>
-            {readOnly ? (
+            {emitted ? (
               <IconButton label="Criar uma revisão" tone="revise" disabled={busy} onClick={() => void onRevise()}>
                 <RevisionIcon />
               </IconButton>
@@ -833,7 +860,9 @@ export function App() {
                 <IconButton
                   label="Excluir rascunho"
                   tone="danger-solid"
-                  onClick={() => setPendingDeleteQuote((open) => !open)}
+                  onClick={() => {
+                    if (!blocked()) setPendingDeleteQuote((open) => !open)
+                  }}
                 >
                   <TrashIcon />
                 </IconButton>
@@ -853,6 +882,17 @@ export function App() {
       </div>
 
       {error && !itemModal && <Banner tone="error">{error}</Banner>}
+
+      {!emitted && !canWrite && (
+        <Banner tone="warn">
+          Rascunho só para consulta:{' '}
+          {access.accountState.kind === 'disabled'
+            ? 'conta suspensa.'
+            : access.accountState.reason === 'subscription'
+              ? 'sua assinatura venceu.'
+              : 'seu teste grátis terminou.'}
+        </Banner>
+      )}
 
       {outdated && (
         <Banner
@@ -1112,12 +1152,12 @@ export function App() {
             >
               <EyeIcon />
             </IconButton>
-            {readOnly && (
+            {emitted && (
               <IconButton label="Baixar PDF" disabled={busy} onClick={() => void onDownloadPdf()}>
                 <DownloadIcon />
               </IconButton>
             )}
-            {readOnly ? (
+            {emitted ? (
               <SendMenu
                 open={sendOpen}
                 disabled={busy}
@@ -1169,7 +1209,7 @@ export function App() {
       {pdfPreviewBlob && (
         <Modal className="modal--pdf" title="Prévia do PDF" onClose={closePdfPreview}>
           <PdfPreview data={pdfPreviewBlob} />
-          {readOnly ? (
+          {emitted ? (
             <div className="modal__actions modal__actions--pdf">
               <button
                 type="button"

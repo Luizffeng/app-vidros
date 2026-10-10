@@ -1,6 +1,8 @@
 export type CatalogTab = 'vidros' | 'kitBox' | 'acessorios' | 'aluminios' | 'config'
 export type SettingsTab = 'register' | 'quote' | 'logo'
 export type QuoteFilter = 'draft' | 'emitted'
+/** Abrem sem login. */
+export type PublicPage = 'terms' | 'privacy' | 'news'
 
 export type Route =
   | { screen: 'home' }
@@ -8,8 +10,15 @@ export type Route =
   | { screen: 'quote'; id: string }
   | { screen: 'catalog'; tab: CatalogTab }
   | { screen: 'settings'; tab: SettingsTab }
+  | { screen: 'page'; page: PublicPage }
 
 export type Screen = Route['screen']
+
+export const PAGE_SLUGS: Record<PublicPage, string> = {
+  terms: 'termos',
+  privacy: 'privacidade',
+  news: 'novidades',
+}
 
 const CATALOG_SLUGS: Record<CatalogTab, string> = {
   vidros: 'vidros',
@@ -60,8 +69,10 @@ export function parseRoute(pathname: string, search = ''): Route {
       return { screen: 'catalog', tab: fromSlug(CATALOG_SLUGS, parts[1]) ?? 'vidros' }
     case 'configuracoes':
       return { screen: 'settings', tab: fromSlug(SETTINGS_SLUGS, parts[1]) ?? 'register' }
-    default:
-      return { screen: 'home' }
+    default: {
+      const page = parts.length === 1 ? fromSlug(PAGE_SLUGS, parts[0]) : undefined
+      return page ? { screen: 'page', page } : { screen: 'home' }
+    }
   }
 }
 
@@ -82,6 +93,8 @@ export function formatRoute(route: Route): string {
       return `/catalogo/${CATALOG_SLUGS[route.tab]}`
     case 'settings':
       return `/configuracoes/${SETTINGS_SLUGS[route.tab]}`
+    case 'page':
+      return `/${PAGE_SLUGS[route.page]}`
   }
 }
 
@@ -105,5 +118,6 @@ export function ancestors(route: Route): Route[] {
 
 export function sameScreen(a: Route, b: Route): boolean {
   if (a.screen !== b.screen) return false
+  if (a.screen === 'page') return a.page === (b as { page: PublicPage }).page
   return a.screen !== 'quote' || a.id === (b as { id: string }).id
 }

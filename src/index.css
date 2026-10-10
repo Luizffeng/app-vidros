@@ -1338,6 +1338,18 @@ textarea:focus {
   background: transparent;
 }
 
+a.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  text-decoration: none;
+}
+
+a.btn.primary {
+  color: #1a1405;
+}
+
 .btn.danger {
   color: var(--danger);
 }
@@ -3168,6 +3180,129 @@ a.carousel__body {
     grid-template-columns: repeat(2, minmax(0, 16rem));
     justify-content: center;
   }
+}
+
+.home__trial {
+  margin: 0.9rem 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+/* Entry, account setup and new password: one column of full-width controls. */
+.entry__start,
+.entry__methods {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.entry__start {
+  margin-top: 1.5rem;
+}
+
+.entry__start .lede {
+  max-width: none;
+  margin-bottom: 0.75rem;
+  font-size: 1.05rem;
+}
+
+.entry__methods {
+  margin-bottom: 0.6rem;
+}
+
+.entry__methods .btn svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.entry__or {
+  margin: 0.2rem 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.entry__switch {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-top: 0.75rem;
+}
+
+.entry__links {
+  margin: 1.5rem 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.entry__links a,
+.doc__body a {
+  color: var(--accent-2);
+}
+
+/* Termos, privacidade, novidades */
+.doc__body {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.doc__body h2 {
+  margin: 1.5rem 0 0.5rem;
+  font-family: var(--display);
+  font-size: 1.1rem;
+}
+
+.doc__body h3 {
+  margin: 1.2rem 0 0.4rem;
+  font-size: 1rem;
+}
+
+.doc__body p,
+.doc__body ul {
+  margin: 0 0 0.75rem;
+}
+
+.doc__body ul {
+  padding-left: 1.2rem;
+}
+
+.doc__body blockquote {
+  margin: 0.5rem 0 1rem;
+  padding: 0.55rem 0.75rem;
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  background: var(--surface);
+  font-size: 0.85rem;
+}
+
+.doc__table {
+  overflow-x: auto;
+  margin: 0 0 0.75rem;
+}
+
+.doc__table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.doc__table th,
+.doc__table td {
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--edge-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.modal--notice p {
+  margin: 0 0 1rem;
+  line-height: 1.45;
+}
+
+.modal--notice .modal__actions {
+  grid-template-columns: 1fr;
 }
 
 /* Screens: App sets data-nav on .screen for one enter. Children move, not .shell, because a

@@ -1,6 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { LoginScreen } from '../components/LoginScreen'
+import { AccountSetupScreen } from '../components/AccountSetupScreen'
+import { EntryScreen, NewPasswordScreen } from '../components/EntryScreen'
+import { PublicPage } from '../components/PublicPage'
 import { createAccountService } from '../data/accountService'
+import { useRoute } from '../nav/useRoute'
 import { getSupabase } from '../data/supabaseClient'
 import { accountState } from '../domain/account'
 import type { Account, AccountService, AccountState } from '../domain/types'
@@ -42,6 +45,8 @@ export function AccessProvider({ children }: { children: ReactNode }) {
   /** undefined = carregando; null = sessão sem conta */
   const [account, setAccount] = useState<Account | null | undefined>(undefined)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [recovering, setRecovering] = useState(false)
+  const { route } = useRoute()
 
   useEffect(() => {
     if (!supabase) return
@@ -50,7 +55,8 @@ export function AccessProvider({ children }: { children: ReactNode }) {
       if (!alive) return
       setUserId(data.session?.user.id ?? null)
     })
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') setRecovering(true)
       setUserId(session?.user.id ?? null)
     })
     return () => {
@@ -92,7 +98,11 @@ export function AccessProvider({ children }: { children: ReactNode }) {
     return <AccessContext.Provider value={LOCAL_ACCESS}>{children}</AccessContext.Provider>
   }
 
-  if (userId === null) return <LoginScreen />
+  const publicPage = route.screen === 'page' ? <PublicPage page={route.page} /> : null
+
+  if (userId === null) return publicPage ?? <EntryScreen />
+
+  if (recovering) return <NewPasswordScreen onDone={() => setRecovering(false)} />
 
   if (loadError) {
     return (
@@ -115,12 +125,13 @@ export function AccessProvider({ children }: { children: ReactNode }) {
 
   if (!access) {
     return (
-      <div className="shell">
-        <p className="muted">Este login ainda não tem uma vidraçaria. Fale com o suporte.</p>
-        <button type="button" className="btn" onClick={() => void supabase.auth.signOut()}>
-          Sair
-        </button>
-      </div>
+      publicPage ?? (
+        <AccountSetupScreen
+          accounts={accountService}
+          onCreated={loadAccount}
+          onSignOut={() => void supabase.auth.signOut()}
+        />
+      )
     )
   }
 

@@ -14,7 +14,7 @@ This app does not expose an HTTP API. It is a static SPA that calls Supabase and
 | --- | --- |
 | Client singleton | `src/data/supabaseClient.ts` `getSupabase()` |
 | Quotes, catalog, settings, logo, quote number | `src/data/supabaseRepository.ts` |
-| Login, session, sign-out, `profiles` select | `src/auth/access.tsx`, `src/components/LoginScreen.tsx` |
+| Login, session, sign-out, `profiles` select | `src/auth/access.tsx`, `src/components/EntryScreen.tsx` |
 | CEP | `src/data/viacep.ts` `lookupCep` |
 
 There is no generated client and no DTO package. Request and response bodies are the TypeScript types in `src/domain/types.ts`, stored as `payload` JSON.

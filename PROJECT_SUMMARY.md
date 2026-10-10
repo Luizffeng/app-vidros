@@ -66,7 +66,7 @@ Postgres tables: `profiles`, `quotes`, `catalog`, `settings`, `quote_counters`. 
 
 | Task | Inspect |
 | --- | --- |
-| Authentication / roles | `src/auth/access.tsx`, `src/components/LoginScreen.tsx`, RLS in `supabase/migrations/20260924120000_init.sql` |
+| Authentication / roles | `src/auth/access.tsx`, `src/components/EntryScreen.tsx`, RLS in `supabase/migrations/20260924120000_init.sql` |
 | API / Supabase integration | `src/data/supabaseClient.ts`, `src/data/supabaseRepository.ts`, [API_CONTEXT.md](API_CONTEXT.md) |
 | Quote list or editor UI | `src/components/App.tsx` (search the handler). Header/nav menu: `AppHeader.tsx`. Local map: `src/components/AGENTS.md` |
 | Item fields / markup input | `src/components/ItemForm.tsx` |

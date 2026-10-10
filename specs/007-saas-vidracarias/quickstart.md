@@ -7,7 +7,7 @@ Never run these against production Supabase. Data model: [data-model.md](data-mo
 1. **Local Supabase** (decided 2026-10-10): `npx supabase start` with Docker (available on the dev machine), both migrations applied, and a `.env.staging.local` pointing at it (never edit `.env`). Sign ups on, Confirm email off in `supabase/config.toml`. A cloud staging project is needed only to test Google/Facebook OAuth end to end; the owner logs in to Supabase himself.
 2. Inputs from the owner before opening sign ups in production:
    - Support WhatsApp and e-mail (pending: company number). Hours decided: seg. a sex., 10h às 16h, reply within 1 hour in that window (`src/data/support.ts`).
-   - Razão social, CNPJ, endereço (pending: CNPJ being created). Legal drafts in [legal/](legal/) need those fields and a lawyer's review.
+   - Razão social, CNPJ, endereço (pending: CNPJ being created). Legal drafts in [src/content/legal/](../../src/content/legal/) need those fields and a lawyer's review.
    - Plausible totals: same inputs priced with the Forte Vidros seed, ±10% (decided). Inputs: box padrão 1,20 × 1,90 m incolor 8 mm; janela de correr 2 folhas 1,20 × 1,00 m incolor 8 mm.
    - Decision on extra existing Forte Vidros logins: map to the Forte Vidros account (default) or delete.
 
@@ -17,7 +17,7 @@ Never run these against production Supabase. Data model: [data-model.md](data-mo
 | --- | --- |
 | `npm test` | `accountState` (trial, warn at 7 days, expired by trial/subscription, disabled), `toExampleCatalog` rounding + plausible totals, `exampleRefsInQuote`, `onboardingTasks` (Forte Vidros-like data → all done), new routes parse/format. |
 | `node scripts/tenant-isolation.mjs` (staging env) | SC-003: accounts A and B via REST with each JWT — B cannot read/update/delete A's quotes, catalog, settings, suggestions, logo; per-account quote numbers; expired account cannot insert/update/delete or call `next_quote_number`; expired account can still read and send suggestions. |
-| `node scripts/signup-browser.mjs` (staging, e-mail method) | US1 + US2 + US6 happy path: create account → setup → Início with trial line and Primeiros passos 0 de 5 → confirm vidros → emit with example prices shows the warning → force expiry via SQL → Novo orçamento opens the notice and the quote count does not change. |
+| `node scripts/signup-browser.mjs` (local Supabase + `npm run dev:staging`) | US1 + US6 (29 checks): public terms/privacy without session → create account by e-mail → "Sua vidraçaria" → Início with "faltam 30 dias" → settings prefilled, no logo → first quote `ORC-YYYY-0001` emitted → warn banner at 6 days → expired banner; Novo orçamento, Revisar and settings save open the notice and write nothing; PDF still downloads → sign out and back in lands in the same account. Primeiros passos steps join with Phase 8. |
 | Existing `smoke-quote-browser`, `validate-catalog-browser`, `nav-back-browser` (local mode) | Local mode unchanged. |
 
 ## Manual scenarios
@@ -39,6 +39,8 @@ npx supabase status -o env  # API_URL and ANON_KEY
 ```
 
 Write `.env.staging.local` (gitignored) with `VITE_SUPABASE_URL=<API_URL>` and `VITE_SUPABASE_ANON_KEY=<ANON_KEY>`, then `npm run dev:staging` (port 5179). `npm run db:reset` reapplies all migrations on an empty database. Studio: http://127.0.0.1:54323. E-mails (password recovery): http://127.0.0.1:54324.
+
+**Google locally** (optional): create an OAuth client (Web) in Google Cloud with redirect URI `http://127.0.0.1:54321/auth/v1/callback`, set `enabled = true` under `[auth.external.google]` in `supabase/config.toml` (do not commit that change), export `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID` and `SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET`, then `npm run db:stop && npm run db:start`. The entry screen shows "Continuar com Google" only when the provider is on. In a cloud project: Authentication → Providers → Google, with the site URL and `https://<host>/` in the redirect allow list.
 
 ## Rehearsal with production-shaped data (US4)
 
@@ -76,8 +78,8 @@ Apply by pasting the migration in the Supabase SQL Editor (production has no CLI
    select count(*) from public.quotes where account_id is null;                         -- 0
    ```
 
-4. **Logo**: Dashboard → Storage → `logos` → `shop/logo.png` → Move to `<account id>/logo.png` (the full id from step 3, same value as in `settings.logo_path`).
+4. **Logo**: Dashboard → Storage → `logos` → `shop/logo.png` → Move to `<account id>/logo.png` (the full id from step 3, same value as in `settings.logo_path`). If the "before" `logo_path` was null, upload the logo in Configurações › Logo after step 5: from this version a missing logo means no logo in the PDF (the embedded Forte Vidros logo is only the local-mode default).
 5. **Deploy**: merge the app changes into `main` (Cloudflare builds). Between steps 2 and 5 the app is down (the old app filters by `id = 'current'`, which no longer exists, and the new app needs `accounts`), so steps 2–5 should take minutes.
 6. **Verify in the app**: same quotes, numbers and totals; next quote continues the sequence; logo in the PDF; Catálogo and Configurações save.
 7. **Extra logins**: all existing logins now belong to the Forte Vidros account with full access (decision default). To remove one: Authentication → Users → delete.
-8. Sign ups stay disabled in production until BACKLOG "Abrir cadastro em produção" is unblocked.
+8. Sign ups stay disabled in production until BACKLOG "Abrir cadastro em produção" is unblocked. The entry screen reads `GET /auth/v1/settings`: with sign ups off it shows only "Entrar" (as today); turning on Authentication → Sign In / Providers → "Allow new users to sign up" shows "Criar conta grátis".

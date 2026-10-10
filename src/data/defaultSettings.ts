@@ -36,9 +36,8 @@ export function normalizeSettings(raw: Partial<AppSettings> | null | undefined):
   if (!raw) return base
   const days = Number(raw.quoteValidityDays)
   const est: Partial<EstablishmentInfo> = raw.establishment ?? {}
-  const logo = resolveStoredLogo(
-    typeof raw.logoDataUrl === 'string' ? raw.logoDataUrl : undefined,
-  )
+  const logo =
+    typeof raw.logoDataUrl === 'string' && raw.logoDataUrl ? resolveStoredLogo(raw.logoDataUrl) : undefined
   return {
     quoteValidityDays:
       Number.isFinite(days) && days >= 1 ? Math.min(Math.round(days), 3650) : DEFAULT_VALIDITY_DAYS,

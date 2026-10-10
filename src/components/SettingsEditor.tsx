@@ -1,4 +1,5 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useAccess } from '../auth/access'
 import type { AppSettings, EstablishmentInfo, MarginMode } from '../domain/types'
 import { DEFAULT_LOGO_DATA_URL } from '../data/defaultLogo'
 import { normalizeSettings } from '../data/defaultSettings'
@@ -53,6 +54,8 @@ export function SettingsEditor({
   onNavigate: (section: AppSection) => void
 }) {
   const [draft, setDraft] = useState(() => normalizeSettings(settings))
+  /** O logo padrão é o da Forte Vidros: só o modo local volta a ele. */
+  const localMode = useAccess().role === 'local'
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -412,17 +415,21 @@ export function SettingsEditor({
               >
                 {logoBusy ? 'Processando…' : draft.logoDataUrl ? 'Trocar logo' : 'Enviar logo'}
               </button>
-              {draft.logoDataUrl && draft.logoDataUrl !== DEFAULT_LOGO_DATA_URL && (
+              {draft.logoDataUrl && (!localMode || draft.logoDataUrl !== DEFAULT_LOGO_DATA_URL) && (
                 <button
                   type="button"
                   className="btn danger"
                   disabled={busy}
                   onClick={() => {
-                    setDraft((d) => ({ ...d, logoDataUrl: DEFAULT_LOGO_DATA_URL }))
-                    setMessage('Logo padrão restaurada — salve as configurações.')
+                    setDraft((d) => ({ ...d, logoDataUrl: localMode ? DEFAULT_LOGO_DATA_URL : undefined }))
+                    setMessage(
+                      localMode
+                        ? 'Logo padrão restaurada — salve as configurações.'
+                        : 'Logo removida — salve as configurações.',
+                    )
                   }}
                 >
-                  Restaurar padrão
+                  {localMode ? 'Restaurar padrão' : 'Remover logo'}
                 </button>
               )}
               <p className="muted catalog-hint">

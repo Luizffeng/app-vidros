@@ -44,7 +44,7 @@ Screens come from the URL (`src/nav/routes.ts`): `/` Início, `/orcamentos`, `/o
 
 ## Where things live
 
-- **API calls:** `src/data/supabaseRepository.ts`, `src/data/supabaseClient.ts`, `src/auth/access.tsx`, `src/components/LoginScreen.tsx`, `src/data/viacep.ts`. No app-owned HTTP server.
+- **API calls:** `src/data/supabaseRepository.ts`, `src/data/supabaseClient.ts`, `src/auth/access.tsx`, `src/components/EntryScreen.tsx`, `src/data/viacep.ts`. No app-owned HTTP server.
 - **Business logic:** `src/domain/quote.ts`, `src/domain/pricing/`. Rules: [BUSINESS_RULES.md](BUSINESS_RULES.md).
 - **Auth:** Supabase email/password. Gate: `src/auth/access.tsx`. Real write lock: RLS in the migration. UI hide: `AppHeader.tsx`, `App.tsx` (`isAdmin`).
 - **State:** React `useState` inside `App`; current screen from the URL via `useRoute`. Only context is `AccessContext`. No Redux/Zustand.

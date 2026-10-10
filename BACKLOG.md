@@ -15,7 +15,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Now
 
-- [ ] `feat` (G) **SaaS para vidraçarias, fase 1:** spec [specs/007-saas-vidracarias](specs/007-saas-vidracarias/spec.md) (2026-10-10). Conta = loja = um usuário, cadastro aberto (Google, e-mail; telefone e Facebook depois), teste grátis de 30 dias com modo consulta ao vencer ("Novo orçamento"/"Revisar" abrem aviso de vencimento, sem rascunho), aviso a partir de 7 dias antes e lembretes de valor depois, catálogo de exemplo com preços redondos próximos do mercado + "Primeiros passos" no Início, "Fale com a gente" (WhatsApp humano e sugestões que não expiram), isolamento por conta, migração da Forte Vidros, rodapé institucional e excluir conta. Fase 2 (planos e cobrança) e painel do provedor em specs próprias. Plano em 5 entregas ([plan.md](specs/007-saas-vidracarias/plan.md)): contas e isolamento + virada da Forte Vidros; cadastro e teste; catálogo de exemplo e Primeiros passos; Fale com a gente e rodapé; telefone e Facebook. Antes de abrir cadastro: projeto Supabase de staging, textos legais, WhatsApp/horário do suporte, faixa de preço plausível (box e correr). Tarefas em [tasks.md](specs/007-saas-vidracarias/tasks.md) (66). Em andamento: entrega 1 (Supabase local, contas e isolamento)
+- [ ] `feat` (G) **SaaS para vidraçarias, fase 1:** spec [specs/007-saas-vidracarias](specs/007-saas-vidracarias/spec.md) (2026-10-10). Conta = loja = um usuário, cadastro aberto (Google, e-mail; telefone e Facebook depois), teste grátis de 30 dias com modo consulta ao vencer ("Novo orçamento"/"Revisar" abrem aviso de vencimento, sem rascunho), aviso a partir de 7 dias antes e lembretes de valor depois, catálogo de exemplo com preços redondos próximos do mercado + "Primeiros passos" no Início, "Fale com a gente" (WhatsApp humano e sugestões que não expiram), isolamento por conta, migração da Forte Vidros, rodapé institucional e excluir conta. Fase 2 (planos e cobrança) e painel do provedor em specs próprias. Plano em 5 entregas ([plan.md](specs/007-saas-vidracarias/plan.md)): contas e isolamento + virada da Forte Vidros; cadastro e teste; catálogo de exemplo e Primeiros passos; Fale com a gente e rodapé; telefone e Facebook. Antes de abrir cadastro: projeto Supabase de staging, textos legais, WhatsApp/horário do suporte, faixa de preço plausível (box e correr). Tarefas em [tasks.md](specs/007-saas-vidracarias/tasks.md) (66). Na branch `007-saas-vidracarias`: entregas 1 (contas e isolamento) e 2 (cadastro, teste de 30 dias, modo consulta, termos/privacidade/novidades) prontas e testadas no Supabase local; virada da produção pendente (T019 com export real, depois checklist do quickstart). Próxima: entrega 3 (catálogo de exemplo e Primeiros passos)
 
 ## Next
 
@@ -30,7 +30,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 ## Blocked
 
 - [ ] `feat` (M) **Porta de Correr 1 Folha:** novo cálculo em `priceItem` + teste de paridade. Aguardando o dono refinar o cálculo (planilha/orçamento real, BOM, medidas exemplo)
-- [ ] `docs` (P) **Abrir cadastro em produção (spec 007):** aguarda CNPJ (razão social, endereço), número de WhatsApp da empresa e revisão jurídica dos rascunhos em [legal/](specs/007-saas-vidracarias/legal/). Dono também vai registrar a marca AppVidros no INPI. O desenvolvimento das entregas 1–4 não depende disso (Supabase local)
+- [ ] `docs` (P) **Abrir cadastro em produção (spec 007):** aguarda CNPJ (razão social, endereço), número de WhatsApp da empresa e revisão jurídica dos rascunhos em [src/content/legal/](src/content/legal/). Dono também vai registrar a marca AppVidros no INPI. O desenvolvimento das entregas 1–4 não depende disso (Supabase local)
 
 ## Later
 
@@ -42,7 +42,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 - [ ] `feat` (M) **Tela de novidades do app:** destino do banner "Confira os detalhes das últimas atualizações"; lista do que mudou em cada versão
 - [ ] `ui` (P) **Voltar no Android: CloseWatcher:** quando o Chrome estável suportar sem ativação do usuário, trocar as entradas de histórico das janelas por `CloseWatcher` (fica mais simples que contar entradas em `src/nav/navigator.ts`)
 - [ ] `ui` (P) **Confirmação de sair sem salvar com visual do app:** hoje Catálogo/Configurações usam `window.confirm` (`useLeaveGuard`); trocar por um diálogo próprio
-- [ ] `ui` (P) **Textos dos banners do Início:** os 3 banners em `src/data/banners.ts` são provisórios ("Em breve…", "plano anual…", "novidades"); o dono revisa os textos e os destinos
+- [ ] `ui` (P) **Textos dos banners do Início:** os 2 banners em `src/data/banners.ts` são provisórios ("Fale com a gente", "Novidades" → `/novidades`; "plano anual" saiu até a fase 2); o dono revisa os textos e os destinos. "Fale com a gente" ganha destino com `/ajuda` (spec 007, T054)
 - [ ] `ui` (M) **Movimento extra:** entrada/saída de cada item na lista, arrastar para fechar janela no celular, animação dos totais. Fora do escopo da spec 004; usar os tokens de movimento
 
 ## Fora (por enquanto)
