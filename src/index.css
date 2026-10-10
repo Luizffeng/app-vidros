@@ -1175,10 +1175,6 @@ label .percent-input .money-input {
   grid-template-columns: 5rem minmax(0, 1fr);
 }
 
-.field-pair--city {
-  grid-template-columns: 1fr 1fr;
-}
-
 .field-pair--half {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }

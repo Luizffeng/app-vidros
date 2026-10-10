@@ -301,7 +301,7 @@ export function SettingsEditor({
                   />
                 </label>
               </div>
-              <div className="field-pair field-pair--city full">
+              <div className="field-pair field-pair--half full">
                 <label>
                   Bairro
                   <input
