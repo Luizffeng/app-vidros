@@ -88,6 +88,12 @@ Only choices visible in code or in README / constitution / handoff. Not a change
 - **Reason/evidence:** Spec `specs/004-transicoes/` (research R1–R9): low-end phones, ≤ 2 KB budget, interaction never blocked (View Transitions blocks input during the snapshot). `scripts/motion-perf-browser.mjs` baseline vs after.
 - **Consequence:** New animations reuse the tokens and the "Motion" block at the end of `index.css` and stay covered by its `prefers-reduced-motion` rule. Screen changes go through `src/nav/navigator.ts`, which sets the direction (`data-nav`). Do not transform `.shell` (it holds the fixed `.action-bar`).
 
+## One shared component per UI job, no UI kit
+
+- **Decision:** Each recurring UI job has one owner: `ConfirmPop`, `IconButton` / `.btn.with-icon`, `Banner`, `Section` / `CollapsibleSection`, `Dropdown` / `DropdownField`, `.grid` + `.field-pair--*`. The list lives in "Shared patterns" in `src/components/AGENTS.md`. No external UI kit.
+- **Reason/evidence:** Backlog "Unificar componentes parecidos" (2026-10-10): the same job had 3–5 hand-written variants (`.remove-pop`/`.emit-pop`/`.save-pop`, `IconAction`/`.icon-btn`, `outdated-banner`/`cost-old`, native `<select>` next to `Dropdown`), which drifted in size and behavior.
+- **Consequence:** New UI reuses the table. A case that does not fit gets a prop or variant on the shared component, not a parallel class; update the table when a component is added or replaced.
+
 ## Own History API router; overlays are back layers
 
 - **Decision:** No router library. `src/nav/` maps paths to screens (`routes.ts`) and owns `history` (`navigator.ts`). Every open overlay pushes one history entry (`useBackLayer`, already inside `Modal` and `useDismiss`), so device back closes the top overlay first. Início (`/`) is the root; a fresh deep link rebuilds the parent chain. Tabs and list filters change the URL with `replace`, never a new entry. Unsaved Catálogo/Configurações ask with `window.confirm` (`useLeaveGuard`).

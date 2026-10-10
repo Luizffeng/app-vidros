@@ -17,7 +17,6 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Next
 
-- [ ] `refactor` (M) **Unificar componentes parecidos:** inventário de componentes e classes CSS que fazem a mesma coisa de jeitos diferentes; para cada grupo, decidir um só (ou um componente misto com variantes) e migrar. Objetivo: menos componentes, desenvolvimento mais rápido, agentes entendem mais fácil. Candidatos já vistos: popovers de confirmação (`.remove-pop`, `.emit-pop`, `.save-pop`), avisos (`.banner` ok/error/warn, `outdated-banner`), seção fixa vs expansível (`.section` + `h2` vs `CollapsibleSection`), `.grid` vs `.field-pair`, `Dropdown` vs `select` nativo (decidido: padrão é o `Dropdown` customizado, migrar os `<select>` nativos que restam; linhas da lista mais baixas que hoje, `.dropdown__option` com `min-height: 2.75rem`, alvo ~2.25rem; conferir em 360 px e com fonte grande do sistema), botões de ação (`IconAction`, `ActionButton`, `.btn-icon`). Resultado vira tabela em `src/components/AGENTS.md`. Fazer junto ou logo antes da revisão de espaço vertical
 - [ ] `ui` (M) **Revisão de espaço vertical no app todo:** aplicar as regras de `.agents/skills/ui-change/SKILL.md` (passo 5: dica sob o título da seção, campos relacionados na mesma linha, campos curtos inline, controle à direita, mídia + ações em colunas) em editor, cliente, custos, catálogo e modais; medir altura antes/depois em 360/390 px
 - [ ] `feat` (G) **Usuário no Cadastro (precisa de spec):** seção expansível "Usuário" em Configurações › Cadastro com nome e telefone de quem usa o app. Futuro: orçamento guarda o vendedor na emissão e o PDF mostra nome e telefone dele (loja com vários vendedores). Decidir: perfil por usuário (Supabase `user_metadata` ou tabela `profiles` + RLS; IndexedDB no modo local), vendedor hoje não abre Configurações (tela própria "Meu perfil" ou aba liberada), snapshot no `Quote` ao emitir, linha no PDF
 - [ ] `feat` (G) **SaaS para vidraçarias (precisa de spec):** decidido 2026-10-09: o app vira SaaS, priorizando simplicidade e experiência para um público pouco adepto de tecnologia. Spec própria: cadastro de loja e conta (sem atrito), várias lojas isoladas (dados, catálogo, logo por loja), planos (ex.: mensal/anual) e cobrança, período de teste, catálogo inicial por loja, migração da Forte Vidros como primeira loja, suporte. Liga com **Login, contas e autorização** e com o banner "plano anual" do Início
@@ -50,6 +49,10 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 - App nativo (iOS/Android). Ganho conhecido: só app nativo (ex.: Android empacotado com Capacitor) manda o PDF direto ao WhatsApp, sem a folha de compartilhar do sistema; pelo navegador, arquivo só sai por essa folha. A tela de legenda do WhatsApp continua de qualquer jeito
 
 ## Done
+
+### 2026-10-10
+
+- [x] `refactor` **Unificar componentes parecidos:** um jeito por tarefa, tabela "Shared patterns" em `src/components/AGENTS.md`. `ConfirmPop` para todas as confirmações em linha; `IconButton` para botões só de ícone e `.btn.with-icon` para ícone + texto; `Banner` para avisos (botões passam para baixo do texto em tela estreita); `Section` para cartões fixos com título, contador, dica e ações; `DropdownField` no lugar dos `<select>` nativos do item (opções de 2.25rem, lista abre para cima quando não cabe). `.grid` e `.field-pair` ficam (papéis diferentes), `--city` virou `--half`
 
 ### 2026-10-09
 

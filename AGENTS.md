@@ -59,6 +59,7 @@ Screens come from the URL (`src/nav/routes.ts`): `/` Início, `/orcamentos`, `/o
 - Do not reopen a file already read unless the edit depends on a part you skipped.
 - Expand scope only after evidence the change crosses a boundary (domain vs UI vs SQL).
 - Prefer `rg` for a symbol over reading a directory.
+- UI: before new markup or CSS, check "Shared patterns" in `src/components/AGENTS.md` (confirm, icon button, banner, section, dropdown, form grid). Extend the shared component instead of adding a parallel class.
 - Read the existing function before adding a new pattern. Pricing changes stay pure and need a parity test in `src/domain/pricing/pricing.test.ts`.
 - Do not read `src/data/defaultLogo.ts` (embedded PNG). Do not read `src/data/seed/*.json` unless the task is seed data.
 - UI quote behavior: search inside `App.tsx` for the handler (`onEmit`, `persist`, `onDeleteDraft`) before reading the whole file.

@@ -10,17 +10,32 @@ React UI. No price formulas and no Supabase queries except `LoginScreen` (passwo
 | `CostDetailModal.tsx` | "Detalhes do custo" window per item: summary + `composeCost` groups; admin draft edits a line price via `onSetOverride` (→ `setPriceOverride`) or `onUpdateCatalog` (→ `onUpdateCatalogPrice` in `App.tsx`: catalog save + reprice); labor line via `onSetLaborRate` (→ `setItemLaborRate`) or `onUpdateLaborCatalog`. `ItemForm` keeps an item's `laborRate` on edit and previews with the quote's own prices. |
 | `ItemForm.tsx` | Modal fields per product kind. Markup percent → fraction. Hides margin field/line in Autônomo mode. `initialState` restores an item draft; `onStateChange(state, dirty)` reports raw input. |
 | `HomeScreen.tsx` | Início: `BannerCarousel`, tiles (Orçamentos, Catálogo, Configurações, Ajuda "Em breve") with summaries from `src/domain/home.ts`. No action bar. |
-| `BannerCarousel.tsx`, `useCarouselAutoplay.ts` | One fixed banner frame; slides scroll-snap inside it (no peek, no dots), banners from `src/data/banners.ts`; autoplay 5 s with pauses. |
+| `BannerCarousel.tsx`, `useCarouselAutoplay.ts` | One fixed banner frame; slides scroll-snap inside it (no peek), dots over the frame's bottom edge, banners from `src/data/banners.ts`; autoplay 5 s with pauses. |
 | `CatalogEditor.tsx` | Catalog tables (table dropdown, search, situation filter), version bump. Hides "Margem padrão" in Autônomo mode. Tab comes from the URL; unsaved edits use `useLeaveGuard`. |
-| `SettingsEditor.tsx` | Tab comes from the URL; unsaved edits use `useLeaveGuard`. Tabs Cadastro (expandable Estabelecimento), Orçamento (sections Cálculo de margem with confirm on change, Validade padrão, Texto final no WhatsApp), Logo (preview + actions side by side). One card + `h2` per section, explanation under the title (`.section-hint`). Sliding tab indicator (`.tabs__indicator`). |
-| `CollapsibleSection.tsx` | `<details>` card with heading and chevron. Editor sections and Settings › Cadastro. Height/fade animation only after the first user toggle. |
+| `SettingsEditor.tsx` | Tab comes from the URL; unsaved edits use `useLeaveGuard`. Tabs Cadastro (expandable Estabelecimento), Orçamento (sections Cálculo de margem with confirm on change, Validade padrão, Texto final no WhatsApp), Logo (preview + actions side by side). One `Section` per block, explanation in its `hint`. Sliding tab indicator (`.tabs__indicator`). |
+| `CollapsibleSection.tsx` | `<details>` card with heading, `count` pill and chevron. Editor sections and Settings › Cadastro. Height/fade animation only after the first user toggle. |
+| `Section.tsx`, `Banner.tsx`, `ConfirmPop.tsx`, `IconButton.tsx` | Shared building blocks; see "Shared patterns" below. |
 | `AppHeader.tsx` | Title, optional back arrow (`onBack`), hamburger menu: Início, Orçamentos, Catálogo, Configurações (hidden for `vendedor`), Ajuda, Sair. Owns `AppSection` and the section icons. `HeaderMenu` is also used in the editor head (`App.tsx`). |
 | `selectAllOnFocus.ts` | Global listener (installed in `main.tsx`): `inputMode="decimal"` and `data-select-all` inputs select their value on focus. |
 | `LoginScreen.tsx` | Email/password form. |
 | `PdfPreview.tsx` | pdf.js preview of a blob. |
-| `Dropdown.tsx`, `Modal.tsx`, `SearchField.tsx`, `useDismiss.ts` | Shared widgets. `Modal` plays its exit on Fechar/Esc/backdrop/device back before calling `onClose`. `Modal` and `useDismiss` call `useBackLayer`, so every overlay built on them takes one history entry. |
+| `Dropdown.tsx`, `Modal.tsx`, `SearchField.tsx`, `useDismiss.ts` | Shared widgets. `Dropdown` (filters, catalog table picker) and `DropdownField` (form field with caption) replace native `<select>`. `Modal` plays its exit on Fechar/Esc/backdrop/device back before calling `onClose`. `Modal` and `useDismiss` call `useBackLayer`, so every overlay built on them takes one history entry. |
 | `usePresence.ts` | `usePresence(open, exit)` / `<Presence>` keep an overlay mounted with `data-state="closing"` for its exit; `motionMs` reads `--dur-*`. |
 | `useScrollEdges.ts` | Called once in `App`. Sets `--head-edge` / `--bar-edge` (0–1, follow the first and last 32px of scroll) on `<html>`; CSS fades the header line and the action bar fade with them. |
+
+## Shared patterns
+
+One way per job. Reuse these before writing new markup or CSS; if a case does not fit, add a prop or variant here instead of a parallel class.
+
+| Job | Use | Not |
+| --- | --- | --- |
+| Inline "are you sure?" next to a button | `ConfirmPop` (`place` left/below/above/static, `block` for long text, `tone`, `alert`, `warn`) inside a `position: relative` wrapper | per-screen `*-pop` classes |
+| Square icon-only button | `IconButton` (`label` is the aria-label and title; `size` md/sm; `tone` default/edit/danger/danger-solid/revise) | raw `btn btn-icon`, `.icon-btn` |
+| Button with icon and text | `className="btn … with-icon"`, icon first. Disabled with a reason: `ActionButton` in `App.tsx` | per-button flex/svg rules |
+| Notice (saved, error, outdated, draft) | `Banner` (`tone` ok/warn/error; `actions` for buttons, which wrap under the text on narrow screens). Errors get `role="alert"`, others `role="status"` | `div.banner.ok`, `outdated-banner`, custom grids |
+| Card with a title | `Section` (`title`, `count`, `hint`, `actions`); collapsible: `CollapsibleSection` (`title`, `count`) | hand-built `section` + `h2` + `.section-head` |
+| Pick one of a list | `DropdownField` in forms, `Dropdown` in toolbars. The list opens upward when the scroll area has no room below | native `<select>`; wrapping a `Dropdown` in `<label>` (re-clicks the button on pick) |
+| Form layout | `.grid` container (2 columns, 1 under 420px) with `.full` for full-width rows; `.field-pair--half`/`--cep`/`--number`/`--name` for rows that stay side by side on phones | new column classes per form |
 
 Domain calls go through `src/domain/quote.ts` and `priceItem`. Persistence is the module-level `repo` from `createRepository()` inside `App.tsx`.
 
