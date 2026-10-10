@@ -1136,7 +1136,7 @@ export function App() {
               <div className="emit-wrap">
                 <ActionButton
                   label="Emitir"
-                  icon={<CheckIcon />}
+                  icon={<CheckIcon bold />}
                   hint={
                     quote.items.length === 0
                       ? 'Inclua ao menos um item para emitir.'
@@ -1669,10 +1669,17 @@ function CopyIcon() {
   )
 }
 
-function CheckIcon() {
+function CheckIcon({ bold = false }: { bold?: boolean }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d={bold ? 'M4 12.8l5.2 5.2L20 7' : 'M5 12.5l4.2 4.2L19 7'}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={bold ? 3.4 : 2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }
