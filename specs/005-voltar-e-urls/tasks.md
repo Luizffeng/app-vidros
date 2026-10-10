@@ -158,7 +158,7 @@ description: "Task list for Botão voltar, endereço por tela e Início (specs 0
 - T019: the header arrow is `up()`: `history.back()` when there is an entry below, else `replace` with the parent route.
 - T030/T036: tiles use `aspect-ratio: 1 / 0.94` and the carousel is 6.75rem tall so 360 × 640 fits without scroll.
 - T047: drafts of quotes no longer in the list are pruned when the list or Início loads (`pruneItemDrafts`).
-- Owner review: Início lost the "Novo orçamento" action bar and the carousel dots; tiles are square again (`aspect-ratio: 1`).
+- Owner review: Início lost the "Novo orçamento" action bar; tiles are square again (`aspect-ratio: 1`). Dots were dropped, then came back inside the fixed banner frame once the next slide no longer peeked.
 - Known edge: browser forward to a new orçamento that was never saved shows "Orçamento não encontrado".
 
 ---

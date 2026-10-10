@@ -264,7 +264,12 @@ async function home(browser) {
     last && last.y + last.height <= 640,
     `bloco termina em ${Math.round(last?.y + last?.height)}`,
   )
-  check('carrossel sem bolinhas', (await page.locator('.carousel button:not(.carousel__body)').count()) === 0)
+  const frame = await page.locator('.carousel').boundingBox()
+  const dots = await page.locator('.carousel__dots').boundingBox()
+  check(
+    'bolinhas dentro do quadro do banner',
+    frame && dots && dots.y >= frame.y && dots.y + dots.height <= frame.y + frame.height,
+  )
   await page.screenshot({ path: join(OUT, 'home-360.png') })
 
   const slideAt = (p) =>
@@ -277,6 +282,13 @@ async function home(browser) {
   await page.waitForTimeout(5600)
   const second = await current()
   check('banner troca sozinho em 5 s', first !== second, `${first} → ${second}`)
+  check(
+    'bolinha marcada acompanha o banner',
+    (await page.locator('.carousel__dot').nth(second).getAttribute('aria-current')) === 'true',
+  )
+  await page.locator('.carousel__dot').nth(0).click()
+  await page.waitForTimeout(700)
+  check('tocar na bolinha leva ao banner', (await current()) === 0)
 
   const slide = page.locator('.carousel__track')
   const box = await slide.boundingBox()
