@@ -1002,7 +1002,8 @@ export function App() {
 
         {!readOnly && (
           <div className="items-toolbar">
-            <button type="button" className="btn primary" onClick={openAddItem}>
+            <button type="button" className="btn primary with-icon" onClick={openAddItem}>
+              <PlusIcon />
               Adicionar item
             </button>
           </div>
@@ -1044,7 +1045,13 @@ export function App() {
       {!readOnly && itemModal && itemModal.mode !== 'pick' && catalog && (
         <Modal
           className="modal--item"
-          title={itemModal.mode === 'edit' ? 'Editar item' : 'Adicionar item'}
+          title={
+            itemModal.mode === 'edit'
+              ? editingItem
+                ? `Editar item: ${kindLabel(editingItem.input.kind)}`
+                : 'Editar item'
+              : `Novo item: ${kindLabel(itemModal.kind)}`
+          }
           onClose={keepItemModal}
         >
           {error && <p className="banner error">{error}</p>}
@@ -1153,6 +1160,7 @@ export function App() {
               <div className="emit-wrap">
                 <ActionButton
                   label="Emitir"
+                  icon={<CheckIcon />}
                   hint={
                     quote.items.length === 0
                       ? 'Inclua ao menos um item para emitir.'
@@ -1688,24 +1696,23 @@ function TextIcon() {
 function ActionButton({
   label,
   hint,
+  icon,
   disabled,
   className,
   onClick,
 }: {
   label: string
   hint: string
+  icon?: ReactNode
   disabled?: boolean
   className?: string
   onClick: () => void
 }) {
+  const classes = ['btn', className, icon ? 'with-icon' : null].filter(Boolean).join(' ')
   return (
     <span className="btn-slot" title={hint}>
-      <button
-        type="button"
-        className={className ? `btn ${className}` : 'btn'}
-        disabled={disabled}
-        onClick={onClick}
-      >
+      <button type="button" className={classes} disabled={disabled} onClick={onClick}>
+        {icon}
         {label}
       </button>
     </span>

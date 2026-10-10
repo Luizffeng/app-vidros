@@ -18,7 +18,7 @@
 - Q: De onde vêm os banners? → A: Fixos do app, publicados junto com cada versão (sempre pelo menos 2). Ex.: "Em breve teremos …", "Sabia que no plano anual você economiza R$ …?", "Confira os detalhes das últimas atualizações". Modelos e gatilhos de banner ficam para depois.
 - Q: O carrossel passa sozinho? → A: Sim, com troca rápida; pausa ao tocar; dá para arrastar para o próximo ou o anterior.
 - Q: Onde fica o "Continuar {código}"? → A: Sai do Início. O orçamento em andamento aparece só como rascunho na lista de Orçamentos.
-- Q (dono, depois da implementação): O Início tem "Novo orçamento", bolinhas no carrossel e barra inferior? → A: Não. Novo orçamento fica só na lista de Orçamentos; o carrossel indica o próximo banner pela borda que aparece; o Início não tem barra inferior. Conteúdo institucional (SAC, política de privacidade) virá abaixo dos blocos, ao rolar, em spec futura.
+- Q (dono, depois da implementação): O Início tem "Novo orçamento", bolinhas no carrossel e barra inferior? → A: Não. Novo orçamento fica só na lista de Orçamentos; o carrossel é uma moldura fixa e os banners deslizam dentro dela; o Início não tem barra inferior. Conteúdo institucional (SAC, política de privacidade) virá abaixo dos blocos, ao rolar, em spec futura.
 - Q: Como fica o Início para o vendedor? → A: O papel Vendedor fica desativado por ora (usuários iniciais são autônomos e controlam catálogo e configurações). Todos veem o mesmo Início.
 
 ## Contexto
@@ -64,7 +64,7 @@ Tocar em qualquer parte do bloco abre o módulo.
 
 ### User Story 2 - Banners com avisos e novidades (Priority: P1)
 
-No topo do Início, um carrossel de ponta a ponta mostra os banners publicados com o app (no mínimo 2). Os banners trocam sozinhos; o usuário pode arrastar para o próximo ou o anterior; enquanto o dedo está sobre o banner, a troca para. A borda do próximo banner aparece à direita (sem pontinhos). Um banner pode ter uma ação (abrir uma tela do app ou um endereço externo) ou ser só informativo.
+No topo do Início, um carrossel de ponta a ponta mostra os banners publicados com o app (no mínimo 2). Os banners trocam sozinhos; o usuário pode arrastar para o próximo ou o anterior; enquanto o dedo está sobre o banner, a troca para. O banner é uma moldura fixa; só o conteúdo desliza dentro dela (sem pontinhos). Um banner pode ter uma ação (abrir uma tela do app ou um endereço externo) ou ser só informativo.
 
 **Why this priority**: é o canal do app para avisar novidades, mudanças e ofertas, pedido explícito do dono.
 

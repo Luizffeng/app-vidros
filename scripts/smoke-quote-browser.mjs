@@ -47,7 +47,7 @@ async function main() {
     await page.getByRole('button', { name: /^Orçamentos:/ }).click()
     await page.getByRole('heading', { name: 'Orçamentos', level: 1 }).waitFor()
     await page.getByRole('button', { name: 'Novo orçamento' }).click()
-    await page.getByText('Rascunho', { exact: true }).waitFor()
+    await page.getByRole('heading', { level: 1, name: /^ORC-/ }).waitFor()
     ok('criar rascunho')
     check(
       'emitir bloqueado sem itens',

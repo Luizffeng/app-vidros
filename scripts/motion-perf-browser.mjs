@@ -76,7 +76,7 @@ async function seedList(page) {
   await page.getByRole('button', { name: /^Orçamentos:/ }).click()
   await page.getByRole('heading', { name: 'Orçamentos', level: 1 }).waitFor()
   await page.getByRole('button', { name: 'Novo orçamento' }).click()
-  await page.getByText('Rascunho', { exact: true }).waitFor()
+  await page.getByRole('heading', { level: 1, name: /^ORC-/ }).waitFor()
   for (let i = 0; i < ITEMS; i++) {
     const [w, h] = [[1000, 800], [1200, 900], [600, 600]][i % 3]
     await page.getByRole('button', { name: 'Adicionar item' }).click()

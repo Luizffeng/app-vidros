@@ -61,7 +61,7 @@ async function newQuote(page) {
   await page.getByRole('button', { name: /^Orçamentos:/ }).click()
   await heading(page, 'Orçamentos')
   await page.getByRole('button', { name: 'Novo orçamento' }).click()
-  await page.getByText('Rascunho', { exact: true }).waitFor()
+  await page.getByRole('heading', { level: 1, name: /^ORC-/ }).waitFor()
 }
 
 async function overlays(page) {
@@ -121,7 +121,7 @@ async function overlays(page) {
   ok('fechar pelo botão e voltar: um toque leva à lista')
 
   await page.goForward({ waitUntil: 'commit' })
-  await page.getByText('Rascunho', { exact: true }).waitFor()
+  await page.getByRole('heading', { level: 1, name: /^ORC-/ }).waitFor()
   check('avançar reabre o orçamento', path(page) === quoteUrl, path(page))
 
   await page.getByRole('button', { name: 'Voltar', exact: true }).click()
@@ -143,7 +143,7 @@ async function screens(page, quoteUrl) {
   await page.waitForTimeout(500)
   check('filtro vai para o endereço', path(page).includes('filtro=rascunhos'), path(page))
   await page.locator('.quote-card').first().click()
-  await page.getByText('Rascunho', { exact: true }).waitFor()
+  await page.getByRole('heading', { level: 1, name: /^ORC-/ }).waitFor()
   await back(page)
   await heading(page, 'Orçamentos')
   check(
@@ -187,7 +187,7 @@ async function screens(page, quoteUrl) {
   check('confirmar descarta e vai ao Início (abas não são passos)', asked === 2)
 
   await page.goto(`${BASE}${quoteUrl}`, { waitUntil: 'networkidle' })
-  await page.getByText('Rascunho', { exact: true }).waitFor()
+  await page.getByRole('heading', { level: 1, name: /^ORC-/ }).waitFor()
   ok('endereço direto abre o orçamento')
   await back(page)
   await heading(page, 'Orçamentos')

@@ -4,7 +4,7 @@
 
 ```text
 ┌ sticky head: "App Vidros" / "Início" ······ [menu] ┐
-│ ┌ banner carousel (full width, next peeks) ──────┐ │
+│ ┌ banner frame (fixed; slides move inside) ──────┐ │
 │ └─────────────────────────────────────────────────┘ │
 │ ┌ Orçamentos ┐ ┌ Catálogo ┐                         │
 │ │ icon       │ │ icon     │   square tiles, radius  │
@@ -40,7 +40,7 @@ Wide screens: content max 560 px (same as `.shell`), tiles max ~260 px.
 | Auto advance | every 5000 ms, wraps last → first |
 | Pause | while pointer down on the carousel; while focus inside; page hidden; carousel < 50% visible |
 | Resume | 5000 ms after the last interaction ends |
-| Manual | swipe (scroll-snap); no dots, the next slide peeks |
+| Manual | swipe (scroll-snap) inside one fixed frame; no dots, no peek |
 | Reduced motion | no auto advance, instant scroll |
 | Height | fixed ratio; text clamps to 2 lines; no layout shift between slides |
 | Action | `route` → in-app push (back returns to Início); `url` → new tab |

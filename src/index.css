@@ -1435,6 +1435,19 @@ textarea:focus {
   color: inherit;
 }
 
+.btn.with-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.btn.with-icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+}
+
 .btn-slot {
   display: flex;
   min-width: 0;
@@ -2965,19 +2978,22 @@ textarea:focus {
   animation: fade-in var(--dur-sm) var(--ease-out) backwards;
 }
 
-/* Início: banner carousel edge to edge of the shell, then a 2-column grid of square tiles. */
+/* Início: one fixed banner frame (slides move inside it), then a 2-column grid of square tiles. */
 .carousel {
-  margin: 0 -1rem 0.75rem;
+  margin-bottom: 0.75rem;
+  border-radius: var(--radius);
+  border: 1px solid rgba(212, 160, 23, 0.35);
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(212, 160, 23, 0.22), transparent 60%),
+    linear-gradient(150deg, var(--bg2), var(--bg1));
+  overflow: hidden;
 }
 
 .carousel__track {
   display: flex;
-  gap: 0.6rem;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
-  scroll-padding-inline: 1rem;
-  padding: 0 1rem;
   scrollbar-width: none;
 }
 
@@ -2986,18 +3002,12 @@ textarea:focus {
 }
 
 .carousel__slide {
-  flex: 0 0 88%;
+  flex: 0 0 100%;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   height: 6.75rem;
-  border-radius: var(--radius);
-  border: 1px solid rgba(212, 160, 23, 0.35);
-  background:
-    radial-gradient(120% 140% at 100% 0%, rgba(212, 160, 23, 0.22), transparent 60%),
-    linear-gradient(150deg, var(--bg2), var(--bg1));
   background-size: cover;
   background-position: center;
-  overflow: hidden;
 }
 
 .carousel__body {
