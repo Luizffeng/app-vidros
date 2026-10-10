@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { getSupabase } from '../data/supabaseClient'
+import { Banner } from './Banner'
 
 export function LoginScreen() {
   const [email, setEmail] = useState('')
@@ -50,7 +51,7 @@ export function LoginScreen() {
             required
           />
         </label>
-        {error && <p className="banner error">{error}</p>}
+        {error && <Banner tone="error">{error}</Banner>}
         <button type="submit" className="btn primary" disabled={busy}>
           {busy ? 'Entrando…' : 'Entrar'}
         </button>

@@ -15,6 +15,7 @@ import type {
   PricingResult,
   ProductKind,
 } from '../domain/types'
+import { Banner } from './Banner'
 
 export const ITEM_KINDS: { id: ProductKind; label: string }[] = [
   { id: 'box', label: 'Box' },
@@ -905,7 +906,7 @@ export function ItemForm({
         <span className="field-hint">Sai no PDF e no texto do WhatsApp.</span>
       </label>
 
-      {formError && <p className="banner error">{formError}</p>}
+      {formError && <Banner tone="error">{formError}</Banner>}
       </div>
 
       {preview && (

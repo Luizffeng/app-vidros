@@ -9,6 +9,7 @@ import { up } from '../nav/navigator'
 import type { SettingsTab } from '../nav/routes'
 import { useLeaveGuard } from '../nav/useLeaveGuard'
 import { AppHeader, type AppSection } from './AppHeader'
+import { Banner } from './Banner'
 import { CollapsibleSection } from './CollapsibleSection'
 import { useDismiss } from './useDismiss'
 import { ConfirmPop } from './ConfirmPop'
@@ -196,8 +197,8 @@ export function SettingsEditor({
         </div>
       </div>
 
-      {error && <div className="banner error">{error}</div>}
-      {message && !error && <div className="banner ok">{message}</div>}
+      {error && <Banner tone="error">{error}</Banner>}
+      {message && !error && <Banner tone="ok">{message}</Banner>}
 
       {tab === 'register' && (
         <div className="tab-panel" role="tabpanel" id="settings-panel-register" aria-labelledby="settings-tab-register">

@@ -70,6 +70,7 @@ import {
 import { CatalogEditor } from './CatalogEditor'
 import { AppHeader, HeaderMenu, type AppSection } from './AppHeader'
 import { useDismiss } from './useDismiss'
+import { Banner } from './Banner'
 import { ConfirmPop } from './ConfirmPop'
 import { IconButton } from './IconButton'
 import { motionMs, usePresence } from './usePresence'
@@ -701,11 +702,7 @@ export function App() {
           <AppHeader title="Orçamentos" current="list" onNavigate={goSection} onBack={up} />
         </div>
 
-        {notice && (
-          <div className="banner warn" role="status">
-            {notice}
-          </div>
-        )}
+        {notice && <Banner tone="warn">{notice}</Banner>}
 
         <section aria-label="Orçamentos">
           {quotes.length > 0 && (
@@ -855,33 +852,32 @@ export function App() {
         </header>
       </div>
 
-      {error && !itemModal && <div className="banner error">{error}</div>}
+      {error && !itemModal && <Banner tone="error">{error}</Banner>}
 
       {outdated && (
-        <div className="banner warn outdated-banner" role="status">
-          <span>
-            {outdated.catalog && outdated.margin ? (
-              <>O <strong>catálogo</strong> e o <strong>cálculo de margem</strong> mudaram{since}.</>
-            ) : outdated.catalog ? (
-              <>O <strong>catálogo</strong> foi atualizado{since}.</>
-            ) : (
-              <>O <strong>cálculo de margem</strong> mudou{since}.</>
-            )}
-          </span>
-          <button type="button" className="btn" onClick={() => void onRepriceDraft()}>
-            Atualizar valores
-          </button>
-        </div>
+        <Banner
+          tone="warn"
+          actions={
+            <button type="button" className="btn" onClick={() => void onRepriceDraft()}>
+              Atualizar valores
+            </button>
+          }
+        >
+          {outdated.catalog && outdated.margin ? (
+            <>O <strong>catálogo</strong> e o <strong>cálculo de margem</strong> mudaram{since}.</>
+          ) : outdated.catalog ? (
+            <>O <strong>catálogo</strong> foi atualizado{since}.</>
+          ) : (
+            <>O <strong>cálculo de margem</strong> mudou{since}.</>
+          )}
+        </Banner>
       )}
       {repriceFailed !== null && !outdated && (
-        <div
-          className={`banner ${repriceFailed ? 'warn' : 'ok'} outdated-banner outdated-banner--done`}
-          role="status"
-        >
+        <Banner tone={repriceFailed ? 'warn' : 'ok'}>
           Valores atualizados.
           {repriceFailed === 1 && ' 1 item manteve o valor anterior.'}
           {repriceFailed > 1 && ` ${repriceFailed} itens mantiveram o valor anterior.`}
-        </div>
+        </Banner>
       )}
 
       <CustomerSection
@@ -954,21 +950,26 @@ export function App() {
         ))}
 
         {!readOnly && createDraft && !itemModal && (
-          <div className="banner warn outdated-banner item-draft-banner" role="status">
-            <span>
-              Item não terminado: <strong>{kindLabel(createDraft.kind)}</strong>
-            </span>
-            <button type="button" className="btn" onClick={openAddItem}>
-              Continuar
-            </button>
-            <button
-              type="button"
-              className="btn ghost"
-              onClick={() => setItemDraft(clearCreateDraft(quote.id))}
-            >
-              Descartar
-            </button>
-          </div>
+          <Banner
+            tone="warn"
+            className="item-draft-banner"
+            actions={
+              <>
+                <button type="button" className="btn" onClick={openAddItem}>
+                  Continuar
+                </button>
+                <button
+                  type="button"
+                  className="btn ghost"
+                  onClick={() => setItemDraft(clearCreateDraft(quote.id))}
+                >
+                  Descartar
+                </button>
+              </>
+            }
+          >
+            Item não terminado: <strong>{kindLabel(createDraft.kind)}</strong>
+          </Banner>
         )}
 
         {!readOnly && (
@@ -1025,22 +1026,26 @@ export function App() {
           }
           onClose={keepItemModal}
         >
-          {error && <p className="banner error">{error}</p>}
+          {error && <Banner tone="error">{error}</Banner>}
           {editDraft && itemModal.mode === 'edit' && (
-            <div className="banner warn outdated-banner" role="status">
-              <span>Alterações não salvas recuperadas.</span>
-              <button
-                type="button"
-                className="btn"
-                onClick={() => {
-                  setItemDraft(clearEditDraft(quote.id, itemModal.id))
-                  itemFormRef.current = null
-                  setItemFormVersion((v) => v + 1)
-                }}
-              >
-                Descartar alterações
-              </button>
-            </div>
+            <Banner
+              tone="warn"
+              actions={
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    setItemDraft(clearEditDraft(quote.id, itemModal.id))
+                    itemFormRef.current = null
+                    setItemFormVersion((v) => v + 1)
+                  }}
+                >
+                  Descartar alterações
+                </button>
+              }
+            >
+              Alterações não salvas recuperadas.
+            </Banner>
           )}
           <ItemForm
             key={`${itemModal.mode === 'edit' ? itemModal.id : itemModal.kind}-${itemFormVersion}`}
@@ -1444,9 +1449,9 @@ function WhatsAppShareModal({
         </div>
       </div>
       {failed && (
-        <div className="banner error" role="alert">
+        <Banner tone="error">
           Não foi possível compartilhar no momento. Faça o download do orçamento para realizar o envio.
-        </div>
+        </Banner>
       )}
       <div className="modal__actions">
         <button type="button" className="btn with-icon" onClick={() => void copy()}>

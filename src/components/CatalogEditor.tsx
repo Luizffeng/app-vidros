@@ -14,6 +14,7 @@ import { up } from '../nav/navigator'
 import type { CatalogTab } from '../nav/routes'
 import { useLeaveGuard } from '../nav/useLeaveGuard'
 import { AppHeader, type AppSection } from './AppHeader'
+import { Banner } from './Banner'
 import { Dropdown } from './Dropdown'
 import { Modal } from './Modal'
 import { SearchField } from './SearchField'
@@ -141,8 +142,8 @@ export function CatalogEditor({
         Edite, crie ou desative itens. Orçamentos emitidos não serão alterados!
       </p>
 
-      {error && <div className="banner error">{error}</div>}
-      {message && !error && <div className="banner ok">{message}</div>}
+      {error && <Banner tone="error">{error}</Banner>}
+      {message && !error && <Banner tone="ok">{message}</Banner>}
 
       <div className="catalog-toolbar">
         <Dropdown

@@ -66,7 +66,7 @@ async function main() {
       (await saveBtn.innerText()).trim() === 'Salvar' && (await saveBtn.isEnabled()),
     )
     await saveBtn.click()
-    await page.locator('.banner.ok').filter({ hasText: 'Catálogo salvo' }).waitFor()
+    await page.locator('.banner--ok').filter({ hasText: 'Catálogo salvo' }).waitFor()
     ok('salvar após edição')
 
     await page.getByRole('button', { name: 'Adicionar vidro' }).click()
@@ -83,7 +83,7 @@ async function main() {
     ok('criar vidro')
 
     await saveBtn.click()
-    await page.locator('.banner.ok').filter({ hasText: 'Catálogo salvo' }).waitFor()
+    await page.locator('.banner--ok').filter({ hasText: 'Catálogo salvo' }).waitFor()
     ok('salvar após criar')
 
     await page.getByLabel('Buscar por código, tipo ou cor').fill('QA-VIDRO-01')

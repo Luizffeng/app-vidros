@@ -5,6 +5,7 @@ import { composeCost, type CostLine } from '../domain/costComposition'
 import { describeItem, marginLabel } from '../domain/itemDescription'
 import { formatBrl } from '../domain/quote'
 import type { Catalog, CatalogRef, LaborKey, Quote, QuoteItem } from '../domain/types'
+import { Banner } from './Banner'
 import { ConfirmPop } from './ConfirmPop'
 import { Modal } from './Modal'
 
@@ -106,23 +107,28 @@ export function CostDetailModal({
       </p>
 
       {notice && (
-        <div className={`banner ${notice.ok ? 'ok' : 'error'} cost-notice`} role="status">
+        <Banner tone={notice.ok ? 'ok' : 'error'} className="cost-banner">
           {notice.text}
-        </div>
+        </Banner>
       )}
 
       {oldItem && (
-        <div className="banner warn cost-old">
-          <span>Este item foi calculado com preços antigos do catálogo. Para editar, atualize o item com o catálogo atual.</span>
-          <button
-            type="button"
-            className="btn"
-            disabled={busy}
-            onClick={() => void run(onRecalc, 'Item atualizado.')}
-          >
-            Atualizar item
-          </button>
-        </div>
+        <Banner
+          tone="warn"
+          className="cost-banner"
+          actions={
+            <button
+              type="button"
+              className="btn"
+              disabled={busy}
+              onClick={() => void run(onRecalc, 'Item atualizado.')}
+            >
+              Atualizar item
+            </button>
+          }
+        >
+          Este item foi calculado com preços antigos do catálogo. Para editar, atualize o item com o catálogo atual.
+        </Banner>
       )}
 
       <ul className="breakdown cost-summary">
@@ -239,20 +245,24 @@ export function CostDetailModal({
                   </div>
 
                   {line.catalogNow != null && alertKey === key && (
-                    <div ref={alertRef} className="banner warn cost-line__changed" role="status">
-                      <span>
-                        {line.laborKey ? 'Taxa' : 'Preço'} atualizado no catálogo: agora{' '}
-                        <strong>{unitPrice(line, line.catalogNow)}</strong> (neste item {unitPrice(line)}).
-                      </span>
-                      <button
-                        type="button"
-                        className="btn"
-                        disabled={busy}
-                        onClick={() => void run(onRecalc, 'Item atualizado.')}
-                      >
-                        Atualizar item
-                      </button>
-                    </div>
+                    <Banner
+                      ref={alertRef}
+                      tone="warn"
+                      className="cost-line__changed"
+                      actions={
+                        <button
+                          type="button"
+                          className="btn"
+                          disabled={busy}
+                          onClick={() => void run(onRecalc, 'Item atualizado.')}
+                        >
+                          Atualizar item
+                        </button>
+                      }
+                    >
+                      {line.laborKey ? 'Taxa' : 'Preço'} atualizado no catálogo: agora{' '}
+                      <strong>{unitPrice(line, line.catalogNow)}</strong> (neste item {unitPrice(line)}).
+                    </Banner>
                   )}
                   {canEdit && line.blockedReason === 'inactive' && (
                     <p className="cost-line__hint">Código desativado no catálogo.</p>

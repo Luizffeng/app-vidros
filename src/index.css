@@ -284,12 +284,6 @@ label .percent-input .money-input {
   flex: 1;
 }
 
-.banner.ok {
-  background: rgba(62, 207, 142, 0.12);
-  border: 1px solid rgba(62, 207, 142, 0.35);
-  color: #b8f0d4;
-}
-
 .cep-status {
   margin: 0.65rem 0 0;
   font-size: 0.85rem;
@@ -2394,54 +2388,64 @@ textarea:focus {
 
 .banner {
   border-radius: 10px;
-  padding: 0.65rem 0.75rem;
-  margin-bottom: 0.75rem;
-  font-size: 0.9rem;
+  border: 1px solid;
+  padding: 0.55rem 0.75rem;
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.35;
 }
 
-.banner.error {
+.banner--ok {
+  background: rgba(62, 207, 142, 0.12);
+  border-color: rgba(62, 207, 142, 0.35);
+  color: #b8f0d4;
+}
+
+.banner--error {
   background: rgba(255, 107, 107, 0.15);
-  border: 1px solid rgba(255, 107, 107, 0.35);
+  border-color: rgba(255, 107, 107, 0.35);
   color: #ffc9c9;
 }
 
-.banner.warn {
+.banner--warn {
   background: rgba(212, 160, 23, 0.14);
-  border: 1px solid rgba(212, 160, 23, 0.45);
+  border-color: rgba(212, 160, 23, 0.45);
   color: #f6e3a8;
 }
 
-.outdated-banner {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.45rem 0.5rem 0.45rem 0.7rem;
-  font-size: 0.85rem;
-  line-height: 1.3;
-}
-
-.outdated-banner > span {
-  flex: 1;
-  min-width: 0;
-}
-
-.outdated-banner strong {
+.banner--warn strong {
   color: #fff3c4;
 }
 
-.outdated-banner .btn {
-  flex: none;
+.banner--actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.6rem;
+  padding: 0.45rem 0.5rem 0.45rem 0.75rem;
+}
+
+.banner__text {
+  flex: 1 1 11rem;
+  min-width: 0;
+}
+
+.banner__actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.banner .btn {
   min-height: 2rem;
   padding: 0 0.7rem;
   font-size: 0.82rem;
   white-space: nowrap;
-  border-color: rgba(212, 160, 23, 0.55);
-  color: #fff3c4;
 }
 
-.outdated-banner--done {
-  padding: 0.35rem 0.7rem;
-  font-size: 0.8rem;
+.banner--warn .btn {
+  border-color: rgba(212, 160, 23, 0.55);
+  color: #fff3c4;
 }
 
 @keyframes rise {
@@ -2482,21 +2486,6 @@ textarea:focus {
   padding: 0.85rem 1.1rem 1.1rem;
 }
 
-.cost-old {
-  margin: 0;
-  display: grid;
-  gap: 0.5rem;
-  justify-items: start;
-  padding: 0.55rem 0.7rem;
-  font-size: 0.85rem;
-}
-
-.cost-old .btn {
-  min-height: 2rem;
-  padding: 0 0.7rem;
-  font-size: 0.85rem;
-}
-
 .cost-item {
   margin: 0;
   display: grid;
@@ -2510,10 +2499,8 @@ textarea:focus {
   font-size: 0.95rem;
 }
 
-.cost-notice {
+.banner.cost-banner {
   margin: 0;
-  padding: 0.45rem 0.7rem;
-  font-size: 0.85rem;
 }
 
 .cost-summary {
@@ -2584,20 +2571,9 @@ textarea:focus {
   box-shadow: 0 0 0 2px rgba(224, 176, 42, 0.4);
 }
 
-.cost-line__changed {
+.banner.cost-line__changed {
   margin: 0.35rem 0 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 0.65rem;
   font-size: 0.8rem;
-}
-
-.cost-line__changed .btn {
-  min-height: 1.9rem;
-  padding: 0 0.65rem;
-  font-size: 0.82rem;
 }
 
 .cost-line__calc {
