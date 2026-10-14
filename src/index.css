@@ -1512,7 +1512,8 @@ a.btn.primary {
 }
 
 .quote-card__revs {
-  grid-column: 1;
+  grid-column: 2;
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -1568,6 +1569,7 @@ a.btn.primary {
 }
 
 .quote-rev__date {
+  justify-self: end;
   color: var(--muted);
   font-size: 0.85rem;
   white-space: nowrap;
@@ -1616,27 +1618,18 @@ a.btn.primary {
 }
 
 .quote-card__status {
-  justify-self: end;
-  min-width: 6.5em;
-  padding: 0.1rem 0.4rem;
-  border: 1px solid;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-align: center;
+  grid-column: 1;
+  justify-self: start;
+  font-size: 0.85rem;
   white-space: nowrap;
 }
 
 .quote-card__status--emitted {
   color: var(--accent-2);
-  border-color: rgba(62, 207, 142, 0.45);
-  background: rgba(62, 207, 142, 0.1);
 }
 
 .quote-card__status--draft {
   color: #e0b12a;
-  border-color: rgba(224, 177, 42, 0.45);
-  background: rgba(224, 177, 42, 0.1);
 }
 
 .quote-card__date {
@@ -1647,9 +1640,7 @@ a.btn.primary {
 }
 
 .quote-card__total {
-  grid-column: 2;
   justify-self: end;
-  align-self: end;
   color: var(--accent-2);
   font-weight: 700;
   white-space: nowrap;

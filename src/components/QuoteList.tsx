@@ -45,18 +45,18 @@ export function QuoteList({
               onClick={() => (many ? onToggle(number) : onOpen(head.id))}
             >
               <span className="quote-card__title">{formatQuoteCode(head.number, head.revision)}</span>
-              <StatusText quote={head} />
+              <span className="quote-card__total">{formatBrl(head.grandTotal)}</span>
               <span className="quote-card__meta">
                 <span className="quote-card__name">{head.customer.name || 'Sem cliente'}</span>
               </span>
               <span className="quote-card__date">{listDate(head)}</span>
+              <StatusText quote={head} />
               {many && (
                 <span className="quote-card__revs">
                   {revisions.length} revisões
                   <ChevronIcon />
                 </span>
               )}
-              <span className="quote-card__total">{formatBrl(head.grandTotal)}</span>
             </button>
             {open && (
               <ul className="quote-revs" aria-label="Revisões">
@@ -64,9 +64,9 @@ export function QuoteList({
                   <li key={q.id}>
                     <button type="button" className="quote-rev" onClick={() => onOpen(q.id)}>
                       <span className="quote-rev__code">Revisão {q.revision}</span>
+                      <span className="quote-rev__total">{formatBrl(q.grandTotal)}</span>
                       <StatusText quote={q} />
                       <span className="quote-rev__date">{listDate(q)}</span>
-                      <span className="quote-rev__total">{formatBrl(q.grandTotal)}</span>
                     </button>
                   </li>
                 ))}
