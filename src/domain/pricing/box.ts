@@ -33,7 +33,7 @@ export function priceBox(catalog: Catalog, input: BoxInput): PricingResult {
   const glassM2 = (fixedGlass + movingGlass) * height
   const glass = glassM2 * (vidro.valorM2 ?? 0)
   const kitCost = kit.valor ?? 0
-  const siliconeCost = silicone.valor * config.boxSiliconeQty
+  const siliconeCost = silicone.valor * 1
   const extras = sumItemExtras(input.extras)
 
   const breakdown = buildBreakdown({
@@ -73,7 +73,7 @@ export function priceBox(catalog: Catalog, input: BoxInput): PricingResult {
       {
         code: silicone.codigo,
         description: silicone.descricao,
-        quantity: config.boxSiliconeQty,
+        quantity: 1,
         unitPrice: silicone.valor,
         total: siliconeCost,
         category: 'acessorio',

@@ -19,6 +19,8 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Next
 
+- [ ] `ui` (M) **Agrupar revisões na lista:** pedido do dono 2026-10-14. Hoje cada revisão (`createRevision`: mesmo número, `revision` + 1) é um cartão próprio em `/orcamentos`. Agrupar pelo número: um cartão por orçamento, que mostra a revisão mais recente (pelo menos data e valor). Toque expande o cartão (decidido 2026-10-14, sem modal) com as revisões da mais recente para a mais antiga; com uma só revisão, abre o orçamento direto. Fazer na branch `007-saas-vidracarias` (lista em `App.tsx` já mudou lá)
+
 - [ ] `feat` (G) **Usuário no Cadastro (precisa de spec):** seção expansível "Usuário" em Configurações › Cadastro com nome e telefone de quem usa o app. Futuro: orçamento guarda o vendedor na emissão e o PDF mostra nome e telefone dele (loja com vários vendedores). Decidir: perfil por usuário (Supabase `user_metadata` ou tabela `profiles` + RLS; IndexedDB no modo local), vendedor hoje não abre Configurações (tela própria "Meu perfil" ou aba liberada), snapshot no `Quote` ao emitir, linha no PDF
 - [ ] `feat` (G) **SaaS fase 2: planos e cobrança (precisa de spec):** planos (ex.: mensal/anual), preços, cobrança no app (Pix, cartão, boleto), nota fiscal, régua de atraso. Fim do pagamento cai no mesmo modo consulta da fase 1 ([spec 007](specs/007-saas-vidracarias/spec.md)). Liga com o banner "plano anual" do Início
 - [ ] `feat` (G) **Painel do provedor (precisa de spec):** front-end/plataforma do dono do SaaS para operar as contas: suporte (responder sugestões, conversa pelo app), assinaturas (liberar até uma data, renovar, cancelar), mais dias de teste, descontos e cupons, banners do Início, versões publicadas (deploys) e outras ferramentas de operação. Substitui a ferramenta interna da fase 1 (FR-018, FR-026, FR-028 da [spec 007](specs/007-saas-vidracarias/spec.md))
@@ -51,6 +53,11 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 - App nativo (iOS/Android). Ganho conhecido: só app nativo (ex.: Android empacotado com Capacitor) manda o PDF direto ao WhatsApp, sem a folha de compartilhar do sistema; pelo navegador, arquivo só sai por essa folha. A tela de legenda do WhatsApp continua de qualquer jeito
 
 ## Done
+
+### 2026-10-14
+
+- [x] `fix` **Box com 1 silicone:** box passa de 1,5 para 1 `SILICONE ACT` (−R$ 10 de custo, −R$ 13 no preço com margem 30%). `boxSiliconeQty` sai do config; o catálogo já salvo perde a chave ao carregar, sem SQL. Rascunhos com box mostram "Atualizar valores"; emitidos não mudam
+- [x] `feat` **Pivotante sem alumínios da porta:** caixa "Incluir alumínios da porta" abaixo de "Incluir trinco"; item novo vem com as duas marcadas (melhor sobrar no preço do que esquecer). Desmarcada tira a cantoneira do custo e do detalhamento. Itens antigos seguem com alumínios
 
 ### 2026-10-10
 

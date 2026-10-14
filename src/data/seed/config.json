@@ -50,7 +50,6 @@
     "maxiarAvulso": 60
   },
   "boxDefaultHeightM": 1.9,
-  "boxSiliconeQty": 1.5,
   "defaultMarkup": {
     "box": 0.3,
     "correr": 0.3,

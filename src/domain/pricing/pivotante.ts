@@ -35,7 +35,8 @@ export function pricePivotante(
   const cap = findAcessorio(catalog, '1038')
   const silicone = findAcessorio(catalog, 'SILICONE ACT')
 
-  const aluminumRaw = cantoneira.valorMetro * cantQty
+  const hasAluminum = input.hasAluminum !== false
+  const aluminumRaw = hasAluminum ? cantoneira.valorMetro * cantQty : 0
   const latchQty = input.hasLatch ? 1 : 0
   const hardwareRaw =
     kit.valor * 1 + puxador.valor * 1 + trinco.valor * latchQty + cap.valor * 1
@@ -69,19 +70,23 @@ export function pricePivotante(
       unit: 'm2',
       source: { table: 'vidros', id: vidro.id },
     },
-    withSurcharge(
-      {
-        code: cantoneira.codigo,
-        description: cantoneira.descricao ?? 'Cantoneira',
-        quantity: cantQty,
-        unitPrice: cantoneira.valorMetro,
-        total: aluminumRaw,
-        category: 'aluminio',
-        unit: 'm',
-        source: { table: 'aluminios', id: cantoneira.id },
-      },
-      surcharge,
-    ),
+    ...(hasAluminum
+      ? [
+          withSurcharge(
+            {
+              code: cantoneira.codigo,
+              description: cantoneira.descricao ?? 'Cantoneira',
+              quantity: cantQty,
+              unitPrice: cantoneira.valorMetro,
+              total: aluminumRaw,
+              category: 'aluminio',
+              unit: 'm',
+              source: { table: 'aluminios', id: cantoneira.id },
+            },
+            surcharge,
+          ),
+        ]
+      : []),
     hw(kit),
     hw(puxador),
     ...(latchQty ? [hw(trinco)] : []),

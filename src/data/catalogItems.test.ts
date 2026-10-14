@@ -34,6 +34,15 @@ describe('catalogItems', () => {
     expect(normalized.acessorios.some((a) => a.id === 999)).toBe(false)
   })
 
+  it('normalizeCatalog drops legacy boxSiliconeQty from saved config', () => {
+    const seed = loadSeedCatalog()
+    const normalized = normalizeCatalog({
+      ...seed,
+      config: { ...seed.config, boxSiliconeQty: 1.5 } as typeof seed.config,
+    })
+    expect('boxSiliconeQty' in normalized.config).toBe(false)
+  })
+
   it('parseImportedCatalog round-trips full seed export', () => {
     const seed = normalizeCatalog(loadSeedCatalog())
     const parsed = parseImportedCatalog(JSON.parse(JSON.stringify(seed)))
