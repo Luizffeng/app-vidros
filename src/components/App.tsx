@@ -80,6 +80,7 @@ import {
 } from '../pdf/generateQuotePdf'
 import { CatalogEditor } from './CatalogEditor'
 import { AppHeader, HeaderMenu, type AppSection } from './AppHeader'
+import { NextStep } from './NextStep'
 import { useDismiss } from './useDismiss'
 import { Banner } from './Banner'
 import { ConfirmPop } from './ConfirmPop'
@@ -691,10 +692,31 @@ export function App() {
 
   const tasks =
     isAdmin && canWrite && access.role !== 'local' ? onboardingTasks(catalog, settings, quotes) : []
+  const taskRoute = (task: OnboardingTask): Route | null =>
+    task.id === 'primeiroOrcamento'
+      ? null
+      : task.tab
+        ? { screen: 'catalog', tab: task.tab }
+        : { screen: 'settings', tab: 'register' }
   const onOpenTask = (task: OnboardingTask) => {
-    if (task.id === 'primeiroOrcamento') return void (task.done ? goSection('list') : openNew())
-    push(task.tab ? { screen: 'catalog', tab: task.tab } : { screen: 'settings', tab: 'register' })
+    const target = taskRoute(task)
+    if (target) return push(target)
+    if (task.done) goSection('list')
+    else void openNew()
   }
+  const place = (r: Route) => ('tab' in r ? `${r.screen}/${r.tab}` : r.screen)
+  const nextStep = (
+    <NextStep
+      tasks={!onboardingHidden && onboardingVisible(tasks, settings) ? tasks : []}
+      place={place(route)}
+      isHere={(task) => {
+        const target = taskRoute(task)
+        return target != null && place(target) === place(route)
+      }}
+      onOpen={onOpenTask}
+      onHome={() => goSection('home')}
+    />
+  )
   const onDismissOnboarding = (forever: boolean) => {
     hideOnboardingThisSession()
     setOnboardingHidden(true)
@@ -722,7 +744,7 @@ export function App() {
   )
 
   if (route.screen === 'page') return screen(<PublicPage page={route.page} />)
-  if (route.screen === 'help') return screen(<SupportScreen onNavigate={goSection} />)
+  if (route.screen === 'help') return screen(<SupportScreen onNavigate={goSection} nextStep={nextStep} />)
 
   if (route.screen === 'home') {
     return screen(
@@ -752,6 +774,7 @@ export function App() {
         onTabChange={(tab) => replace({ screen: 'catalog', tab })}
         onSave={onSaveCatalog}
         onNavigate={goSection}
+        nextStep={nextStep}
       />,
     )
   }
@@ -767,6 +790,7 @@ export function App() {
         onNavigate={goSection}
         pendingTasks={settings.onboardingDismissedAt ? tasks.filter((t) => !t.done) : undefined}
         onOpenTask={onOpenTask}
+        nextStep={nextStep}
       />,
     )
   }
@@ -778,6 +802,7 @@ export function App() {
           <AppHeader title="Orçamentos" current="list" onNavigate={goSection} onBack={up} />
         </div>
 
+        {nextStep}
         {notice && <Banner tone="warn">{notice}</Banner>}
 
         <section aria-label="Orçamentos">

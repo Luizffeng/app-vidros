@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useAccess } from '../auth/access'
 import type { OnboardingTask } from '../domain/onboarding'
 import type { AppSettings, EstablishmentInfo, MarginMode } from '../domain/types'
@@ -50,6 +50,7 @@ export function SettingsEditor({
   onNavigate,
   pendingTasks,
   onOpenTask,
+  nextStep,
 }: {
   settings: AppSettings
   tab: SettingsTab
@@ -59,6 +60,7 @@ export function SettingsEditor({
   /** Primeiros passos still open after "Dispensar" on Início */
   pendingTasks?: readonly OnboardingTask[]
   onOpenTask: (task: OnboardingTask) => void
+  nextStep?: ReactNode
 }) {
   const [draft, setDraft] = useState(() => normalizeSettings(settings))
   /** O logo padrão é o da Forte Vidros: só o modo local volta a ele. */
@@ -220,6 +222,7 @@ export function SettingsEditor({
         </div>
       </div>
 
+      {nextStep}
       {error && <Banner tone="error">{error}</Banner>}
       {message && !error && <Banner tone="ok">{message}</Banner>}
 

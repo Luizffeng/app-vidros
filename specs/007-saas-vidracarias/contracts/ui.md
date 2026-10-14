@@ -34,6 +34,10 @@ Title "Sua vidraçaria". Fields: Nome da vidraçaria, WhatsApp da loja (masked).
 5. **Ajuda tile** becomes active: title "Ajuda", summary "Fale com a gente", opens `/ajuda`.
 6. **Footer** below the tiles (carousel and tiles still fit 360 × 640): Fale com a gente · Novidades · Termos de uso · Política de privacidade · Excluir minha conta e dados (admin of a cloud account only) · {razão social} · CNPJ {cnpj} · {endereço} (only the fields filled in `src/data/company.ts`) · Versão {build date (commit)}.
 
+## Próximo passo (strip)
+
+`NextStep`, first thing below the sticky header of Orçamentos, Catálogo, Configurações and Ajuda, while the Início card would show (admin, cloud account, not dismissed this session or forever). One full-width button, gold border: "Próximo: {next task}", gold pill "{done} de 5", chevron; tap opens the task (same target as the card row). Hidden on Início, in the quote editor and item form, and on the screen and tab of the next task itself. Right after a task turns done on the current screen, a green "✓ Feito: {task}" line sits above "Próximo" (rises in once) until the screen or tab changes. All done: green "Tudo pronto! Ver no Início" only right after the last task; tap goes to Início.
+
 ## Expired notice (modal)
 
 Opened instead of creating anything by: Novo orçamento, Revisar, Duplicar, Emitir, item add/edit, catalog save, settings save.

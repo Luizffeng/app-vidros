@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { isCatalogItemActive, nextNumericId } from '../data/catalogItems'
 import { aluminioValorMetro, bumpCatalogVersion } from '../domain/catalogEdit'
 import { clearEditedExamples, confirmExampleTable, examplePending } from '../domain/onboarding'
@@ -85,6 +85,7 @@ export function CatalogEditor({
   onTabChange,
   onSave,
   onNavigate,
+  nextStep,
 }: {
   catalog: Catalog
   marginMode: MarginMode
@@ -92,6 +93,7 @@ export function CatalogEditor({
   onTabChange: (tab: CatalogTab) => void
   onSave: (catalog: Catalog) => Promise<void>
   onNavigate: (section: AppSection) => void
+  nextStep?: ReactNode
 }) {
   const [draft, setDraft] = useState(() => cloneCatalog(catalog))
   const [query, setQuery] = useState('')
@@ -149,6 +151,7 @@ export function CatalogEditor({
         <AppHeader title="Catálogo" current="catalog" onNavigate={onNavigate} onBack={up} />
       </div>
 
+      {nextStep}
       <p className="lede catalog-lede">
         Edite, crie ou desative itens. Orçamentos emitidos não serão alterados!
       </p>

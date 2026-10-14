@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useAccess } from '../auth/access'
 import { SUPPORT, supportWhatsAppUrl } from '../data/support'
 import { supportMessage } from '../domain/account'
@@ -20,7 +20,13 @@ function statusLabel(s: Suggestion): string {
 }
 
 /** /ajuda: WhatsApp e sugestões. Funciona com a conta vencida. */
-export function SupportScreen({ onNavigate }: { onNavigate: (section: AppSection) => void }) {
+export function SupportScreen({
+  onNavigate,
+  nextStep,
+}: {
+  onNavigate: (section: AppSection) => void
+  nextStep?: ReactNode
+}) {
   const { account, accounts } = useAccess()
   const [list, setList] = useState<Suggestion[] | null>(null)
   const [text, setText] = useState('')
@@ -65,6 +71,7 @@ export function SupportScreen({ onNavigate }: { onNavigate: (section: AppSection
         <AppHeader title="Ajuda" current="help" onNavigate={onNavigate} onBack={up} />
       </div>
 
+      {nextStep}
       <Section title="Fale com a gente" hint={`${SUPPORT.hours}. ${SUPPORT.reply}`}>
         <a className="btn primary support__whatsapp" href={talkUrl} target="_blank" rel="noreferrer">
           Conversar no WhatsApp

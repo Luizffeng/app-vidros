@@ -3500,6 +3500,89 @@ a.carousel__body {
   color: var(--accent);
 }
 
+/* Próximo passo: thin strip under the header of Orçamentos, Catálogo, Configurações and Ajuda. */
+.next-step {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.65rem 0.5rem 0.75rem;
+  border: 1px solid rgba(212, 160, 23, 0.45);
+  border-radius: 10px;
+  background:
+    radial-gradient(140% 220% at 0% 0%, rgba(212, 160, 23, 0.12), transparent 60%),
+    var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.88rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.next-step:hover {
+  border-color: rgba(212, 160, 23, 0.7);
+}
+
+.next-step--done {
+  border-color: rgba(62, 207, 142, 0.4);
+  background: var(--surface);
+}
+
+.next-step__text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.next-step__done {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent-2);
+}
+
+.next-step__done svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.next-step__label {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.next-step__kicker {
+  color: var(--accent);
+}
+
+.next-step .pill {
+  flex: none;
+  background: rgba(212, 160, 23, 0.18);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.next-step--done .pill {
+  background: rgba(62, 207, 142, 0.16);
+  color: var(--accent-2);
+}
+
+.next-step__chevron {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--accent);
+}
+
+.next-step--fresh {
+  animation: rise var(--dur-lg) var(--ease-out) backwards;
+}
+
 /* Entry, account setup and new password: one column of full-width controls. */
 .entry__start,
 .entry__methods {
