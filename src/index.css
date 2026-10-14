@@ -1052,9 +1052,65 @@ label .percent-input .money-input {
 }
 
 .tip-pop > .confirm-pop {
+  top: calc(100% + 0.7rem);
   width: min(19rem, calc(100vw - 5.5rem));
-  border-color: rgba(212, 160, 23, 0.55);
+  padding: 0.75rem 0.85rem;
+  border-color: rgba(212, 160, 23, 0.7);
   color: var(--text);
+  line-height: 1.4;
+}
+
+/* Arrow on the border, centered under the button. */
+.tip-pop > .confirm-pop::before {
+  content: '';
+  position: absolute;
+  top: -0.4rem;
+  right: calc(var(--control-h) / 2 - 0.4rem);
+  width: 0.8rem;
+  height: 0.8rem;
+  border-top: 1px solid rgba(212, 160, 23, 0.7);
+  border-left: 1px solid rgba(212, 160, 23, 0.7);
+  border-top-left-radius: 3px;
+  background: #152824;
+  transform: rotate(45deg);
+}
+
+.tip-pop__title {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--accent);
+}
+
+.tip-pop > .confirm-pop .confirm-pop__actions {
+  margin-top: 0.15rem;
+}
+
+.tip-pop > .confirm-pop .confirm-pop__actions .btn {
+  flex: 1;
+  min-height: 2.25rem;
+  font-weight: 600;
+}
+
+/* Ring on the button the tip talks about. */
+.tip-pop--open::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  pointer-events: none;
+}
+
+@keyframes tip-ring {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tip-pop--open::after {
+    animation: tip-ring 1.4s ease-in-out infinite;
+  }
 }
 
 .collapsible-section {

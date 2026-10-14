@@ -38,6 +38,7 @@ One way per job. Reuse these before writing new markup or CSS; if a case does no
 | Job | Use | Not |
 | --- | --- | --- |
 | Inline "are you sure?" next to a button | `ConfirmPop` (`place` left/below/above/static, `block` for long text, `tone`, `alert`, `warn`) inside a `position: relative` wrapper | per-screen `*-pop` classes |
+| Tip that teaches a control | `TipPop` around the control: arrow to it, pulsing ring on it, full-width "Entendi". Text names the highlighted control ("o botão destacado", "a lixeira destacada"), never "aqui" | a loose banner or "toque aqui" text |
 | Square icon-only button | `IconButton` (`label` is the aria-label and title; `size` md/sm; `tone` default/edit/danger/danger-solid/revise) | raw `btn btn-icon`, `.icon-btn` |
 | Button with icon and text | `className="btn … with-icon"`, icon first. Disabled with a reason: `ActionButton` in `App.tsx` | per-button flex/svg rules |
 | Notice (saved, error, outdated, draft) | `Banner` (`tone` ok/warn/error; `actions` for buttons, which wrap under the text on narrow screens). Errors get `role="alert"`, others `role="status"` | `div.banner.ok`, `outdated-banner`, custom grids |

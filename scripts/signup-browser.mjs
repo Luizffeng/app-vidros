@@ -196,6 +196,7 @@ try {
   const deleteTip = page.getByRole('dialog', { name: 'Desistir de uma revisão' })
   await deleteTip.waitFor()
   check('dica da lixeira na revisão', (await reviseTip.count()) === 0)
+  await page.waitForTimeout(400)
   await page.screenshot({ path: join(OUT, 'dica-lixeira.png') })
   await deleteTip.getByRole('button', { name: 'Entendi' }).click()
   await deleteTip.waitFor({ state: 'detached' })

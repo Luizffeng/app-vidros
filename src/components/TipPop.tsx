@@ -4,8 +4,8 @@ import { ConfirmPop } from './ConfirmPop'
 import { useDismiss } from './useDismiss'
 
 /**
- * Wraps a header button and shows its tip once, below it. "Entendi", a tap anywhere
- * (the button included), Esc or the device back all count as seen.
+ * Wraps a header button and shows its tip once, below it, with an arrow and a ring on the
+ * button. "Entendi", a tap anywhere (the button included), Esc or the device back all count as seen.
  */
 export function TipPop({ tip, when, children }: { tip: TipId; when: boolean; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -17,7 +17,7 @@ export function TipPop({ tip, when, children }: { tip: TipId; when: boolean; chi
   }
   useDismiss(open, ref, see)
   return (
-    <div className="tip-pop" ref={ref} onClickCapture={() => open && see()}>
+    <div className={`tip-pop${open ? ' tip-pop--open' : ''}`} ref={ref} onClickCapture={() => open && see()}>
       {children}
       <ConfirmPop
         open={open}
@@ -25,7 +25,12 @@ export function TipPop({ tip, when, children }: { tip: TipId; when: boolean; chi
         block
         tone="primary"
         label={TIPS[tip].title}
-        message={TIPS[tip].pop}
+        message={
+          <>
+            <strong className="tip-pop__title">{TIPS[tip].title}</strong>
+            {TIPS[tip].pop}
+          </>
+        }
         yesLabel="Entendi"
         onYes={see}
       />

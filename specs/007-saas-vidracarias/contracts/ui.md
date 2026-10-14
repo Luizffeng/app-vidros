@@ -40,7 +40,7 @@ Title "Sua vidraçaria". Fields: Nome da vidraçaria, WhatsApp da loja (masked).
 
 ## Dicas (one-time tips)
 
-`TipPop` wraps a quote header button and shows a gold-bordered `ConfirmPop` below it with "Entendi". Once per device (`localStorage` `app-vidros:tips-seen`); "Entendi", tapping anywhere (the button included), Esc or device back all count as seen. Only for accounts that can write, not in local mode, never over a window or inline confirm.
+`TipPop` wraps a quote header button and shows a gold-bordered `ConfirmPop` below it: an arrow on its top border points at the button, the button gets a pulsing gold ring (static with reduced motion), gold title, text that names "o botão destacado" (never "aqui"), full-width "Entendi". Once per device (`localStorage` `app-vidros:tips-seen`); "Entendi", tapping anywhere (the button included), Esc or device back all count as seen. Only for accounts that can write, not in local mode, never over a window or inline confirm.
 
 - **Criar uma revisão**: on an emitted quote (so right after the first emit), next to the revision icon.
 - **Desistir de uma revisão**: on a draft with revision > 1, next to the trash.
