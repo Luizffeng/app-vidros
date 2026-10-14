@@ -3,6 +3,9 @@ import { createPortal } from 'react-dom'
 import { useBackLayer } from '../nav/useBackLayer'
 import { motionMs } from './usePresence'
 
+/** Open modals, oldest first: Esc closes only the top one. */
+const stack: object[] = []
+
 export function Modal({
   title,
   onClose,
@@ -43,8 +46,10 @@ export function Modal({
     body.style.top = `-${scrollY}px`
     body.style.width = '100%'
 
+    const token = {}
+    stack.push(token)
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') requestCloseRef.current()
+      if (e.key === 'Escape' && stack[stack.length - 1] === token) requestCloseRef.current()
     }
     window.addEventListener('keydown', onKey)
 
@@ -54,6 +59,7 @@ export function Modal({
     focusable?.focus({ preventScroll: true })
 
     return () => {
+      stack.splice(stack.indexOf(token), 1)
       window.removeEventListener('keydown', onKey)
       window.clearTimeout(closeTimerRef.current)
       closeTimerRef.current = undefined

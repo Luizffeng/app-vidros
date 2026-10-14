@@ -1560,12 +1560,116 @@ a.btn.primary {
   min-width: 0;
 }
 
+/* Desktop: every card the same height; revisions open over the rows below. */
+@media (min-width: 721px) {
+  .quote-list {
+    grid-auto-rows: 1fr;
+  }
+
+  .quote-group {
+    position: relative;
+  }
+
+  .quote-card {
+    height: 100%;
+  }
+
+  .quote-group--open {
+    z-index: 2;
+    filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.55));
+  }
+
+  .quote-group--open .quote-card {
+    background: var(--bg1);
+  }
+
+  .quote-group--open .quote-revs {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg1);
+  }
+}
+
+.quote-card__revs {
+  grid-column: 2;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.quote-card__chevron {
+  width: 1rem;
+  height: 1rem;
+}
+
+.quote-group--open .quote-card {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.quote-revs {
+  list-style: none;
+  margin: 0;
+  padding: 0.2rem 0.45rem 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.quote-revs li + li {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.quote-rev {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 0.1rem 0.75rem;
+  padding: 0.55rem 0.45rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.quote-rev:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.quote-rev__code {
+  font-weight: 700;
+}
+
+.quote-rev__date {
+  justify-self: end;
+  color: var(--muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.quote-rev__total {
+  justify-self: end;
+  color: var(--accent-2);
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
 .quote-card {
   width: 100%;
-  height: 100%;
   text-align: left;
   display: grid;
   grid-template-columns: 1fr auto;
+  align-content: start;
   align-items: baseline;
   gap: 0.2rem 0.75rem;
   padding: 0.85rem 0.9rem;
@@ -1578,6 +1682,9 @@ a.btn.primary {
 .quote-card__title {
   font-weight: 700;
   min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .quote-card__meta {
@@ -1589,6 +1696,13 @@ a.btn.primary {
 .quote-card__name {
   font-weight: 700;
   color: var(--text);
+}
+
+.quote-card__status {
+  grid-column: 1;
+  justify-self: start;
+  font-size: 0.85rem;
+  white-space: nowrap;
 }
 
 .quote-card__status--emitted {
@@ -1608,7 +1722,6 @@ a.btn.primary {
 
 .quote-card__total {
   justify-self: end;
-  align-self: end;
   color: var(--accent-2);
   font-weight: 700;
   white-space: nowrap;
@@ -2977,6 +3090,19 @@ a.btn.primary {
 
 .confirm-pop--static {
   transform-origin: top center;
+}
+
+/* Quote list: revisions fade in under the card; the chevron turns. */
+.quote-revs {
+  animation: fade-in var(--dur-md) var(--ease-out) backwards;
+}
+
+.quote-card__chevron {
+  transition: rotate var(--dur-md) var(--ease-std);
+}
+
+.quote-group--open .quote-card__chevron {
+  rotate: 180deg;
 }
 
 /* Sections: native <details> height where supported; the body fade is the fallback. */
