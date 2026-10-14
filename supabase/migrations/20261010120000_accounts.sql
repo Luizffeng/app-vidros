@@ -212,6 +212,9 @@ begin
   if uid is null then
     raise exception 'sem sessão';
   end if;
+  if acc is not null and coalesce((select role from public.profiles where id = uid), '') <> 'admin' then
+    raise exception 'só o administrador pode excluir a conta' using errcode = '42501';
+  end if;
   if acc is not null then
     delete from public.accounts where id = acc;
   end if;

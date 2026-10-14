@@ -11,6 +11,7 @@ export type Route =
   | { screen: 'catalog'; tab: CatalogTab }
   | { screen: 'settings'; tab: SettingsTab }
   | { screen: 'page'; page: PublicPage }
+  | { screen: 'help' }
 
 export type Screen = Route['screen']
 
@@ -69,6 +70,8 @@ export function parseRoute(pathname: string, search = ''): Route {
       return { screen: 'catalog', tab: fromSlug(CATALOG_SLUGS, parts[1]) ?? 'vidros' }
     case 'configuracoes':
       return { screen: 'settings', tab: fromSlug(SETTINGS_SLUGS, parts[1]) ?? 'register' }
+    case 'ajuda':
+      return { screen: 'help' }
     default: {
       const page = parts.length === 1 ? fromSlug(PAGE_SLUGS, parts[0]) : undefined
       return page ? { screen: 'page', page } : { screen: 'home' }
@@ -95,6 +98,8 @@ export function formatRoute(route: Route): string {
       return `/configuracoes/${SETTINGS_SLUGS[route.tab]}`
     case 'page':
       return `/${PAGE_SLUGS[route.page]}`
+    case 'help':
+      return '/ajuda'
   }
 }
 

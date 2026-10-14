@@ -198,6 +198,20 @@ async function screens(page, quoteUrl) {
   await page.goto(`${BASE}/orcamentos/nao-existe`, { waitUntil: 'networkidle' })
   await page.getByText('Orçamento não encontrado.').waitFor()
   check('orçamento inexistente cai na lista com aviso', path(page) === '/orcamentos', path(page))
+
+  await page.getByRole('button', { name: 'Menu' }).click()
+  await page.getByRole('menuitem', { name: 'Ajuda' }).click()
+  await heading(page, 'Ajuda')
+  check('menu abre a Ajuda', path(page) === '/ajuda', path(page))
+  await back(page)
+  await heading(page, 'Início')
+  ok('voltar na Ajuda vai ao Início')
+
+  await page.goto(`${BASE}/termos`, { waitUntil: 'networkidle' })
+  await heading(page, 'Termos de uso')
+  await back(page)
+  await heading(page, 'Início')
+  ok('endereço direto dos termos: voltar sobe ao Início')
 }
 
 async function itemDrafts(page) {

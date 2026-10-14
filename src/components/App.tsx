@@ -94,6 +94,7 @@ import { ItemBlockHead } from './ItemBlockHead'
 import { Modal } from './Modal'
 import { ExpiredNotice } from './ExpiredNotice'
 import { PublicPage } from './PublicPage'
+import { SupportScreen } from './SupportScreen'
 import { PdfPreview } from './PdfPreview'
 import { SettingsEditor } from './SettingsEditor'
 import { HomeScreen } from './HomeScreen'
@@ -113,6 +114,7 @@ const SECTION_ROUTES: Record<AppSection, Route> = {
   list: { screen: 'quotes' },
   catalog: { screen: 'catalog', tab: 'vidros' },
   settings: { screen: 'settings', tab: 'register' },
+  help: { screen: 'help' },
 }
 
 export function App() {
@@ -705,12 +707,17 @@ export function App() {
           account={access.account}
           state={access.accountState}
           onClose={() => setExpiredNotice(false)}
+          onTalk={() => {
+            setExpiredNotice(false)
+            push({ screen: 'help' })
+          }}
         />
       )}
     </div>
   )
 
   if (route.screen === 'page') return screen(<PublicPage page={route.page} />)
+  if (route.screen === 'help') return screen(<SupportScreen onNavigate={goSection} />)
 
   if (route.screen === 'home') {
     return screen(

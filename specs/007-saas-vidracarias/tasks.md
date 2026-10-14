@@ -150,10 +150,10 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 
 **Independent Test**: quickstart manual scenario 4.
 
-- [ ] T053 [US5] Create src/components/SupportScreen.tsx per contracts/ui.md: hours/reply Section, "Conversar no WhatsApp", "Sugestões" Section with count, textarea + "Enviar", list with status pill and reply; offline send keeps the text and shows an error Banner
-- [ ] T054 [US5] Wire `/ajuda` in src/components/App.tsx; enable the Ajuda tile ("Fale com a gente") in src/components/HomeScreen.tsx and the Ajuda menu item in src/components/AppHeader.tsx
-- [ ] T055 [US5] "Você pediu, a gente fez" entries in src/content/novidades.md rendered on `/novidades`; suggestion with `shipped_version` shows "Feito na versão X"
-- [ ] T056 [US5] Verify ≤ 2 taps to `/ajuda` from Início, Orçamentos, Catálogo, editor, and from `ExpiredNotice`
+- [X] T053 [US5] Create src/components/SupportScreen.tsx per contracts/ui.md: hours/reply Section, "Conversar no WhatsApp", "Sugestões" Section with count, textarea + "Enviar", list with status pill and reply; offline send keeps the text and shows an error Banner
+- [X] T054 [US5] Wire `/ajuda` in src/components/App.tsx; enable the Ajuda tile ("Fale com a gente") in src/components/HomeScreen.tsx and the Ajuda menu item in src/components/AppHeader.tsx
+- [X] T055 [US5] "Você pediu, a gente fez" entries in src/content/novidades.md rendered on `/novidades`; suggestion with `shipped_version` shows "Feito na versão X"
+- [X] T056 [US5] Verify ≤ 2 taps to `/ajuda` from Início, Orçamentos, Catálogo, editor, and from `ExpiredNotice`
 
 ---
 
@@ -163,9 +163,9 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 
 **Independent Test**: quickstart manual scenario 7.
 
-- [ ] T057 [P] [US7] Create src/components/HomeFooter.tsx (links per contracts/ui.md, company data in a small src/data/company.ts shared with the placeholders in src/content/legal/, app version) below the tiles in src/components/HomeScreen.tsx; carousel and tiles still fit 360 × 640 without scrolling
-- [ ] T058 [US7] "Excluir minha conta e dados": `ConfirmPop` with "Digite EXCLUIR" → remove logo via Storage → `deleteMyAccount()` → sign out → entry screen
-- [ ] T059 [US7] Opt-in checkbox row in Configurações › Cadastro (src/components/SettingsEditor.tsx) calling `setMarketingOptIn`
+- [X] T057 [P] [US7] Create src/components/HomeFooter.tsx (links per contracts/ui.md, company data in a small src/data/company.ts shared with the placeholders in src/content/legal/, app version) below the tiles in src/components/HomeScreen.tsx; carousel and tiles still fit 360 × 640 without scrolling
+- [X] T058 [US7] "Excluir minha conta e dados": `ConfirmPop` with "Digite EXCLUIR" → remove logo via Storage → `deleteMyAccount()` → sign out → entry screen
+- [X] T059 [US7] Opt-in checkbox row in Configurações › Cadastro (src/components/SettingsEditor.tsx) calling `setMarketingOptIn`
 - [X] T060 [US7] (done early, with Phase 3) Extend scripts/tenant-isolation.mjs: `delete_my_account` removes account rows, suggestions and auth user; other account untouched
 
 **Checkpoint**: delivery step 4 ready.
@@ -182,7 +182,7 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 ## Phase 12: Polish & cross-cutting
 
 - [ ] T063 [P] Update DECISIONS.md ("Single shop" → "One account per vidraçaria, spec 007"), root AGENTS.md (what this repo is, auth, tests, new scripts), src/components/AGENTS.md (new components), API_CONTEXT.md and ARCHITECTURE.md (accounts, RPCs, policies), README.md (local Supabase, env)
-- [ ] T064 [P] Add the new screens to scripts/nav-back-browser.mjs where they run in local mode (`/ajuda`, `/termos`, `/primeiros-passos/*`)
+- [X] T064 [P] Add the new screens to scripts/nav-back-browser.mjs where they run in local mode (`/ajuda`, `/termos`; no `/primeiros-passos/*` screens, see T049)
 - [ ] T065 Check every new screen at 360 px (SC-006) with the browser-check skill against local Supabase
 - [ ] T066 Run `npm test`, `npm run lint`, `npm run build`, all browser scripts, `scripts/tenant-isolation.mjs`; update BACKLOG.md (Now/Done)
 

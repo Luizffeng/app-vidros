@@ -3193,6 +3193,110 @@ a.carousel__body {
   font-size: 0.85rem;
 }
 
+/* Início footer: below the fold at 360 × 640. */
+.home-footer {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.home-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.15rem 1rem;
+}
+
+.home-footer a,
+.home-footer .btn.link {
+  padding: 0.3rem 0;
+  color: var(--muted);
+  font-size: inherit;
+  line-height: 1.35;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.home-footer .home-footer__danger {
+  color: #f07070;
+}
+
+.home-footer__delete {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+}
+
+.home-footer__delete .confirm-pop {
+  width: min(22rem, 100%);
+  text-align: left;
+  color: var(--text);
+}
+
+.home-footer__confirm {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+.home-footer__company,
+.home-footer__version {
+  margin: 0;
+}
+
+/* Ajuda (/ajuda): WhatsApp, then suggestions newest first. */
+.support__whatsapp,
+.support__send {
+  width: 100%;
+}
+
+.support__field {
+  margin-bottom: 0.6rem;
+}
+
+.suggestions {
+  display: grid;
+  gap: 0;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.suggestions__item {
+  padding: 0.7rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.suggestions__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.suggestions__body {
+  margin: 0.35rem 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.suggestions__reply {
+  margin: 0.5rem 0 0;
+  padding: 0.45rem 0.7rem;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--surface-2);
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+}
+
 /* Primeiros passos: card on Início, plain list in Configurações › Cadastro. */
 .onboarding {
   padding: 0.85rem 0.75rem 0.5rem;

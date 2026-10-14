@@ -10,15 +10,17 @@ export function ExpiredNotice({
   account,
   state,
   onClose,
+  onTalk,
 }: {
   account: Account
   state: AccountState
   onClose: () => void
+  /** Abre /ajuda */
+  onTalk: () => void
 }) {
   const disabled = state.kind === 'disabled'
   const subscription = state.reason === 'subscription'
   const title = disabled ? 'Conta suspensa' : subscription ? 'Sua assinatura venceu' : 'Seu teste grátis terminou'
-  const talkUrl = supportWhatsAppUrl(supportMessage('talk', account))
 
   return (
     <Modal className="modal--notice" title={title} onClose={onClose}>
@@ -44,9 +46,9 @@ export function ExpiredNotice({
             {subscription ? 'Renovar' : 'Quero assinar'}
           </a>
         )}
-        <a className={disabled ? 'btn primary' : 'btn'} href={talkUrl} target="_blank" rel="noreferrer">
+        <button type="button" className={disabled ? 'btn primary' : 'btn'} onClick={onTalk}>
           Falar com a gente
-        </a>
+        </button>
       </div>
     </Modal>
   )

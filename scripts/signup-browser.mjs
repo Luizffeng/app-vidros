@@ -192,6 +192,16 @@ try {
   await page.getByRole('dialog').waitFor({ state: 'detached' })
   check('nenhum rascunho criado', (await quoteCount(acc.id)) === before && new URL(page.url()).pathname === '/orcamentos')
 
+  // Vencido ainda fala com a gente e manda sugestão
+  await page.getByRole('button', { name: 'Novo orçamento' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Falar com a gente' }).click()
+  await h1(page, 'Ajuda')
+  check('aviso leva à Ajuda', new URL(page.url()).pathname === '/ajuda')
+  await page.getByLabel('O que faria o app melhor para você?').fill('Enviar orçamento por e-mail também')
+  await page.getByRole('button', { name: 'Enviar', exact: true }).click()
+  await page.getByText('Recebemos sua sugestão. Obrigado!').waitFor()
+  check('sugestão enviada com a conta vencida', await page.locator('.suggestions__item').filter({ hasText: 'por e-mail' }).isVisible())
+
   await page.goto(emittedUrl, { waitUntil: 'networkidle' })
   await page.getByText('Emitido', { exact: true }).waitFor()
   await page.getByRole('button', { name: 'Criar uma revisão' }).click()
@@ -226,6 +236,53 @@ try {
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
   await h1(page, 'Início')
   check('entrar de novo cai na mesma conta', await page.getByText('Teste grátis: faltam 30 dias').isVisible())
+
+  // Ajuda: bloco do Início, WhatsApp e resposta da sugestão
+  await page.getByRole('button', { name: 'Ajuda: Fale com a gente' }).click()
+  await h1(page, 'Ajuda')
+  const wa = await page.getByRole('link', { name: 'Conversar no WhatsApp' }).getAttribute('href')
+  check('WhatsApp do suporte com a loja', wa.startsWith('https://wa.me/5537999170088?') && decodeURIComponent(wa).includes(SHOP), wa)
+  await admin
+    .from('suggestions')
+    .update({ status: 'feita', reply: 'Já está no app!', replied_at: new Date().toISOString(), shipped_version: '2026-10-14' })
+    .eq('account_id', acc.id)
+  await page.reload({ waitUntil: 'networkidle' })
+  const item = page.locator('.suggestions__item').first()
+  await item.getByText('Já está no app!').waitFor()
+  check('resposta e versão aparecem', (await item.innerText()).includes('Feita na versão 2026-10-14'))
+  check('sem horizontal scroll na Ajuda', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+  await page.screenshot({ path: join(OUT, 'ajuda.png'), fullPage: true })
+
+  // Opt-in em Cadastro
+  await page.goto(`${BASE}/configuracoes/cadastro`, { waitUntil: 'networkidle' })
+  const optIn = page.getByLabel('Quero receber novidades e ofertas pelo WhatsApp')
+  await optIn.check()
+  await page.waitForTimeout(500)
+  check('opt-in gravado', Boolean((await account())?.marketing_opt_in_at))
+
+  // Rodapé: novidades, versão, excluir conta
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' })
+  await h1(page, 'Início')
+  const footer = page.locator('.home-footer')
+  const tiles = await page.locator('.tile-grid').boundingBox()
+  check('blocos cabem em 360×640 com o rodapé', tiles.y + tiles.height <= 640, String(tiles.y + tiles.height))
+  await page.screenshot({ path: join(OUT, 'inicio-rodape.png'), fullPage: true })
+  check('rodapé mostra a versão', /Versão \d{4}-\d{2}-\d{2}/.test(await footer.innerText()))
+  await footer.getByRole('link', { name: 'Novidades' }).click()
+  await page.getByRole('heading', { name: 'Você pediu, a gente fez' }).waitFor()
+  check('novidades com "Você pediu, a gente fez"', true)
+  await page.getByRole('button', { name: 'Voltar' }).click()
+  await h1(page, 'Início')
+  await footer.getByRole('button', { name: 'Excluir minha conta e dados' }).click()
+  const pop = page.getByRole('dialog', { name: 'Excluir conta' })
+  check('excluir pede a palavra', await pop.getByRole('button', { name: 'Excluir tudo' }).isDisabled())
+  await pop.getByLabel('Digite EXCLUIR para confirmar').fill('excluir')
+  await page.screenshot({ path: join(OUT, 'excluir-conta.png'), fullPage: true })
+  await pop.getByRole('button', { name: 'Excluir tudo' }).click()
+  await page.getByRole('button', { name: 'Criar conta grátis' }).waitFor()
+  const gone = await admin.from('accounts').select('id').eq('id', acc.id)
+  const users = await admin.auth.admin.listUsers()
+  check('conta e login excluídos', gone.data?.length === 0 && !users.data?.users.some((u) => u.email === EMAIL))
 
   check('sem erros de página', errors.length === 0, errors.join(' | '))
 } catch (error) {

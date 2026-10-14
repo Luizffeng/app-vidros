@@ -24,7 +24,7 @@ React 19, Vite, TypeScript. No router library (own History API router in `src/na
 | `src/domain/pricing/index.ts` `priceItem` | Pricing dispatch. |
 | `src/domain/types.ts` | Shared models and `QuoteRepository`. |
 
-Screens come from the URL (`src/nav/routes.ts`): `/` Início, `/orcamentos`, `/orcamentos/:id`, `/catalogo/:tab`, `/configuracoes/:tab`. Change them only through `src/nav/navigator.ts`. Overlays take one history entry each (`useBackLayer`), so device back closes them first.
+Screens come from the URL (`src/nav/routes.ts`): `/` Início, `/orcamentos`, `/orcamentos/:id`, `/catalogo/:tab`, `/configuracoes/:tab`, `/ajuda`, and the public `/termos`, `/privacidade`, `/novidades`. Change them only through `src/nav/navigator.ts`. Overlays take one history entry each (`useBackLayer`), so device back closes them first.
 
 ## Folders
 

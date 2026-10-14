@@ -25,6 +25,7 @@ describe('routes', () => {
       { screen: 'page', page: 'terms' },
       { screen: 'page', page: 'privacy' },
       { screen: 'page', page: 'news' },
+      { screen: 'help' },
     ]
     for (const route of routes) expect(parseUrl(formatRoute(route))).toEqual(route)
   })
@@ -36,6 +37,7 @@ describe('routes', () => {
     expect(formatRoute({ screen: 'page', page: 'terms' })).toBe('/termos')
     expect(formatRoute({ screen: 'page', page: 'privacy' })).toBe('/privacidade')
     expect(formatRoute({ screen: 'page', page: 'news' })).toBe('/novidades')
+    expect(formatRoute({ screen: 'help' })).toBe('/ajuda')
   })
 
   it('falls back to the first tab and to home', () => {
@@ -63,5 +65,6 @@ describe('routes', () => {
     expect(sameScreen({ screen: 'quotes' }, { screen: 'home' })).toBe(false)
     expect(sameScreen({ screen: 'page', page: 'terms' }, { screen: 'page', page: 'privacy' })).toBe(false)
     expect(ancestors({ screen: 'page', page: 'news' })).toEqual([{ screen: 'home' }])
+    expect(ancestors({ screen: 'help' })).toEqual([{ screen: 'home' }])
   })
 })

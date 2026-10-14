@@ -4,7 +4,7 @@ import { IconButton } from './IconButton'
 import { useDismiss } from './useDismiss'
 import { usePresence } from './usePresence'
 
-export type AppSection = 'home' | 'list' | 'catalog' | 'settings'
+export type AppSection = 'home' | 'list' | 'catalog' | 'settings' | 'help'
 
 type MenuEntry = {
   id: string
@@ -135,8 +135,8 @@ export function HeaderMenu({
     id: 'help',
     label: 'Ajuda',
     icon: <HelpIcon />,
-    tag: 'em breve',
-    disabled: true,
+    current: current === 'help',
+    onSelect: () => onNavigate('help'),
     dividerBefore: true,
   })
   if (access.signOut) {

@@ -145,6 +145,17 @@ await admin.from('accounts').update({ active_until: null, disabled_at: new Date(
   check('A desativada não grava', !!ins.error)
 }
 
+// Vendedor não exclui a conta da loja
+{
+  const V = await user('vendedor-b')
+  await admin.from('profiles').update({ account_id: accB.id, role: 'vendedor' }).eq('id', V.userId)
+  const del = await V.client.rpc('delete_my_account')
+  check('vendedor não exclui a conta', !!del.error)
+  const acc = await admin.from('accounts').select('id').eq('id', accB.id)
+  check('conta B continua depois do vendedor', acc.data?.length === 1)
+  await admin.auth.admin.deleteUser(V.userId)
+}
+
 // Excluir conta B
 {
   const del = await B.client.rpc('delete_my_account')

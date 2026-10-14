@@ -9,6 +9,7 @@ import type { Route } from '../nav/routes'
 import { AppHeader, CatalogIcon, GearIcon, HelpIcon, QuotesIcon, type AppSection } from './AppHeader'
 import { Banner } from './Banner'
 import { BannerCarousel } from './BannerCarousel'
+import { HomeFooter } from './HomeFooter'
 import { OnboardingCard } from './OnboardingCard'
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
@@ -54,9 +55,22 @@ function Tile({
 const dayMonth = (iso?: string) =>
   iso ? new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : ''
 
-function AccountBanner({ account, state }: { account: Account; state: AccountState }) {
+function AccountBanner({
+  account,
+  state,
+  onTalk,
+}: {
+  account: Account
+  state: AccountState
+  onTalk: () => void
+}) {
   if (!state.warn && state.kind !== 'expired' && state.kind !== 'disabled') return null
   const subscription = state.reason === 'subscription'
+  const talk = (
+    <button type="button" className="btn" onClick={onTalk}>
+      Falar com a gente
+    </button>
+  )
   const link = (intent: SupportIntent, label: string) => (
     <a
       className="btn"
@@ -69,14 +83,14 @@ function AccountBanner({ account, state }: { account: Account; state: AccountSta
   )
   if (state.kind === 'disabled') {
     return (
-      <Banner tone="warn" actions={link('talk', 'Falar com a gente')}>
+      <Banner tone="warn" actions={talk}>
         Sua conta está suspensa. Seus orçamentos continuam aqui para consulta.
       </Banner>
     )
   }
   if (state.kind === 'expired') {
     return (
-      <Banner tone="warn" actions={link('talk', 'Falar com a gente')}>
+      <Banner tone="warn" actions={talk}>
         {subscription ? 'Sua assinatura venceu' : 'Seu teste grátis terminou'} em {dayMonth(state.endsAt)}.
         Seus orçamentos continuam aqui para consulta.
       </Banner>
@@ -144,7 +158,7 @@ export function HomeScreen({
         <AppHeader title="Início" current="home" onNavigate={onNavigate} />
       </div>
 
-      {account && <AccountBanner account={account} state={accountState} />}
+      {account && <AccountBanner account={account} state={accountState} onTalk={() => onNavigate('help')} />}
 
       <BannerCarousel banners={banners} onRoute={onOpen} />
 
@@ -183,7 +197,13 @@ export function HomeScreen({
             }
           />
         )}
-        <Tile title="Ajuda" icon={<HelpIcon />} label="Ajuda: em breve" summary="Em breve" disabled />
+        <Tile
+          title="Ajuda"
+          icon={<HelpIcon />}
+          label="Ajuda: Fale com a gente"
+          summary="Fale com a gente"
+          onClick={() => onNavigate('help')}
+        />
       </nav>
 
       {accountState.kind === 'trial' && !accountState.warn && (
@@ -191,6 +211,8 @@ export function HomeScreen({
           Teste grátis: faltam {plural(accountState.daysLeft ?? 0, 'dia', 'dias')}
         </p>
       )}
+
+      <HomeFooter onNavigate={onNavigate} />
     </div>
   )
 }

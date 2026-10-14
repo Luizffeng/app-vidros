@@ -16,7 +16,7 @@ New migration `supabase/migrations/20261010120000_accounts.sql`. Shapes below ar
 | `create_account(p_name text, p_whatsapp text, p_marketing_opt_in boolean)` | | `accounts` row | Fails if caller already has an account. Inserts account (`plan 'trial'`, `trial_ends_at now() + 30 days`, `terms_accepted_at now()`, opt-in date when true) and sets `profiles.account_id`. |
 | `set_marketing_opt_in(p_value boolean)` | | void | Sets/clears `marketing_opt_in_at`. Allowed when expired. |
 | `next_quote_number()` | | text `ORC-YYYY-NNNN` | Now per `(current_account_id(), year)`; raises `sem permissão` unless `account_can_write()`. |
-| `delete_my_account()` | | void | Deletes the caller's account (cascade) and `auth.users` row. Client removes the logo object first. |
+| `delete_my_account()` | | void | Deletes the caller's account (cascade) and `auth.users` row. Only the account's `admin` (`42501` otherwise), so a `vendedor` cannot delete the shop. Client removes the logo object first. |
 
 Revoke `execute` from `public` on all of the above; grant to `authenticated`.
 

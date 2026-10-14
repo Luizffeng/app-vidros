@@ -32,7 +32,7 @@ Title "Sua vidraçaria". Fields: Nome da vidraçaria, WhatsApp da loja (masked).
 3. **Expired banner**: `Banner tone="warn"`: "Seu teste grátis terminou em {dd/mm}. Seus orçamentos continuam aqui para consulta." action "Falar com a gente" (no price talk, spec FR-028a spirit). Subscription: "Sua assinatura venceu em {dd/mm}. …".
 4. **Primeiros passos card** above the tiles while visible: title "Primeiros passos", pill "{done} de 5", list of 5 rows (check icon when done, chevron otherwise), "Dispensar" link.
 5. **Ajuda tile** becomes active: title "Ajuda", summary "Fale com a gente", opens `/ajuda`.
-6. **Footer** below the tiles (visible only by scrolling at 360 × 640): Fale com a gente · Novidades · Termos de uso · Política de privacidade · Excluir minha conta e dados · {razão social} · CNPJ {cnpj} · {endereço} · Versão {x}.
+6. **Footer** below the tiles (carousel and tiles still fit 360 × 640): Fale com a gente · Novidades · Termos de uso · Política de privacidade · Excluir minha conta e dados (admin of a cloud account only) · {razão social} · CNPJ {cnpj} · {endereço} (only the fields filled in `src/data/company.ts`) · Versão {build date (commit)}.
 
 ## Expired notice (modal)
 
@@ -41,7 +41,7 @@ Opened instead of creating anything by: Novo orçamento, Revisar, Duplicar, Emit
 - Title: "Seu teste grátis terminou" / "Sua assinatura venceu".
 - Body: "Terminou em {dd/mm/aaaa}. Você ainda pode ver, baixar e reenviar seus orçamentos. Para criar novos, assine o App Vidros."
 - Primary "Quero assinar" / "Renovar" → `wa.me/{suporte}?text=Olá! Quero assinar o App Vidros. Loja: {nome} ({shortId})`.
-- Secondary "Falar com a gente" → `/ajuda`. Close returns to the same place, nothing created.
+- Secondary "Falar com a gente" → `/ajuda` (also on the Início account banners). Close returns to the same place, nothing created.
 
 ## Primeiros passos tasks
 

@@ -62,7 +62,19 @@ export function SettingsEditor({
 }) {
   const [draft, setDraft] = useState(() => normalizeSettings(settings))
   /** O logo padrão é o da Forte Vidros: só o modo local volta a ele. */
-  const localMode = useAccess().role === 'local'
+  const access = useAccess()
+  const localMode = access.role === 'local'
+  const [optIn, setOptIn] = useState(Boolean(access.account?.marketingOptInAt))
+  const onOptIn = async (value: boolean) => {
+    setOptIn(value)
+    try {
+      await access.accounts.setMarketingOptIn(value)
+      await access.refreshAccount()
+    } catch {
+      setOptIn(!value)
+      setError('Não foi possível salvar a preferência de novidades. Tente de novo.')
+    }
+  }
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -334,6 +346,12 @@ export function SettingsEditor({
               </p>
             )}
           </CollapsibleSection>
+          {!localMode && access.account && (
+            <label className="check-field__box check-field__box--row">
+              <span>Quero receber novidades e ofertas pelo WhatsApp</span>
+              <input type="checkbox" checked={optIn} onChange={(e) => void onOptIn(e.target.checked)} />
+            </label>
+          )}
           {pendingTasks && pendingTasks.length > 0 && (
             <Section className="onboarding" title="Primeiros passos" hint="Ainda falta deixar o app com a cara da sua loja.">
               <OnboardingTaskList tasks={pendingTasks} onOpen={onOpenTask} />

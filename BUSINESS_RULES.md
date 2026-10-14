@@ -11,6 +11,8 @@ Rules encoded in the current code. Locations are the evidence. Unclear items are
 - Every signed-in user is admin of their own account (`vendedor` is dormant). Database: read own account only; write own account only while `account_can_write()` (trial or subscription not ended, not disabled). Same migration.
 - Account state: warn from 7 days before the end; expired or disabled is read-only. `accountState` in `src/domain/account.ts` (mirrors `account_can_write`).
 - Read-only: every write path opens `ExpiredNotice` instead (new quote, revision, emit, draft delete, item changes, catalog and settings save); drafts show disabled; PDF download and resend of emitted quotes keep working. `blocked()` in `App.tsx`.
+- `/ajuda` works read-only too: WhatsApp link with the shop name and short id, and suggestions (3–2000 characters; status Recebida / Respondida / Feita na versão X, replies set by the provider). Support number and hours: `src/data/support.ts` (provisional owner number until the company has a CNPJ). `src/components/SupportScreen.tsx`.
+- "Excluir minha conta e dados" (Início footer, admin only, type EXCLUIR) removes the logo, then `delete_my_account` deletes the account with quotes, catalog, settings, suggestions and the login; the database refuses a `vendedor`. Opt-in for WhatsApp news is a checkbox in Configurações › Cadastro (`set_marketing_opt_in`, saved on tap).
 - New account settings start with the account name and WhatsApp and no logo. The embedded logo (Forte Vidros) is only the local-mode default. `freshSettings` in `src/data/supabaseRepository.ts`.
 
 ## Quote status
