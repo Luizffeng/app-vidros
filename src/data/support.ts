@@ -1,6 +1,6 @@
 export const SUPPORT = {
-  /** Só dígitos com DDI (ex.: 5511999999999). Vazio até a empresa ter o número: o WhatsApp pede o contato. */
-  whatsapp: '',
+  /** Só dígitos com DDI. Provisório (celular do dono) até a empresa ter CNPJ e número próprio. */
+  whatsapp: '5537999170088',
   email: '',
   hours: 'Seg. a sex., 10h às 16h',
   reply: 'Respondemos em até 1 hora nesse horário. Fora dele, no próximo dia útil.',

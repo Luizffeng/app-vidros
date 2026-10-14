@@ -102,5 +102,5 @@ Podemos atualizar esta Política. Mudanças relevantes serão avisadas no aplica
 ## 12. Contato
 
 - Encarregado (DPO): [NOME DO ENCARREGADO] — [E-MAIL DO ENCARREGADO]
-- Suporte: WhatsApp [NÚMERO DO SUPORTE], de segunda a sexta, das 10h às 16h
+- Suporte: WhatsApp (37) 99917-0088, de segunda a sexta, das 10h às 16h
 - Endereço: [ENDEREÇO COMPLETO]

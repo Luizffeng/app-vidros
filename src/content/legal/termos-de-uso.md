@@ -114,6 +114,6 @@ Estes Termos seguem as leis da República Federativa do Brasil. Fica eleito o fo
 
 ## 15. Contato
 
-- WhatsApp: [NÚMERO DO SUPORTE]
+- WhatsApp: (37) 99917-0088
 - E-mail: [E-MAIL DE CONTATO]
 - Endereço: [ENDEREÇO COMPLETO]
