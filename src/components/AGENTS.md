@@ -24,6 +24,8 @@ React UI. No price formulas and no Supabase queries except `EntryScreen` (sign-i
 | `SupportScreen.tsx` | `/ajuda`: WhatsApp (`src/data/support.ts`) and suggestions via `useAccess().accounts`. Works read-only. |
 | `HomeFooter.tsx` | Início footer: Fale com a gente, Novidades, Termos, Privacidade, company line (`src/data/company.ts`), `__APP_VERSION__`, and "Excluir minha conta e dados" (admin, `ConfirmPop` + EXCLUIR). |
 | `OnboardingCard.tsx` | "Primeiros passos" card on Início (`CollapsibleSection`, X only when open, dismiss `Modal`) and `OnboardingTaskList` (also in Configurações › Cadastro after "Dispensar para sempre"). Tasks come from `onboardingTasks`; `App.tsx` opens each one. |
+| `NextStep.tsx` | Strip under the header of Orçamentos, Catálogo, Configurações and Ajuda with the next onboarding task; "Feito" right after one is done. `App.tsx` builds it and passes `nextStep`. |
+| `TipPop.tsx` | One-time tip under a quote header button (revision, trash). Texts and the seen list in `src/data/tips.ts`; Ajuda › Dicas lists and resets them. |
 | `PdfPreview.tsx` | pdf.js preview of a blob. |
 | `Dropdown.tsx`, `Modal.tsx`, `SearchField.tsx`, `useDismiss.ts` | Shared widgets. `Dropdown` (filters, catalog table picker) and `DropdownField` (form field with caption) replace native `<select>`. `Modal` plays its exit on Fechar/Esc/backdrop/device back before calling `onClose`. `Modal` and `useDismiss` call `useBackLayer`, so every overlay built on them takes one history entry. |
 | `usePresence.ts` | `usePresence(open, exit)` / `<Presence>` keep an overlay mounted with `data-state="closing"` for its exit; `motionMs` reads `--dur-*`. |

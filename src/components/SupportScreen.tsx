@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useAccess } from '../auth/access'
 import { SUPPORT, supportWhatsAppUrl } from '../data/support'
+import { anyTipSeen, resetTips, TIPS } from '../data/tips'
 import { supportMessage } from '../domain/account'
 import type { Suggestion } from '../domain/types'
 import { up } from '../nav/navigator'
@@ -33,6 +34,8 @@ export function SupportScreen({
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [tipsSeen, setTipsSeen] = useState(anyTipSeen)
+  const [tipsBack, setTipsBack] = useState(false)
 
   useLeaveGuard(text.trim() !== '', 'Descartar a sugestão que você escreveu?')
 
@@ -76,6 +79,32 @@ export function SupportScreen({
         <a className="btn primary support__whatsapp" href={talkUrl} target="_blank" rel="noreferrer">
           Conversar no WhatsApp
         </a>
+      </Section>
+
+      <Section title="Dicas">
+        <ul className="tips">
+          {Object.values(TIPS).map((tip) => (
+            <li key={tip.title}>
+              <strong>{tip.title}</strong>
+              <p>{tip.help}</p>
+            </li>
+          ))}
+        </ul>
+        {tipsSeen ? (
+          <button
+            type="button"
+            className="btn support__send"
+            onClick={() => {
+              resetTips()
+              setTipsSeen(false)
+              setTipsBack(true)
+            }}
+          >
+            Mostrar as dicas de novo no orçamento
+          </button>
+        ) : (
+          tipsBack && <p className="muted">Pronto: as dicas voltam a aparecer no orçamento.</p>
+        )}
       </Section>
 
       <Section title="Sugestões" count={list && list.length > 0 ? list.length : undefined}>

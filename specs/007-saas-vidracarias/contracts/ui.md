@@ -38,6 +38,15 @@ Title "Sua vidraçaria". Fields: Nome da vidraçaria, WhatsApp da loja (masked).
 
 `NextStep`, first thing below the sticky header of Orçamentos, Catálogo, Configurações and Ajuda, while the Início card would show (admin, cloud account, not dismissed this session or forever). One full-width button, gold border: "Próximo: {next task}", gold pill "{done} de 5", chevron; tap opens the task (same target as the card row). Hidden on Início, in the quote editor and item form, and on the screen and tab of the next task itself. Right after a task turns done on the current screen, a green "✓ Feito: {task}" line sits above "Próximo" (rises in once) until the screen or tab changes. All done: green "Tudo pronto! Ver no Início" only right after the last task; tap goes to Início.
 
+## Dicas (one-time tips)
+
+`TipPop` wraps a quote header button and shows a gold-bordered `ConfirmPop` below it with "Entendi". Once per device (`localStorage` `app-vidros:tips-seen`); "Entendi", tapping anywhere (the button included), Esc or device back all count as seen. Only for accounts that can write, not in local mode, never over a window or inline confirm.
+
+- **Criar uma revisão**: on an emitted quote (so right after the first emit), next to the revision icon.
+- **Desistir de uma revisão**: on a draft with revision > 1, next to the trash.
+
+Ajuda gets a "Dicas" `Section` between "Fale com a gente" and "Sugestões": each tip's title and a longer text, and "Mostrar as dicas de novo no orçamento" (clears the seen list) once any tip was seen.
+
 ## Expired notice (modal)
 
 Opened instead of creating anything by: Novo orçamento, Revisar, Duplicar, Emitir, item add/edit, catalog save, settings save.

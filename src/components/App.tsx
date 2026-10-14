@@ -81,6 +81,7 @@ import {
 import { CatalogEditor } from './CatalogEditor'
 import { AppHeader, HeaderMenu, type AppSection } from './AppHeader'
 import { NextStep } from './NextStep'
+import { TipPop } from './TipPop'
 import { useDismiss } from './useDismiss'
 import { Banner } from './Banner'
 import { ConfirmPop } from './ConfirmPop'
@@ -881,6 +882,17 @@ export function App() {
   const since = outdatedDate ? ` em ${outdatedDate.toLocaleDateString('pt-BR')}` : ''
   const editingItem =
     itemModal?.mode === 'edit' ? quote.items.find((i) => i.id === itemModal.id) : undefined
+  /** Not in local mode (dev and the browser scripts) and never over a window. */
+  const showTips =
+    canWrite &&
+    access.role !== 'local' &&
+    !itemModal &&
+    !sendOpen &&
+    !pdfPreviewBlob &&
+    shareText == null &&
+    !costItemId &&
+    !confirmOpen &&
+    !expiredNotice
   const closeItemModal = () => {
     itemFormRef.current = null
     setItemModal(null)
@@ -928,29 +940,33 @@ export function App() {
               </span>
             </div>
             {emitted ? (
-              <IconButton label="Criar uma revisão" tone="revise" disabled={busy} onClick={() => void onRevise()}>
-                <RevisionIcon />
-              </IconButton>
-            ) : (
-              <div className="topbar__delete">
-                <IconButton
-                  label="Excluir rascunho"
-                  tone="danger-solid"
-                  onClick={() => {
-                    if (!blocked()) setPendingDeleteQuote((open) => !open)
-                  }}
-                >
-                  <TrashIcon />
+              <TipPop tip="revisar" when={showTips}>
+                <IconButton label="Criar uma revisão" tone="revise" disabled={busy} onClick={() => void onRevise()}>
+                  <RevisionIcon />
                 </IconButton>
-                <ConfirmPop
-                  open={pendingDeleteQuote}
-                  place="below"
-                  label="Excluir rascunho"
-                  message="Excluir rascunho?"
-                  onYes={() => void onDeleteDraft()}
-                  onNo={() => setPendingDeleteQuote(false)}
-                />
-              </div>
+              </TipPop>
+            ) : (
+              <TipPop tip="excluirRevisao" when={showTips && quote.revision > 1}>
+                <div className="topbar__delete">
+                  <IconButton
+                    label="Excluir rascunho"
+                    tone="danger-solid"
+                    onClick={() => {
+                      if (!blocked()) setPendingDeleteQuote((open) => !open)
+                    }}
+                  >
+                    <TrashIcon />
+                  </IconButton>
+                  <ConfirmPop
+                    open={pendingDeleteQuote}
+                    place="below"
+                    label="Excluir rascunho"
+                    message="Excluir rascunho?"
+                    onYes={() => void onDeleteDraft()}
+                    onNo={() => setPendingDeleteQuote(false)}
+                  />
+                </div>
+              </TipPop>
             )}
             <HeaderMenu current="list" onNavigate={goSection} />
           </div>

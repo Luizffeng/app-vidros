@@ -241,6 +241,7 @@ Abaixo dos blocos do Início, ao rolar, um rodapé discreto com: Fale com a gent
 - **FR-029**: Todos os dados atuais MUST passar para a conta da Forte Vidros, preservando orçamentos, números, totais, versões de catálogo, configurações e logo.
 - **FR-030**: A conta da Forte Vidros MUST ficar ativa sem prazo de teste. O cartão "Primeiros passos" aparece com as tarefas já concluídas ("Tudo pronto!") até ser dispensado.
 - **FR-030a**: Enquanto o cartão "Primeiros passos" estiver valendo, Orçamentos, Catálogo, Configurações e Ajuda MUST mostrar abaixo do cabeçalho uma faixa com o próximo passo, que abre a tarefa. Some no Início, dentro do orçamento e na tela da própria tarefa; logo após concluir uma tarefa, mostra "Feito: {tarefa}" junto do próximo (decisão de 2026-10-14).
+- **FR-030b**: O app MUST ensinar revisão e exclusão de rascunho com dicas na hora certa, não como tarefas dos Primeiros passos: ao ver um orçamento emitido, um balão no botão de revisão; ao abrir uma revisão em rascunho, um balão na lixeira. Cada dica aparece uma vez por aparelho; a Ajuda lista as dicas e permite mostrá-las de novo (decisão de 2026-10-14).
 
 **Institucional e LGPD**
 
