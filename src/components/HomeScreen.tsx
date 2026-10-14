@@ -132,7 +132,7 @@ export function HomeScreen({
   onNavigate: (section: AppSection) => void
   onOpen: (route: Route) => void
   onOpenTask: (task: OnboardingTask) => void
-  onDismissOnboarding: () => void
+  onDismissOnboarding: (forever: boolean) => void
 }) {
   const banners = useMemo(() => visibleBanners(BANNERS, new Date()), [])
   const summary = useMemo(

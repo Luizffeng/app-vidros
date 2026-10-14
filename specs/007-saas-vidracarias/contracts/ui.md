@@ -30,7 +30,7 @@ Title "Sua vidraçaria". Fields: Nome da vidraçaria, WhatsApp da loja (masked).
 1. **Trial line** (`trial`, not `warn`): muted text under the tiles, "Teste grátis: faltam {n} dias".
 2. **Warn banner** (`warn`): `Banner tone="warn"` above the tiles: "Seu teste grátis termina em {n} dias." action "Quero assinar". Subscription: "Sua assinatura vence em {n} dias." action "Renovar".
 3. **Expired banner**: `Banner tone="warn"`: "Seu teste grátis terminou em {dd/mm}. Seus orçamentos continuam aqui para consulta." action "Falar com a gente" (no price talk, spec FR-028a spirit). Subscription: "Sua assinatura venceu em {dd/mm}. …".
-4. **Primeiros passos card** above the tiles while visible: title "Primeiros passos", pill "{done} de 5", list of 5 rows (check icon when done, chevron otherwise), "Dispensar" link.
+4. **Primeiros passos card** above the tiles while visible: `CollapsibleSection`, starts closed (one row: title "Primeiros passos", pill "{done} de 5", chevron). Open: list of 5 rows (check when done) and an X ("Fechar primeiros passos") left of the chevron; the X never shows while closed. X opens a `Modal` "Fechar primeiros passos?" with "Dispensar desta vez" (hidden until the app is opened again, `sessionStorage`), "Dispensar para sempre" (stores `onboardingDismissedAt`) and the modal's Fechar.
 5. **Ajuda tile** becomes active: title "Ajuda", summary "Fale com a gente", opens `/ajuda`.
 6. **Footer** below the tiles (carousel and tiles still fit 360 × 640): Fale com a gente · Novidades · Termos de uso · Política de privacidade · Excluir minha conta e dados (admin of a cloud account only) · {razão social} · CNPJ {cnpj} · {endereço} (only the fields filled in `src/data/company.ts`) · Versão {build date (commit)}.
 
@@ -45,7 +45,7 @@ Opened instead of creating anything by: Novo orçamento, Revisar, Duplicar, Emit
 
 ## Primeiros passos tasks
 
-No task screens (research R9, revised 2026-10-14). Each row opens the screen that already edits it: Cadastro, a Catálogo tab, or a new quote. Row: check (done) or empty circle, label, one-line hint ("Feito" when done), chevron. After "Dispensar", Configurações › Cadastro lists the open tasks in a "Primeiros passos" `Section`. Hidden when the account cannot write, for `vendedor`, and in local mode.
+No task screens (research R9, revised 2026-10-14). Each row opens the screen that already edits it: Cadastro, a Catálogo tab, or a new quote. Row: check (done) or empty circle, label, one-line hint ("Feito" when done), chevron. After "Dispensar para sempre", Configurações › Cadastro lists the open tasks in a "Primeiros passos" `Section`. Hidden when the account cannot write, for `vendedor`, and in local mode.
 
 ## Catalog
 

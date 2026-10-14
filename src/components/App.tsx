@@ -48,6 +48,7 @@ import {
   type ItemDraftRecord,
   type ItemFormState,
 } from '../data/itemDraft'
+import { hideOnboardingThisSession, onboardingHiddenThisSession } from '../data/onboardingHidden'
 import { createRepository } from '../data/repository'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
 import {
@@ -166,6 +167,7 @@ export function App() {
   const [pendingDeleteQuote, setPendingDeleteQuote] = useState(false)
   const [emitNeedsName, setEmitNeedsName] = useState(false)
   const [emitExamples, setEmitExamples] = useState<ExampleUse | null>(null)
+  const [onboardingHidden, setOnboardingHidden] = useState(onboardingHiddenThisSession)
   const [itemModal, setItemModal] = useState<
     null | { mode: 'pick' } | { mode: 'create'; kind: ProductKind } | { mode: 'edit'; id: string }
   >(null)
@@ -693,7 +695,10 @@ export function App() {
     if (task.id === 'primeiroOrcamento') return void (task.done ? goSection('list') : openNew())
     push(task.tab ? { screen: 'catalog', tab: task.tab } : { screen: 'settings', tab: 'register' })
   }
-  const onDismissOnboarding = () => {
+  const onDismissOnboarding = (forever: boolean) => {
+    hideOnboardingThisSession()
+    setOnboardingHidden(true)
+    if (!forever) return
     onSaveSettings({ ...settings, onboardingDismissedAt: new Date().toISOString() }).catch((e) =>
       setError(e instanceof Error ? e.message : String(e)),
     )
@@ -728,7 +733,7 @@ export function App() {
         isAdmin={isAdmin}
         account={access.account}
         accountState={access.accountState}
-        onboarding={onboardingVisible(tasks, settings) ? tasks : null}
+        onboarding={!onboardingHidden && onboardingVisible(tasks, settings) ? tasks : null}
         onNavigate={goSection}
         onOpen={(target) => (target.screen === 'home' ? goSection('home') : push(target, 'fade'))}
         onOpenTask={onOpenTask}

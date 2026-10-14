@@ -1091,6 +1091,12 @@ label .percent-input .money-input {
     background var(--dur-sm) ease;
 }
 
+.collapsible-section__actions {
+  display: flex;
+  flex: none;
+  gap: 0.35rem;
+}
+
 .collapsible-section__chevron svg {
   width: 1.15rem;
   height: 1.15rem;
@@ -3297,9 +3303,17 @@ a.carousel__body {
   white-space: pre-wrap;
 }
 
-/* Primeiros passos: card on Início, plain list in Configurações › Cadastro. */
+/* Primeiros passos: collapsible card on Início, plain list in Configurações › Cadastro. */
 .onboarding {
   padding: 0.85rem 0.75rem 0.5rem;
+}
+
+.section.collapsible-section.onboarding {
+  padding: 0.6rem 0.75rem;
+}
+
+.onboarding .collapsible-section__body {
+  padding-top: 0.35rem;
 }
 
 @media (min-width: 600px) {

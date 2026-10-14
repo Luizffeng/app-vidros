@@ -23,7 +23,7 @@ React UI. No price formulas and no Supabase queries except `EntryScreen` (sign-i
 | `ExpiredNotice.tsx` | Modal opened by `blocked()` in `App.tsx` when the account is read-only; WhatsApp links from `src/data/support.ts`. |
 | `SupportScreen.tsx` | `/ajuda`: WhatsApp (`src/data/support.ts`) and suggestions via `useAccess().accounts`. Works read-only. |
 | `HomeFooter.tsx` | Início footer: Fale com a gente, Novidades, Termos, Privacidade, company line (`src/data/company.ts`), `__APP_VERSION__`, and "Excluir minha conta e dados" (admin, `ConfirmPop` + EXCLUIR). |
-| `OnboardingCard.tsx` | "Primeiros passos" card on Início and `OnboardingTaskList` (also in Configurações › Cadastro after "Dispensar"). Tasks come from `onboardingTasks`; `App.tsx` opens each one. |
+| `OnboardingCard.tsx` | "Primeiros passos" card on Início (`CollapsibleSection`, X only when open, dismiss `Modal`) and `OnboardingTaskList` (also in Configurações › Cadastro after "Dispensar para sempre"). Tasks come from `onboardingTasks`; `App.tsx` opens each one. |
 | `PdfPreview.tsx` | pdf.js preview of a blob. |
 | `Dropdown.tsx`, `Modal.tsx`, `SearchField.tsx`, `useDismiss.ts` | Shared widgets. `Dropdown` (filters, catalog table picker) and `DropdownField` (form field with caption) replace native `<select>`. `Modal` plays its exit on Fechar/Esc/backdrop/device back before calling `onClose`. `Modal` and `useDismiss` call `useBackLayer`, so every overlay built on them takes one history entry. |
 | `usePresence.ts` | `usePresence(open, exit)` / `<Presence>` keep an overlay mounted with `data-state="closing"` for its exit; `motionMs` reads `--dur-*`. |
@@ -39,7 +39,7 @@ One way per job. Reuse these before writing new markup or CSS; if a case does no
 | Square icon-only button | `IconButton` (`label` is the aria-label and title; `size` md/sm; `tone` default/edit/danger/danger-solid/revise) | raw `btn btn-icon`, `.icon-btn` |
 | Button with icon and text | `className="btn … with-icon"`, icon first. Disabled with a reason: `ActionButton` in `App.tsx` | per-button flex/svg rules |
 | Notice (saved, error, outdated, draft) | `Banner` (`tone` ok/warn/error; `actions` for buttons, which wrap under the text on narrow screens). Errors get `role="alert"`, others `role="status"` | `div.banner.ok`, `outdated-banner`, custom grids |
-| Card with a title | `Section` (`title`, `count`, `hint`, `actions`); collapsible: `CollapsibleSection` (`title`, `count`) | hand-built `section` + `h2` + `.section-head` |
+| Card with a title | `Section` (`title`, `count`, `hint`, `actions`); collapsible: `CollapsibleSection` (`title`, `count`, `actions` shown only while open) | hand-built `section` + `h2` + `.section-head` |
 | Pick one of a list | `DropdownField` in forms, `Dropdown` in toolbars. The list opens upward when the scroll area has no room below | native `<select>`; wrapping a `Dropdown` in `<label>` (re-clicks the button on pick) |
 | Form layout | `.grid` container (2 columns, 1 under 420px; `.grid--pairs` keeps 2 for short values) with `.full` for full-width rows; `.field-pair--half`/`--trail`/`--cep`/`--number`/`--name` for rows that stay side by side on phones; a lone short value is `.inline-field`; a single checkbox is `.check-field__box--row` | new column classes per form |
 

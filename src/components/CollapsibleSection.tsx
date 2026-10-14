@@ -3,12 +3,15 @@ import { useState, type ReactNode } from 'react'
 export function CollapsibleSection({
   title,
   count,
+  actions,
   defaultOpen = false,
   className,
   children,
 }: {
   title: ReactNode
   count?: ReactNode
+  /** Buttons before the chevron, shown only while open. Clicking them does not toggle. */
+  actions?: ReactNode
   defaultOpen?: boolean
   className?: string
   children: ReactNode
@@ -25,6 +28,11 @@ export function CollapsibleSection({
       <summary className="collapsible-section__summary" onClick={() => setAnimate(true)}>
         <span className="collapsible-section__heading">{title}</span>
         {count != null && <span className="pill">{count}</span>}
+        {actions && open && (
+          <span className="collapsible-section__actions" onClick={(e) => e.preventDefault()}>
+            {actions}
+          </span>
+        )}
         <span className="collapsible-section__chevron" aria-hidden>
           <ChevronIcon />
         </span>

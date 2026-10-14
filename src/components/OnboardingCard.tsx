@@ -1,5 +1,8 @@
+import { useState } from 'react'
 import type { OnboardingTask, OnboardingTaskId } from '../domain/onboarding'
-import { Section } from './Section'
+import { CollapsibleSection } from './CollapsibleSection'
+import { IconButton } from './IconButton'
+import { Modal } from './Modal'
 
 const HINTS: Record<OnboardingTaskId, string> = {
   loja: 'Nome, telefone e logo no orçamento',
@@ -47,22 +50,50 @@ export function OnboardingCard({
 }: {
   tasks: readonly OnboardingTask[]
   onOpen: (task: OnboardingTask) => void
-  onDismiss: () => void
+  /** `forever`: grava no cadastro; senão só esconde até abrir o app de novo */
+  onDismiss: (forever: boolean) => void
 }) {
+  const [confirming, setConfirming] = useState(false)
   const done = tasks.filter((t) => t.done).length
   return (
-    <Section
-      className="onboarding"
-      title="Primeiros passos"
-      count={`${done} de ${tasks.length}`}
-      actions={
-        <button type="button" className="btn link" onClick={onDismiss}>
-          Dispensar
-        </button>
-      }
-    >
-      <OnboardingTaskList tasks={tasks} onOpen={onOpen} />
-    </Section>
+    <>
+      <CollapsibleSection
+        className="onboarding"
+        title="Primeiros passos"
+        count={`${done} de ${tasks.length}`}
+        actions={
+          <IconButton label="Fechar primeiros passos" size="sm" onClick={() => setConfirming(true)}>
+            <CloseIcon />
+          </IconButton>
+        }
+      >
+        <OnboardingTaskList tasks={tasks} onOpen={onOpen} />
+      </CollapsibleSection>
+      {confirming && (
+        <Modal className="modal--notice" title="Fechar primeiros passos?" onClose={() => setConfirming(false)}>
+          <p>
+            <strong>Desta vez:</strong> o card volta quando você abrir o app de novo.{' '}
+            <strong>Para sempre:</strong> o que falta fica em Configurações › Cadastro.
+          </p>
+          <div className="modal__actions">
+            <button type="button" className="btn primary" onClick={() => onDismiss(false)}>
+              Dispensar desta vez
+            </button>
+            <button type="button" className="btn" onClick={() => onDismiss(true)}>
+              Dispensar para sempre
+            </button>
+          </div>
+        </Modal>
+      )}
+    </>
+  )
+}
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
   )
 }
 

@@ -90,9 +90,15 @@ try {
   check('conta criada em teste', acc?.plan === 'trial' && acc.whatsapp === '37999990000' && !acc.marketing_opt_in_at)
 
   // Primeiros passos: catálogo de exemplo, loja já cadastrada
-  const card = page.getByRole('region', { name: 'Primeiros passos' })
+  const card = page.locator('.home .onboarding')
+  const closeCard = card.getByRole('button', { name: 'Fechar primeiros passos' })
   check('card de primeiros passos', await card.isVisible())
   check('loja já conta como feita', (await card.locator('.pill').innerText()) === '1 de 5')
+  check('card fechado esconde tarefas e X', !(await card.getByRole('button', { name: /Seus vidros/ }).isVisible()) && (await closeCard.count()) === 0)
+  await page.screenshot({ path: join(OUT, 'onboarding-fechado.png') })
+  await card.locator('summary').click()
+  await closeCard.waitFor()
+  check('card aberto mostra o X', true)
   await card.getByRole('button', { name: /Seus vidros/ }).click()
   await page.waitForURL(/\/catalogo\/vidros$/)
   const examples = page.getByText(/preços? ainda (é|são) de exemplo/)
@@ -158,9 +164,43 @@ try {
   await page.goto(`${BASE}/`, { waitUntil: 'networkidle' })
   await h1(page, 'Início')
   check('primeiro orçamento conta como feito', (await card.locator('.pill').innerText()) === '3 de 5')
+  await card.locator('summary').click()
   await page.screenshot({ path: join(OUT, 'onboarding-inicio.png') })
-  await card.getByRole('button', { name: 'Dispensar' }).click()
+  const dismiss = page.getByRole('dialog', { name: 'Fechar primeiros passos?' })
+  await closeCard.click()
+  await dismiss.waitFor()
+  check('X pergunta antes de fechar', (await card.locator('summary').count()) === 1)
+  await page.screenshot({ path: join(OUT, 'onboarding-dispensar.png') })
+  await dismiss.getByRole('button', { name: 'Fechar' }).click()
+  await dismiss.waitFor({ state: 'detached' })
+  check('Fechar no aviso mantém o card', await card.isVisible())
+  await closeCard.click()
+  await dismiss.getByRole('button', { name: 'Dispensar desta vez' }).click()
   await card.waitFor({ state: 'detached' })
+  await page.reload({ waitUntil: 'networkidle' })
+  await h1(page, 'Início')
+  check('desta vez: some até abrir o app de novo', (await card.count()) === 0)
+  const again = await browser.newContext({
+    storageState: await page.context().storageState(),
+    viewport: { width: 360, height: 640 },
+  })
+  const reopened = await again.newPage()
+  await reopened.goto(`${BASE}/`, { waitUntil: 'networkidle' })
+  await h1(reopened, 'Início')
+  const card2 = reopened.locator('.home .onboarding')
+  check('desta vez: volta ao abrir o app', await card2.isVisible())
+  await card2.locator('summary').click()
+  await card2.getByRole('button', { name: 'Fechar primeiros passos' }).click()
+  await reopened.getByRole('dialog').getByRole('button', { name: 'Dispensar para sempre' }).click()
+  await card2.waitFor({ state: 'detached' })
+  let dismissedAt
+  for (let i = 0; i < 25 && !dismissedAt; i++) {
+    const { data } = await admin.from('settings').select('payload').eq('account_id', acc.id).single()
+    dismissedAt = data?.payload?.onboardingDismissedAt
+    if (!dismissedAt) await reopened.waitForTimeout(200)
+  }
+  check('para sempre: gravado no cadastro', Boolean(dismissedAt))
+  await again.close()
   await page.goto(`${BASE}/configuracoes/cadastro`, { waitUntil: 'networkidle' })
   const pendingList = page.getByRole('region', { name: 'Primeiros passos' })
   check(

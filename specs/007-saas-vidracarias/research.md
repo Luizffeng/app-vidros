@@ -78,7 +78,7 @@ Each entry: Decision, Rationale, Alternatives considered.
 | Mão de obra e margem | `config.exemplo` absent |
 | Seu primeiro orçamento | at least one emitted quote |
 
-Only "Dispensar" is stored: `AppSettings.onboardingDismissedAt?: string`. Existing accounts (Forte Vidros) have no `exemplo` flags and emitted quotes, so every task is already done and the card never shows (FR-030) without a special case. Rows without a price are not used in a quote, so they do not hold a task open. Local mode (IndexedDB, real seed) never shows the card.
+Only "Dispensar para sempre" is stored: `AppSettings.onboardingDismissedAt?: string`. "Dispensar desta vez" lives in `sessionStorage` (`src/data/onboardingHidden.ts`), so the card returns when the app is opened again. Existing accounts (Forte Vidros) have no `exemplo` flags and emitted quotes, so every task is already done and the card never shows (FR-030) without a special case. Rows without a price are not used in a quote, so they do not hold a task open. Local mode (IndexedDB, real seed) never shows the card.
 
 **Revised 2026-10-14**: no `/primeiros-passos/:tarefa` screens. Each task opens the screen that already edits it: Sua loja → Configurações › Cadastro; Seus vidros → Catálogo › Vidros; ferragens → first of Kit Box / Acessórios / Alumínios that still has example prices; Mão de obra e margem → Catálogo › Mão de obra / margem; Seu primeiro orçamento → new quote. Catálogo shows a warn `Banner` per tab with the example count and "Confirmar preços" (clears the flags of that tab and saves). Fewer screens to keep in sync, and the user learns the real place to change prices.
 
