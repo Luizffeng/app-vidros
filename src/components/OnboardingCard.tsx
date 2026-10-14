@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { OnboardingTask, OnboardingTaskId } from '../domain/onboarding'
+import { onboardingCollapsedThisSession, setOnboardingCollapsed } from '../data/onboardingHidden'
 import { CollapsibleSection } from './CollapsibleSection'
 import { IconButton } from './IconButton'
 import { Modal } from './Modal'
@@ -19,13 +20,14 @@ export function OnboardingTaskList({
   tasks: readonly OnboardingTask[]
   onOpen: (task: OnboardingTask) => void
 }) {
+  const next = tasks.find((t) => !t.done)
   return (
     <ul className="onboarding__list">
       {tasks.map((task) => (
         <li key={task.id}>
           <button
             type="button"
-            className={`onboarding__task${task.done ? ' onboarding__task--done' : ''}`}
+            className={`onboarding__task${task.done ? ' onboarding__task--done' : ''}${task === next ? ' onboarding__task--next' : ''}`}
             onClick={() => onOpen(task)}
           >
             <span className="onboarding__mark" aria-hidden="true">
@@ -60,6 +62,8 @@ export function OnboardingCard({
     <>
       <CollapsibleSection
         className={next ? 'onboarding onboarding--attention' : 'onboarding onboarding--done'}
+        defaultOpen={next != null && !onboardingCollapsedThisSession()}
+        onToggle={(open) => setOnboardingCollapsed(!open)}
         title={
           <span className="onboarding__title">
             <span>{next ? 'Primeiros passos' : 'Tudo pronto!'}</span>

@@ -3377,7 +3377,7 @@ a.carousel__body {
   color: var(--accent-2);
 }
 
-/* Glow pulses three times when Início opens, only while closed. Opacity only (motion rules). */
+/* Glow pulses three times when Início opens. Opacity only (motion rules). */
 @keyframes onboarding-glow {
   50% {
     opacity: 1;
@@ -3385,7 +3385,7 @@ a.carousel__body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .onboarding--attention:not([open])::after {
+  .onboarding--attention::after {
     content: '';
     position: absolute;
     inset: -1px;
@@ -3481,11 +3481,23 @@ a.carousel__body {
   color: var(--muted);
 }
 
+.onboarding__task--next {
+  background: rgba(212, 160, 23, 0.1);
+}
+
+.onboarding__task--next .onboarding__mark {
+  border-color: var(--accent);
+}
+
 .onboarding__chevron {
   flex: none;
   width: 1.1rem;
   height: 1.1rem;
   color: var(--muted);
+}
+
+.onboarding__task--next .onboarding__chevron {
+  color: var(--accent);
 }
 
 /* Entry, account setup and new password: one column of full-width controls. */

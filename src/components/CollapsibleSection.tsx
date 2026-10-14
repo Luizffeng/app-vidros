@@ -5,6 +5,7 @@ export function CollapsibleSection({
   count,
   actions,
   defaultOpen = false,
+  onToggle,
   className,
   children,
 }: {
@@ -13,6 +14,7 @@ export function CollapsibleSection({
   /** Buttons before the chevron, shown only while open. Clicking them does not toggle. */
   actions?: ReactNode
   defaultOpen?: boolean
+  onToggle?: (open: boolean) => void
   className?: string
   children: ReactNode
 }) {
@@ -23,7 +25,12 @@ export function CollapsibleSection({
     <details
       className={`section collapsible-section${animate ? ' collapsible-section--animate' : ''}${className ? ` ${className}` : ''}`}
       open={open}
-      onToggle={(e) => setOpen(e.currentTarget.open)}
+      onToggle={(e) => {
+        const next = e.currentTarget.open
+        if (next === open) return
+        setOpen(next)
+        onToggle?.(next)
+      }}
     >
       <summary className="collapsible-section__summary" onClick={() => setAnimate(true)}>
         <span className="collapsible-section__heading">{title}</span>
