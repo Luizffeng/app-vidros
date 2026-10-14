@@ -1060,19 +1060,25 @@ label .percent-input .money-input {
   line-height: 1.4;
 }
 
-/* Arrow on the border, centered under the button. */
-.tip-pop > .confirm-pop::before {
+/* Arrow centered under the button: a gold triangle whose base sits on the outer edge of the
+   border, and a fill triangle 1px lower that hides the border line under the base. */
+.tip-pop > .confirm-pop::before,
+.tip-pop > .confirm-pop::after {
   content: '';
   position: absolute;
-  top: -0.4rem;
-  right: calc(var(--control-h) / 2 - 0.4rem);
-  width: 0.8rem;
-  height: 0.8rem;
-  border-top: 1px solid rgba(212, 160, 23, 0.7);
-  border-left: 1px solid rgba(212, 160, 23, 0.7);
-  border-top-left-radius: 3px;
-  background: #152824;
-  transform: rotate(45deg);
+  right: calc(var(--control-h) / 2 - 0.5rem - 1px);
+  border: 0.5rem solid transparent;
+  pointer-events: none;
+}
+
+.tip-pop > .confirm-pop::before {
+  top: calc(-1rem - 1px);
+  border-bottom-color: rgba(212, 160, 23, 0.7);
+}
+
+.tip-pop > .confirm-pop::after {
+  top: -1rem;
+  border-bottom-color: #152824;
 }
 
 .tip-pop__title {
@@ -1086,7 +1092,8 @@ label .percent-input .money-input {
 }
 
 .tip-pop > .confirm-pop .confirm-pop__actions .btn {
-  flex: 1;
+  width: 33%;
+  min-width: 6rem;
   min-height: 2.25rem;
   font-weight: 600;
 }
