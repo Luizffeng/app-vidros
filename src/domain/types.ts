@@ -28,7 +28,6 @@ export interface PricingConfig {
     maxiarAvulso: number
   }
   boxDefaultHeightM: number
-  boxSiliconeQty: number
   defaultMarkup: Record<Exclude<ProductKind, 'custom'>, number>
   /** Mão de obra e margem ainda no valor do catálogo de exemplo */
   exemplo?: boolean
@@ -219,6 +218,8 @@ export interface PivotanteInput extends ItemNote, ItemLaborRate {
   thicknessMm: string
   profileColor: string
   hasLatch: boolean
+  /** Cantoneira da porta. Ausente = incluída (itens antigos). */
+  hasAluminum?: boolean
   markup: number
   extras: ItemExtra[]
 }

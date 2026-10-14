@@ -52,6 +52,13 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Done
 
+### 2026-10-14
+
+- [x] `ui` **Agrupar revisões na lista:** um cartão por número de orçamento (`groupRevisions`, `QuoteList.tsx`) com a revisão mais recente: código e valor, cliente e data, status (texto colorido) e "N revisões". Toque expande as revisões da mais recente para a mais antiga; com uma só, abre direto. Filtros contam grupos. Desktop: cartões com a mesma altura e revisões abrindo por cima das linhas de baixo (fecha com clique fora/Esc); celular empurra a lista
+- [x] `ui` **Detalhes do custo no modal do item:** botão abaixo do resumo ao adicionar/editar item; edita preço (só neste orçamento ou catálogo) e mão de obra antes de salvar. Esc fecha só a janela de cima
+- [x] `fix` **Box com 1 silicone:** box passa de 1,5 para 1 `SILICONE ACT` (−R$ 10 de custo, −R$ 13 no preço com margem 30%). `boxSiliconeQty` sai do config; o catálogo já salvo perde a chave ao carregar, sem SQL. Rascunhos com box mostram "Atualizar valores"; emitidos não mudam
+- [x] `feat` **Pivotante sem alumínios da porta:** caixa "Incluir alumínios da porta" abaixo de "Incluir trinco"; item novo vem com as duas marcadas (melhor sobrar no preço do que esquecer). Desmarcada tira a cantoneira do custo e do detalhamento. Itens antigos seguem com alumínios
+
 ### 2026-10-10
 
 - [x] `ui` **Mostrar senha no login:** botão de olho dentro do campo Senha alterna mostrar/ocultar sem tirar o foco (o teclado do celular não fecha)

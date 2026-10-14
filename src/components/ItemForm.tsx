@@ -149,6 +149,7 @@ function draftInput(fields: {
   thicknessMm: string
   subtype: CorrerSubtype
   hasLatch: boolean
+  hasAluminum: boolean
   finish: EspelhoFinish
   espelhoColor: string
   espelhoThickness: string
@@ -205,6 +206,7 @@ function draftInput(fields: {
         thicknessMm: fields.thicknessMm,
         profileColor: fields.profileColor,
         hasLatch: fields.hasLatch,
+        hasAluminum: fields.hasAluminum,
         markup: mk,
         extras: extras ?? [],
       }
@@ -278,6 +280,7 @@ function seedFromInput(
   thicknessMm: string
   subtype: CorrerSubtype
   hasLatch: boolean
+  hasAluminum: boolean
   finish: EspelhoFinish
   espelhoColor: string
   espelhoThickness: string
@@ -296,6 +299,7 @@ function seedFromInput(
     thicknessMm: cfg.temperedThicknessesMm[1] ?? '08',
     subtype: 'J2F' as CorrerSubtype,
     hasLatch: true,
+    hasAluminum: true,
     finish: 'Espelho Lapidado' as EspelhoFinish,
     espelhoColor: 'Prata',
     espelhoThickness: '04',
@@ -338,6 +342,7 @@ function seedFromInput(
         thicknessMm: initial.thicknessMm,
         profileColor: initial.profileColor,
         hasLatch: initial.hasLatch,
+        hasAluminum: initial.hasAluminum !== false,
         markup: pctStr(initial.markup),
       }
     case 'maxiar':
@@ -450,6 +455,7 @@ export function ItemForm({
   const [thicknessMm, setThicknessMm] = useState(start.thicknessMm)
   const [subtype, setSubtype] = useState<CorrerSubtype>(start.subtype)
   const [hasLatch, setHasLatch] = useState(start.hasLatch)
+  const [hasAluminum, setHasAluminum] = useState(start.hasAluminum ?? true)
   const [finish, setFinish] = useState<EspelhoFinish>(start.finish)
   const [espelhoColor, setEspelhoColor] = useState(start.espelhoColor)
   const [espelhoThickness, setEspelhoThickness] = useState(start.espelhoThickness)
@@ -473,6 +479,7 @@ export function ItemForm({
     thicknessMm,
     subtype,
     hasLatch,
+    hasAluminum,
     finish,
     espelhoColor,
     espelhoThickness,
@@ -548,6 +555,7 @@ export function ItemForm({
       thicknessMm,
       subtype,
       hasLatch,
+      hasAluminum,
       finish,
       espelhoColor,
       espelhoThickness,
@@ -577,6 +585,7 @@ export function ItemForm({
     thicknessMm,
     subtype,
     hasLatch,
+    hasAluminum,
     finish,
     espelhoColor,
     espelhoThickness,
@@ -629,6 +638,7 @@ export function ItemForm({
       thicknessMm,
       subtype,
       hasLatch,
+      hasAluminum,
       finish,
       espelhoColor,
       espelhoThickness,
@@ -837,6 +847,16 @@ export function ItemForm({
                 type="checkbox"
                 checked={hasLatch}
                 onChange={(e) => setHasLatch(e.target.checked)}
+              />
+            </label>
+          )}
+          {kind === 'pivotante' && (
+            <label className="check-field__box check-field__box--row full">
+              <span>Incluir alumínios da porta</span>
+              <input
+                type="checkbox"
+                checked={hasAluminum}
+                onChange={(e) => setHasAluminum(e.target.checked)}
               />
             </label>
           )}

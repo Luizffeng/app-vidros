@@ -6,11 +6,17 @@ import acessorios from './seed/acessorios.json'
 import aluminios from './seed/aluminios.json'
 
 export function normalizePricingConfig(raw: PricingConfig): PricingConfig {
-  // Remove legado quoteValidityDays se existir em IndexedDB antigo
-  const { quoteValidityDays: _legacy, ...rest } = raw as PricingConfig & {
+  // Remove legados: quoteValidityDays (IndexedDB antigo), boxSiliconeQty (box usa 1 silicone)
+  const {
+    quoteValidityDays: _legacyDays,
+    boxSiliconeQty: _legacySilicone,
+    ...rest
+  } = raw as PricingConfig & {
     quoteValidityDays?: number
+    boxSiliconeQty?: number
   }
-  void _legacy
+  void _legacyDays
+  void _legacySilicone
   return rest
 }
 

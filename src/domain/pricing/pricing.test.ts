@@ -30,9 +30,9 @@ describe('pricing parity with spreadsheet examples', () => {
     expect(r.breakdown.labor).toBeCloseTo(159.6, 2)
     expect(r.breakdown.glass).toBeCloseTo(361.70395, 2)
     expect(r.breakdown.hardware).toBeCloseTo(156.8, 2)
-    expect(r.breakdown.accessories).toBeCloseTo(30, 2)
-    expect(r.breakdown.totalCost).toBeCloseTo(708.10395, 2)
-    expect(r.breakdown.finalPrice).toBeCloseTo(920.535135, 2)
+    expect(r.breakdown.accessories).toBeCloseTo(20, 2)
+    expect(r.breakdown.totalCost).toBeCloseTo(698.10395, 2)
+    expect(r.breakdown.finalPrice).toBeCloseTo(907.535135, 2)
   })
 
   it('calc_BOX 120cm Incolor/Fosco markup 30%', () => {
@@ -47,9 +47,9 @@ describe('pricing parity with spreadsheet examples', () => {
     expect(r.breakdown.labor).toBeCloseTo(136.8, 2)
     expect(r.breakdown.glass).toBeCloseTo(311.81375, 2)
     expect(r.breakdown.hardware).toBeCloseTo(117, 2)
-    expect(r.breakdown.accessories).toBeCloseTo(30, 2)
-    expect(r.breakdown.totalCost).toBeCloseTo(595.61375, 2)
-    expect(r.breakdown.finalPrice).toBeCloseTo(774.297875, 2)
+    expect(r.breakdown.accessories).toBeCloseTo(20, 2)
+    expect(r.breakdown.totalCost).toBeCloseTo(585.61375, 2)
+    expect(r.breakdown.finalPrice).toBeCloseTo(761.297875, 2)
   })
 
   it('calc_BOX 140cm Incolor/Preto markup 30%', () => {
@@ -62,7 +62,7 @@ describe('pricing parity with spreadsheet examples', () => {
       extras: [],
     })
     expect(r.breakdown.hardware).toBeCloseTo(156.81, 2)
-    expect(r.breakdown.finalPrice).toBeCloseTo(920.548135, 2)
+    expect(r.breakdown.finalPrice).toBeCloseTo(907.548135, 2)
   })
 
   it('calc_CORRER J4F 1950x754 Verde 06 Fosco', () => {
@@ -150,6 +150,35 @@ describe('pricing parity with spreadsheet examples', () => {
     expect(r.breakdown.glass).toBeCloseTo(234.36, 2)
     expect(r.breakdown.hardware).toBeCloseTo(139.2, 1)
     expect(r.breakdown.finalPrice).toBeCloseTo(630.578, 2)
+  })
+
+  it('calc_PIVOTANTE 800x2100 Incolor 08 Fosco without door aluminum', () => {
+    const base = {
+      kind: 'pivotante' as const,
+      widthMm: 800,
+      heightMm: 2100,
+      glassColor: 'Incolor',
+      thicknessMm: '08',
+      profileColor: 'Fosco',
+      hasLatch: false,
+      markup: 0.3,
+      extras: [],
+    }
+    const legacy = pricePivotante(catalog, base)
+    const withAluminum = pricePivotante(catalog, { ...base, hasAluminum: true })
+    const r = pricePivotante(catalog, { ...base, hasAluminum: false })
+
+    expect(legacy.breakdown).toEqual(withAluminum.breakdown)
+    expect(withAluminum.breakdown.aluminum).toBeGreaterThan(0)
+    expect(r.breakdown.aluminum).toBe(0)
+    expect(r.bom.some((l) => l.category === 'aluminio')).toBe(false)
+    expect(r.breakdown.glass).toBeCloseTo(withAluminum.breakdown.glass, 6)
+    expect(r.breakdown.hardware).toBeCloseTo(withAluminum.breakdown.hardware, 6)
+    expect(r.breakdown.labor).toBeCloseTo(withAluminum.breakdown.labor, 6)
+    expect(r.breakdown.finalPrice).toBeCloseTo(
+      withAluminum.breakdown.finalPrice - withAluminum.breakdown.aluminum * 1.3,
+      6,
+    )
   })
 
   it('calc_MAXIAR 540x640 Incolor 08 Fosco', () => {

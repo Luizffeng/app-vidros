@@ -11,6 +11,8 @@ export interface ItemFormState {
   thicknessMm: string
   subtype: CorrerSubtype
   hasLatch: boolean
+  /** Ausente em rascunhos salvos antes do campo existir = marcado. */
+  hasAluminum?: boolean
   finish: EspelhoFinish
   espelhoColor: string
   espelhoThickness: string

@@ -71,9 +71,9 @@ Rules encoded in the current code. Locations are the evidence. Unclear items are
 
 Dispatch: `priceItem` in `src/domain/pricing/index.ts`. Shared helpers: `src/domain/pricing/math.ts`. Parity examples: `src/domain/pricing/pricing.test.ts`.
 
-- Box (`box.ts`): height is `config.boxDefaultHeightM` (not an input). Glass type `Box`, thickness code `08`. Kit size is the smallest `kitBoxSizesCm` ≥ span, else the largest. Silicone accessory `SILICONE ACT` times `boxSiliconeQty`. Labor is span(m) × height × `labor.boxPerM2`. `labor.boxAvulso` is not used.
+- Box (`box.ts`): height is `config.boxDefaultHeightM` (not an input). Glass type `Box`, thickness code `08`. Kit size is the smallest `kitBoxSizesCm` ≥ span, else the largest. One silicone accessory `SILICONE ACT` (was 1.5 via `boxSiliconeQty` until 2026-10-14; the normalizer drops that key from saved catalogs). Labor is span(m) × height × `labor.boxPerM2`. `labor.boxAvulso` is not used.
 - Correr (`correr.ts`): glass type `Temperado`. 2-leaf vs 4-leaf changes glass count and profile meters. Aluminum and hardware costs multiply by `(1 + aluminum color surcharge)`. Labor is vão area × `labor.temperedPerM2`. Profile color must exist in `aluminumColors` or pricing throws.
-- Pivotante (`pivotante.ts`): tempered glass, aluminum surcharge on aluminum and hardware. Latch accessory `1335` quantity is 1 only when `hasLatch` is true. Labor is tempered per m².
+- Pivotante (`pivotante.ts`): tempered glass, aluminum surcharge on aluminum and hardware. Latch accessory `1335` quantity is 1 only when `hasLatch` is true. Door aluminum (cantoneira `CANT 5/8"`) is left out only when `hasAluminum` is `false`; missing means included (older items). Labor is tempered per m².
 - Maxim-ar (`maxiar.ts`): glass billed at least 0.25 m². Labor is the flat `labor.maxiarAvulso`, not per m². Cantoneira code `CANT 5/8"` or a description containing `CANTONEIRA 15`.
 - Fixo and espelho (`fixoEspelho.ts`): glass billed at least 0.25 m². Fixo adds silicone `SILICONE ACT`, quantity `max(1, ceil(vão area))`. Espelho looks up vidro by `finish` (`Espelho Lapidado` or `Espelho Bisotado`) and has no silicone line. Both use `labor.temperedPerM2` on vão area (before the 0.25 glass minimum).
 
