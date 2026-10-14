@@ -2978,7 +2978,7 @@ a.btn.primary {
    2-column grid of square tiles. */
 .carousel {
   position: relative;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65rem;
   border-radius: var(--radius);
   border: 1px solid rgba(212, 160, 23, 0.35);
   background:
@@ -3309,11 +3309,94 @@ a.carousel__body {
 }
 
 .section.collapsible-section.onboarding {
-  padding: 0.6rem 0.75rem;
+  position: relative;
+  margin-bottom: 0.65rem;
+  padding: 0.4rem 0.75rem;
+  border-color: rgba(212, 160, 23, 0.45);
+  background:
+    radial-gradient(140% 180% at 0% 0%, rgba(212, 160, 23, 0.12), transparent 60%),
+    var(--surface);
+}
+
+.section.collapsible-section.onboarding--done {
+  border-color: rgba(62, 207, 142, 0.4);
+  background: var(--surface);
 }
 
 .onboarding .collapsible-section__body {
   padding-top: 0.35rem;
+}
+
+.onboarding__title {
+  display: grid;
+  gap: 0.05rem;
+}
+
+.onboarding__next {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.onboarding--done .onboarding__next {
+  color: var(--accent-2);
+}
+
+.onboarding[open] .onboarding__next {
+  display: none;
+}
+
+.onboarding__bar {
+  display: block;
+  height: 4px;
+  margin-top: 0.2rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.onboarding__bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+.onboarding--done .onboarding__bar > span {
+  background: var(--accent-2);
+}
+
+.onboarding .collapsible-section__summary > .pill {
+  background: rgba(212, 160, 23, 0.18);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.onboarding--done .collapsible-section__summary > .pill {
+  background: rgba(62, 207, 142, 0.16);
+  color: var(--accent-2);
+}
+
+/* Glow pulses three times when Início opens, only while closed. Opacity only (motion rules). */
+@keyframes onboarding-glow {
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .onboarding--attention:not([open])::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    box-shadow:
+      0 0 0 1px rgba(212, 160, 23, 0.9),
+      0 0 22px rgba(212, 160, 23, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    animation: onboarding-glow 1.8s ease-in-out 0.6s 3;
+  }
 }
 
 @media (min-width: 600px) {

@@ -109,7 +109,7 @@ Na virada para o SaaS, todos os dados atuais (orçamentos, catálogo e versões 
 
 1. **Given** dados de produção antes da virada, **When** o dono entra depois da virada, **Then** vê os mesmos orçamentos, com os mesmos números e totais.
 2. **Given** último número emitido N, **When** emite o próximo após a virada, **Then** recebe o número seguinte da sequência atual.
-3. **Given** conta da Forte Vidros, **When** a virada termina, **Then** ela não passa por teste nem por "Primeiros passos" e fica ativa sem prazo até a fase 2.
+3. **Given** conta da Forte Vidros, **When** a virada termina, **Then** ela não passa por teste e fica ativa sem prazo até a fase 2; vê o cartão "Primeiros passos" já como "Tudo pronto!" (5 de 5) até dispensar (decisão do dono, 2026-10-14).
 
 ---
 
@@ -213,7 +213,7 @@ Abaixo dos blocos do Início, ao rolar, um rodapé discreto com: Fale com a gent
 
 - **FR-012**: Conta nova MUST começar com um catálogo de exemplo completo o bastante para orçar todos os tipos de item, com preços redondos (ex.: 140,00, 90,00, 230,00, 35,00) próximos dos preços reais de mercado, de modo que orçamentos feitos sem ajuste tragam totais plausíveis.
 - **FR-013**: Preços do catálogo de exemplo MUST aparecer marcados como "exemplo" até o usuário confirmá-los ou alterá-los.
-- **FR-014**: O Início MUST mostrar o cartão "Primeiros passos" com as tarefas da User Story 2, progresso e opção "Dispensar"; tarefas pendentes MUST continuar acessíveis em Configurações.
+- **FR-014**: O Início MUST mostrar o cartão "Primeiros passos" com as tarefas da User Story 2, progresso e opção de fechar ("Dispensar desta vez" / "Dispensar para sempre"); com tudo concluído o cartão vira "Tudo pronto!" e fica até ser dispensado; tarefas pendentes MUST continuar acessíveis em Configurações.
 - **FR-015**: Ao emitir orçamento com preço ainda "exemplo", o app MUST avisar e oferecer revisar, sem bloquear a emissão.
 
 **Atendimento**
@@ -239,7 +239,7 @@ Abaixo dos blocos do Início, ao rolar, um rodapé discreto com: Fale com a gent
 **Migração**
 
 - **FR-029**: Todos os dados atuais MUST passar para a conta da Forte Vidros, preservando orçamentos, números, totais, versões de catálogo, configurações e logo.
-- **FR-030**: A conta da Forte Vidros MUST ficar ativa sem prazo de teste e sem "Primeiros passos".
+- **FR-030**: A conta da Forte Vidros MUST ficar ativa sem prazo de teste. O cartão "Primeiros passos" aparece com as tarefas já concluídas ("Tudo pronto!") até ser dispensado.
 
 **Institucional e LGPD**
 

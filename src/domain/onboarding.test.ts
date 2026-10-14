@@ -82,7 +82,7 @@ describe('onboardingTasks', () => {
       quote(catalog, [box], 'emitted'),
     ])
     expect(tasks.every((t) => t.done)).toBe(true)
-    expect(onboardingVisible(tasks, settings())).toBe(false)
+    expect(onboardingVisible(tasks, settings())).toBe(true)
   })
 
   it('linha sem preço ou inativa não segura a tarefa', () => {
@@ -94,10 +94,11 @@ describe('onboardingTasks', () => {
     expect(onboardingTasks(catalog, settings(), []).find((t) => t.id === 'vidros')?.done).toBe(true)
   })
 
-  it('dispensar esconde o card', () => {
+  it('só "Dispensar para sempre" esconde o card', () => {
     const tasks = onboardingTasks(example, settings(), [])
     expect(onboardingVisible(tasks, settings())).toBe(true)
     expect(onboardingVisible(tasks, settings({}, { onboardingDismissedAt: '2026-10-14T12:00:00Z' }))).toBe(false)
+    expect(onboardingVisible([], settings())).toBe(false)
   })
 })
 

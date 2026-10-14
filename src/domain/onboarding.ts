@@ -46,9 +46,9 @@ export function onboardingTasks(catalog: Catalog, settings: AppSettings, quotes:
   ]
 }
 
-/** Card no Início: até dispensar ou concluir tudo. */
+/** Card no Início até "Dispensar para sempre"; com tudo feito vira "Tudo pronto!". */
 export function onboardingVisible(tasks: readonly OnboardingTask[], settings: AppSettings): boolean {
-  return !settings.onboardingDismissedAt && tasks.some((t) => !t.done)
+  return tasks.length > 0 && !settings.onboardingDismissedAt
 }
 
 export interface ExampleUse {

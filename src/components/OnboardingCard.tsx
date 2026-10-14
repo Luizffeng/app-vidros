@@ -55,11 +55,22 @@ export function OnboardingCard({
 }) {
   const [confirming, setConfirming] = useState(false)
   const done = tasks.filter((t) => t.done).length
+  const next = tasks.find((t) => !t.done)
   return (
     <>
       <CollapsibleSection
-        className="onboarding"
-        title="Primeiros passos"
+        className={next ? 'onboarding onboarding--attention' : 'onboarding onboarding--done'}
+        title={
+          <span className="onboarding__title">
+            <span>{next ? 'Primeiros passos' : 'Tudo pronto!'}</span>
+            <span className="onboarding__next">
+              {next ? `Próximo: ${next.label}` : 'Sua loja está pronta para orçar.'}
+            </span>
+            <span className="onboarding__bar" aria-hidden="true">
+              <span style={{ width: `${(done / tasks.length) * 100}%` }} />
+            </span>
+          </span>
+        }
         count={`${done} de ${tasks.length}`}
         actions={
           <IconButton label="Fechar primeiros passos" size="sm" onClick={() => setConfirming(true)}>
