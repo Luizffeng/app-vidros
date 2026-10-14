@@ -6,16 +6,20 @@ import { priceItem } from '../domain/pricing'
 import { formatBrl } from '../domain/quote'
 import type {
   Catalog,
+  CatalogRef,
   CorrerSubtype,
   EspelhoFinish,
   ItemExtra,
   ItemInput,
+  LaborKey,
   MarginMode,
   PricingConfig,
   PricingResult,
   ProductKind,
+  Quote,
 } from '../domain/types'
 import { Banner } from './Banner'
+import { CostDetailModal } from './CostDetailModal'
 import { DropdownField, type DropdownOption } from './Dropdown'
 
 const CORRER_SUBTYPES: DropdownOption<CorrerSubtype>[] = [
@@ -129,10 +133,10 @@ function parsePositive(raw: string): number | null {
   return n
 }
 
-/** The form has no labor field; an edit keeps the item's own rate. */
-function keepLaborRate(input: ItemInput, initial?: ItemInput): ItemInput {
-  if (input.kind === 'custom' || !initial || initial.kind === 'custom' || initial.kind !== input.kind) return input
-  return initial.laborRate == null ? input : { ...input, laborRate: initial.laborRate }
+/** The form has no labor field: the item's own rate comes from Detalhes do custo or the edited item. */
+function withLaborRate(input: ItemInput, laborRate: number | undefined): ItemInput {
+  if (input.kind === 'custom' || laborRate == null) return input
+  return { ...input, laborRate }
 }
 
 function draftInput(fields: {
@@ -392,6 +396,16 @@ interface Props {
   submitLabel?: string
   hideTitle?: boolean
   lockKind?: ProductKind
+  /** Opens "Detalhes do custo" for the item being typed; prices it changes apply to the quote or catalog. */
+  costDetail?: {
+    quote: Quote
+    /** Catalog without the quote's own prices (`catalog` above already has them). */
+    catalog: Catalog
+    isAdmin: boolean
+    onSetOverride: (ref: CatalogRef, price: number | null) => Promise<void>
+    onUpdateCatalog: (ref: CatalogRef, price: number) => Promise<void>
+    onUpdateLaborCatalog: (key: LaborKey, rate: number) => Promise<void>
+  }
 }
 
 export function ItemForm({
@@ -406,6 +420,7 @@ export function ItemForm({
   submitLabel = 'Adicionar ao orçamento',
   hideTitle = false,
   lockKind,
+  costDetail,
 }: Props) {
   const cfg = catalog.config
   const [pristine] = useState((): ItemFormState => {
@@ -421,6 +436,7 @@ export function ItemForm({
         committed,
       })),
       note: initial?.note ?? '',
+      laborRate: initial && initial.kind !== 'custom' ? initial.laborRate : undefined,
     }
   })
   const start = initialState ?? pristine
@@ -444,6 +460,8 @@ export function ItemForm({
   const [customDesc, setCustomDesc] = useState(start.customDesc)
   const [customAmount, setCustomAmount] = useState(start.customAmount)
   const [note, setNote] = useState(start.note)
+  const [laborRate, setLaborRate] = useState(start.laborRate)
+  const [costOpen, setCostOpen] = useState(false)
 
   const formState: ItemFormState = {
     kind,
@@ -463,6 +481,7 @@ export function ItemForm({
     customDesc,
     customAmount,
     note,
+    laborRate,
   }
   const stateKey = JSON.stringify(formState)
   const onStateChangeRef = useRef(onStateChange)
@@ -483,7 +502,7 @@ export function ItemForm({
     customDesc,
     customAmount,
   })
-  const previewCache = useRef<{ kind: ProductKind; result: PricingResult } | null>(null)
+  const previewCache = useRef<{ kind: ProductKind; input: ItemInput; result: PricingResult } | null>(null)
 
   useEffect(() => {
     const id = window.setTimeout(() => {
@@ -517,8 +536,9 @@ export function ItemForm({
     return [...set]
   }, [catalog.vidros, finish, espelhoColor])
 
-  const preview = useMemo(() => {
-    const input = draftInput({
+  const priced = useMemo(() => {
+    const cached = () => (previewCache.current?.kind === kind ? previewCache.current : null)
+    const raw = draftInput({
       kind,
       spanCm: numSnap.spanCm,
       widthMm: numSnap.widthMm,
@@ -537,19 +557,18 @@ export function ItemForm({
       customAmount: numSnap.customAmount,
       requireDescription: false,
     })
-    if (!input) {
-      return previewCache.current?.kind === kind ? previewCache.current.result : null
-    }
+    if (!raw) return cached()
     try {
-      const result = priceItem(catalog, keepLaborRate(input, initial), marginMode)
-      previewCache.current = { kind, result }
-      return result
+      const input = withLaborRate(raw, laborRate)
+      const result = priceItem(catalog, input, marginMode)
+      previewCache.current = { kind, input, result }
+      return previewCache.current
     } catch {
-      return previewCache.current?.kind === kind ? previewCache.current.result : null
+      return cached()
     }
   }, [
     catalog,
-    initial,
+    laborRate,
     marginMode,
     kind,
     numSnap,
@@ -562,9 +581,11 @@ export function ItemForm({
     espelhoColor,
     espelhoThickness,
   ])
+  const preview = priced?.result ?? null
 
   const onKindChange = (k: ProductKind) => {
     setKind(k)
+    setLaborRate(undefined)
     if (k !== 'custom') {
       setMarkup(pctStr(cfg.defaultMarkup[k as keyof PricingConfig['defaultMarkup']]))
     }
@@ -628,7 +649,7 @@ export function ItemForm({
       return
     }
     const trimmedNote = note.trim()
-    const kept = keepLaborRate(input, initial)
+    const kept = withLaborRate(input, laborRate)
     onSubmit(trimmedNote ? { ...kept, note: trimmedNote } : kept)
     setFormError(null)
   }
@@ -947,7 +968,30 @@ export function ItemForm({
               </li>
             )}
           </ul>
+          {costDetail && kind !== 'custom' && (
+            <button type="button" className="item-block__cost-btn" onClick={() => setCostOpen(true)}>
+              Detalhes do custo
+            </button>
+          )}
         </div>
+      )}
+
+      {costDetail && costOpen && priced && (
+        <CostDetailModal
+          item={{ id: 'item-form', input: priced.input, result: priced.result }}
+          quote={costDetail.quote}
+          catalog={costDetail.catalog}
+          isAdmin={costDetail.isAdmin}
+          onClose={() => setCostOpen(false)}
+          onSetOverride={costDetail.onSetOverride}
+          onUpdateCatalog={costDetail.onUpdateCatalog}
+          onRecalc={async () => {}}
+          onSetLaborRate={async (rate) => setLaborRate(rate ?? undefined)}
+          onUpdateLaborCatalog={async (key, rate) => {
+            await costDetail.onUpdateLaborCatalog(key, rate)
+            setLaborRate(undefined)
+          }}
+        />
       )}
 
       <div className="item-form__actions">

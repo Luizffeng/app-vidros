@@ -60,6 +60,7 @@ import {
   withDefaultDdd,
 } from '../domain/brazil'
 import { bumpCatalogVersion, confirmed, sameRef, setCatalogPrice, withPriceOverrides } from '../domain/catalogEdit'
+import { groupRevisions } from '../domain/quoteGroups'
 import {
   exampleNames,
   exampleUseInQuote,
@@ -89,6 +90,7 @@ import { CollapsibleSection } from './CollapsibleSection'
 import { CostDetailModal } from './CostDetailModal'
 import { Dropdown } from './Dropdown'
 import { SearchField } from './SearchField'
+import { QuoteList } from './QuoteList'
 import { ITEM_KINDS, ItemForm } from './ItemForm'
 import { ItemBlockHead } from './ItemBlockHead'
 import { Modal } from './Modal'
@@ -181,6 +183,7 @@ export function App() {
   const [listStatus, setListStatus] = useState<'all' | 'emitted' | 'draft'>(() =>
     route.screen === 'quotes' ? (route.filter ?? 'all') : 'all',
   )
+  const [openGroups, setOpenGroups] = useState<ReadonlySet<string>>(() => new Set())
   const [notice, setNotice] = useState<string | null>(null)
   const dropQuoteOnLeaveRef = useRef(false)
   /** Quote set in state right before its route is pushed (the route may render first). */
@@ -301,11 +304,18 @@ export function App() {
       return hay.includes(q)
     })
   }, [quotes, listQuery])
-  const emittedCount = searchedQuotes.filter((q) => q.status === 'emitted').length
-  const filteredQuotes = useMemo(() => {
-    if (listStatus === 'all') return searchedQuotes
-    return searchedQuotes.filter((q) => (q.status === 'emitted') === (listStatus === 'emitted'))
-  }, [searchedQuotes, listStatus])
+  const listGroups = useMemo(() => {
+    const byStatus = (emitted: boolean) =>
+      groupRevisions(searchedQuotes.filter((q) => (q.status === 'emitted') === emitted))
+    return { all: groupRevisions(searchedQuotes), emitted: byStatus(true), draft: byStatus(false) }
+  }, [searchedQuotes])
+  const filteredGroups = listGroups[listStatus]
+  const toggleGroup = (number: string) =>
+    setOpenGroups((prev) => {
+      const next = new Set(prev)
+      if (!next.delete(number)) next.add(number)
+      return next
+    })
 
   const openNew = async () => {
     if (!catalog || blocked()) return
@@ -782,42 +792,27 @@ export function App() {
                 value={listStatus}
                 onChange={setListStatus}
                 options={[
-                  { value: 'all', label: `Todos (${searchedQuotes.length})` },
-                  { value: 'emitted', label: `Emitidos (${emittedCount})` },
-                  { value: 'draft', label: `Rascunhos (${searchedQuotes.length - emittedCount})` },
+                  { value: 'all', label: `Todos (${listGroups.all.length})` },
+                  { value: 'emitted', label: `Emitidos (${listGroups.emitted.length})` },
+                  { value: 'draft', label: `Rascunhos (${listGroups.draft.length})` },
                 ]}
               />
             </div>
           )}
           {quotes.length === 0 ? (
             <p className="muted">Nenhum orçamento ainda.</p>
-          ) : filteredQuotes.length === 0 ? (
+          ) : filteredGroups.length === 0 ? (
             <p className="muted">
               {listQuery.trim() ? 'Nenhum orçamento na busca.' : 'Nenhum orçamento nesse filtro.'}
             </p>
           ) : (
-            <ul className="quote-list">
-              {filteredQuotes.map((q) => (
-                <li key={q.id}>
-                  <button type="button" className="quote-card" onClick={() => void openQuote(q.id)}>
-                    <span className="quote-card__title">
-                      {formatQuoteCode(q.number, q.revision)}
-                    </span>
-                    <span className="quote-card__date">{quoteListDate(q)}</span>
-                    <span className="quote-card__meta">
-                      <span className="quote-card__name">{q.customer.name || 'Sem cliente'}</span>
-                      {' · '}
-                      <span
-                        className={`quote-card__status quote-card__status--${q.status === 'emitted' ? 'emitted' : 'draft'}`}
-                      >
-                        {q.status === 'emitted' ? 'Emitido' : 'Rascunho'}
-                      </span>
-                    </span>
-                    <span className="quote-card__total">{formatBrl(q.grandTotal)}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <QuoteList
+              groups={filteredGroups}
+              expanded={openGroups}
+              onToggle={toggleGroup}
+              onCollapse={() => setOpenGroups(new Set())}
+              onOpen={(id) => void openQuote(id)}
+            />
           )}
         </section>
 
@@ -1142,6 +1137,15 @@ export function App() {
               itemFormRef.current = { state, dirty }
             }}
             lockKind={itemModal.mode === 'edit' ? editingItem?.input.kind : itemModal.kind}
+            costDetail={{
+              quote,
+              catalog,
+              isAdmin,
+              onSetOverride: onSetPriceOverride,
+              onUpdateCatalog: onUpdateCatalogPrice,
+              onUpdateLaborCatalog: (key, rate) =>
+                onUpdateLaborCatalog(itemModal.mode === 'edit' ? itemModal.id : '', key, rate),
+            }}
             hideTitle
             submitLabel={itemModal.mode === 'edit' ? 'Salvar alterações' : 'Adicionar item'}
             onCancel={discardItemModal}
@@ -1509,11 +1513,6 @@ function focusCustomerName() {
     input.scrollIntoView({ block: 'center', behavior: 'smooth' })
     input.focus({ preventScroll: true })
   })
-}
-
-function quoteListDate(quote: Quote): string {
-  const iso = quote.status === 'emitted' ? quote.emittedAt ?? quote.updatedAt : quote.updatedAt
-  return new Date(iso).toLocaleDateString('pt-BR')
 }
 
 function WhatsAppShareModal({

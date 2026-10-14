@@ -19,6 +19,8 @@ export interface ItemFormState {
   customDesc: string
   customAmount: string
   note: string
+  /** Item's own labor rate set in Detalhes do custo; absent = catalog rate. */
+  laborRate?: number
 }
 
 /** Device-only; never part of the quote, its totals, PDF or share text. */
