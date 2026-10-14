@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { isCatalogItemActive, nextNumericId } from '../data/catalogItems'
 import { aluminioValorMetro, bumpCatalogVersion } from '../domain/catalogEdit'
+import { clearEditedExamples, confirmExampleTable, examplePending } from '../domain/onboarding'
 import type {
   Acessorio,
   Aluminio,
@@ -105,20 +106,29 @@ export function CatalogEditor({
   )
   useLeaveGuard(dirty, DISCARD_MESSAGE)
 
-  const save = async () => {
+  const edited = useMemo(() => clearEditedExamples(catalog, draft), [catalog, draft])
+  const pendingExamples =
+    tab === 'config' ? (edited.config.exemplo ? 1 : 0) : examplePending(edited, tab)
+
+  const save = async (confirmTab?: CatalogTab) => {
     try {
       setBusy(true)
       setError(null)
+      const base = confirmTab ? confirmExampleTable(edited, confirmTab) : edited
       const next: Catalog = {
-        ...draft,
+        ...base,
         config: {
-          ...draft.config,
-          version: bumpCatalogVersion(draft.config.version),
+          ...base.config,
+          version: bumpCatalogVersion(base.config.version),
         },
       }
       await onSave(next)
       setDraft(cloneCatalog(next))
-      setMessage(`Catálogo salvo · versão ${next.config.version}`)
+      setMessage(
+        confirmTab
+          ? `Preços confirmados · versão ${next.config.version}`
+          : `Catálogo salvo · versão ${next.config.version}`,
+      )
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -179,6 +189,20 @@ export function CatalogEditor({
       </div>
 
       <div key={tab} className="tab-panel">
+        {pendingExamples > 0 && (
+          <Banner
+            tone="warn"
+            actions={
+              <button type="button" className="btn" disabled={busy} onClick={() => void save(tab)}>
+                Confirmar preços
+              </button>
+            }
+          >
+            {tab === 'config'
+              ? 'Mão de obra e margem ainda são de exemplo. Ajuste para a sua loja ou confirme.'
+              : `${pendingExamples} ${pendingExamples === 1 ? 'preço ainda é' : 'preços ainda são'} de exemplo (borda tracejada). Ajuste os da sua loja e confirme o resto.`}
+          </Banner>
+        )}
         {tab === 'vidros' && (
           <VidrosTable
             rows={draft.vidros}
@@ -243,10 +267,12 @@ function MoneyInput({
   value,
   onCommit,
   allowNull = false,
+  exemplo = false,
 }: {
   value: number | null
   onCommit: (n: number | null) => void
   allowNull?: boolean
+  exemplo?: boolean
 }) {
   const [raw, setRaw] = useState(() => formatMoney(value))
 
@@ -256,9 +282,10 @@ function MoneyInput({
 
   return (
     <input
-      className="money-input"
+      className={exemplo ? 'money-input money-input--exemplo' : 'money-input'}
       inputMode="decimal"
-      aria-label="Preço"
+      aria-label={exemplo ? 'Preço de exemplo' : 'Preço'}
+      title={exemplo ? 'Preço de exemplo' : undefined}
       value={raw}
       onChange={(e) => setRaw(e.target.value)}
       onBlur={() => {
@@ -457,6 +484,7 @@ function VidrosTable({
                 <td>
                   <MoneyInput
                     value={row.valorM2}
+                    exemplo={row.exemplo}
                     allowNull
                     onCommit={(valorM2) =>
                       onChange(rows.map((r) => (r.id === row.id ? { ...r, valorM2 } : r)))
@@ -606,6 +634,7 @@ function KitBoxTable({
                 <td>
                   <MoneyInput
                     value={row.valor}
+                    exemplo={row.exemplo}
                     allowNull
                     onCommit={(valor) =>
                       onChange(rows.map((r) => (r.id === row.id ? { ...r, valor } : r)))
@@ -744,6 +773,7 @@ function AcessoriosTable({
                 <td>
                   <MoneyInput
                     value={row.valor}
+                    exemplo={row.exemplo}
                     onCommit={(valor) =>
                       onChange(
                         rows.map((r) => (r.id === row.id ? { ...r, valor: valor ?? 0 } : r)),
@@ -887,6 +917,7 @@ function AluminiosTable({
                 <td className="cell-num cell-money-barra">
                   <MoneyInput
                     value={row.valorBarra}
+                    exemplo={row.exemplo}
                     onCommit={(valorBarra) => {
                       const v = valorBarra ?? 0
                       const valorMetro = aluminioValorMetro(v, row.metragemBarra)
@@ -982,6 +1013,7 @@ function ConfigPanel({
         <label>
           Box avulso (R$)
           <MoneyInput
+            exemplo={config.exemplo}
             value={config.labor.boxAvulso}
             onCommit={(n) => n != null && setLabor('boxAvulso', n)}
           />
@@ -989,6 +1021,7 @@ function ConfigPanel({
         <label>
           Box por m² (R$)
           <MoneyInput
+            exemplo={config.exemplo}
             value={config.labor.boxPerM2}
             onCommit={(n) => n != null && setLabor('boxPerM2', n)}
           />
@@ -996,6 +1029,7 @@ function ConfigPanel({
         <label>
           Temperado por m² (R$)
           <MoneyInput
+            exemplo={config.exemplo}
             value={config.labor.temperedPerM2}
             onCommit={(n) => n != null && setLabor('temperedPerM2', n)}
           />
@@ -1003,6 +1037,7 @@ function ConfigPanel({
         <label>
           Maxim-ar avulso (R$)
           <MoneyInput
+            exemplo={config.exemplo}
             value={config.labor.maxiarAvulso}
             onCommit={(n) => n != null && setLabor('maxiarAvulso', n)}
           />

@@ -52,6 +52,7 @@ export function normalizeSettings(raw: Partial<AppSettings> | null | undefined):
     },
     logoDataUrl: logo,
     shareCta: typeof raw.shareCta === 'string' ? raw.shareCta.trim() : DEFAULT_SHARE_CTA,
+    ...(typeof raw.onboardingDismissedAt === 'string' ? { onboardingDismissedAt: raw.onboardingDismissedAt } : {}),
   }
 }
 

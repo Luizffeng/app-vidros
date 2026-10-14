@@ -62,7 +62,7 @@ Each entry: Decision, Rationale, Alternatives considered.
 
 ## R8. Emit warning for example prices
 
-**Decision**: pure `exampleRefsInQuote(quote, catalog)` returns rows whose `BomLine.source` points to a catalog row with `exemplo: true`, plus `config` when it is still `exemplo` and the quote has labor or margin. `onEmit` shows a `ConfirmPop` ("Este orçamento usa preços de exemplo. Revisar antes?" → Revisar / Emitir assim) when the list is non-empty. Never blocks (FR-015).
+**Decision**: pure `exampleUseInQuote(quote, catalog)` returns rows whose `BomLine.source` points to a catalog row with `exemplo: true` (skipping refs with a quote-only price), plus `config` when it is still `exemplo` and the quote has labor or margin. `onEmit` shows a `ConfirmPop` ("Este orçamento usa preços de exemplo (vidros, …). Revisar antes de emitir?" → Revisar / Emitir assim) when either is present. Never blocks (FR-015). A `vendedor` cannot open the catalog, so the pop reads "Avise quem cuida do catálogo." with Emitir assim / Cancelar. Any price the user sets (catalog edit, "Atualizar catálogo" from the cost detail, labor update) clears the flag of that row or of `config`.
 
 **Rationale**: `BomLine.source: CatalogRef` already exists, so the check is exact.
 
@@ -73,12 +73,14 @@ Each entry: Decision, Rationale, Alternatives considered.
 | Task | Done when |
 | --- | --- |
 | Sua loja | establishment name and phone filled (reuse `settingsPending`) |
-| Seus vidros | no active `vidros` row with `exemplo` |
-| Suas ferragens e perfis | no active `kitBox`/`acessorios`/`aluminios` row with `exemplo` |
+| Seus vidros | no active, priced (> 0) `vidros` row with `exemplo` |
+| Suas ferragens e perfis | no active, priced (> 0) `kitBox`/`acessorios`/`aluminios` row with `exemplo` |
 | Mão de obra e margem | `config.exemplo` absent |
 | Seu primeiro orçamento | at least one emitted quote |
 
-Only "Dispensar" is stored: `AppSettings.onboardingDismissedAt?: string`. Existing accounts (Forte Vidros) have no `exemplo` flags and emitted quotes, so every task is already done and the card never shows (FR-030) without a special case.
+Only "Dispensar" is stored: `AppSettings.onboardingDismissedAt?: string`. Existing accounts (Forte Vidros) have no `exemplo` flags and emitted quotes, so every task is already done and the card never shows (FR-030) without a special case. Rows without a price are not used in a quote, so they do not hold a task open. Local mode (IndexedDB, real seed) never shows the card.
+
+**Revised 2026-10-14**: no `/primeiros-passos/:tarefa` screens. Each task opens the screen that already edits it: Sua loja → Configurações › Cadastro; Seus vidros → Catálogo › Vidros; ferragens → first of Kit Box / Acessórios / Alumínios that still has example prices; Mão de obra e margem → Catálogo › Mão de obra / margem; Seu primeiro orçamento → new quote. Catálogo shows a warn `Banner` per tab with the example count and "Confirmar preços" (clears the flags of that tab and saves). Fewer screens to keep in sync, and the user learns the real place to change prices.
 
 **Rationale**: no new table, no drift between flags and a checklist.
 

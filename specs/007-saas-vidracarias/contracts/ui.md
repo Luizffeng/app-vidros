@@ -43,17 +43,17 @@ Opened instead of creating anything by: Novo orçamento, Revisar, Duplicar, Emit
 - Primary "Quero assinar" / "Renovar" → `wa.me/{suporte}?text=Olá! Quero assinar o App Vidros. Loja: {nome} ({shortId})`.
 - Secondary "Falar com a gente" → `/ajuda`. Close returns to the same place, nothing created.
 
-## Primeiros passos task screens
+## Primeiros passos tasks
 
-One `Section` with only the task's fields, a short hint, and two buttons: "Confirmar preços" (clears `exemplo` for the task's tables) / "Salvar" (when edited). "Sua loja" reuses the Cadastro and Logo fields. Rows still `exemplo` show a small "exemplo" pill.
+No task screens (research R9, revised 2026-10-14). Each row opens the screen that already edits it: Cadastro, a Catálogo tab, or a new quote. Row: check (done) or empty circle, label, one-line hint ("Feito" when done), chevron. After "Dispensar", Configurações › Cadastro lists the open tasks in a "Primeiros passos" `Section`. Hidden when the account cannot write, for `vendedor`, and in local mode.
 
 ## Catalog
 
-Rows with `exemplo` show the "exemplo" pill next to the price. Editing the price removes it on save.
+Example prices have a dashed field and the title "Preço de exemplo" (a pill does not fit the 360 px table). Editing the price clears the flag on save. While a tab still has priced example rows, a warn `Banner` above the table says "{n} preços ainda são de exemplo (borda tracejada). Ajuste os da sua loja e confirme o resto." with "Confirmar preços" (clears the tab's flags and saves). Mão de obra / margem: "Mão de obra e margem ainda são de exemplo. Ajuste para a sua loja ou confirme."
 
 ## Emit warning
 
-When the quote uses example prices: `ConfirmPop` on Emitir: "Este orçamento usa preços de exemplo (vidros, ferragens…). Revisar antes de emitir?" → "Revisar" (opens Catálogo on the first affected tab) / "Emitir assim".
+When the quote uses example prices: `ConfirmPop` on Emitir: "Este orçamento usa preços de exemplo (vidros, kits de box, acessórios, perfis e mão de obra, only those used). Revisar antes de emitir?" → "Revisar" (opens Catálogo on the first affected tab) / "Emitir assim". `vendedor`: "… Avise quem cuida do catálogo." → "Emitir assim" / "Cancelar".
 
 ## Fale com a gente (`/ajuda`)
 

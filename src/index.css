@@ -282,6 +282,11 @@ button {
   text-align: right;
 }
 
+.money-input--exemplo {
+  border-style: dashed;
+  color: var(--muted);
+}
+
 .percent-input {
   display: inline-flex;
   align-items: center;
@@ -3186,6 +3191,100 @@ a.carousel__body {
   margin: 0.9rem 0 0;
   text-align: center;
   font-size: 0.85rem;
+}
+
+/* Primeiros passos: card on Início, plain list in Configurações › Cadastro. */
+.onboarding {
+  padding: 0.85rem 0.75rem 0.5rem;
+}
+
+@media (min-width: 600px) {
+  .home .onboarding {
+    max-width: calc(32rem + 0.65rem);
+    margin-inline: auto;
+  }
+}
+
+.onboarding .section-head {
+  margin-bottom: 0.35rem;
+  padding-inline: 0.25rem;
+}
+
+.onboarding__list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.onboarding__list li + li {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.onboarding__task {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.55rem 0.25rem;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.onboarding__task:hover {
+  background: var(--surface-2);
+}
+
+.onboarding__mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+}
+
+.onboarding__task--done .onboarding__mark {
+  border-color: transparent;
+  background: var(--accent);
+  color: #1b1405;
+}
+
+.onboarding__mark svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.onboarding__text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.onboarding__label {
+  font-weight: 600;
+}
+
+.onboarding__task--done .onboarding__label {
+  color: var(--muted);
+}
+
+.onboarding__hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.onboarding__chevron {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--muted);
 }
 
 /* Entry, account setup and new password: one column of full-width controls. */

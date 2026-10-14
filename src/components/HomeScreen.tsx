@@ -3,11 +3,13 @@ import { BANNERS, visibleBanners } from '../data/banners'
 import { supportWhatsAppUrl } from '../data/support'
 import { supportMessage, type SupportIntent } from '../domain/account'
 import { catalogUpdatedOn, quoteTileSummary, settingsPending } from '../domain/home'
+import type { OnboardingTask } from '../domain/onboarding'
 import type { Account, AccountState, AppSettings, Quote } from '../domain/types'
 import type { Route } from '../nav/routes'
 import { AppHeader, CatalogIcon, GearIcon, HelpIcon, QuotesIcon, type AppSection } from './AppHeader'
 import { Banner } from './Banner'
 import { BannerCarousel } from './BannerCarousel'
+import { OnboardingCard } from './OnboardingCard'
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
 
@@ -99,8 +101,11 @@ export function HomeScreen({
   isAdmin,
   account,
   accountState,
+  onboarding,
   onNavigate,
   onOpen,
+  onOpenTask,
+  onDismissOnboarding,
 }: {
   quotes: readonly Quote[]
   catalogVersion: string
@@ -108,8 +113,12 @@ export function HomeScreen({
   isAdmin: boolean
   account: Account | null
   accountState: AccountState
+  /** Null when the card is hidden */
+  onboarding: readonly OnboardingTask[] | null
   onNavigate: (section: AppSection) => void
   onOpen: (route: Route) => void
+  onOpenTask: (task: OnboardingTask) => void
+  onDismissOnboarding: () => void
 }) {
   const banners = useMemo(() => visibleBanners(BANNERS, new Date()), [])
   const summary = useMemo(
@@ -138,6 +147,8 @@ export function HomeScreen({
       {account && <AccountBanner account={account} state={accountState} />}
 
       <BannerCarousel banners={banners} onRoute={onOpen} />
+
+      {onboarding && <OnboardingCard tasks={onboarding} onOpen={onOpenTask} onDismiss={onDismissOnboarding} />}
 
       <nav className="tile-grid" aria-label="Módulos">
         <Tile

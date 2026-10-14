@@ -60,7 +60,10 @@ Rules encoded in the current code. Locations are the evidence. Unclear items are
 - Lookups (`findVidro`, `findKitBox`, `findAcessorio`, `findAluminio`) skip inactive rows and throw if price/code is missing. `src/domain/pricing/math.ts`.
 - Rows with empty `codigo` are dropped on normalize. Import requires `config` and the four arrays, each row with numeric `id` and `codigo`. `src/data/catalogItems.ts`.
 - Saving the catalog from the editor bumps `config.version` to `YYYY-MM-DD`, or to a minute timestamp if that day string is already the version. `bumpCatalogVersion` in `src/domain/catalogEdit.ts`. Aluminum `valorMetro` = `valorBarra / metragemBarra` (`aluminioValorMetro`).
-- First catalog read, local or remote, inserts the seed when no row exists. `LocalQuoteRepository.getCatalog`, `SupabaseQuoteRepository.getCatalog`.
+- First catalog read inserts the seed when no row exists. Local mode inserts it as is. A Supabase account gets the example catalog: seed prices rounded (≥ 100 to tens, 20–100 to fives, below 20 to whole reais, 0 stays 0), with `exemplo: true` on every row and on `config`. `LocalQuoteRepository.getCatalog`, `SupabaseQuoteRepository.getCatalog`, `toExampleCatalog`.
+- `exemplo` clears when the user sets that price: a changed price on catalog save, "Atualizar no catálogo" from the cost detail, labor/margin changes (for `config`), or "Confirmar preços" on a catalog tab (whole tab). `clearEditedExamples`, `setCatalogPrice`, `confirmExampleTable` in `src/domain/`.
+- Primeiros passos (Início card, then Configurações › Cadastro after "Dispensar"): five tasks derived from data, not stored. Sua loja = `settingsPending` empty; Seus vidros / Suas ferragens e perfis = no active row with price > 0 still `exemplo`; Mão de obra e margem = `config.exemplo` absent; Seu primeiro orçamento = one emitted quote. Only `AppSettings.onboardingDismissedAt` is stored. Hidden for `vendedor`, read-only accounts and local mode. `onboardingTasks` in `src/domain/onboarding.ts`.
+- Emitting a quote that uses example prices (material lines without a quote-only price, or labor/margin while `config` is `exemplo`) asks "Revisar" or "Emitir assim". It never blocks. `exampleUseInQuote`.
 
 ## Pricing rules that the pricers implement
 

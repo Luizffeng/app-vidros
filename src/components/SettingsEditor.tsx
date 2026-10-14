@@ -1,5 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useAccess } from '../auth/access'
+import type { OnboardingTask } from '../domain/onboarding'
 import type { AppSettings, EstablishmentInfo, MarginMode } from '../domain/types'
 import { DEFAULT_LOGO_DATA_URL } from '../data/defaultLogo'
 import { normalizeSettings } from '../data/defaultSettings'
@@ -12,6 +13,7 @@ import { useLeaveGuard } from '../nav/useLeaveGuard'
 import { AppHeader, type AppSection } from './AppHeader'
 import { Banner } from './Banner'
 import { CollapsibleSection } from './CollapsibleSection'
+import { OnboardingTaskList } from './OnboardingCard'
 import { Section } from './Section'
 import { useDismiss } from './useDismiss'
 import { ConfirmPop } from './ConfirmPop'
@@ -46,12 +48,17 @@ export function SettingsEditor({
   onTabChange,
   onSave,
   onNavigate,
+  pendingTasks,
+  onOpenTask,
 }: {
   settings: AppSettings
   tab: SettingsTab
   onTabChange: (tab: SettingsTab) => void
   onSave: (settings: AppSettings) => Promise<void>
   onNavigate: (section: AppSection) => void
+  /** Primeiros passos still open after "Dispensar" on Início */
+  pendingTasks?: readonly OnboardingTask[]
+  onOpenTask: (task: OnboardingTask) => void
 }) {
   const [draft, setDraft] = useState(() => normalizeSettings(settings))
   /** O logo padrão é o da Forte Vidros: só o modo local volta a ele. */
@@ -327,6 +334,11 @@ export function SettingsEditor({
               </p>
             )}
           </CollapsibleSection>
+          {pendingTasks && pendingTasks.length > 0 && (
+            <Section className="onboarding" title="Primeiros passos" hint="Ainda falta deixar o app com a cara da sua loja.">
+              <OnboardingTaskList tasks={pendingTasks} onOpen={onOpenTask} />
+            </Section>
+          )}
         </div>
       )}
 

@@ -89,6 +89,35 @@ try {
   const acc = await account()
   check('conta criada em teste', acc?.plan === 'trial' && acc.whatsapp === '37999990000' && !acc.marketing_opt_in_at)
 
+  // Primeiros passos: catálogo de exemplo, loja já cadastrada
+  const card = page.getByRole('region', { name: 'Primeiros passos' })
+  check('card de primeiros passos', await card.isVisible())
+  check('loja já conta como feita', (await card.locator('.pill').innerText()) === '1 de 5')
+  await card.getByRole('button', { name: /Seus vidros/ }).click()
+  await page.waitForURL(/\/catalogo\/vidros$/)
+  const examples = page.getByText(/preços? ainda (é|são) de exemplo/)
+  const pendingCount = async () => Number((await examples.innerText()).match(/\d+/)?.[0] ?? 0)
+  const examplesBefore = await pendingCount()
+  check('vidros com aviso de exemplo', examplesBefore > 0, String(examplesBefore))
+  const firstPrice = page.locator('.catalog-table .money-input').first()
+  check('preço de exemplo marcado', (await firstPrice.getAttribute('class')).includes('money-input--exemplo'))
+  await page.screenshot({ path: join(OUT, 'onboarding-vidros.png') })
+  await firstPrice.fill('123,00')
+  await firstPrice.blur()
+  await page.getByRole('button', { name: 'Salvar', exact: true }).click()
+  await page.getByText(/Catálogo salvo/).waitFor()
+  check('preço editado deixa de ser exemplo', !(await firstPrice.getAttribute('class')).includes('money-input--exemplo'))
+  check('contador cai um', (await pendingCount()) === examplesBefore - 1)
+
+  await page.goto(`${BASE}/catalogo/configuracao`, { waitUntil: 'networkidle' })
+  await page.getByText('Mão de obra e margem ainda são de exemplo.', { exact: false }).waitFor()
+  await page.getByRole('button', { name: 'Confirmar preços' }).click()
+  await page.getByText(/Preços confirmados/).waitFor()
+  check('confirmar tira o aviso', (await page.getByRole('button', { name: 'Confirmar preços' }).count()) === 0)
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' })
+  await h1(page, 'Início')
+  check('mão de obra conta como feita', (await card.locator('.pill').innerText()) === '2 de 5')
+
   // Configurações preenchidas com a conta, sem o logo da Forte Vidros
   await page.goto(`${BASE}/configuracoes/cadastro`, { waitUntil: 'networkidle' })
   await page.getByLabel('Nome / razão social').waitFor()
@@ -110,10 +139,35 @@ try {
   await modal.getByRole('button', { name: 'Adicionar item' }).click()
   await modal.waitFor({ state: 'detached' })
   await page.locator('#customer-name').fill('Cliente Cadastro')
+  const draftUrl = page.url()
   await page.getByRole('button', { name: 'Emitir' }).click()
+  const examplePop = page.getByRole('dialog', { name: 'Preços de exemplo' })
+  await examplePop.waitFor()
+  check('emitir avisa preço de exemplo', /usa preços de exemplo \(vidros\)/.test(await examplePop.innerText()))
+  await page.screenshot({ path: join(OUT, 'onboarding-emitir.png') })
+  await examplePop.getByRole('button', { name: 'Revisar' }).click()
+  await page.waitForURL(/\/catalogo\/vidros$/)
+  check('Revisar abre a aba do vidro', true)
+  await page.goto(draftUrl, { waitUntil: 'networkidle' })
+  await page.getByRole('button', { name: 'Emitir' }).click()
+  await examplePop.getByRole('button', { name: 'Emitir assim' }).click()
   await page.getByText('Emitido', { exact: true }).waitFor()
   const emittedUrl = page.url()
   check('emite com a conta em teste', true)
+
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' })
+  await h1(page, 'Início')
+  check('primeiro orçamento conta como feito', (await card.locator('.pill').innerText()) === '3 de 5')
+  await page.screenshot({ path: join(OUT, 'onboarding-inicio.png') })
+  await card.getByRole('button', { name: 'Dispensar' }).click()
+  await card.waitFor({ state: 'detached' })
+  await page.goto(`${BASE}/configuracoes/cadastro`, { waitUntil: 'networkidle' })
+  const pendingList = page.getByRole('region', { name: 'Primeiros passos' })
+  check(
+    'dispensado: pendências em Cadastro',
+    (await pendingList.getByRole('button').count()) === 2,
+    await pendingList.innerText().catch(() => ''),
+  )
 
   // Aviso de 7 dias
   await admin.from('accounts').update({ trial_ends_at: new Date(Date.now() + 6 * 864e5).toISOString() }).eq('id', acc.id)

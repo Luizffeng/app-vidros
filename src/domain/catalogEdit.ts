@@ -34,30 +34,37 @@ export function catalogPrice(catalog: Catalog, ref: CatalogRef): number | null {
   }
 }
 
-/** New catalog with one price replaced (aluminios re-derive valorMetro). No version bump. */
+/** Row without the example flag: a price the user set is confirmed. */
+export function confirmed<T extends { exemplo?: boolean }>(row: T): T {
+  const { exemplo: _exemplo, ...rest } = row
+  void _exemplo
+  return rest as T
+}
+
+/** New catalog with one price replaced (aluminios re-derive valorMetro), example flag cleared. No version bump. */
 export function setCatalogPrice(catalog: Catalog, ref: CatalogRef, price: number): Catalog {
   switch (ref.table) {
     case 'vidros':
       return {
         ...catalog,
-        vidros: catalog.vidros.map((r) => (r.id === ref.id ? { ...r, valorM2: price } : r)),
+        vidros: catalog.vidros.map((r) => (r.id === ref.id ? confirmed({ ...r, valorM2: price }) : r)),
       }
     case 'kitBox':
       return {
         ...catalog,
-        kitBox: catalog.kitBox.map((r) => (r.id === ref.id ? { ...r, valor: price } : r)),
+        kitBox: catalog.kitBox.map((r) => (r.id === ref.id ? confirmed({ ...r, valor: price }) : r)),
       }
     case 'acessorios':
       return {
         ...catalog,
-        acessorios: catalog.acessorios.map((r) => (r.id === ref.id ? { ...r, valor: price } : r)),
+        acessorios: catalog.acessorios.map((r) => (r.id === ref.id ? confirmed({ ...r, valor: price }) : r)),
       }
     case 'aluminios':
       return {
         ...catalog,
         aluminios: catalog.aluminios.map((r) =>
           r.id === ref.id
-            ? { ...r, valorBarra: price, valorMetro: aluminioValorMetro(price, r.metragemBarra) }
+            ? confirmed({ ...r, valorBarra: price, valorMetro: aluminioValorMetro(price, r.metragemBarra) })
             : r,
         ),
       }

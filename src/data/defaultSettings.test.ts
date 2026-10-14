@@ -24,6 +24,15 @@ describe('normalizeSettings marginMode', () => {
   })
 })
 
+describe('normalizeSettings onboardingDismissedAt', () => {
+  it('keeps a string date; old settings have none', () => {
+    expect(normalizeSettings({ onboardingDismissedAt: '2026-10-14T12:00:00.000Z' }).onboardingDismissedAt).toBe(
+      '2026-10-14T12:00:00.000Z',
+    )
+    expect('onboardingDismissedAt' in normalizeSettings({ quoteValidityDays: 10 })).toBe(false)
+  })
+})
+
 describe('normalizeSettings marginModeChangedAt', () => {
   it('keeps a string date and drops anything else', () => {
     expect(normalizeSettings({ marginModeChangedAt: '2026-10-07T18:00:00.000Z' }).marginModeChangedAt).toBe(

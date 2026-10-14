@@ -34,6 +34,24 @@ describe('catalogItems', () => {
     expect(normalized.acessorios.some((a) => a.id === 999)).toBe(false)
   })
 
+  it('normalizeCatalog keeps exemplo only when true', () => {
+    const seed = loadSeedCatalog()
+    const normalized = normalizeCatalog({
+      ...seed,
+      config: { ...seed.config, exemplo: true },
+      vidros: [
+        { ...seed.vidros[0], exemplo: true },
+        { ...seed.vidros[1], exemplo: false },
+        seed.vidros[2],
+      ],
+    })
+    expect(normalized.config.exemplo).toBe(true)
+    expect(normalized.vidros[0].exemplo).toBe(true)
+    expect('exemplo' in normalized.vidros[1]).toBe(false)
+    expect('exemplo' in normalized.vidros[2]).toBe(false)
+    expect('exemplo' in normalizeCatalog(seed).config).toBe(false)
+  })
+
   it('parseImportedCatalog round-trips full seed export', () => {
     const seed = normalizeCatalog(loadSeedCatalog())
     const parsed = parseImportedCatalog(JSON.parse(JSON.stringify(seed)))

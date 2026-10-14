@@ -30,6 +30,8 @@ export interface PricingConfig {
   boxDefaultHeightM: number
   boxSiliconeQty: number
   defaultMarkup: Record<Exclude<ProductKind, 'custom'>, number>
+  /** Mão de obra e margem ainda no valor do catálogo de exemplo */
+  exemplo?: boolean
 }
 
 export interface EstablishmentInfo {
@@ -61,9 +63,11 @@ export interface AppSettings {
   logoDataUrl?: string
   /** Última linha da mensagem enviada no WhatsApp */
   shareCta: string
+  /** ISO de quando "Dispensar" foi tocado no card Primeiros passos */
+  onboardingDismissedAt?: string
 }
 
-/** ativo omitido ou true = disponível no cálculo; false = desativado */
+/** ativo omitido ou true = disponível no cálculo; false = desativado. exemplo true = preço do catálogo de exemplo, ainda não conferido */
 export interface Vidro {
   id: number
   codigo: string
@@ -72,6 +76,7 @@ export interface Vidro {
   espessuraMm: string | null
   valorM2: number | null
   ativo?: boolean
+  exemplo?: boolean
 }
 
 export interface KitBox {
@@ -82,6 +87,7 @@ export interface KitBox {
   tamanhoCm: number
   valor: number | null
   ativo?: boolean
+  exemplo?: boolean
 }
 
 export interface Acessorio {
@@ -90,6 +96,7 @@ export interface Acessorio {
   descricao: string
   valor: number
   ativo?: boolean
+  exemplo?: boolean
 }
 
 export interface Aluminio {
@@ -100,6 +107,7 @@ export interface Aluminio {
   metragemBarra: number
   valorMetro: number
   ativo?: boolean
+  exemplo?: boolean
 }
 
 export interface Catalog {

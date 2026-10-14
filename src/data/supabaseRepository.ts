@@ -4,6 +4,7 @@ import { phoneDigits } from '../domain/brazil'
 import { normalizeQuote } from '../domain/quote'
 import { normalizeCatalog } from './catalogItems'
 import { defaultSettings, normalizeSettings } from './defaultSettings'
+import { toExampleCatalog } from './exampleCatalog'
 import { loadSeedCatalog } from './seedCatalog'
 
 const LOGO_BUCKET = 'logos'
@@ -88,7 +89,7 @@ export class SupabaseQuoteRepository implements QuoteRepository {
     const row = data as CatalogRow | null
     if (row?.payload) return normalizeCatalog(row.payload)
 
-    const seed = normalizeCatalog(loadSeedCatalog())
+    const seed = normalizeCatalog(toExampleCatalog(loadSeedCatalog()))
     const inserted = await this.supabase.from('catalog').insert({ payload: seed })
     if (inserted.error?.code === '23505') return this.getCatalog()
     if (inserted.error && isDenied(inserted.error)) return seed

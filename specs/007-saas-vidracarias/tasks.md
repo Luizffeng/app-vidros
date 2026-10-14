@@ -127,18 +127,18 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 
 **Independent Test**: quickstart manual scenario 2; unit tests.
 
-- [ ] T041 [P] [US2] Add optional `exemplo?: boolean` to `Vidro`, `KitBox`, `Acessorio`, `Aluminio`, `PricingConfig` and `onboardingDismissedAt?: string` to `AppSettings` in src/domain/types.ts; keep only `true` in `normalizeCatalog` (src/data/catalogItems.ts) and keep the date in `normalizeSettings` (src/data/defaultSettings.ts)
-- [ ] T042 [P] [US2] Implement `toExampleCatalog(seed)` in src/data/exampleCatalog.ts (R7 rounding, flags on all rows and config)
-- [ ] T043 [US2] Unit tests in src/data/exampleCatalog.test.ts: rounding table, flags set, box padrão 1,20 × 1,90 incolor 8 mm and correr 2 folhas 1,20 × 1,00 incolor 8 mm within ±10% of the seed totals via `priceItem`
-- [ ] T044 [US2] Use the example catalog for new accounts in src/data/supabaseRepository.ts `getCatalog` fallback (local mode keeps the seed)
-- [ ] T045 [P] [US2] Implement `onboardingTasks(catalog, settings, quotes)` and `exampleRefsInQuote(quote, catalog)` in src/domain/onboarding.ts per research R8/R9
-- [ ] T046 [P] [US2] Unit tests in src/domain/onboarding.test.ts: new account 0/5; Forte Vidros-like data 5/5 (card hidden); inactive example rows ignored; refs from `BomLine.source`; config flag counts only with labor/margin
-- [ ] T047 [US2] Clear `exemplo` on price change when saving rows in src/components/CatalogEditor.tsx; show the "exemplo" pill next to flagged prices
-- [ ] T048 [US2] Create src/components/OnboardingCard.tsx (Section, pill "{done} de 5", rows with check/chevron, "Dispensar") and render it above the tiles in src/components/HomeScreen.tsx
-- [ ] T049 [US2] Create src/components/OnboardingTask.tsx for `/primeiros-passos/:tarefa`: `loja` reuses Cadastro/Logo fields; `vidros`, `ferragens`, `mao-de-obra` list only the task's rows/fields with "Confirmar preços" (clears flags) and "Salvar"; wire the route in src/components/App.tsx
-- [ ] T050 [US2] "Seu primeiro orçamento" task opens `/orcamentos` and starts a new quote
-- [ ] T051 [US2] Emit warning `ConfirmPop` in src/components/App.tsx `onEmit` when `exampleRefsInQuote` is non-empty ("Revisar" → first affected catalog tab, "Emitir assim")
-- [ ] T052 [US2] Pending tasks list in Configurações › Cadastro after "Dispensar" (src/components/SettingsEditor.tsx)
+- [X] T041 [P] [US2] Add optional `exemplo?: boolean` to `Vidro`, `KitBox`, `Acessorio`, `Aluminio`, `PricingConfig` and `onboardingDismissedAt?: string` to `AppSettings` in src/domain/types.ts; keep only `true` in `normalizeCatalog` (src/data/catalogItems.ts) and keep the date in `normalizeSettings` (src/data/defaultSettings.ts)
+- [X] T042 [P] [US2] Implement `toExampleCatalog(seed)` in src/data/exampleCatalog.ts (R7 rounding, flags on all rows and config)
+- [X] T043 [US2] Unit tests in src/data/exampleCatalog.test.ts: rounding table, flags set, box padrão 1,20 × 1,90 incolor 8 mm and correr 2 folhas 1,20 × 1,00 incolor 8 mm within ±10% of the seed totals via `priceItem`
+- [X] T044 [US2] Use the example catalog for new accounts in src/data/supabaseRepository.ts `getCatalog` fallback (local mode keeps the seed)
+- [X] T045 [P] [US2] Implement `onboardingTasks(catalog, settings, quotes)` and `exampleRefsInQuote(quote, catalog)` in src/domain/onboarding.ts per research R8/R9
+- [X] T046 [P] [US2] Unit tests in src/domain/onboarding.test.ts: new account 0/5; Forte Vidros-like data 5/5 (card hidden); inactive example rows ignored; refs from `BomLine.source`; config flag counts only with labor/margin
+- [X] T047 [US2] Clear `exemplo` on price change when saving rows in src/components/CatalogEditor.tsx; show the "exemplo" pill next to flagged prices. **Done as a dashed price field** (title "Preço de exemplo"): a pill does not fit the 360 px table
+- [X] T048 [US2] Create src/components/OnboardingCard.tsx (Section, pill "{done} de 5", rows with check/chevron, "Dispensar") and render it above the tiles in src/components/HomeScreen.tsx
+- [X] T049 [US2] Create src/components/OnboardingTask.tsx for `/primeiros-passos/:tarefa`: `loja` reuses Cadastro/Logo fields; `vidros`, `ferragens`, `mao-de-obra` list only the task's rows/fields with "Confirmar preços" (clears flags) and "Salvar"; wire the route in src/components/App.tsx. **Done differently (2026-10-14)**: no task screens; each task opens the screen that already edits it (Cadastro, Catálogo tab, Mão de obra / margem). Catálogo shows a warn `Banner` with the count of example prices and "Confirmar preços" per tab
+- [X] T050 [US2] "Seu primeiro orçamento" task starts a new quote (opens `/orcamentos` once done)
+- [X] T051 [US2] Emit warning `ConfirmPop` in src/components/App.tsx `onEmit` when `exampleRefsInQuote` is non-empty ("Revisar" → first affected catalog tab, "Emitir assim")
+- [X] T052 [US2] Pending tasks list in Configurações › Cadastro after "Dispensar" (src/components/SettingsEditor.tsx)
 
 **Checkpoint**: delivery step 3 ready.
 

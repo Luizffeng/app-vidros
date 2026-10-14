@@ -59,7 +59,17 @@ import {
   phoneDigits,
   withDefaultDdd,
 } from '../domain/brazil'
-import { bumpCatalogVersion, sameRef, setCatalogPrice, withPriceOverrides } from '../domain/catalogEdit'
+import { bumpCatalogVersion, confirmed, sameRef, setCatalogPrice, withPriceOverrides } from '../domain/catalogEdit'
+import {
+  exampleNames,
+  exampleUseInQuote,
+  firstExampleTab,
+  onboardingTasks,
+  onboardingVisible,
+  usesExample,
+  type ExampleUse,
+  type OnboardingTask,
+} from '../domain/onboarding'
 import {
   downloadBlob,
   generateQuotePdf,
@@ -153,6 +163,7 @@ export function App() {
   const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null)
   const [pendingDeleteQuote, setPendingDeleteQuote] = useState(false)
   const [emitNeedsName, setEmitNeedsName] = useState(false)
+  const [emitExamples, setEmitExamples] = useState<ExampleUse | null>(null)
   const [itemModal, setItemModal] = useState<
     null | { mode: 'pick' } | { mode: 'create'; kind: ProductKind } | { mode: 'edit'; id: string }
   >(null)
@@ -240,15 +251,19 @@ export function App() {
   }, [quoteId, quoteEmitted])
 
   const confirmOpen =
-    Boolean(pendingRemoveId) || pendingDeleteQuote || (emitNeedsName && !quote?.customer.name?.trim())
+    Boolean(pendingRemoveId) ||
+    pendingDeleteQuote ||
+    (emitNeedsName && !quote?.customer.name?.trim()) ||
+    Boolean(emitExamples)
   useBackLayer(confirmOpen, () => {
     setPendingRemoveId(null)
     setPendingDeleteQuote(false)
     setEmitNeedsName(false)
+    setEmitExamples(null)
   })
 
   useEffect(() => {
-    if (!pendingRemoveId && !pendingDeleteQuote && !emitNeedsName) return
+    if (!pendingRemoveId && !pendingDeleteQuote && !emitNeedsName && !emitExamples) return
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target
       if (!(target instanceof Element)) return
@@ -262,10 +277,11 @@ export function App() {
       setPendingRemoveId(null)
       setPendingDeleteQuote(false)
       setEmitNeedsName(false)
+      setEmitExamples(null)
     }
     document.addEventListener('pointerdown', onPointerDown)
     return () => document.removeEventListener('pointerdown', onPointerDown)
-  }, [pendingRemoveId, pendingDeleteQuote, emitNeedsName])
+  }, [pendingRemoveId, pendingDeleteQuote, emitNeedsName, emitExamples])
 
   const searchedQuotes = useMemo(() => {
     const q = listQuery.trim().toLowerCase()
@@ -439,11 +455,11 @@ export function App() {
     if (!quote || !catalog || !isAdmin || blocked()) return
     const next: Catalog = {
       ...catalog,
-      config: {
+      config: confirmed({
         ...catalog.config,
         labor: { ...catalog.config.labor, [key]: rate },
         version: bumpCatalogVersion(catalog.config.version),
-      },
+      }),
     }
     await repo.saveCatalog(next)
     setCatalog(next)
@@ -608,10 +624,16 @@ export function App() {
     setShareFailed(false)
   }
 
-  const onEmit = async () => {
+  const onEmit = async (withExamples = false) => {
     if (!quote || blocked()) return
     if (!quote.customer.name?.trim()) {
       setEmitNeedsName(true)
+      return
+    }
+    setEmitExamples(null)
+    const examples = exampleUseInQuote(quote, catalog!)
+    if (!withExamples && usesExample(examples)) {
+      setEmitExamples(examples)
       return
     }
     try {
@@ -663,6 +685,18 @@ export function App() {
     goTop(SECTION_ROUTES[section])
   }
 
+  const tasks =
+    isAdmin && canWrite && access.role !== 'local' ? onboardingTasks(catalog, settings, quotes) : []
+  const onOpenTask = (task: OnboardingTask) => {
+    if (task.id === 'primeiroOrcamento') return void (task.done ? goSection('list') : openNew())
+    push(task.tab ? { screen: 'catalog', tab: task.tab } : { screen: 'settings', tab: 'register' })
+  }
+  const onDismissOnboarding = () => {
+    onSaveSettings({ ...settings, onboardingDismissedAt: new Date().toISOString() }).catch((e) =>
+      setError(e instanceof Error ? e.message : String(e)),
+    )
+  }
+
   const screen = (node: ReactNode) => (
     <div key={screenKey} ref={screenRef} className="screen">
       {node}
@@ -687,8 +721,11 @@ export function App() {
         isAdmin={isAdmin}
         account={access.account}
         accountState={access.accountState}
+        onboarding={onboardingVisible(tasks, settings) ? tasks : null}
         onNavigate={goSection}
         onOpen={(target) => (target.screen === 'home' ? goSection('home') : push(target, 'fade'))}
+        onOpenTask={onOpenTask}
+        onDismissOnboarding={onDismissOnboarding}
       />,
     )
   }
@@ -716,6 +753,8 @@ export function App() {
         onTabChange={(tab) => replace({ screen: 'settings', tab })}
         onSave={onSaveSettings}
         onNavigate={goSection}
+        pendingTasks={settings.onboardingDismissedAt ? tasks.filter((t) => !t.done) : undefined}
+        onOpenTask={onOpenTask}
       />,
     )
   }
@@ -1199,6 +1238,25 @@ export function App() {
                     setEmitNeedsName(false)
                     focusCustomerName()
                   }}
+                />
+                <ConfirmPop
+                  open={Boolean(emitExamples)}
+                  place="above"
+                  block
+                  tone="primary"
+                  label="Preços de exemplo"
+                  message={`Este orçamento usa preços de exemplo (${emitExamples ? exampleNames(emitExamples) : ''}). ${
+                    isAdmin ? 'Revisar antes de emitir?' : 'Avise quem cuida do catálogo.'
+                  }`}
+                  yesLabel={isAdmin ? 'Revisar' : 'Emitir assim'}
+                  noLabel={isAdmin ? 'Emitir assim' : 'Cancelar'}
+                  onYes={() => {
+                    const examples = emitExamples
+                    setEmitExamples(null)
+                    if (!isAdmin) return void onEmit(true)
+                    if (examples) push({ screen: 'catalog', tab: firstExampleTab(examples) })
+                  }}
+                  onNo={() => (isAdmin ? void onEmit(true) : setEmitExamples(null))}
                 />
               </div>
             )}

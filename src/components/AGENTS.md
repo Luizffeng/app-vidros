@@ -21,6 +21,7 @@ React UI. No price formulas and no Supabase queries except `EntryScreen` (sign-i
 | `AccountSetupScreen.tsx` | Session without account: "Sua vidraçaria" form → `createAccount`. |
 | `PublicPage.tsx` | `/termos`, `/privacidade`, `/novidades` from markdown in `src/content/` (`parseMarkdown`). |
 | `ExpiredNotice.tsx` | Modal opened by `blocked()` in `App.tsx` when the account is read-only; WhatsApp links from `src/data/support.ts`. |
+| `OnboardingCard.tsx` | "Primeiros passos" card on Início and `OnboardingTaskList` (also in Configurações › Cadastro after "Dispensar"). Tasks come from `onboardingTasks`; `App.tsx` opens each one. |
 | `PdfPreview.tsx` | pdf.js preview of a blob. |
 | `Dropdown.tsx`, `Modal.tsx`, `SearchField.tsx`, `useDismiss.ts` | Shared widgets. `Dropdown` (filters, catalog table picker) and `DropdownField` (form field with caption) replace native `<select>`. `Modal` plays its exit on Fechar/Esc/backdrop/device back before calling `onClose`. `Modal` and `useDismiss` call `useBackLayer`, so every overlay built on them takes one history entry. |
 | `usePresence.ts` | `usePresence(open, exit)` / `<Presence>` keep an overlay mounted with `data-state="closing"` for its exit; `motionMs` reads `--dur-*`. |

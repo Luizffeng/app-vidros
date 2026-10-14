@@ -20,21 +20,23 @@ export function hasCatalogCodigo(item: { codigo?: string | null }): boolean {
   return typeof item.codigo === 'string' && item.codigo.trim().length > 0
 }
 
+/** `exemplo` só fica quando `true`; ausente = preço conferido. */
+function keepExemplo<T extends { exemplo?: boolean }>(row: T): T {
+  const { exemplo, ...rest } = row
+  return (exemplo === true ? { ...rest, exemplo: true } : rest) as T
+}
+
+function normalizeRow<T extends { ativo?: boolean; exemplo?: boolean }>(row: T): T {
+  return keepExemplo({ ...row, ativo: row.ativo !== false })
+}
+
 export function normalizeCatalog(catalog: Catalog): Catalog {
   return {
-    config: normalizePricingConfig(catalog.config),
-    vidros: catalog.vidros
-      .filter(hasCatalogCodigo)
-      .map((v) => ({ ...v, ativo: v.ativo !== false })),
-    kitBox: catalog.kitBox
-      .filter(hasCatalogCodigo)
-      .map((k) => ({ ...k, ativo: k.ativo !== false })),
-    acessorios: catalog.acessorios
-      .filter(hasCatalogCodigo)
-      .map((a) => ({ ...a, ativo: a.ativo !== false })),
-    aluminios: catalog.aluminios
-      .filter(hasCatalogCodigo)
-      .map((a) => ({ ...a, ativo: a.ativo !== false })),
+    config: keepExemplo(normalizePricingConfig(catalog.config)),
+    vidros: catalog.vidros.filter(hasCatalogCodigo).map(normalizeRow),
+    kitBox: catalog.kitBox.filter(hasCatalogCodigo).map(normalizeRow),
+    acessorios: catalog.acessorios.filter(hasCatalogCodigo).map(normalizeRow),
+    aluminios: catalog.aluminios.filter(hasCatalogCodigo).map(normalizeRow),
   }
 }
 
