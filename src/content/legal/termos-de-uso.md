@@ -102,7 +102,7 @@ d) indisponibilidades causadas por terceiros ou por caso fortuito e força maior
 
 12.1. Podemos suspender ou encerrar uma conta que viole estes Termos, com aviso prévio sempre que possível.
 
-12.2. Você pode excluir sua conta a qualquer momento em **Início › Excluir minha conta e dados**. A exclusão apaga a conta e todos os dados dela de forma definitiva, nos prazos da Política de Privacidade. Recomendamos baixar os PDFs que quiser guardar antes de excluir.
+12.2. Você pode excluir sua conta a qualquer momento em **Configurações › Conta › Excluir minha conta e dados**. A exclusão apaga a conta e todos os dados dela de forma definitiva, nos prazos da Política de Privacidade. Recomendamos baixar os PDFs que quiser guardar antes de excluir.
 
 ## 13. Alterações destes Termos
 

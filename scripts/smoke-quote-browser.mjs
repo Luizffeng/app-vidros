@@ -81,7 +81,7 @@ async function main() {
     ok('detalhes do custo fecha')
 
     await page.getByRole('button', { name: 'Emitir' }).click()
-    await page.getByRole('alertdialog', { name: 'Nome do cliente obrigatório' }).waitFor()
+    await page.getByRole('alertdialog', { name: 'Antes de emitir' }).waitFor()
     ok('emitir sem nome pede o nome')
     await page.getByRole('button', { name: 'Preencher nome' }).click()
     await page.locator('#customer-name').fill('Cliente Smoke')

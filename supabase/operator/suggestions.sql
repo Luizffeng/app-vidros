@@ -13,7 +13,7 @@ join public.accounts a on a.id = s.account_id
 where s.status = 'recebida'
 order by s.created_at;
 
--- 2. Responder (a loja vê a resposta no app, em Ajuda › Sugestões).
+-- 2. Responder (a loja vê a resposta no app, em Suporte › Fale com a gente › Sugestões).
 update public.suggestions
 set reply = 'Obrigado! Já anotamos e vamos avisar quando sair.',
     replied_at = now(),

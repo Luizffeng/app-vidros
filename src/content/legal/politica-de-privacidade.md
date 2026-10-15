@@ -82,7 +82,7 @@ Pela LGPD (art. 18), você pode, a qualquer momento:
 - pedir a portabilidade dos seus dados;
 - saber com quem compartilhamos seus dados;
 - retirar o consentimento para novidades e ofertas (em Configurações, ou pedindo ao suporte);
-- excluir sua conta e todos os dados dela em **Início › Excluir minha conta e dados**;
+- excluir sua conta e todos os dados dela em **Configurações › Conta › Excluir minha conta e dados**;
 - reclamar à Autoridade Nacional de Proteção de Dados (ANPD).
 
 Para exercer seus direitos, fale com o encarregado pelo e-mail **[E-MAIL DO ENCARREGADO]** ou pelo suporte. Respondemos em até 15 (quinze) dias.

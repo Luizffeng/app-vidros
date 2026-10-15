@@ -6,7 +6,7 @@ import { catalogUpdatedOn, quoteTileSummary, settingsPending } from '../domain/h
 import type { OnboardingTask } from '../domain/onboarding'
 import type { Account, AccountState, AppSettings, Quote } from '../domain/types'
 import type { Route } from '../nav/routes'
-import { AppHeader, CatalogIcon, GearIcon, HelpIcon, QuotesIcon, type AppSection } from './AppHeader'
+import { AppHeader, CatalogIcon, GearIcon, QuotesIcon, SupportIcon, type AppSection } from './AppHeader'
 import { Banner } from './Banner'
 import { BannerCarousel } from './BannerCarousel'
 import { HomeFooter } from './HomeFooter'
@@ -193,15 +193,20 @@ export function HomeScreen({
             label={pending ? 'Configurações: Complete o cadastro da loja' : 'Configurações'}
             summary={pending ? 'Complete o cadastro da loja' : undefined}
             onClick={() =>
-              pending ? onOpen({ screen: 'settings', tab: 'register' }) : onNavigate('settings')
+              pending ? onOpen({ screen: 'settings', tab: 'account' }) : onNavigate('settings')
             }
           />
         )}
         <Tile
-          title="Ajuda"
-          icon={<HelpIcon />}
-          label="Ajuda: Fale com a gente"
-          summary="Fale com a gente"
+          title="Suporte"
+          icon={<SupportIcon />}
+          label="Suporte: Fale com a gente, explore dicas e novidades"
+          summary={
+            <>
+              <span>Fale com a gente</span>
+              <span>Explore dicas e novidades</span>
+            </>
+          }
           onClick={() => onNavigate('help')}
         />
       </nav>
@@ -212,7 +217,7 @@ export function HomeScreen({
         </p>
       )}
 
-      <HomeFooter onNavigate={onNavigate} />
+      <HomeFooter />
     </div>
   )
 }

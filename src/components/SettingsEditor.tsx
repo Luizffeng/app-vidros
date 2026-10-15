@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
 import { useAccess } from '../auth/access'
 import type { OnboardingTask } from '../domain/onboarding'
 import type { AppSettings, EstablishmentInfo, MarginMode } from '../domain/types'
@@ -13,13 +13,15 @@ import { useLeaveGuard } from '../nav/useLeaveGuard'
 import { AppHeader, type AppSection } from './AppHeader'
 import { Banner } from './Banner'
 import { CollapsibleSection } from './CollapsibleSection'
+import { DeleteAccount } from './DeleteAccount'
 import { OnboardingTaskList } from './OnboardingCard'
 import { Section } from './Section'
+import { Tabs } from './Tabs'
 import { useDismiss } from './useDismiss'
 import { ConfirmPop } from './ConfirmPop'
 
 const SETTINGS_TABS: { id: SettingsTab; label: string }[] = [
-  { id: 'register', label: 'Cadastro' },
+  { id: 'account', label: 'Conta' },
   { id: 'quote', label: 'Orçamento' },
   { id: 'logo', label: 'Logo' },
 ]
@@ -83,28 +85,7 @@ export function SettingsEditor({
   const [cepStatus, setCepStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle')
   const [cepMessage, setCepMessage] = useState<string | null>(null)
   const [logoBusy, setLogoBusy] = useState(false)
-  const tabsRef = useRef<HTMLDivElement>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
-
-  useLayoutEffect(() => {
-    const list = tabsRef.current
-    if (!list) return
-    const place = () => {
-      const selected = list.querySelector<HTMLElement>('[aria-selected="true"]')
-      if (!selected) return
-      list.style.setProperty('--tab-x', `${selected.offsetLeft}px`)
-      list.style.setProperty('--tab-w', `${selected.offsetWidth}px`)
-      if (!list.dataset.ready) {
-        // Commit the first position before enabling the transition, so it does not slide in from 0.
-        void list.offsetWidth
-        list.dataset.ready = ''
-      }
-    }
-    place()
-    const observer = new ResizeObserver(place)
-    observer.observe(list)
-    return () => observer.disconnect()
-  }, [tab])
   const [confirmMode, setConfirmMode] = useState(false)
   const saveWrapRef = useRef<HTMLDivElement>(null)
   useDismiss(confirmMode, saveWrapRef, () => setConfirmMode(false))
@@ -203,31 +184,21 @@ export function SettingsEditor({
       <div className="sticky-head">
         <AppHeader title="Configurações" current="settings" onNavigate={onNavigate} onBack={up} />
 
-        <div className="tabs" role="tablist" aria-label="Seções das configurações" ref={tabsRef}>
-          <span className="tabs__indicator" aria-hidden="true" />
-          {SETTINGS_TABS.map(({ id, label }) => (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              id={`settings-tab-${id}`}
-              className="tabs__tab"
-              aria-selected={tab === id}
-              aria-controls={`settings-panel-${id}`}
-              onClick={() => onTabChange(id)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <Tabs
+          label="Seções das configurações"
+          idPrefix="settings"
+          tabs={SETTINGS_TABS}
+          current={tab}
+          onChange={onTabChange}
+        />
       </div>
 
       {nextStep}
       {error && <Banner tone="error">{error}</Banner>}
       {message && !error && <Banner tone="ok">{message}</Banner>}
 
-      {tab === 'register' && (
-        <div className="tab-panel" role="tabpanel" id="settings-panel-register" aria-labelledby="settings-tab-register">
+      {tab === 'account' && (
+        <div className="tab-panel" role="tabpanel" id="settings-panel-account" aria-labelledby="settings-tab-account">
           <CollapsibleSection title="Estabelecimento" defaultOpen>
             <div className="grid">
               <label className="full">
@@ -350,16 +321,19 @@ export function SettingsEditor({
             )}
           </CollapsibleSection>
           {!localMode && access.account && (
-            <label className="check-field__box check-field__box--row">
-              <span>Quero receber novidades e ofertas pelo WhatsApp</span>
-              <input type="checkbox" checked={optIn} onChange={(e) => void onOptIn(e.target.checked)} />
-            </label>
+            <Section title="Novidades e ofertas" hint="Salva na hora. Dá para desmarcar quando quiser.">
+              <label className="check-field__box check-field__box--row">
+                <span>Quero receber novidades e ofertas pelo WhatsApp</span>
+                <input type="checkbox" checked={optIn} onChange={(e) => void onOptIn(e.target.checked)} />
+              </label>
+            </Section>
           )}
           {pendingTasks && pendingTasks.length > 0 && (
             <Section className="onboarding" title="Primeiros passos" hint="Ainda falta deixar o app com a cara da sua loja.">
               <OnboardingTaskList tasks={pendingTasks} onOpen={onOpenTask} />
             </Section>
           )}
+          <DeleteAccount />
         </div>
       )}
 

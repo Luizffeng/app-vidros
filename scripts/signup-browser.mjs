@@ -148,7 +148,7 @@ try {
   check('mão de obra conta como feita', (await card.locator('.pill').innerText()) === '2 de 5')
 
   // Configurações preenchidas com a conta, sem o logo da Forte Vidros
-  await page.goto(`${BASE}/configuracoes/cadastro`, { waitUntil: 'networkidle' })
+  await page.goto(`${BASE}/configuracoes/conta`, { waitUntil: 'networkidle' })
   await page.getByLabel('Nome / razão social').waitFor()
   check('nome da loja vem do cadastro', (await page.getByLabel('Nome / razão social').inputValue()) === SHOP)
   check('telefone vem do cadastro', (await page.getByLabel('Telefone').first().inputValue()) === '(37) 99999-0000')
@@ -247,10 +247,10 @@ try {
   }
   check('para sempre: gravado no cadastro', Boolean(dismissedAt))
   await again.close()
-  await page.goto(`${BASE}/configuracoes/cadastro`, { waitUntil: 'networkidle' })
+  await page.goto(`${BASE}/configuracoes/conta`, { waitUntil: 'networkidle' })
   const pendingList = page.getByRole('region', { name: 'Primeiros passos' })
   check(
-    'dispensado: pendências em Cadastro',
+    'dispensado: pendências em Conta',
     (await pendingList.getByRole('button').count()) === 2,
     await pendingList.innerText().catch(() => ''),
   )
@@ -281,8 +281,8 @@ try {
   // Vencido ainda fala com a gente e manda sugestão
   await page.getByRole('button', { name: 'Novo orçamento' }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'Falar com a gente' }).click()
-  await h1(page, 'Ajuda')
-  check('aviso leva à Ajuda', new URL(page.url()).pathname === '/ajuda')
+  await h1(page, 'Suporte')
+  check('aviso leva ao Suporte', new URL(page.url()).pathname === '/suporte/fale-com-a-gente')
   await page.getByLabel('O que faria o app melhor para você?').fill('Enviar orçamento por e-mail também')
   await page.getByRole('button', { name: 'Enviar', exact: true }).click()
   await page.getByText('Recebemos sua sugestão. Obrigado!').waitFor()
@@ -302,7 +302,7 @@ try {
   ])
   check('PDF baixa com a conta vencida', /\.pdf$/.test(download.suggestedFilename()), download.suggestedFilename())
 
-  await page.goto(`${BASE}/configuracoes/cadastro`, { waitUntil: 'networkidle' })
+  await page.goto(`${BASE}/configuracoes/conta`, { waitUntil: 'networkidle' })
   await page.getByLabel('Nome / razão social').fill(`${SHOP} 2`)
   await page.getByRole('button', { name: 'Salvar' }).first().click()
   await page.getByRole('dialog', { name: 'Seu teste grátis terminou' }).waitFor()
@@ -323,9 +323,9 @@ try {
   await h1(page, 'Início')
   check('entrar de novo cai na mesma conta', await page.getByText('Teste grátis: faltam 30 dias').isVisible())
 
-  // Ajuda: bloco do Início, WhatsApp e resposta da sugestão
-  await page.getByRole('button', { name: 'Ajuda: Fale com a gente' }).click()
-  await h1(page, 'Ajuda')
+  // Suporte: bloco do Início, WhatsApp e resposta da sugestão
+  await page.getByRole('button', { name: 'Suporte: Fale com a gente, explore dicas e novidades' }).click()
+  await h1(page, 'Suporte')
   const wa = await page.getByRole('link', { name: 'Conversar no WhatsApp' }).getAttribute('href')
   check('WhatsApp do suporte com a loja', wa.startsWith('https://wa.me/5537999170088?') && decodeURIComponent(wa).includes(SHOP), wa)
   await admin
@@ -336,18 +336,20 @@ try {
   const item = page.locator('.suggestions__item').first()
   await item.getByText('Já está no app!').waitFor()
   check('resposta e versão aparecem', (await item.innerText()).includes('Feita na versão 2026-10-14'))
-  check('sem horizontal scroll na Ajuda', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+  check('sem horizontal scroll no Suporte', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
   await page.screenshot({ path: join(OUT, 'ajuda.png'), fullPage: true })
-  const tips = page.getByRole('region', { name: 'Dicas' })
-  check('Ajuda lista as dicas', /Criar uma revisão/.test(await tips.innerText()) && /Desistir de uma revisão/.test(await tips.innerText()))
-  await tips.getByRole('button', { name: 'Mostrar as dicas de novo no orçamento' }).click()
+  await page.getByRole('tab', { name: 'Dicas' }).click()
+  const tips = page.getByRole('tabpanel')
+  const tipsText = await tips.innerText()
+  check('Suporte lista as dicas', /Criar uma revisão de orçamento/.test(tipsText) && /Excluir rascunho de orçamento/.test(tipsText))
+  await tips.getByRole('button', { name: 'Mostrar as dicas de novo' }).click()
   await tips.getByText('Pronto: as dicas voltam').waitFor()
   await page.goto(emittedUrl, { waitUntil: 'networkidle' })
   await reviseTip.waitFor()
-  check('dicas voltam depois de pedir na Ajuda', true)
+  check('dicas voltam depois de pedir no Suporte', true)
 
-  // Opt-in em Cadastro
-  await page.goto(`${BASE}/configuracoes/cadastro`, { waitUntil: 'networkidle' })
+  // Opt-in em Conta
+  await page.goto(`${BASE}/configuracoes/conta`, { waitUntil: 'networkidle' })
   const optIn = page.getByLabel('Quero receber novidades e ofertas pelo WhatsApp')
   await optIn.check()
   await page.waitForTimeout(500)
@@ -360,14 +362,16 @@ try {
   const tiles = await page.locator('.tile-grid').boundingBox()
   check('blocos cabem em 360×640 com o rodapé', tiles.y + tiles.height <= 640, String(tiles.y + tiles.height))
   await page.screenshot({ path: join(OUT, 'inicio-rodape.png'), fullPage: true })
-  check('rodapé mostra a versão', /Versão \d{4}-\d{2}-\d{2}/.test(await footer.innerText()))
-  await footer.getByRole('link', { name: 'Novidades' }).click()
-  await page.getByRole('heading', { name: 'Você pediu, a gente fez' }).waitFor()
-  check('novidades com "Você pediu, a gente fez"', true)
+  check('rodapé mostra a data da versão', /Última atualização: \d{2}\/\d{2}\/\d{4}/.test(await footer.innerText()))
+  await footer.getByRole('link', { name: 'Veja as novidades' }).click()
+  await h1(page, 'Suporte')
+  check('novidades no Suporte', new URL(page.url()).pathname === '/suporte/novidades')
+  check('mês mais recente aberto', await page.locator('.support__news details[open]').count() === 1)
   await page.getByRole('button', { name: 'Voltar' }).click()
   await h1(page, 'Início')
-  await footer.getByRole('button', { name: 'Excluir minha conta e dados' }).click()
-  const pop = page.getByRole('dialog', { name: 'Excluir conta' })
+  await page.goto(`${BASE}/configuracoes/conta`, { waitUntil: 'networkidle' })
+  await page.getByRole('button', { name: 'Excluir minha conta e dados' }).click()
+  const pop = page.getByRole('dialog', { name: 'Excluir conta e dados?' })
   check('excluir pede a palavra', await pop.getByRole('button', { name: 'Excluir tudo' }).isDisabled())
   await pop.getByLabel('Digite EXCLUIR para confirmar').fill('excluir')
   await page.screenshot({ path: join(OUT, 'excluir-conta.png'), fullPage: true })

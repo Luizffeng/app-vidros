@@ -118,8 +118,8 @@ const SECTION_ROUTES: Record<AppSection, Route> = {
   home: { screen: 'home' },
   list: { screen: 'quotes' },
   catalog: { screen: 'catalog', tab: 'vidros' },
-  settings: { screen: 'settings', tab: 'register' },
-  help: { screen: 'help' },
+  settings: { screen: 'settings', tab: 'account' },
+  help: { screen: 'help', tab: 'contact' },
 }
 
 export function App() {
@@ -169,7 +169,7 @@ export function App() {
   const [busy, setBusy] = useState(false)
   const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null)
   const [pendingDeleteQuote, setPendingDeleteQuote] = useState(false)
-  const [emitNeedsName, setEmitNeedsName] = useState(false)
+  const [emitBlocked, setEmitBlocked] = useState(false)
   const [emitExamples, setEmitExamples] = useState<ExampleUse | null>(null)
   const [onboardingHidden, setOnboardingHidden] = useState(onboardingHiddenThisSession)
   const [itemModal, setItemModal] = useState<
@@ -262,17 +262,19 @@ export function App() {
   const confirmOpen =
     Boolean(pendingRemoveId) ||
     pendingDeleteQuote ||
-    (emitNeedsName && !quote?.customer.name?.trim()) ||
+    (emitBlocked && Boolean(quote && emitGapMessage(quote))) ||
     Boolean(emitExamples)
-  useBackLayer(confirmOpen, () => {
+  // These pops share one back layer: open at most one, or closing one leaves the layer to eat the next back.
+  const closeConfirms = () => {
     setPendingRemoveId(null)
     setPendingDeleteQuote(false)
-    setEmitNeedsName(false)
+    setEmitBlocked(false)
     setEmitExamples(null)
-  })
+  }
+  useBackLayer(confirmOpen, closeConfirms)
 
   useEffect(() => {
-    if (!pendingRemoveId && !pendingDeleteQuote && !emitNeedsName && !emitExamples) return
+    if (!pendingRemoveId && !pendingDeleteQuote && !emitBlocked && !emitExamples) return
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target
       if (!(target instanceof Element)) return
@@ -283,14 +285,11 @@ export function App() {
         target.closest('.emit-wrap')
       )
         return
-      setPendingRemoveId(null)
-      setPendingDeleteQuote(false)
-      setEmitNeedsName(false)
-      setEmitExamples(null)
+      closeConfirms()
     }
     document.addEventListener('pointerdown', onPointerDown)
     return () => document.removeEventListener('pointerdown', onPointerDown)
-  }, [pendingRemoveId, pendingDeleteQuote, emitNeedsName, emitExamples])
+  }, [pendingRemoveId, pendingDeleteQuote, emitBlocked, emitExamples])
 
   const searchedQuotes = useMemo(() => {
     const q = listQuery.trim().toLowerCase()
@@ -489,7 +488,7 @@ export function App() {
 
   const onDeleteDraft = async () => {
     if (!quote || quote.status !== 'draft') return
-    setPendingDeleteQuote(false)
+    closeConfirms()
     await repo.deleteQuote(quote.id)
     clearItemDrafts(quote.id)
     setItemModal(null)
@@ -642,11 +641,11 @@ export function App() {
 
   const onEmit = async (withExamples = false) => {
     if (!quote || blocked()) return
-    if (!quote.customer.name?.trim()) {
-      setEmitNeedsName(true)
+    closeConfirms()
+    if (emitGapMessage(quote)) {
+      setEmitBlocked(true)
       return
     }
-    setEmitExamples(null)
     const examples = exampleUseInQuote(quote, catalog!)
     if (!withExamples && usesExample(examples)) {
       setEmitExamples(examples)
@@ -708,7 +707,7 @@ export function App() {
       ? null
       : task.tab
         ? { screen: 'catalog', tab: task.tab }
-        : { screen: 'settings', tab: 'register' }
+        : { screen: 'settings', tab: 'account' }
   const onOpenTask = (task: OnboardingTask) => {
     const target = taskRoute(task)
     if (target) return push(target)
@@ -747,7 +746,7 @@ export function App() {
           onClose={() => setExpiredNotice(false)}
           onTalk={() => {
             setExpiredNotice(false)
-            push({ screen: 'help' })
+            push({ screen: 'help', tab: 'contact' })
           }}
         />
       )}
@@ -755,7 +754,16 @@ export function App() {
   )
 
   if (route.screen === 'page') return screen(<PublicPage page={route.page} />)
-  if (route.screen === 'help') return screen(<SupportScreen onNavigate={goSection} nextStep={nextStep} />)
+  if (route.screen === 'help') {
+    return screen(
+      <SupportScreen
+        tab={route.tab}
+        onTabChange={(tab) => replace({ screen: 'help', tab })}
+        onNavigate={goSection}
+        nextStep={nextStep}
+      />,
+    )
+  }
 
   if (route.screen === 'home') {
     return screen(
@@ -947,7 +955,9 @@ export function App() {
                     label="Excluir rascunho"
                     tone="danger-solid"
                     onClick={() => {
-                      if (!blocked()) setPendingDeleteQuote((open) => !open)
+                      if (blocked()) return
+                      closeConfirms()
+                      setPendingDeleteQuote(!pendingDeleteQuote)
                     }}
                   >
                     <TrashIcon />
@@ -1054,9 +1064,10 @@ export function App() {
                   size="sm"
                   tone="danger"
                   className="item-remove"
-                  onClick={() =>
-                    setPendingRemoveId((current) => (current === item.id ? null : item.id))
-                  }
+                  onClick={() => {
+                    closeConfirms()
+                    setPendingRemoveId(pendingRemoveId === item.id ? null : item.id)
+                  }}
                 >
                   <TrashIcon />
                 </IconButton>
@@ -1201,6 +1212,7 @@ export function App() {
             }}
             hideTitle
             submitLabel={itemModal.mode === 'edit' ? 'Salvar alterações' : 'Adicionar item'}
+            requireChange={itemModal.mode === 'edit'}
             onCancel={discardItemModal}
             onSubmit={(input) => {
               if (itemModal.mode === 'edit') void onUpdateItem(itemModal.id, input)
@@ -1273,27 +1285,24 @@ export function App() {
                 <ActionButton
                   label="Emitir"
                   icon={<CheckIcon bold />}
-                  hint={
-                    quote.items.length === 0
-                      ? 'Inclua ao menos um item para emitir.'
-                      : 'Finaliza o orçamento e libera baixar e enviar.'
-                  }
+                  hint="Finaliza o orçamento e libera baixar e enviar."
                   className="primary"
-                  disabled={busy || quote.items.length === 0}
+                  disabled={busy}
                   onClick={() => void onEmit()}
                 />
                 <ConfirmPop
-                  open={emitNeedsName && !quote.customer.name?.trim()}
+                  open={emitBlocked && Boolean(emitGapMessage(quote))}
                   place="above"
                   alert
                   warn
                   tone="primary"
-                  label="Nome do cliente obrigatório"
-                  message="Preencha o nome do cliente para emitir."
-                  yesLabel="Preencher nome"
+                  label="Antes de emitir"
+                  message={emitGapMessage(quote) ?? ''}
+                  yesLabel={quote.customer.name?.trim() ? 'Adicionar item' : 'Preencher nome'}
                   onYes={() => {
-                    setEmitNeedsName(false)
-                    focusCustomerName()
+                    setEmitBlocked(false)
+                    if (quote.customer.name?.trim()) openAddItem()
+                    else focusCustomerName()
                   }}
                 />
                 <ConfirmPop
@@ -1555,6 +1564,16 @@ function CustomerSection({
       )}
     </CollapsibleSection>
   )
+}
+
+/** What still blocks emitting, in page order (name first); null when ready. */
+function emitGapMessage(quote: Quote): string | null {
+  const noName = !quote.customer.name?.trim()
+  const noItems = quote.items.length === 0
+  if (noName && noItems) return 'Falta o nome do cliente e pelo menos um item.'
+  if (noName) return 'Preencha o nome do cliente.'
+  if (noItems) return 'Inclua pelo menos um item.'
+  return null
 }
 
 function focusCustomerName() {

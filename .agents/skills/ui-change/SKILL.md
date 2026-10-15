@@ -51,3 +51,4 @@ One component file plus matching CSS blocks. If the change needs a new stored va
 
 - `npm run lint` and `npm run build` (runs `tsc -b`). Add `npm test` if any `src/domain/` file changed.
 - Visual change: run `browser-check` at 390 px; also 360 px for tight rows (customer name + phone, catalog tables).
+- Pattern parity (owner rule 2026-10-15): put the new or moved block next to an existing screen that uses the same pattern and compare. Measure, do not eyeball: gap between cards (`el.getBoundingClientRect()` of siblings), card padding, title/hint sizes, control height, colors from tokens (`--accent`, `--accent-2`, `--danger`, `--muted`). A difference needs a reason; otherwise reuse the existing class or fix the shared rule, never a one-off margin.

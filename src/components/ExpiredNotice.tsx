@@ -15,7 +15,7 @@ export function ExpiredNotice({
   account: Account
   state: AccountState
   onClose: () => void
-  /** Abre /ajuda */
+  /** Abre /suporte */
   onTalk: () => void
 }) {
   const disabled = state.kind === 'disabled'

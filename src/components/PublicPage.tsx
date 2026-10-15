@@ -11,7 +11,7 @@ function openInternal(e: MouseEvent<HTMLAnchorElement>, href: string) {
   push(parseRoute(href))
 }
 
-function InlineText({ parts }: { parts: Inline[] }) {
+export function InlineText({ parts }: { parts: Inline[] }) {
   return parts.map((part, i) => {
     if (part.kind === 'strong') return <strong key={i}>{part.text}</strong>
     if (part.kind === 'link') {
@@ -29,7 +29,7 @@ function InlineText({ parts }: { parts: Inline[] }) {
   })
 }
 
-function BlockView({ block }: { block: Block }) {
+export function BlockView({ block }: { block: Block }) {
   switch (block.kind) {
     case 'heading':
       return block.level === 2 ? (
@@ -99,10 +99,22 @@ const TITLES: Record<Page, string> = {
   news: 'Novidades',
 }
 
+/** Markdown body without its `#` title. */
+function PageBody({ page }: { page: Page }) {
+  const blocks = useMemo(() => parseMarkdown(PAGE_SOURCES[page]), [page])
+  return (
+    <article className="doc__body">
+      {blocks
+        .filter((b) => b.kind !== 'heading' || b.level !== 1)
+        .map((block, i) => (
+          <BlockView key={i} block={block} />
+        ))}
+    </article>
+  )
+}
+
 /** Termos, privacidade e novidades: abrem com ou sem login. */
 export function PublicPage({ page }: { page: Page }) {
-  const blocks = useMemo(() => parseMarkdown(PAGE_SOURCES[page]), [page])
-  const body = blocks.filter((b) => b.kind !== 'heading' || b.level !== 1)
   const title = TITLES[page]
 
   return (
@@ -118,11 +130,7 @@ export function PublicPage({ page }: { page: Page }) {
           </div>
         </header>
       </div>
-      <article className="doc__body">
-        {body.map((block, i) => (
-          <BlockView key={i} block={block} />
-        ))}
-      </article>
+      <PageBody page={page} />
     </div>
   )
 }

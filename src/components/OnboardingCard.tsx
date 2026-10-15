@@ -71,13 +71,19 @@ export function OnboardingCard({
               {next ? `Próximo: ${next.label}` : 'Sua loja está pronta para orçar.'}
             </span>
             <span className="onboarding__bar" aria-hidden="true">
-              <span style={{ width: `${(done / tasks.length) * 100}%` }} />
+              {tasks.map((task) => (
+                <span key={task.id} className={task.done ? 'onboarding__step--done' : undefined} />
+              ))}
             </span>
           </span>
         }
         count={`${done} de ${tasks.length}`}
         actions={
-          <IconButton label="Fechar primeiros passos" size="sm" onClick={() => setConfirming(true)}>
+          <IconButton
+            label="Fechar primeiros passos"
+            size="sm"
+            onClick={() => (next ? setConfirming(true) : onDismiss(true))}
+          >
             <CloseIcon />
           </IconButton>
         }
@@ -87,8 +93,10 @@ export function OnboardingCard({
       {confirming && (
         <Modal className="modal--notice" title="Fechar primeiros passos?" onClose={() => setConfirming(false)}>
           <p>
-            <strong>Desta vez:</strong> o card volta quando você abrir o app de novo.{' '}
-            <strong>Para sempre:</strong> o que falta fica em Configurações › Cadastro.
+            <strong>Desta vez:</strong> o card volta quando você abrir o app de novo.
+          </p>
+          <p>
+            <strong>Para sempre:</strong> o card sai do Início, e o que faltar fica em {'Configurações\u00a0›\u00a0Conta'}.
           </p>
           <div className="modal__actions">
             <button type="button" className="btn primary" onClick={() => onDismiss(false)}>

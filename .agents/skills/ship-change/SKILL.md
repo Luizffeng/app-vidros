@@ -17,6 +17,7 @@ At the end of any task that changed files, and whenever the user asks to commit,
 
 ## Steps
 
+0. News. If the shop owner will see the change, run `news-update` first (`src/content/novidades.md`).
 1. Checks. If anything outside docs changed (`src/`, `public/`, `index.html`, configs, `package*.json`): `npm test`, `npm run lint`, `npm run build`. Docs-only: skip.
 2. Doc sync. Only when behavior changed, and only the matching file:
    - `BUSINESS_RULES.md`: emit, roles, totals, pricer rule, customer output.

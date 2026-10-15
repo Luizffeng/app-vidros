@@ -85,3 +85,20 @@ export function parseMarkdown(source: string): Block[] {
   }
   return blocks
 }
+
+export interface Chapter {
+  title: Inline[]
+  blocks: Block[]
+}
+
+/** Splits at each `##`: text before the first one (without the `#` title) and one chapter per `##`. */
+export function splitChapters(blocks: readonly Block[]): { intro: Block[]; chapters: Chapter[] } {
+  const intro: Block[] = []
+  const chapters: Chapter[] = []
+  for (const block of blocks) {
+    if (block.kind === 'heading' && block.level === 1) continue
+    if (block.kind === 'heading' && block.level === 2) chapters.push({ title: block.text, blocks: [] })
+    else (chapters.at(-1)?.blocks ?? intro).push(block)
+  }
+  return { intro, chapters }
+}

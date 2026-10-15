@@ -374,8 +374,11 @@ label .percent-input .money-input {
   background: rgba(212, 160, 23, 0.08);
 }
 
-.margin-mode__box {
+/* Same box for every checkbox row (.check-field__box). */
+.margin-mode__box,
+.check-field__box input[type='checkbox'] {
   appearance: none;
+  flex: none;
   width: 1.25rem;
   height: 1.25rem;
   min-height: 0;
@@ -389,12 +392,14 @@ label .percent-input .money-input {
   cursor: pointer;
 }
 
-.margin-mode__box:checked {
+.margin-mode__box:checked,
+.check-field__box input[type='checkbox']:checked {
   border-color: var(--accent);
   background: var(--accent);
 }
 
-.margin-mode__box:checked::after {
+.margin-mode__box:checked::after,
+.check-field__box input[type='checkbox']:checked::after {
   content: '';
   width: 0.35rem;
   height: 0.65rem;
@@ -1207,9 +1212,15 @@ label .percent-input .money-input {
   margin-bottom: 0.85rem;
 }
 
+/* Card stack gap: 0.85rem (.section). Only a run of collapsible cards packs tighter (0.42rem);
+   a collapsible followed by a plain card keeps the plain gap. */
 .section.collapsible-section {
   margin-bottom: 0.42rem;
   padding-bottom: 0.8rem;
+}
+
+.section.collapsible-section:has(+ .section:not(.collapsible-section)) {
+  margin-bottom: 0.85rem;
 }
 
 .section h2,
@@ -1496,20 +1507,28 @@ a.btn.primary {
   border-color: #8ecfff;
 }
 
+/* No opacity on disabled: the label must stay readable (≥ 4.5:1) on dim phone screens. */
 .btn:disabled {
-  opacity: 0.4;
   cursor: not-allowed;
   pointer-events: none;
-  color: rgba(243, 239, 228, 0.45);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(243, 239, 228, 0.55);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: none;
+  filter: none;
 }
 
 .btn.primary:disabled {
-  background: rgba(224, 177, 42, 0.22);
-  color: rgba(26, 20, 5, 0.45);
-  filter: none;
+  color: #e6d39a;
+  background: rgba(212, 160, 23, 0.16);
+  border-color: rgba(212, 160, 23, 0.35);
+}
+
+.btn-reason {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-align: center;
 }
 
 /* WhatsApp actions: gold button, green logo (darker than brand green to read on gold). */
@@ -1541,10 +1560,6 @@ a.btn.primary {
 
 .btn-slot > .btn {
   width: 100%;
-}
-
-.btn-slot:hover > .btn:disabled {
-  opacity: 0.55;
 }
 
 .quote-list {
@@ -2332,9 +2347,11 @@ a.btn.primary {
   margin: 0;
 }
 
+/* Grows when the text wraps (long labels on phones). */
 .check-field__box {
-  height: var(--control-h);
-  padding: 0 0.75rem;
+  min-height: var(--control-h);
+  padding: 0.55rem 0.75rem;
+  line-height: 1.3;
 }
 
 .totals {
@@ -3419,8 +3436,7 @@ a.carousel__body {
   gap: 0.15rem 1rem;
 }
 
-.home-footer a,
-.home-footer .btn.link {
+.home-footer a {
   padding: 0.3rem 0;
   color: var(--muted);
   font-size: inherit;
@@ -3430,34 +3446,34 @@ a.carousel__body {
   text-underline-offset: 0.18em;
 }
 
-.home-footer .home-footer__danger {
-  color: #f07070;
-}
-
-.home-footer__delete {
-  display: grid;
-  justify-items: center;
-  gap: 0.5rem;
-}
-
-.home-footer__delete .confirm-pop {
-  width: min(22rem, 100%);
-  text-align: left;
-  color: var(--text);
-}
-
-.home-footer__confirm {
-  display: grid;
-  gap: 0.3rem;
-  margin-top: 0.5rem;
-}
-
 .home-footer__company,
 .home-footer__version {
   margin: 0;
 }
 
-/* Ajuda (/ajuda): WhatsApp, then suggestions newest first. */
+/* No action bar on Início: the footer ends the page. */
+.shell.home {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+/* Configurações › Conta, last line: low-key red link, confirm opens under it. */
+.delete-account {
+  margin-top: 1.25rem;
+}
+
+.delete-account .btn.link.delete-account__link {
+  padding: 0.3rem 0.25rem;
+  color: #f07070;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.delete-account__confirm {
+  display: grid;
+  gap: 0.3rem;
+}
+
+/* Suporte (/suporte): tabs Fale com a gente, Dicas, Novidades. */
 .support__whatsapp,
 .support__send {
   width: 100%;
@@ -3467,19 +3483,26 @@ a.carousel__body {
   margin-bottom: 0.6rem;
 }
 
-.tips {
-  display: grid;
-  gap: 0.6rem;
-  margin: 0 0 0.75rem;
-  padding: 0;
-  list-style: none;
+.tip-help {
+  margin: 0;
+  padding-inline: 0.35rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
 }
 
-.tips p {
-  margin: 0.15rem 0 0;
-  color: var(--muted);
+.support__news-intro {
+  margin: 0 0.25rem 0.75rem;
   font-size: 0.88rem;
-  line-height: 1.4;
+  color: var(--muted);
+}
+
+.support__news .doc__body > :last-child {
+  margin-bottom: 0;
+}
+
+.support__news .collapsible-section__body .doc__body {
+  padding-inline: 0.35rem;
 }
 
 .suggestions {
@@ -3548,37 +3571,41 @@ a.carousel__body {
   gap: 0.05rem;
 }
 
+/* Stays when open: the summary keeps one height, so its hover does too. The pill gives way
+   to the X there (bar and list show the progress), so the line fits at 360px. */
+.onboarding[open] .collapsible-section__summary > .pill {
+  display: none;
+}
+
 .onboarding__next {
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .onboarding--done .onboarding__next {
   color: var(--accent-2);
 }
 
-.onboarding[open] .onboarding__next {
-  display: none;
+.onboarding__bar {
+  display: flex;
+  gap: 3px;
+  width: 8.5rem;
+  height: 4px;
+  margin-top: 0.3rem;
 }
 
-.onboarding__bar {
-  display: block;
-  height: 4px;
-  margin-top: 0.2rem;
+/* One segment per step; fixed width, so opening the card does not resize it. */
+.onboarding__bar > span {
+  flex: 1;
   border-radius: 999px;
   background: var(--surface-2);
-  overflow: hidden;
 }
 
-.onboarding__bar > span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--accent);
-}
-
-.onboarding--done .onboarding__bar > span {
+.onboarding__bar > .onboarding__step--done {
   background: var(--accent-2);
 }
 
@@ -3667,10 +3694,11 @@ a.carousel__body {
   border-radius: 999px;
 }
 
+/* Green = feito, gold = o que falta (mark, bar segment). */
 .onboarding__task--done .onboarding__mark {
   border-color: transparent;
-  background: var(--accent);
-  color: #1b1405;
+  background: var(--accent-2);
+  color: #06261a;
 }
 
 .onboarding__mark svg {
@@ -3716,7 +3744,7 @@ a.carousel__body {
   color: var(--accent);
 }
 
-/* Próximo passo: thin strip under the header of Orçamentos, Catálogo, Configurações and Ajuda. */
+/* Próximo passo: thin strip under the header of Orçamentos, Catálogo, Configurações and Suporte. */
 .next-step {
   display: flex;
   align-items: center;
@@ -3910,6 +3938,17 @@ a.carousel__body {
 .modal--notice p {
   margin: 0 0 1rem;
   line-height: 1.45;
+}
+
+/* Paragraphs of one explanation sit closer than the body's grid gap. */
+.modal--notice p:has(+ p) {
+  margin-bottom: -0.35rem;
+}
+
+/* Irreversible action: title and the key words in red; the confirm button is .btn.danger-solid. */
+.modal--danger .modal__head h3,
+.modal--danger .modal__body strong {
+  color: var(--danger);
 }
 
 .modal--notice .modal__actions {

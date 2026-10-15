@@ -1,5 +1,6 @@
 export type CatalogTab = 'vidros' | 'kitBox' | 'acessorios' | 'aluminios' | 'config'
-export type SettingsTab = 'register' | 'quote' | 'logo'
+export type SettingsTab = 'account' | 'quote' | 'logo'
+export type HelpTab = 'contact' | 'tips' | 'news'
 export type QuoteFilter = 'draft' | 'emitted'
 /** Abrem sem login. */
 export type PublicPage = 'terms' | 'privacy' | 'news'
@@ -11,7 +12,7 @@ export type Route =
   | { screen: 'catalog'; tab: CatalogTab }
   | { screen: 'settings'; tab: SettingsTab }
   | { screen: 'page'; page: PublicPage }
-  | { screen: 'help' }
+  | { screen: 'help'; tab: HelpTab }
 
 export type Screen = Route['screen']
 
@@ -30,9 +31,18 @@ const CATALOG_SLUGS: Record<CatalogTab, string> = {
 }
 
 const SETTINGS_SLUGS: Record<SettingsTab, string> = {
-  register: 'cadastro',
+  account: 'conta',
   quote: 'orcamento',
   logo: 'logo',
+}
+
+/** Old links (the tab was called Cadastro until 2026-10-15). */
+const SETTINGS_ALIASES: Record<string, SettingsTab> = { cadastro: 'account' }
+
+const HELP_SLUGS: Record<HelpTab, string> = {
+  contact: 'fale-com-a-gente',
+  tips: 'dicas',
+  news: 'novidades',
 }
 
 const FILTER_SLUGS: Record<QuoteFilter, string> = {
@@ -69,9 +79,13 @@ export function parseRoute(pathname: string, search = ''): Route {
     case 'catalogo':
       return { screen: 'catalog', tab: fromSlug(CATALOG_SLUGS, parts[1]) ?? 'vidros' }
     case 'configuracoes':
-      return { screen: 'settings', tab: fromSlug(SETTINGS_SLUGS, parts[1]) ?? 'register' }
-    case 'ajuda':
-      return { screen: 'help' }
+      return {
+        screen: 'settings',
+        tab: fromSlug(SETTINGS_SLUGS, parts[1]) ?? SETTINGS_ALIASES[parts[1] ?? ''] ?? 'account',
+      }
+    case 'suporte':
+    case 'ajuda': // old links (the screen was Ajuda until 2026-10-15)
+      return { screen: 'help', tab: fromSlug(HELP_SLUGS, parts[1]) ?? 'contact' }
     default: {
       const page = parts.length === 1 ? fromSlug(PAGE_SLUGS, parts[0]) : undefined
       return page ? { screen: 'page', page } : { screen: 'home' }
@@ -99,7 +113,7 @@ export function formatRoute(route: Route): string {
     case 'page':
       return `/${PAGE_SLUGS[route.page]}`
     case 'help':
-      return '/ajuda'
+      return `/suporte/${HELP_SLUGS[route.tab]}`
   }
 }
 

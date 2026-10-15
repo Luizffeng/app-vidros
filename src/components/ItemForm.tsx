@@ -399,6 +399,8 @@ interface Props {
   onCancel?: () => void
   title?: string
   submitLabel?: string
+  /** Editing: submit stays disabled until a field differs from the item as first opened. */
+  requireChange?: boolean
   hideTitle?: boolean
   lockKind?: ProductKind
   /** Opens "Detalhes do custo" for the item being typed; prices it changes apply to the quote or catalog. */
@@ -423,6 +425,7 @@ export function ItemForm({
   onCancel,
   title = 'Adicionar item',
   submitLabel = 'Adicionar ao orçamento',
+  requireChange = false,
   hideTitle = false,
   lockKind,
   costDetail,
@@ -491,6 +494,7 @@ export function ItemForm({
     laborRate,
   }
   const stateKey = JSON.stringify(formState)
+  const unchanged = requireChange && sameFormState(formState, pristine)
   const onStateChangeRef = useRef(onStateChange)
   useEffect(() => {
     onStateChangeRef.current = onStateChange
@@ -1020,7 +1024,7 @@ export function ItemForm({
             Cancelar
           </button>
         )}
-        <button type="button" className="btn primary" onClick={submit}>
+        <button type="button" className="btn primary" disabled={unchanged} onClick={submit}>
           {submitLabel}
         </button>
       </div>

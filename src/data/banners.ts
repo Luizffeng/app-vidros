@@ -37,13 +37,13 @@ export const BANNERS: Banner[] = [
     id: 'fale-com-a-gente',
     title: 'Fale com a gente',
     text: 'Dúvida ou sugestão? Respondemos em até 1 hora, de segunda a sexta, das 10h às 16h.',
-    action: { route: { screen: 'help' } },
+    action: { route: { screen: 'help', tab: 'contact' } },
   },
   {
     id: 'novidades',
     title: 'Novidades do app',
     text: 'Veja o que mudou: tela de Início, botão voltar do celular e mais.',
-    action: { route: { screen: 'page', page: 'news' } },
+    action: { route: { screen: 'help', tab: 'news' } },
   },
 ]
 

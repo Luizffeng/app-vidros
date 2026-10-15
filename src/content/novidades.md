@@ -1,16 +1,15 @@
 # Novidades do app
 
+O que entrou no app nos últimos meses. Sugestões enviadas em [Suporte › Fale com a gente](/suporte/fale-com-a-gente) que viram novidade aparecem aqui.
+
 ## Outubro de 2026
 
 - **Conta própria para cada vidraçaria**, com teste grátis de 30 dias.
 - **Primeiros passos** no Início: o catálogo já vem com preços de exemplo, e o app mostra o que falta ajustar para a sua loja.
-- **Ajuda**: fale com a gente pelo WhatsApp e mande sugestões pelo app.
+- **Emitir** avisa o que falta no orçamento (nome do cliente ou item) e leva direto até lá.
+- **Suporte**: fale com a gente pelo WhatsApp, mande sugestões, veja dicas de uso e as novidades do app.
 - **Tela de Início** com atalhos para orçamentos, catálogo e configurações.
 - O **botão voltar do celular** funciona dentro do app, e cada tela tem seu próprio endereço.
+- **Configurações › Conta** reúne os dados da loja, a escolha de receber novidades e ofertas, e a opção de excluir a conta.
 - **Mostrar senha** na tela de entrada.
-- Transições mais suaves entre as telas.
-- Formulário do item e configuração do catálogo mais compactos no celular.
-
-## Você pediu, a gente fez
-
-As sugestões enviadas em [Ajuda](/ajuda) que entrarem no app aparecem aqui, com a versão em que chegaram. Quem sugeriu também vê "Feita na versão" na própria sugestão.
+- Transições mais suaves, formulários mais compactos no celular e botões bloqueados mais fáceis de ler.

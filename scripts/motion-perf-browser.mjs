@@ -200,7 +200,7 @@ async function runOnce(browser) {
         await page.getByRole('tab', { name: 'Orçamento' }).waitFor()
       }),
     )
-    for (const tab of ['Orçamento', 'Logo', 'Cadastro']) {
+    for (const tab of ['Orçamento', 'Logo', 'Conta']) {
       results.push(
         await measure(page, `aba ${tab}`, () => page.getByRole('tab', { name: tab }).click()),
       )

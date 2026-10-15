@@ -4,20 +4,20 @@ export interface Tip {
   title: string
   /** Balão com seta para o botão, que fica destacado: o texto fala do "botão destacado", nunca de "aqui". */
   pop: string
-  /** Lista em Ajuda › Dicas, sem o botão à vista */
+  /** Lista em Suporte › Dicas, sem o botão à vista */
   help: string
 }
 
 export const TIPS: Record<TipId, Tip> = {
   revisar: {
-    title: 'Criar uma revisão',
+    title: 'Criar uma revisão de orçamento',
     pop: 'Cliente pediu mudança? Toque no botão destacado. O emitido fica guardado e a nova versão abre como rascunho.',
     help: 'Cliente pediu mudança num orçamento emitido? Abra o orçamento e toque no ícone de revisão, no topo. O emitido fica guardado e a nova versão abre como rascunho, com o mesmo número.',
   },
   excluirRevisao: {
-    title: 'Desistir de uma revisão',
+    title: 'Excluir rascunho de orçamento',
     pop: 'Desistiu da mudança? A lixeira destacada exclui só este rascunho. O orçamento emitido continua igual.',
-    help: 'Desistiu da mudança? No rascunho da revisão, toque na lixeira, no topo. Só o rascunho é excluído; o orçamento emitido continua igual.',
+    help: 'Abra o rascunho e toque na lixeira, no topo. Só o rascunho é excluído. Se ele for a revisão de um orçamento emitido, o emitido continua igual.',
   },
 }
 
@@ -50,7 +50,7 @@ export function anyTipSeen(): boolean {
   return read().length > 0
 }
 
-/** "Mostrar as dicas de novo" em Ajuda. */
+/** "Mostrar as dicas de novo" em Suporte. */
 export function resetTips(): void {
   try {
     localStorage.removeItem(KEY)

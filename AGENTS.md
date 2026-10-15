@@ -4,7 +4,7 @@ Routing guide. Read this first. Then open only the folder the task needs.
 
 Deeper context: [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md), [ARCHITECTURE.md](ARCHITECTURE.md), [BUSINESS_RULES.md](BUSINESS_RULES.md), [DECISIONS.md](DECISIONS.md), [API_CONTEXT.md](API_CONTEXT.md). Token notes: [AI_OPTIMIZATION.md](AI_OPTIMIZATION.md).
 
-Reusable procedures (pricing, persisted field, customer output, UI, browser check, ship): `.agents/skills/<name>/SKILL.md`. Open the one that matches the task.
+Reusable procedures (pricing, persisted field, customer output, UI, browser check, news, ship): `.agents/skills/<name>/SKILL.md`. Open the one that matches the task.
 
 ## What this repo is
 
@@ -24,7 +24,7 @@ React 19, Vite, TypeScript. No router library (own History API router in `src/na
 | `src/domain/pricing/index.ts` `priceItem` | Pricing dispatch. |
 | `src/domain/types.ts` | Shared models and `QuoteRepository`. |
 
-Screens come from the URL (`src/nav/routes.ts`): `/` Início, `/orcamentos`, `/orcamentos/:id`, `/catalogo/:tab`, `/configuracoes/:tab`, `/ajuda`, and the public `/termos`, `/privacidade`, `/novidades`. Change them only through `src/nav/navigator.ts`. Overlays take one history entry each (`useBackLayer`), so device back closes them first.
+Screens come from the URL (`src/nav/routes.ts`): `/` Início, `/orcamentos`, `/orcamentos/:id`, `/catalogo/:tab`, `/configuracoes/:tab`, `/suporte/:tab` (old `/ajuda` still parses), and the public `/termos`, `/privacidade`, `/novidades`. Change them only through `src/nav/navigator.ts`. Overlays take one history entry each (`useBackLayer`), so device back closes them first.
 
 ## Folders
 

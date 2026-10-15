@@ -58,11 +58,13 @@ export const GearIcon = () => (
   </svg>
 )
 
-export const HelpIcon = () => (
+/** Headset: Suporte (fale com a gente, dicas, novidades). */
+export const SupportIcon = () => (
   <svg {...ICON_PROPS}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
-    <path d="M12 17h.01" />
+    <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
+    <path d="M4 14a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2z" />
+    <path d="M20 14a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2z" />
+    <path d="M17 18v.5a2.5 2.5 0 0 1-2.5 2.5H12" />
   </svg>
 )
 
@@ -133,8 +135,8 @@ export function HeaderMenu({
   }
   entries.push({
     id: 'help',
-    label: 'Ajuda',
-    icon: <HelpIcon />,
+    label: 'Suporte',
+    icon: <SupportIcon />,
     current: current === 'help',
     onSelect: () => onNavigate('help'),
     dividerBefore: true,
