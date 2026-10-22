@@ -594,7 +594,9 @@ label .percent-input .money-input {
   background: rgba(6, 12, 11, 0.72);
   display: grid;
   place-items: center;
-  padding: 1rem;
+  /* svh + safe-area: Chrome/Safari iOS bottom bar sits on top of 100vh content. */
+  padding: max(1rem, env(safe-area-inset-top, 0px)) max(1rem, env(safe-area-inset-right, 0px))
+    max(1rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px));
   backdrop-filter: blur(4px);
   overscroll-behavior: contain;
 }
@@ -602,6 +604,7 @@ label .percent-input .money-input {
 .modal {
   width: min(560px, 100%);
   max-height: min(90vh, 720px);
+  max-height: min(90svh, 720px);
   overflow: auto;
   background: linear-gradient(165deg, var(--bg1), var(--bg0));
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -632,7 +635,9 @@ label .percent-input .money-input {
 .modal--item {
   width: min(640px, 100%);
   height: min(92vh, 720px);
+  height: min(92svh, 720px);
   max-height: min(92vh, 720px);
+  max-height: min(92svh, 720px);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -693,6 +698,7 @@ label .percent-input .money-input {
   .modal--item {
     height: auto;
     max-height: 96vh;
+    max-height: 96svh;
     overflow: auto;
   }
 
@@ -702,6 +708,14 @@ label .percent-input .money-input {
     overflow: visible;
     flex: none;
     min-height: auto;
+  }
+
+  /* Keep Cancelar / Salvar above the iPhone home bar and browser chrome. */
+  .modal--item .item-form__actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -722,7 +736,7 @@ label .percent-input .money-input {
 .modal--item .item-form__actions {
   flex: none;
   margin: 0;
-  padding: 0.75rem 1.1rem 1.1rem;
+  padding: 0.75rem 1.1rem calc(1.1rem + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   background: var(--bg1);
 }
