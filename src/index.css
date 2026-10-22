@@ -710,7 +710,7 @@ label .percent-input .money-input {
     min-height: auto;
   }
 
-  /* Keep Cancelar / Salvar above the iPhone home bar and browser chrome. */
+  /* Sticky footer: Cancelar / Salvar above the iPhone home bar and browser chrome. */
   .modal--item .item-form__actions {
     position: sticky;
     bottom: 0;
