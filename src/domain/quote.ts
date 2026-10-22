@@ -1,11 +1,16 @@
 import { v4 as uuid } from 'uuid'
+import { catalogPrice, sameRef, withPriceOverrides } from './catalogEdit'
+import { normalizeFinalMeasures } from './finalMeasures'
+import { describeItem, itemNote } from './itemDescription'
+import { customerExtraSellPrice, LABOR_KEY, priceItem } from './pricing'
+import { normalizeQuotePhotos } from './quotePhotos'
 import type {
   AdditionalCost,
   Catalog,
+  CatalogRef,
   CustomerInfo,
   EstablishmentInfo,
   ItemExtra,
-  CatalogRef,
   ItemInput,
   MarginMode,
   PriceOverride,
@@ -15,9 +20,6 @@ import type {
 } from './types'
 
 const DEFAULT_VALIDITY_DAYS = 15
-import { catalogPrice, sameRef, withPriceOverrides } from './catalogEdit'
-import { customerExtraSellPrice, LABOR_KEY, priceItem } from './pricing'
-import { describeItem, itemNote } from './itemDescription'
 
 function normalizeExtras(raw: unknown): ItemExtra[] {
   if (typeof raw === 'number') {
@@ -84,12 +86,17 @@ export function normalizeQuote(quote: Quote): Quote {
     marginMode: parseMarginMode(quote.marginMode),
     priceOverrides: normalizePriceOverrides(quote.priceOverrides),
     discounts,
+    photos: normalizeQuotePhotos(quote.photos),
     items: quote.items.map((item) => {
-      if (item.input.kind === 'custom') return item
+      const finalMeasures = normalizeFinalMeasures(item.finalMeasures)
+      if (item.input.kind === 'custom') {
+        return finalMeasures ? { ...item, finalMeasures } : { ...item, finalMeasures: undefined }
+      }
       const { laborRate, ...input } = item.input
       return {
         ...item,
         input: { ...input, extras: normalizeExtras(input.extras), ...normalizeLaborRate(laborRate) },
+        ...(finalMeasures ? { finalMeasures } : { finalMeasures: undefined }),
       }
     }),
   })
@@ -118,6 +125,7 @@ export function createEmptyDraft(
     updatedAt: now,
     customer: {},
     items: [],
+    photos: [],
     additionalCosts: [],
     discounts: [],
     pricingVersion,

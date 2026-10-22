@@ -273,10 +273,27 @@ export type ItemInput =
   | EspelhoInput
   | CustomInput
 
+/** Medida de produção (interna); não sai no PDF/WhatsApp. */
+export interface FinalMeasure {
+  key: string
+  label: string
+  value: string
+  unit?: string
+}
+
+/** Foto do orçamento (interna); path = storage key ou data URL local. */
+export interface QuotePhoto {
+  id: string
+  path: string
+  createdAt: string
+}
+
 export interface QuoteItem {
   id: string
   input: ItemInput
   result: PricingResult
+  /** undefined = nunca salva (UI pré-preenche do orçamento); array = salva */
+  finalMeasures?: FinalMeasure[]
 }
 
 export interface AdditionalCost {
@@ -316,6 +333,8 @@ export interface Quote {
   validUntil?: string
   customer: CustomerInfo
   items: QuoteItem[]
+  /** Fotos internas da revisão (máx. 10); não saem na proposta ao cliente */
+  photos?: QuotePhoto[]
   additionalCosts: AdditionalCost[]
   discounts: AdditionalCost[]
   pricingVersion: string
@@ -390,4 +409,10 @@ export interface QuoteRepository {
   getSettings(): Promise<AppSettings>
   saveSettings(settings: AppSettings): Promise<void>
   nextQuoteNumber(): Promise<string>
+  /** Store photo bytes; returns path (data URL locally, storage key on Supabase). */
+  uploadQuotePhoto(photoId: string, blob: Blob): Promise<string>
+  /** Display URL for a path (data URL or signed URL). */
+  getQuotePhotoUrl(path: string): Promise<string>
+  /** Remove storage object when no quote refs it (caller checks). */
+  deleteQuotePhoto(path: string): Promise<void>
 }

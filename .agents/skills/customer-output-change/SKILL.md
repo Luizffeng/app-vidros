@@ -44,7 +44,7 @@ The functions above, their tests, and the action buttons in `App.tsx`. Settings 
 
 ## Must not
 
-- Print `describeItem(...).size`, BOM, cost, markup, or margin to the customer without an explicit product ask.
+- Print `describeItem(...).size`, BOM, cost, markup, margin, `finalMeasures`, or quote `photos` to the customer without an explicit product ask.
 - Show the internal `ORC-` code, a 0-value freight line, or each discount line separately.
 - Enable PDF or share actions for drafts (`readOnly` gates them to emitted quotes).
 - Change `formatQuoteCode` (internal app code).

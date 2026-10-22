@@ -24,7 +24,7 @@ O AppVidros é oferecido por **[RAZÃO SOCIAL]**, CNPJ **[CNPJ]**, com sede em *
 | Identificação da conta | você, no cadastro | nome da vidraçaria, WhatsApp, e-mail |
 | Dados de login | Google, Facebook ou operadora de telefone, quando você escolhe esse método | nome, e-mail, foto de perfil, número de telefone |
 | Dados da loja | você, nas Configurações | endereço, CNPJ ou CPF, logo, condições de orçamento |
-| Catálogo e orçamentos | você, ao usar o app | preços, itens, medidas, totais, PDFs |
+| Catálogo e orçamentos | você, ao usar o app | preços, itens, medidas, totais, PDFs, fotos internas do orçamento |
 | Dados de clientes nos orçamentos | você | nome, endereço, telefone do seu cliente |
 | Sugestões e conversas de suporte | você | texto das sugestões, mensagens no WhatsApp |
 | Preferência de comunicação | você | se aceita receber novidades e ofertas, e quando |
@@ -50,7 +50,7 @@ Não vendemos dados. Compartilhamos apenas com fornecedores necessários para o 
 
 | Fornecedor | Para quê |
 | --- | --- |
-| Supabase | banco de dados, login e armazenamento de logos |
+| Supabase | banco de dados, login e armazenamento de logos e fotos de orçamento |
 | Cloudflare | hospedagem e entrega do aplicativo |
 | Google e Facebook (Meta) | login, somente se você escolher esses métodos |
 | Twilio | envio de código por SMS ou WhatsApp, somente no login por telefone |
@@ -68,6 +68,7 @@ O aplicativo guarda no navegador do seu aparelho (armazenamento local) a sessão
 ## 7. Por quanto tempo guardamos
 
 - **Dados da conta, catálogo, orçamentos e sugestões:** enquanto a conta existir, inclusive no modo consulta.
+- **Fotos anexadas ao orçamento** (obra, anotações, evidências): só na sua conta, até **6 meses** após o anexo; depois podem deixar de ficar disponíveis.
 - **Após a exclusão da conta:** os dados são apagados imediatamente do banco de dados e saem das cópias de segurança em até [30] dias.
 - **Registros de acesso:** 6 meses, como exige o Marco Civil da Internet.
 - **Dados necessários para cumprir obrigações legais ou fiscais** (por exemplo, notas fiscais de assinatura): pelo prazo exigido em lei.

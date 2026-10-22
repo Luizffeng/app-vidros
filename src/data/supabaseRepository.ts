@@ -8,6 +8,7 @@ import { toExampleCatalog } from './exampleCatalog'
 import { loadSeedCatalog } from './seedCatalog'
 
 const LOGO_BUCKET = 'logos'
+const QUOTE_PHOTO_BUCKET = 'quote-photos'
 
 type CatalogRow = { payload: Catalog }
 type SettingsRow = { payload: Partial<AppSettings>; logo_path: string | null }
@@ -181,5 +182,37 @@ export class SupabaseQuoteRepository implements QuoteRepository {
     fail(error)
     if (typeof data !== 'string') throw new Error('Sequência de orçamento inválida.')
     return data
+  }
+
+  private async accountId(): Promise<string> {
+    const { data, error } = await this.supabase.rpc('current_account_id')
+    fail(error)
+    if (typeof data !== 'string' || !data) throw new Error('Conta não encontrada.')
+    return data
+  }
+
+  async uploadQuotePhoto(photoId: string, blob: Blob): Promise<string> {
+    const accountId = await this.accountId()
+    const path = `${accountId}/${photoId}.jpg`
+    const uploaded = await this.supabase.storage.from(QUOTE_PHOTO_BUCKET).upload(path, blob, {
+      upsert: true,
+      contentType: 'image/jpeg',
+    })
+    fail(uploaded.error)
+    return path
+  }
+
+  async getQuotePhotoUrl(path: string): Promise<string> {
+    if (path.startsWith('data:')) return path
+    const signed = await this.supabase.storage.from(QUOTE_PHOTO_BUCKET).createSignedUrl(path, 3600)
+    fail(signed.error)
+    if (!signed.data?.signedUrl) throw new Error('Não foi possível abrir a foto.')
+    return signed.data.signedUrl
+  }
+
+  async deleteQuotePhoto(path: string): Promise<void> {
+    if (path.startsWith('data:')) return
+    const removed = await this.supabase.storage.from(QUOTE_PHOTO_BUCKET).remove([path])
+    fail(removed.error)
   }
 }
