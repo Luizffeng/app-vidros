@@ -124,7 +124,8 @@ describe('quoteShareText', () => {
     expect(espelho).toBeGreaterThan(-1)
     expect(lines[espelho + 1]).toBe('Prata 04mm')
     expect(lines[espelho + 2]).toMatch(/^R\$/)
-    expect(lines[espelho + 3]).toMatch(/^• Instalação — R\$/)
+    // Draft preview: Extra cost R$ 50 with 30% empresa margin → sell R$ 65
+    expect(lines[espelho + 3]).toMatch(/^• Instalação — R\$\s*65,00$/)
 
     const correr = lines.indexOf('*2. Janela de correr 2 folhas*')
     expect(correr).toBeGreaterThan(-1)
@@ -148,6 +149,12 @@ describe('quoteShareText', () => {
     const text = quoteShareText(quote, { cta: 'Gostaria de efetuar o pedido?' })
     expect(text).toMatch(/Gostaria de efetuar o pedido\?\n\n_Validade da proposta: .+_/)
     expect(text).toContain(`_Validade da proposta: ${date}_`)
+  })
+
+  it('adicional na proposta usa preço de venda (com margem), não custo', () => {
+    const draft = sampleQuote()
+    expect(quoteShareText(draft)).toMatch(/Instalação — R\$\s*65,00/)
+    expect(quoteShareText(emitQuote(draft))).toMatch(/Instalação — R\$\s*65,00/)
   })
 
   it('inclui a observação do item em itálico, depois da cor/espessura', () => {

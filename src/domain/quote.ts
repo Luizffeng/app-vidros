@@ -16,7 +16,7 @@ import type {
 
 const DEFAULT_VALIDITY_DAYS = 15
 import { catalogPrice, sameRef, withPriceOverrides } from './catalogEdit'
-import { LABOR_KEY, priceItem } from './pricing'
+import { customerExtraSellPrice, LABOR_KEY, priceItem } from './pricing'
 import { describeItem, itemNote } from './itemDescription'
 
 function normalizeExtras(raw: unknown): ItemExtra[] {
@@ -441,10 +441,12 @@ function shareItemBlock(item: QuoteItem, index: number): string {
   if (note) lines.push(`_Obs.: ${note}_`)
   lines.push(formatBrl(item.result.breakdown.finalPrice))
   if (item.input.kind !== 'custom') {
+    const { markup, marginMode } = item.result.breakdown
     for (const extra of item.input.extras) {
       const description = extra.description.trim()
       if (!description || extra.amount <= 0) continue
-      lines.push(`• ${description} — ${formatBrl(extra.amount)}`)
+      const sell = customerExtraSellPrice(extra.amount, markup, marginMode ?? 'empresa')
+      lines.push(`• ${description} — ${formatBrl(sell)}`)
     }
   }
   return lines.join('\n')

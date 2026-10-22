@@ -3,6 +3,7 @@ import { loadSeedCatalog } from '../../data/seedCatalog'
 import type { CorrerInput, ItemInput, MarginMode } from '../types'
 import {
   buildBreakdown,
+  customerExtraSellPrice,
   findKitBox,
   findVidro,
   priceBox,
@@ -338,6 +339,13 @@ describe('cálculo de margem', () => {
 
   it('sem modo é empresa', () => {
     expect(buildBreakdown(parts)).toEqual(buildBreakdown(parts, 'empresa'))
+  })
+
+  it('adicional na proposta: venda com margem (não custo)', () => {
+    expect(customerExtraSellPrice(37, 0.3, 'empresa')).toBe(48.1)
+    expect(customerExtraSellPrice(73, 0.3, 'vendedor')).toBe(94.9)
+    expect(customerExtraSellPrice(73, 0.3, 'autonomo')).toBe(73)
+    expect(customerExtraSellPrice(50, 0.3)).toBe(65)
   })
 
   it('modo muda só preço e margem; BOM e custos iguais', () => {

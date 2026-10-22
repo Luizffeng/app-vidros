@@ -129,6 +129,21 @@ export function buildBreakdown(parts: {
   }
 }
 
+/**
+ * Customer-facing sell price of one item extra.
+ * Empresa/vendedor: cost × (1 + markup). Autônomo: cost as-is (no margin).
+ */
+export function customerExtraSellPrice(
+  costAmount: number,
+  markup: number,
+  mode: MarginMode = 'empresa',
+): number {
+  if (!(costAmount > 0) || !Number.isFinite(costAmount)) return 0
+  if (mode === 'autonomo') return roundMoney(costAmount)
+  const m = Number.isFinite(markup) ? markup : 0
+  return roundMoney(costAmount * (1 + m))
+}
+
 /** Adjust span in meters like calc_BOX F15 */
 export function adjustBoxSpanM(spanM: number): number {
   const mod = spanM % 0.05

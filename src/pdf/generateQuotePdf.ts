@@ -11,6 +11,7 @@ import {
 } from '../domain/quote'
 import { formatPhone } from '../domain/brazil'
 import { describeItem, itemNote } from '../domain/itemDescription'
+import { customerExtraSellPrice } from '../domain/pricing'
 
 export async function generateQuotePdf(
   quote: Quote,
@@ -181,13 +182,15 @@ export async function generateQuotePdf(
     if (spec) subLine(spec, 'normal')
     if (note) subLine(`Obs.: ${note}`, 'italic')
     if (item.input.kind !== 'custom') {
+      const { markup, marginMode } = item.result.breakdown
       let extraIndex = 0
       for (const extra of item.input.extras) {
         const description = extra.description.trim()
         if (!description || extra.amount <= 0) continue
         const letter = String.fromCharCode(97 + extraIndex)
         extraIndex += 1
-        line(`${idx + 1}.${letter}. Adicional: ${description} (${formatBrl(extra.amount)})`, 11, 'normal', 8)
+        const sell = customerExtraSellPrice(extra.amount, markup, marginMode ?? 'empresa')
+        line(`${idx + 1}.${letter}. Adicional: ${description} (${formatBrl(sell)})`, 11, 'normal', 8)
       }
     }
     y += 1
