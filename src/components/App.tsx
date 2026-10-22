@@ -9,7 +9,6 @@ import type {
   LaborKey,
   MarginMode,
   ProductKind,
-  FinalMeasure,
   Quote,
   QuotePhoto,
 } from '../domain/types'
@@ -100,7 +99,6 @@ import { ITEM_KINDS, ItemForm } from './ItemForm'
 import { ItemBlockHead } from './ItemBlockHead'
 import { Modal } from './Modal'
 import { ExpiredNotice } from './ExpiredNotice'
-import { FinalMeasuresForm } from './FinalMeasuresForm'
 import { PublicPage } from './PublicPage'
 import { QuotePhotosSection } from './QuotePhotosSection'
 import { SupportScreen } from './SupportScreen'
@@ -184,7 +182,6 @@ export function App() {
   /** Bumped to remount the item form after "Descartar alterações". */
   const [itemFormVersion, setItemFormVersion] = useState(0)
   const [costItemId, setCostItemId] = useState<string | null>(null)
-  const [finalMeasuresItemId, setFinalMeasuresItemId] = useState<string | null>(null)
   const [pdfPreviewBlob, setPdfPreviewBlob] = useState<Blob | null>(null)
   const pdfCacheRef = useRef<{ key: string; promise: Promise<Blob>; blob?: Blob } | null>(null)
   const [shareText, setShareText] = useState<string | null>(null)
@@ -439,16 +436,6 @@ export function App() {
     if (itemModal?.mode === 'edit' && itemModal.id === itemId) setItemModal(null)
     setItemDraft(clearEditDraft(quote.id, itemId))
     await persist(removeItem(quote, itemId))
-  }
-
-  /** Internal factory fields — allowed on emitted quotes (pricing stays read-only). */
-  const onSaveFinalMeasures = async (itemId: string, measures: FinalMeasure[]) => {
-    if (!quote || blocked()) return
-    const items = quote.items.map((item) =>
-      item.id === itemId ? { ...item, finalMeasures: measures } : item,
-    )
-    await persist({ ...quote, items, updatedAt: new Date().toISOString() })
-    setFinalMeasuresItemId(null)
   }
 
   const onSavePhotos = async (photos: QuotePhoto[]) => {
@@ -1067,15 +1054,6 @@ export function App() {
             <button type="button" className="item-block__cost-btn" onClick={() => setCostItemId(item.id)}>
               Detalhes do custo
             </button>
-            {canWrite && (
-              <button
-                type="button"
-                className="btn link btn-edit"
-                onClick={() => setFinalMeasuresItemId(item.id)}
-              >
-                Medidas finais
-              </button>
-            )}
             {!readOnly && (
               <div className="item-block__actions">
                 <IconButton
@@ -1252,30 +1230,6 @@ export function App() {
         </Modal>
       )}
 
-      {(canWrite || (quote.photos?.length ?? 0) > 0) && (
-        <QuotePhotosSection
-          photos={quote.photos ?? []}
-          canEdit={canWrite}
-          repo={repo}
-          busy={busy}
-          onChange={onSavePhotos}
-        />
-      )}
-
-      {finalMeasuresItemId &&
-        (() => {
-          const fmItem = quote.items.find((i) => i.id === finalMeasuresItemId)
-          if (!fmItem) return null
-          return (
-            <FinalMeasuresForm
-              item={fmItem}
-              kindLabel={kindLabel(fmItem.input.kind)}
-              onClose={() => setFinalMeasuresItemId(null)}
-              onSave={(measures) => void onSaveFinalMeasures(fmItem.id, measures)}
-            />
-          )
-        })()}
-
       <AdditionalCostsSection
         costs={quote.additionalCosts}
         disabled={readOnly}
@@ -1298,6 +1252,16 @@ export function App() {
             <div><span>Desconto</span><strong>{formatBrl(quote.discountTotal)}</strong></div>
           )}
         </section>
+      )}
+
+      {(canWrite || (quote.photos?.length ?? 0) > 0) && (
+        <QuotePhotosSection
+          photos={quote.photos ?? []}
+          canEdit={canWrite}
+          repo={repo}
+          busy={busy}
+          onChange={onSavePhotos}
+        />
       )}
 
       <footer className="action-bar">

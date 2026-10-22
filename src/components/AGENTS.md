@@ -14,8 +14,7 @@ React UI. No price formulas and no Supabase queries except `EntryScreen` (sign-i
 | `BannerCarousel.tsx`, `useCarouselAutoplay.ts` | One fixed banner frame; slides scroll-snap inside it (no peek), dots over the frame's bottom edge, banners from `src/data/banners.ts`; autoplay 5 s with pauses. |
 | `CatalogEditor.tsx` | Catalog tables (table dropdown, search, situation filter), version bump. Hides "Margem padrão" in Autônomo mode. Tab comes from the URL; unsaved edits use `useLeaveGuard`. |
 | `SettingsEditor.tsx` | Tab comes from the URL; unsaved edits use `useLeaveGuard`. Tabs Conta (expandable Estabelecimento, Novidades opt-in, pending Primeiros passos, `DeleteAccount` last), Orçamento (margem, validade, Texto final no WhatsApp, Condições de pagamento), Logo (preview + actions side by side). One `Section` per block, explanation in its `hint`. |
-| `FinalMeasuresForm.tsx` | Modal “Medidas finais” per item (draft or emitted). Seeds from quote input; never PDF/WhatsApp. |
-| `QuotePhotosSection.tsx` | Quote “Fotos” gallery (max 10, 6-month retention); compress + repo upload. Internal only. |
+| `QuotePhotosSection.tsx` | Quote “Fotos” `CollapsibleSection` (last card, after descontos): count `N/10`, tile “+”, trash on thumb, lightbox with swipe/arrows + zoom/pan. Compress + repo upload. Internal only. |
 | `Tabs.tsx` | Tab row with the sliding indicator (`.tabs__indicator`). Settings and Suporte; the tab lives in the URL and changes with `replace`. |
 | `DeleteAccount.tsx` | "Excluir minha conta e dados" (admin of a cloud account only): red link opens a `Modal` with type-EXCLUIR confirm. Terms and privacy cite its path. |
 | `CollapsibleSection.tsx` | `<details>` card with heading, `count` pill and chevron. Editor sections, Settings › Conta, Suporte › Dicas and Novidades. Height/fade animation only after the first user toggle. |
