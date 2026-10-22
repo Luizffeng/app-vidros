@@ -150,6 +150,36 @@ describe('quoteShareText', () => {
     expect(text).toContain(`_Validade da proposta: ${date}_`)
   })
 
+  it('não inclui medidas finais nem fotos na mensagem', () => {
+    const quote = sampleQuote()
+    quote.items[0] = {
+      ...quote.items[0],
+      finalMeasures: [{ key: 'spanCm', label: 'Largura', value: '999', unit: 'cm' }],
+    }
+    quote.photos = [
+      { id: 'p1', path: 'data:image/jpeg;base64,xx', createdAt: '2026-10-01T00:00:00.000Z' },
+    ]
+    const text = quoteShareText(quote)
+    expect(text).not.toContain('999')
+    expect(text).not.toContain('finalMeasures')
+    expect(text).not.toContain('data:image')
+    expect(text).not.toContain('Medidas finais')
+  })
+
+  it('revisão copia medidas finais e fotos com o mesmo path', () => {
+    const quote = sampleQuote()
+    quote.status = 'emitted'
+    quote.items[0] = {
+      ...quote.items[0],
+      finalMeasures: [{ key: 'spanCm', label: 'Largura', value: '118', unit: 'cm' }],
+    }
+    quote.photos = [{ id: 'p1', path: 'acct/p1.jpg', createdAt: '2026-10-01T00:00:00.000Z' }]
+    const rev = createRevision(quote)
+    expect(rev.items[0].finalMeasures?.[0]?.value).toBe('118')
+    expect(rev.photos?.[0]?.path).toBe('acct/p1.jpg')
+    expect(rev.photos?.[0]?.id).toBe('p1')
+  })
+
   it('inclui condições de pagamento após o total e antes da chamada', () => {
     const quote = sampleQuote()
     const text = quoteShareText(quote, {

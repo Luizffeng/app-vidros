@@ -128,6 +128,23 @@ export class LocalQuoteRepository implements QuoteRepository {
     await db.put('meta', { key, value: next })
     return `ORC-${year}-${String(next).padStart(4, '0')}`
   }
+
+  async uploadQuotePhoto(_photoId: string, blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(String(reader.result))
+      reader.onerror = () => reject(new Error('Falha ao gravar a foto.'))
+      reader.readAsDataURL(blob)
+    })
+  }
+
+  async getQuotePhotoUrl(path: string): Promise<string> {
+    return path
+  }
+
+  async deleteQuotePhoto(_path: string): Promise<void> {
+    /* Local photos live in the quote JSON (data URL); removing the ref is enough. */
+  }
 }
 
 type PricingConfigLegacy = { quoteValidityDays?: number }

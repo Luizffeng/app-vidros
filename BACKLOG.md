@@ -52,6 +52,11 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Done
 
+### 2026-10-22
+
+- [x] `feat` **Condições de pagamento (texto da loja):** Configurações › Orçamento; sai no PDF e no WhatsApp de todo orçamento quando preenchido (spec 008)
+- [x] `feat` **Medidas finais e fotos do orçamento:** internas, draft/emitido; até 10 fotos, retenção 6 meses; nunca na proposta; revisão compartilha path; bucket `quote-photos` (spec 009). Aplicar migração no Supabase antes de usar fotos na nuvem
+
 ### 2026-10-15
 
 - [x] `feat` **Suporte no lugar de Ajuda:** `/suporte/:tab` (antigo `/ajuda` ainda abre) com abas Fale com a gente, Dicas (cada dica expansível) e Novidades (um cartão por mês, últimos 6, o mais recente aberto). Ícone de headset; tile do Início "Fale com a gente / Explore dicas e novidades". Visível para todos os papéis. Skill `news-update` mantém `novidades.md`

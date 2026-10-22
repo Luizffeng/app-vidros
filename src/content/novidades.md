@@ -7,6 +7,7 @@ O que entrou no app nos últimos meses. Sugestões enviadas em [Suporte › Fale
 - **Conta própria para cada vidraçaria**, com teste grátis de 30 dias.
 - **Primeiros passos** no Início: o catálogo já vem com preços de exemplo, e o app mostra o que falta ajustar para a sua loja.
 - **Condições de pagamento** em Configurações › Orçamento: um texto da loja que sai no PDF e no WhatsApp de todo orçamento.
+- **Medidas finais e fotos** no orçamento (só na loja): anote a medida de produção e anexe até 10 fotos da obra; não saem na proposta ao cliente.
 - **Emitir** avisa o que falta no orçamento (nome do cliente ou item) e leva direto até lá.
 - **Suporte**: fale com a gente pelo WhatsApp, mande sugestões, veja dicas de uso e as novidades do app.
 - **Tela de Início** com atalhos para orçamentos, catálogo e configurações.

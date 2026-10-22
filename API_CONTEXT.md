@@ -36,7 +36,8 @@ Source of truth for the SQL contract: `supabase/migrations/20260924120000_init.s
 | `settings` | select/insert/upsert id `'current'`. Columns include `logo_path`. |
 | `profiles` | select own row (`id`, `role`) for the signed-in user. |
 | `rpc('next_quote_number')` | returns `text`. |
-| storage `logos` / `shop/logo.png` | upload, download, remove. |
+| storage `logos` / `{account_id}/logo.png` | upload, download, remove. |
+| storage `quote-photos` / `{account_id}/{photo_id}.jpg` | quote evidence photos (spec 009); RLS by account folder + `account_can_write`. |
 
 `quote_counters` is not queried from the client. The RPC updates it.
 
