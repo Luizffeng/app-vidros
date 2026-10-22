@@ -136,15 +136,28 @@ export async function generateQuotePdf(
   y = headerH + 8
 
   const code = formatDisplayQuoteCode(quote.number, quote.revision)
-  const status = quote.status === 'emitted' ? 'Emitido' : 'Rascunho'
+  const codeLabel = quote.status === 'emitted' ? code : `${code}  ·  Rascunho`
   const issuedAt = new Date(quote.emittedAt ?? quote.updatedAt)
   const validityDays =
     options?.validityDays ?? options?.settings?.quoteValidityDays ?? 15
   const validUntilIso = resolveQuoteValidUntil(quote, validityDays)
+  const dateLabel = `Data: ${issuedAt.toLocaleString('pt-BR')}`
+  const validLabel = `Validade: ${formatValidUntilDate(validUntilIso)}`
 
-  line(`${code}  ·  ${status}`, 11, 'bold')
-  line(`Data: ${issuedAt.toLocaleString('pt-BR')}`, 10)
-  line(`Validade: ${formatValidUntilDate(validUntilIso)}`, 10)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(11)
+  doc.setTextColor(30, 30, 30)
+  doc.text(codeLabel, margin, y)
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(10)
+  doc.text(dateLabel, pageW - margin, y, { align: 'right' })
+  y += 11 * 0.45 + 2
+  doc.text(validLabel, pageW - margin, y, { align: 'right' })
+  y += 10 * 0.45 + 2
+  if (y > 248) {
+    doc.addPage()
+    y = margin
+  }
   y += 3
 
   const addressLine = formatCustomerAddress(quote.customer)
@@ -212,12 +225,26 @@ export async function generateQuotePdf(
   if ((quote.discountTotal ?? 0) > 0) {
     line(`Descontos: ${formatBrl(quote.discountTotal)}`, 11)
   }
-  line(`TOTAL: ${formatBrl(quote.grandTotal)}`, 14, 'bold')
-
+  const totalLabel = `TOTAL: ${formatBrl(quote.grandTotal)}`
   const paymentTerms = options?.settings?.paymentTerms?.trim() ?? ''
   if (paymentTerms) {
-    y += 6
-    line(paymentTerms, 9)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(14)
+    doc.setTextColor(30, 30, 30)
+    doc.text(totalLabel, margin, y)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    const totalW = doc.getTextWidth(totalLabel)
+    const payMax = Math.max(40, pageW - margin * 2 - totalW - 6)
+    const payLines = doc.splitTextToSize(paymentTerms, payMax)
+    doc.text(payLines, pageW - margin, y, { align: 'right' })
+    y += Math.max(14 * 0.45 + 2, payLines.length * (9 * 0.45) + 2)
+    if (y > 248) {
+      doc.addPage()
+      y = margin
+    }
+  } else {
+    line(totalLabel, 14, 'bold')
   }
 
   y += 8

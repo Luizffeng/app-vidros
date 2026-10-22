@@ -34,6 +34,8 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Later
 
+- [ ] `feat` **Medidas finais por item (produção):** UI de medidas de produção/conferência por item (seed das medidas do orçamento), junto com plano de corte / módulo de produção. Domínio `finalMeasures` + testes já existem; sem UI até lá (spec 009 US1). Até lá: foto na seção Fotos ou medida correta no item.
+
 - [ ] `ui` (M) **Responsividade fina (~390px):** reavaliar; boa parte resolvida em 2026-10-06
 - [ ] `feat` (G) **PWA:** install, cache, uso offline
 - [ ] `feat` (P) **Web Share / atalhos mobile** (base Web Share já no PDF desktop/mobile quando o browser permitir)
@@ -55,7 +57,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 ### 2026-10-22
 
 - [x] `feat` **Condições de pagamento (texto da loja):** Configurações › Orçamento; sai no PDF e no WhatsApp de todo orçamento quando preenchido (spec 008)
-- [x] `feat` **Medidas finais e fotos do orçamento:** internas, draft/emitido; até 10 fotos, retenção 6 meses; nunca na proposta; revisão compartilha path; bucket `quote-photos` (spec 009). Aplicar migração no Supabase antes de usar fotos na nuvem
+- [x] `feat` **Fotos do orçamento:** internas, draft/emitido; até 10 fotos, retenção 6 meses; nunca na proposta; revisão compartilha path; bucket `quote-photos` (spec 009 US2+). Aplicar migração no Supabase antes de usar fotos na nuvem. Medidas finais (US1) adiadas → Later
 
 ### 2026-10-15
 
