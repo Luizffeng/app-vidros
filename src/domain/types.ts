@@ -62,6 +62,8 @@ export interface AppSettings {
   logoDataUrl?: string
   /** Última linha da mensagem enviada no WhatsApp */
   shareCta: string
+  /** Condições de pagamento da loja (PDF e WhatsApp); vazio = não mostra */
+  paymentTerms: string
   /** ISO de quando "Dispensar" foi tocado no card Primeiros passos */
   onboardingDismissedAt?: string
 }

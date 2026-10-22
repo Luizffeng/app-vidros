@@ -217,6 +217,12 @@ export async function generateQuotePdf(
   }
   line(`TOTAL: ${formatBrl(quote.grandTotal)}`, 14, 'bold')
 
+  const paymentTerms = options?.settings?.paymentTerms?.trim() ?? ''
+  if (paymentTerms) {
+    y += 6
+    line(paymentTerms, 9)
+  }
+
   y += 8
   line(
     'Orçamento válido até a data indicada, sujeito a confirmação de medidas no local.',

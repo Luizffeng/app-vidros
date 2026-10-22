@@ -496,7 +496,7 @@ export function pdfShareMessage(quote: Quote, options?: { shopName?: string; cta
 /** Texto curto pra WhatsApp e folha de compartilhar. Sem endereço. */
 export function quoteShareText(
   quote: Quote,
-  options?: { shopName?: string; cta?: string; validityDays?: number },
+  options?: { shopName?: string; cta?: string; paymentTerms?: string; validityDays?: number },
 ): string {
   const code = formatDisplayQuoteCode(quote.number, quote.revision)
   const validityDays = options?.validityDays ?? DEFAULT_VALIDITY_DAYS
@@ -504,6 +504,7 @@ export function quoteShareText(
   const shop = options?.shopName?.trim() || 'Vidraçaria'
   const client = quote.customer.name?.trim()
   const cta = options?.cta?.trim() ?? ''
+  const paymentTerms = options?.paymentTerms?.trim() ?? ''
   const items = quote.items.map((item, index) => shareItemBlock(item, index))
   const additionals = quote.additionalCosts
     .filter((cost) => cost.amount > 0 && cost.label.trim())
@@ -521,6 +522,7 @@ export function quoteShareText(
     discountTotal > 0 ? `*Desconto* — ${formatBrl(discountTotal)}` : null,
     '',
     `*Total ${formatBrl(quote.grandTotal)}*`,
+    ...(paymentTerms ? ['', paymentTerms] : []),
     ...(cta ? ['', cta] : []),
     '',
     validUntilLine,

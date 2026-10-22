@@ -33,6 +33,7 @@ const settings = (establishment: Partial<AppSettings['establishment']>): AppSett
     quoteValidityDays: 15,
     marginMode: 'empresa',
     shareCta: '',
+    paymentTerms: '',
     establishment: { name: '', ...establishment },
   }) as AppSettings
 

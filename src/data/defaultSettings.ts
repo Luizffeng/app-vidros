@@ -3,6 +3,8 @@ import { DEFAULT_SHARE_CTA, formatAddressLines, parseMarginMode } from '../domai
 import { DEFAULT_LOGO_DATA_URL, resolveStoredLogo } from './defaultLogo'
 
 export const DEFAULT_VALIDITY_DAYS = 15
+/** Max length for shop payment-terms text (settings + proposal). */
+export const PAYMENT_TERMS_MAX = 500
 
 export function defaultEstablishment(): EstablishmentInfo {
   return {
@@ -28,6 +30,7 @@ export function defaultSettings(): AppSettings {
     establishment: defaultEstablishment(),
     logoDataUrl: DEFAULT_LOGO_DATA_URL,
     shareCta: DEFAULT_SHARE_CTA,
+    paymentTerms: '',
   }
 }
 
@@ -52,6 +55,10 @@ export function normalizeSettings(raw: Partial<AppSettings> | null | undefined):
     },
     logoDataUrl: logo,
     shareCta: typeof raw.shareCta === 'string' ? raw.shareCta.trim() : DEFAULT_SHARE_CTA,
+    paymentTerms:
+      typeof raw.paymentTerms === 'string'
+        ? raw.paymentTerms.trim().slice(0, PAYMENT_TERMS_MAX)
+        : '',
     ...(typeof raw.onboardingDismissedAt === 'string' ? { onboardingDismissedAt: raw.onboardingDismissedAt } : {}),
   }
 }

@@ -33,6 +33,19 @@ describe('normalizeSettings onboardingDismissedAt', () => {
   })
 })
 
+describe('normalizeSettings paymentTerms', () => {
+  it('defaults to empty; old settings without the field stay empty', () => {
+    expect(defaultSettings().paymentTerms).toBe('')
+    expect(normalizeSettings({ quoteValidityDays: 10 }).paymentTerms).toBe('')
+  })
+
+  it('trims and caps at 500; whitespace-only becomes empty', () => {
+    expect(normalizeSettings({ paymentTerms: '  Pix à vista.  ' }).paymentTerms).toBe('Pix à vista.')
+    expect(normalizeSettings({ paymentTerms: '   ' }).paymentTerms).toBe('')
+    expect(normalizeSettings({ paymentTerms: 'x'.repeat(520) }).paymentTerms).toHaveLength(500)
+  })
+})
+
 describe('normalizeSettings marginModeChangedAt', () => {
   it('keeps a string date and drops anything else', () => {
     expect(normalizeSettings({ marginModeChangedAt: '2026-10-07T18:00:00.000Z' }).marginModeChangedAt).toBe(

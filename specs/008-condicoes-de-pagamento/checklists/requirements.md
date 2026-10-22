@@ -32,4 +32,4 @@
 ## Notes
 
 - Clarificado 2026-10-22: só texto da loja (estilo CTA WhatsApp); placeholder “Condições de pagamento à combinar.”; sem módulo rico.
-- Pronto para `/speckit-plan` (detalhe de posição no PDF/WhatsApp e limite de caracteres no plano).
+- Plan feito 2026-10-22 (`plan.md`, `research.md`, `data-model.md`, `contracts/ui.md`, `quickstart.md`). Próximo: `/speckit-tasks`.

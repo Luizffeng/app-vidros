@@ -3,7 +3,7 @@ import { useAccess } from '../auth/access'
 import type { OnboardingTask } from '../domain/onboarding'
 import type { AppSettings, EstablishmentInfo, MarginMode } from '../domain/types'
 import { DEFAULT_LOGO_DATA_URL } from '../data/defaultLogo'
-import { normalizeSettings } from '../data/defaultSettings'
+import { normalizeSettings, PAYMENT_TERMS_MAX } from '../data/defaultSettings'
 import { fileToLogoDataUrl } from '../data/logo'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
 import { filterUfInput, formatPhone, isValidUf, phoneDdd, phoneDigits } from '../domain/brazil'
@@ -385,6 +385,20 @@ export function SettingsEditor({
               aria-label="Texto final no WhatsApp"
               value={draft.shareCta}
               onChange={(e) => setDraft((d) => ({ ...d, shareCta: e.target.value }))}
+            />
+          </Section>
+          <Section
+            title="Condições de pagamento"
+            hint="Aparece no PDF e no WhatsApp de todo orçamento."
+          >
+            <textarea
+              className="settings-cta"
+              rows={3}
+              maxLength={PAYMENT_TERMS_MAX}
+              aria-label="Condições de pagamento"
+              placeholder="Condições de pagamento à combinar."
+              value={draft.paymentTerms}
+              onChange={(e) => setDraft((d) => ({ ...d, paymentTerms: e.target.value }))}
             />
           </Section>
         </div>
