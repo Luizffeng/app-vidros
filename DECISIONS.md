@@ -41,7 +41,7 @@ Only choices visible in code or in README / constitution / handoff. Not a change
 
 ## Customer-facing output hides shop internals
 
-- **Decision:** PDF and WhatsApp text show title, glass/profile spec, note, extras, and prices. They do not print `describeItem` size, BOM, cost, or margin.
+- **Decision:** PDF and WhatsApp text show title, glass/profile spec, note, extras, and prices. Extra line amounts are sell prices (margin applied per shop mode), never raw cost. They do not print `describeItem` size, BOM, cost, or margin.
 - **Reason/evidence:** `quoteShareText` uses `describeItem` title/spec only. `generateQuotePdf` same. README feature list.
 - **Consequence:** Internal measures stay on `ItemInput` for the editor and the pricers. Do not add them to the customer PDF without an explicit product change.
 

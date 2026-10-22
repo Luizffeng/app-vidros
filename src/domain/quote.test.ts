@@ -124,7 +124,8 @@ describe('quoteShareText', () => {
     expect(espelho).toBeGreaterThan(-1)
     expect(lines[espelho + 1]).toBe('Prata 04mm')
     expect(lines[espelho + 2]).toMatch(/^R\$/)
-    expect(lines[espelho + 3]).toMatch(/^• Instalação — R\$/)
+    // Draft preview: Extra cost R$ 50 with 30% empresa margin → sell R$ 65
+    expect(lines[espelho + 3]).toMatch(/^• Instalação — R\$\s*65,00$/)
 
     const correr = lines.indexOf('*2. Janela de correr 2 folhas*')
     expect(correr).toBeGreaterThan(-1)
@@ -178,6 +179,12 @@ describe('quoteShareText', () => {
     expect(rev.items[0].finalMeasures?.[0]?.value).toBe('118')
     expect(rev.photos?.[0]?.path).toBe('acct/p1.jpg')
     expect(rev.photos?.[0]?.id).toBe('p1')
+  })
+
+  it('adicional na proposta usa preço de venda (com margem), não custo', () => {
+    const draft = sampleQuote()
+    expect(quoteShareText(draft)).toMatch(/Instalação — R\$\s*65,00/)
+    expect(quoteShareText(emitQuote(draft))).toMatch(/Instalação — R\$\s*65,00/)
   })
 
   it('inclui condições de pagamento após o total e antes da chamada', () => {

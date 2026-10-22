@@ -83,7 +83,7 @@ Color surcharge percents and labor numbers in the seed are data, not hardcoded i
 ## Customer and display
 
 - Internal code is `{number}-{revision}` (`formatQuoteCode`). Customer code strips a leading `ORC-` (`formatDisplayQuoteCode`). PDF filename uses the customer code.
-- PDF and WhatsApp omit item size. They show `describeItem` title and spec, optional note, final price, and extras. `src/domain/itemDescription.ts`, `quoteShareText`, `generateQuotePdf`.
+- PDF and WhatsApp omit item size. They show `describeItem` title and spec, optional note, final price, and extras. Extra amounts on the proposal are **sell** prices (`customerExtraSellPrice`: cost × (1 + markup) in Empresa/Vendedor; cost as-is in Autônomo) — never raw cost. Applies to draft preview and any emitted quote when regenerating PDF/text. Item total on the right stays the closed price. `src/domain/itemDescription.ts`, `quoteShareText`, `generateQuotePdf`.
 - Shop `paymentTerms` (Configurações › Orçamento, max 500 chars): when non-empty after trim, PDF prints it on the same line as TOTAL (right-aligned) and WhatsApp puts it after `*Total*` (before CTA and validity). Empty → no block. Same text for every quote; current settings at send time (no snapshot).
 - PDF quote header: display code only when emitted; draft preview appends `· Rascunho`. No `Emitido` label. Date and validity sit right-aligned.
 - **Internal only (never PDF/WhatsApp):** `photos` on the quote (max 10, retained 6 months). Revision copies photo paths (same storage object). `finalMeasures` on items stays in the model for a future production module; no editor UI yet.

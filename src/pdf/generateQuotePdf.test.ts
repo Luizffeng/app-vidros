@@ -47,7 +47,10 @@ describe('generateQuotePdf itens', () => {
     expect(raw).toContain('(1. Espelho Lapidado)')
     expect(raw).toContain('(Prata 04mm)')
     expect(raw).toContain('(Obs.: Banheiro)')
-    expect(raw).toContain('(1.a. Adicional: Instalacao')
+    // Extra cost R$ 50 with 30% empresa margin → sell R$ 65 (never raw cost)
+    expect(raw).toContain('1.a. Adicional: Instalacao')
+    expect(raw).toMatch(/65,00/)
+    expect(raw).not.toMatch(/\(R\$\s*50,00\)/)
     expect(raw).toContain('(2. Porta pivotante com trinco)')
     expect(raw).toContain('(Alumínio Fosco · Vidro Incolor 10mm)')
     expect(raw).not.toContain('3445')
@@ -75,5 +78,11 @@ describe('generateQuotePdf cabeçalho e total', () => {
     const raw = await pdfText(quote, { settings })
     expect(raw).toContain('TOTAL:')
     expect(raw).toContain('Pix a vista.')
+  })
+
+  it('emitido também mostra adicional a preço de venda', async () => {
+    const raw = await pdfText(emitQuote(sampleDraft(), 15))
+    expect(raw).toMatch(/65,00/)
+    expect(raw).not.toMatch(/\(R\$\s*50,00\)/)
   })
 })
