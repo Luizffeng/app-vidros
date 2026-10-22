@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useBackLayer } from '../nav/useBackLayer'
 import { motionMs } from './usePresence'
+import { useVisualViewportVars } from './useVisualViewport'
 
 /** Open modals, oldest first: Esc closes only the top one. */
 const stack: object[] = []
@@ -22,6 +23,7 @@ export function Modal({
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
   const closeTimerRef = useRef<number | undefined>(undefined)
+  useVisualViewportVars(true)
 
   // Button, Esc and backdrop play the exit first; parent-driven unmounts stay instant.
   const requestClose = () => {

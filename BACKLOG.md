@@ -34,6 +34,8 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Later
 
+- [ ] `feat` (M) **Arquivar orçamentos (pausado):** draft em [specs/010-arquivar-orcamentos](specs/010-arquivar-orcamentos/spec.md). Não é necessário agora; revisitar quando a lista pedir. Ideia: filtro Arquivados, grupo inteiro (não revisão isolada), mini botão + long-press
+- [ ] `feat` (M) **Cadastro por telefone OTP e Facebook (spec 007 T061/T062):** `signInWithOtp` SMS/WhatsApp + botão Facebook em `EntryScreen`; Twilio/Facebook desligados por padrão no `supabase/config.toml`. Adiado ao fechar a fase 1
 - [ ] `feat` **Medidas finais por item (produção):** UI de medidas de produção/conferência por item (seed das medidas do orçamento), junto com plano de corte / módulo de produção. Domínio `finalMeasures` + testes já existem; sem UI até lá (spec 009 US1). Até lá: foto na seção Fotos ou medida correta no item.
 
 - [ ] `ui` (M) **Responsividade fina (~390px):** reavaliar; boa parte resolvida em 2026-10-06
@@ -56,6 +58,8 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ### 2026-10-22
 
+- [x] `ui` **Fotos: carrossel, zoom e teclado:** setas e arraste entre fotos; toque/clique duplo liga e desliga zoom; pan limitado à moldura; Salvar do item permanece acima do teclado no celular (`visualViewport`)
+- [x] `feat` **SaaS fase 1 (spec 007):** conta = loja, RLS por `account_id`, cadastro e-mail/Google + teste 30 dias e modo consulta, catálogo de exemplo + Primeiros passos, Fale com a gente / sugestões, rodapé e excluir conta. Entregas 1–4 + polish docs/testes. Residuais: telefone/Facebook → Later; virada Forte Vidros (T019) e abrir cadastro em produção → Blocked
 - [x] `feat` **Condições de pagamento (texto da loja):** Configurações › Orçamento; sai no PDF e no WhatsApp de todo orçamento quando preenchido (spec 008)
 - [x] `feat` **Fotos do orçamento:** internas, draft/emitido; até 10 fotos, retenção 6 meses; nunca na proposta; revisão compartilha path; bucket `quote-photos` (spec 009 US2+). Aplicar migração no Supabase antes de usar fotos na nuvem. Medidas finais (US1) adiadas → Later
 

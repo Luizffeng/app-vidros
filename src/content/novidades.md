@@ -8,7 +8,7 @@ O que entrou no app nos últimos meses. Sugestões enviadas em [Suporte › Fale
 - **Primeiros passos** no Início: o catálogo já vem com preços de exemplo, e o app mostra o que falta ajustar para a sua loja.
 - **Adicionais no PDF e no WhatsApp** mostram o valor de venda (com margem), não o custo.
 - **Condições de pagamento** em Configurações › Orçamento: um texto da loja que sai no PDF e no WhatsApp de todo orçamento.
-- **Fotos no orçamento** (só na loja): anexe até 10 fotos da obra, medidas ou anotações (galeria, câmera ou arquivos); abra em tela cheia, dê zoom e passe de uma para outra; não saem na proposta ao cliente.
+- **Fotos no orçamento** (só na loja): anexe até 10 fotos da obra, medidas ou anotações (galeria, câmera ou arquivos); abra em tela cheia, passe de uma para outra, pinça ou toque duplo para zoom; não saem na proposta ao cliente.
 - **PDF do orçamento:** emitido mostra só o número (sem a palavra “Emitido”); data e validade à direita; condições de pagamento na mesma linha do total.
 - **Emitir** avisa o que falta no orçamento (nome do cliente ou item) e leva direto até lá.
 - **Suporte**: fale com a gente pelo WhatsApp, mande sugestões, veja dicas de uso e as novidades do app.
