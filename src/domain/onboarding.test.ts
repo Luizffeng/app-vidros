@@ -24,6 +24,7 @@ const settings = (establishment: Partial<AppSettings['establishment']> = {}, ext
     quoteValidityDays: 15,
     marginMode: 'empresa',
     shareCta: '',
+    paymentTerms: '',
     establishment: { name: '', ...establishment },
     ...extra,
   }) as AppSettings

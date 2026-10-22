@@ -619,6 +619,7 @@ export function App() {
       quoteShareText(quote, {
         shopName: shopDisplayName(settings?.establishment),
         cta: settings?.shareCta,
+        paymentTerms: settings?.paymentTerms,
         validityDays: settings?.quoteValidityDays,
       }),
     )

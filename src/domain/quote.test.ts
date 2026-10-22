@@ -150,6 +150,18 @@ describe('quoteShareText', () => {
     expect(text).toContain(`_Validade da proposta: ${date}_`)
   })
 
+  it('inclui condições de pagamento após o total e antes da chamada', () => {
+    const quote = sampleQuote()
+    const text = quoteShareText(quote, {
+      paymentTerms: 'Valor à vista. Crédito na venda.',
+      cta: 'Gostaria de efetuar o pedido?',
+    })
+    expect(text).toMatch(
+      /\*Total .+\*\n\nValor à vista\. Crédito na venda\.\n\nGostaria de efetuar o pedido\?/,
+    )
+    expect(quoteShareText(quote, { paymentTerms: '   ' })).not.toContain('Condições')
+  })
+
   it('inclui a observação do item em itálico, depois da cor/espessura', () => {
     let quote = createEmptyDraft('ORC-2026-0002', catalog.config.version)
     quote = addItem(quote, catalog, {
