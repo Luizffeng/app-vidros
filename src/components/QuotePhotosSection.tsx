@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
 import { v4 as uuid } from 'uuid'
 import { fileToQuotePhotoBlob } from '../data/quotePhoto'
 import { photoIsAvailable, QUOTE_PHOTOS_MAX } from '../domain/quotePhotos'
@@ -7,6 +13,8 @@ import { Banner } from './Banner'
 import { CollapsibleSection } from './CollapsibleSection'
 import { IconButton } from './IconButton'
 import { Modal } from './Modal'
+import { useDismiss } from './useDismiss'
+import { usePresence } from './usePresence'
 
 const ZOOM_MIN = 1
 const ZOOM_MAX = 5
@@ -24,14 +32,31 @@ export function QuotePhotosSection({
   busy: boolean
   onChange: (photos: QuotePhoto[]) => Promise<void>
 }) {
-  const inputRef = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
+  const filesInputRef = useRef<HTMLInputElement>(null)
+  const addWrapRef = useRef<HTMLDivElement>(null)
+  const addBtnRef = useRef<HTMLButtonElement>(null)
+  const firstOptRef = useRef<HTMLButtonElement>(null)
+  const menuId = useId()
   const [urls, setUrls] = useState<Record<string, string>>({})
   const [error, setError] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
   const [viewerIndex, setViewerIndex] = useState<number | null>(null)
+  const pickerPop = usePresence(pickerOpen, 'xs')
   const atMax = photos.length >= QUOTE_PHOTOS_MAX
 
   const viewable = photos.filter((p) => photoIsAvailable(p) && urls[p.id])
+
+  useDismiss(pickerOpen, addWrapRef, (reason) => {
+    setPickerOpen(false)
+    if (reason === 'escape') addBtnRef.current?.focus({ preventScroll: true })
+  })
+
+  useEffect(() => {
+    if (pickerOpen) firstOptRef.current?.focus({ preventScroll: true })
+  }, [pickerOpen])
 
   useEffect(() => {
     let cancelled = false
@@ -62,25 +87,49 @@ export function QuotePhotosSection({
     if (viewerIndex >= viewable.length) setViewerIndex(viewable.length - 1)
   }, [viewerIndex, viewable.length])
 
-  const onPick = async (file: File | undefined) => {
-    if (!file || !canEdit) return
-    if (atMax) {
+  const openSource = (kind: 'gallery' | 'camera' | 'files') => {
+    setPickerOpen(false)
+    const ref =
+      kind === 'gallery' ? galleryInputRef : kind === 'camera' ? cameraInputRef : filesInputRef
+    // Next tick so dismiss / presence do not steal the synthetic click.
+    window.setTimeout(() => ref.current?.click(), 0)
+  }
+
+  const onPickFiles = async (list: FileList | null) => {
+    if (!list?.length || !canEdit) return
+    const room = QUOTE_PHOTOS_MAX - photos.length
+    if (room <= 0) {
       setError(`Máximo de ${QUOTE_PHOTOS_MAX} fotos neste orçamento.`)
       return
     }
+    const chosen = [...list].slice(0, room)
     setError(null)
     setUploading(true)
+    let next = photos
+    let failed: string | null = null
     try {
-      const blob = await fileToQuotePhotoBlob(file)
-      const id = uuid()
-      const path = await repo.uploadQuotePhoto(id, blob)
-      const photo: QuotePhoto = { id, path, createdAt: new Date().toISOString() }
-      await onChange([...photos, photo])
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
+      for (const file of chosen) {
+        try {
+          const blob = await fileToQuotePhotoBlob(file)
+          const id = uuid()
+          const path = await repo.uploadQuotePhoto(id, blob)
+          next = [...next, { id, path, createdAt: new Date().toISOString() }]
+        } catch (e) {
+          failed = e instanceof Error ? e.message : String(e)
+          break
+        }
+      }
+      if (next !== photos) await onChange(next)
+      if (list.length > room) {
+        setError(`Só cabem mais ${room} foto${room === 1 ? '' : 's'} (máx. ${QUOTE_PHOTOS_MAX}).`)
+      } else if (failed) {
+        setError(failed)
+      }
     } finally {
       setUploading(false)
-      if (inputRef.current) inputRef.current.value = ''
+      for (const ref of [galleryInputRef, cameraInputRef, filesInputRef]) {
+        if (ref.current) ref.current.value = ''
+      }
     }
   }
 
@@ -120,6 +169,75 @@ export function QuotePhotosSection({
       <p className="section-hint">Adicione fotos da obra, projetos, medidas ou anotações.</p>
       {error && <Banner tone="error">{error}</Banner>}
       <ul className="quote-photos">
+        {canEdit && !atMax && (
+          <li className="quote-photos__item quote-photos__item--add">
+            <div className="photo-add-wrap" ref={addWrapRef}>
+              <button
+                ref={addBtnRef}
+                type="button"
+                className="quote-photos__add"
+                disabled={busy || uploading}
+                aria-label={uploading ? 'Enviando foto' : 'Adicionar foto'}
+                aria-haspopup="menu"
+                aria-expanded={pickerOpen}
+                aria-controls={pickerOpen ? menuId : undefined}
+                onClick={() => setPickerOpen((v) => !v)}
+              >
+                {uploading ? <span className="quote-photos__add-busy">…</span> : <PlusIcon />}
+              </button>
+              {pickerPop.mounted && (
+                <div
+                  className="photo-add-pop"
+                  id={menuId}
+                  role="menu"
+                  aria-label="Adicionar foto"
+                  data-state={pickerPop.state}
+                >
+                  <button
+                    ref={firstOptRef}
+                    type="button"
+                    role="menuitem"
+                    className="send-option"
+                    onClick={() => openSource('gallery')}
+                  >
+                    <span className="send-option__icon">
+                      <GalleryIcon />
+                    </span>
+                    <span className="send-option__text">
+                      <strong>Galeria</strong>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="send-option"
+                    onClick={() => openSource('camera')}
+                  >
+                    <span className="send-option__icon">
+                      <CameraIcon />
+                    </span>
+                    <span className="send-option__text">
+                      <strong>Câmera</strong>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="send-option"
+                    onClick={() => openSource('files')}
+                  >
+                    <span className="send-option__icon">
+                      <FolderIcon />
+                    </span>
+                    <span className="send-option__text">
+                      <strong>Arquivos</strong>
+                    </span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </li>
+        )}
         {photos.map((photo) => {
           const available = photoIsAvailable(photo)
           const src = urls[photo.id]
@@ -154,28 +272,35 @@ export function QuotePhotosSection({
             </li>
           )
         })}
-        {canEdit && !atMax && (
-          <li className="quote-photos__item">
-            <button
-              type="button"
-              className="quote-photos__add"
-              disabled={busy || uploading}
-              aria-label={uploading ? 'Enviando foto' : 'Adicionar foto'}
-              onClick={() => inputRef.current?.click()}
-            >
-              {uploading ? <span className="quote-photos__add-busy">…</span> : <PlusIcon />}
-            </button>
-          </li>
-        )}
       </ul>
       {canEdit && (
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          hidden
-          onChange={(e) => void onPick(e.target.files?.[0])}
-        />
+        <>
+          <input
+            ref={galleryInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            multiple
+            hidden
+            onChange={(e) => void onPickFiles(e.target.files)}
+          />
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            capture="environment"
+            hidden
+            onChange={(e) => void onPickFiles(e.target.files)}
+          />
+          {/* No accept: on Android this tends to open Documents/Files, not Google Photos.
+              Non-images are rejected in fileToQuotePhotoBlob. */}
+          <input
+            ref={filesInputRef}
+            type="file"
+            multiple
+            hidden
+            onChange={(e) => void onPickFiles(e.target.files)}
+          />
+        </>
       )}
       {canEdit && atMax && (
         <p className="btn-reason">Máximo de {QUOTE_PHOTOS_MAX} fotos neste orçamento.</p>
@@ -521,6 +646,51 @@ function PlusIcon() {
         stroke="currentColor"
         strokeWidth="2.2"
         strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function GalleryIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4.5 6.5h15v12h-15zM4.5 15.5l4-4 3 3 2.5-2.5 5.5 5.5M9 10.2a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function CameraIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4.5 8.5h3l1.5-2h6l1.5 2h3v10h-15zM12 16.2a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function FolderIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M3.5 7.5h6l1.5 1.5h9.5v9.5h-17z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   )
