@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { motionMs } from './usePresence'
 
 export function CollapsibleSection({
   title,
@@ -18,11 +19,45 @@ export function CollapsibleSection({
   className?: string
   children: ReactNode
 }) {
+  const rootRef = useRef<HTMLDetailsElement>(null)
   const [open, setOpen] = useState(defaultOpen)
   // Animate only after the user toggles, so screens mount without motion.
   const [animate, setAnimate] = useState(false)
+
+  // While the section height animates open, scroll in lockstep so the page
+  // follows the expansion (instead of expand-then-jump). One rAF loop for
+  // ~dur-md — cheap; only runs on user open.
+  useEffect(() => {
+    if (!open || !animate) return
+    const el = rootRef.current
+    if (!el) return
+
+    const headPad = 56
+    const footPad = 88
+    const duration = motionMs('md') + 48
+    const started = performance.now()
+    let raf = 0
+
+    const frame = (now: number) => {
+      const rect = el.getBoundingClientRect()
+      const vh = window.innerHeight
+      const overflowBottom = rect.bottom - (vh - footPad)
+      if (overflowBottom > 0) {
+        window.scrollBy(0, overflowBottom)
+      } else if (rect.top < headPad) {
+        window.scrollBy(0, rect.top - headPad)
+      }
+      if (now - started < duration) {
+        raf = requestAnimationFrame(frame)
+      }
+    }
+    raf = requestAnimationFrame(frame)
+    return () => cancelAnimationFrame(raf)
+  }, [open, animate])
+
   return (
     <details
+      ref={rootRef}
       className={`section collapsible-section${animate ? ' collapsible-section--animate' : ''}${className ? ` ${className}` : ''}`}
       open={open}
       onToggle={(e) => {
