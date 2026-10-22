@@ -25,7 +25,6 @@ _(vazio — puxar de Next)_
 - [ ] `feat` (M) **Reconquista após o teste:** quem não assina depois dos 30 dias e consentiu recebe oferta pelo WhatsApp (ex.: 50% nos 3 primeiros meses, ou primeiro mês por R$ 1,99 com assinatura no cartão). Depende da fase 2 (cartão) e do painel do provedor. Ordem dos contatos: primeiro um lembrete de valor sem falar de pagamento (ex.: orçamentos prestes a vencer), depois a assinatura, por fim o desconto. A longo prazo, CRM com régua de contato (ativação no teste, vencimento, reconquista)
 - [ ] `feat` (G) **Vários usuários por loja (precisa de spec):** convites, papéis admin/vendedor e o que cada um vê, vincular métodos de entrada a uma conta. Pedido do dono 2026-10-15: revisar os papéis (hoje `admin` e `vendedor`; na prática a loja usa um gerente) e liberar Configurações para todos, com o que cada papel pode mudar (ex.: vendedor ajusta a validade da proposta; cadastro da loja, margem e excluir conta só admin). Hoje o vendedor não abre Catálogo nem Configurações; Suporte (fale com a gente, dicas, novidades) já aparece para todos. Mudar o que cada papel grava exige RLS. Entrada (Google, e-mail, telefone, Facebook), recuperar senha, sessão, isolamento por conta (RLS) e desativação do Vendedor já estão na [spec 007](specs/007-saas-vidracarias/spec.md). Liga com **Usuário no Cadastro**. Só quando houver demanda
 - [ ] `feat` (G) **Frete automático por km (precisa de spec):** pedido do dono 2026-10-10. Calcula o frete a partir do CEP da loja (Cadastro) e do CEP do cliente, × custo por km configurável (padrão R$ 2,00/km), e entra no orçamento como custo adicional editável. Decidir: ida ou ida e volta, valor mínimo, arredondamento, distância de rota vs linha reta, serviço de CEP → coordenadas e de rota (BrasilAPI/ViaCEP + OSRM/OpenRouteService/Google; custo e limite de uso), sem CEP do cliente (fica manual). Hoje: Frete digitado como custo adicional comum
-- [ ] `feat` (M) **Arquivar orçamentos (precisa de spec):** tirar da lista principal sem apagar. Ideia de UI: mini botão no card e/ou long-press no card do orçamento. Arquivar o grupo (número do orçamento), não uma revisão isolada — por enquanto. Spec antes de implementar: filtro Arquivados, desarquivar, rascunho vs emitido, busca, Início/contadores, campo persistido (`archivedAt`?) + IndexedDB/Supabase
 - [ ] `data` (M) **Backup/restauração de orçamentos** (export IndexedDB/JSON). Prioridade baixa: produção usa Supabase
 
 ## Blocked
@@ -36,6 +35,7 @@ _(vazio — puxar de Next)_
 
 ## Later
 
+- [ ] `feat` (M) **Arquivar orçamentos (pausado):** draft em [specs/010-arquivar-orcamentos](specs/010-arquivar-orcamentos/spec.md). Não é necessário agora; revisitar quando a lista pedir. Ideia: filtro Arquivados, grupo inteiro (não revisão isolada), mini botão + long-press
 - [ ] `feat` (M) **Cadastro por telefone OTP e Facebook (spec 007 T061/T062):** `signInWithOtp` SMS/WhatsApp + botão Facebook em `EntryScreen`; Twilio/Facebook desligados por padrão no `supabase/config.toml`. Adiado ao fechar a fase 1
 - [ ] `feat` **Medidas finais por item (produção):** UI de medidas de produção/conferência por item (seed das medidas do orçamento), junto com plano de corte / módulo de produção. Domínio `finalMeasures` + testes já existem; sem UI até lá (spec 009 US1). Até lá: foto na seção Fotos ou medida correta no item.
 
@@ -59,6 +59,7 @@ _(vazio — puxar de Next)_
 
 ### 2026-10-22
 
+- [x] `ui` **Fotos: carrossel, zoom e teclado:** setas e arraste entre fotos; toque/clique duplo liga e desliga zoom; pan limitado à moldura; Salvar do item permanece acima do teclado no celular (`visualViewport`)
 - [x] `feat` **SaaS fase 1 (spec 007):** conta = loja, RLS por `account_id`, cadastro e-mail/Google + teste 30 dias e modo consulta, catálogo de exemplo + Primeiros passos, Fale com a gente / sugestões, rodapé e excluir conta. Entregas 1–4 + polish docs/testes. Residuais: telefone/Facebook → Later; virada Forte Vidros (T019) e abrir cadastro em produção → Blocked
 - [x] `feat` **Condições de pagamento (texto da loja):** Configurações › Orçamento; sai no PDF e no WhatsApp de todo orçamento quando preenchido (spec 008)
 - [x] `feat` **Fotos do orçamento:** internas, draft/emitido; até 10 fotos, retenção 6 meses; nunca na proposta; revisão compartilha path; bucket `quote-photos` (spec 009 US2+). Aplicar migração no Supabase antes de usar fotos na nuvem. Medidas finais (US1) adiadas → Later

@@ -6,6 +6,9 @@
   --bg2: #1e3d36;
   --surface: rgba(245, 241, 232, 0.06);
   --surface-2: rgba(245, 241, 232, 0.1);
+  /* Soft keyboard: updated by useVisualViewportVars while a Modal is open. */
+  --vv-height: 100dvh;
+  --keyboard-inset: 0px;
   --text: #f3efe4;
   --muted: #a8b5af;
   --accent: #d4a017;
@@ -594,9 +597,11 @@ label .percent-input .money-input {
   background: rgba(6, 12, 11, 0.72);
   display: grid;
   place-items: center;
-  /* svh + safe-area: Chrome/Safari iOS bottom bar sits on top of 100vh content. */
+  /* svh + safe-area: Chrome/Safari iOS bottom bar sits on top of 100vh content.
+     --keyboard-inset lifts the centering box so the modal sits in the visual viewport. */
   padding: max(1rem, env(safe-area-inset-top, 0px)) max(1rem, env(safe-area-inset-right, 0px))
-    max(1rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px));
+    max(1rem, env(safe-area-inset-bottom, 0px), var(--keyboard-inset, 0px))
+    max(1rem, env(safe-area-inset-left, 0px));
   backdrop-filter: blur(4px);
   overscroll-behavior: contain;
 }
@@ -636,8 +641,10 @@ label .percent-input .money-input {
   width: min(640px, 100%);
   height: min(92vh, 720px);
   height: min(92svh, 720px);
+  height: min(calc(var(--vv-height, 100dvh) - 2rem), 720px);
   max-height: min(92vh, 720px);
   max-height: min(92svh, 720px);
+  max-height: min(calc(var(--vv-height, 100dvh) - 2rem), 720px);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -697,8 +704,8 @@ label .percent-input .money-input {
 @media (max-width: 520px) {
   .modal--item {
     height: auto;
-    max-height: 96vh;
-    max-height: 96svh;
+    max-height: min(96vh, calc(var(--vv-height, 100dvh) - 1rem));
+    max-height: min(96svh, calc(var(--vv-height, 100dvh) - 1rem));
     overflow: auto;
   }
 
@@ -710,12 +717,14 @@ label .percent-input .money-input {
     min-height: auto;
   }
 
-  /* Sticky footer: Cancelar / Salvar above the iPhone home bar and browser chrome. */
+  /* Sticky footer: Cancelar / Salvar above home bar, browser chrome, and soft keyboard. */
   .modal--item .item-form__actions {
     position: sticky;
     bottom: 0;
-    z-index: 1;
+    z-index: 2;
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    background: var(--bg1);
+    box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.25);
   }
 }
 
@@ -937,12 +946,18 @@ label .percent-input .money-input {
   user-select: none;
 }
 
+.photo-viewer__frame {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+}
+
 .photo-viewer__stage {
   position: relative;
   flex: 1;
   min-height: 0;
-  display: grid;
-  place-items: center;
   overflow: hidden;
   touch-action: none;
   cursor: grab;
@@ -950,6 +965,27 @@ label .percent-input .money-input {
 
 .photo-viewer__stage--zoomed {
   cursor: move;
+}
+
+.photo-viewer__track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
+
+.photo-viewer__track--settle {
+  transition: transform var(--dur-md) var(--ease-std);
+}
+
+.photo-viewer__slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  /* Gap between carousel photos (1px each side). */
+  padding: 0 1px;
 }
 
 .photo-viewer__img {
@@ -968,7 +1004,7 @@ label .percent-input .money-input {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 1;
+  z-index: 2;
   display: grid;
   place-items: center;
   width: 2.4rem;
@@ -996,6 +1032,11 @@ label .percent-input .money-input {
 
 .photo-viewer__nav--next {
   right: 0.4rem;
+}
+
+.photo-viewer__nav:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .photo-viewer__zoom {
