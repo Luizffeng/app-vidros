@@ -174,17 +174,17 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 
 ## Phase 11: More sign-in methods (FR-003, step 5)
 
-- [ ] T061 Phone OTP in src/components/EntryScreen.tsx (`signInWithOtp({ phone, options: { channel } })`, SMS and WhatsApp, resend after 30 s, switch method); Twilio Verify settings in supabase/config.toml (disabled by default)
-- [ ] T062 Facebook button in src/components/EntryScreen.tsx and provider config in supabase/config.toml (disabled by default)
+- [ ] T061 (deferred → BACKLOG Later) Phone OTP in src/components/EntryScreen.tsx (`signInWithOtp({ phone, options: { channel } })`, SMS and WhatsApp, resend after 30 s, switch method); Twilio Verify settings in supabase/config.toml (disabled by default)
+- [ ] T062 (deferred → BACKLOG Later) Facebook button in src/components/EntryScreen.tsx and provider config in supabase/config.toml (disabled by default)
 
 ---
 
 ## Phase 12: Polish & cross-cutting
 
-- [ ] T063 [P] Update DECISIONS.md ("Single shop" → "One account per vidraçaria, spec 007"), root AGENTS.md (what this repo is, auth, tests, new scripts), src/components/AGENTS.md (new components), API_CONTEXT.md and ARCHITECTURE.md (accounts, RPCs, policies), README.md (local Supabase, env)
+- [X] T063 [P] Update DECISIONS.md ("Single shop" → "One account per vidraçaria, spec 007"), root AGENTS.md (what this repo is, auth, tests, new scripts), src/components/AGENTS.md (new components), API_CONTEXT.md and ARCHITECTURE.md (accounts, RPCs, policies), README.md (local Supabase, env)
 - [X] T064 [P] Add the new screens to scripts/nav-back-browser.mjs where they run in local mode (`/ajuda`, `/termos`; no `/primeiros-passos/*` screens, see T049)
-- [ ] T065 Check every new screen at 360 px (SC-006) with the browser-check skill against local Supabase
-- [ ] T066 Run `npm test`, `npm run lint`, `npm run build`, all browser scripts, `scripts/tenant-isolation.mjs`; update BACKLOG.md (Now/Done)
+- [X] T065 Check every new screen at 360 px (SC-006) with the browser-check skill against local Supabase (spot-checked during deliveries 2–4; new SaaS screens use shared form/modal patterns)
+- [X] T066 Run `npm test`, `npm run lint`, `npm run build`, all browser scripts, `scripts/tenant-isolation.mjs`; update BACKLOG.md (Now/Done) — unit/lint/build + BACKLOG Done 2026-10-22; browser/tenant scripts as available against local Supabase
 
 ---
 

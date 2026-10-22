@@ -1,8 +1,8 @@
 # Handoff — Supabase + Cloudflare Pages
 
-> **Status: entregue na v1.0.0.** Código integrado na `main`; projeto Supabase `app-vidros` (São Paulo) com schema, RLS, bucket `logos` e usuários admin; deploy no Cloudflare Pages. Documento mantido como histórico de decisões. As restrições de worktree abaixo não valem mais. O app passou a se chamar **App Vidros**; Forte Vidros é o estabelecimento cadastrado.
+> **Status: entregue na v1.0.0.** Código integrado na `main`; projeto Supabase `app-vidros` (São Paulo) com schema, RLS, bucket `logos` e usuários admin; deploy no Cloudflare Pages. Documento mantido como histórico de decisões da primeira publicação. **Atual (spec 007):** multi-conta SaaS fase 1 — ver `README.md`, `DECISIONS.md` e `specs/007-saas-vidracarias/`. As restrições de worktree abaixo não valem mais. O app chama-se **App Vidros**; Forte Vidros é a conta de cutover.
 
-Contexto para outro agent publicar o **App Vidros** (orçamentos da Forte Vidros) na rede. Não é SaaS. Uma vidraçaria, dois acessos.
+Contexto original para publicar o **App Vidros** na rede (pré-SaaS).
 
 Repo local: `/home/luiz/Projects/orcamento-forte-vidros` (pasta com nome antigo)  
 GitHub: https://github.com/Luizffeng/app-vidros (`main`)

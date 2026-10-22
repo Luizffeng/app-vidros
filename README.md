@@ -1,8 +1,8 @@
 # App Vidros
 
-App web para vidraçaria montar, emitir e enviar orçamentos. Hoje atende uma loja, a Forte Vidros, cadastrada como estabelecimento dentro do app (Configurações). O motor de cálculo espelha as regras da planilha de referência (BOX, Correr, Pivotante, Maxim-ar, Vidro fixo, Espelho), sem usar Google Sheets como banco de dados.
+App web para vidraçaria montar, emitir e enviar orçamentos. Spec 007: cada loja é uma conta Supabase (`accounts` + RLS por `account_id`); cadastro e teste de 30 dias no app; Forte Vidros é a conta de cutover/seed, não um atalho no código. O motor de cálculo espelha as regras da planilha de referência (BOX, Correr, Pivotante, Maxim-ar, Vidro fixo, Espelho), sem usar Google Sheets como banco de dados.
 
-Poucos acessos por instalação. Hoje sem cadastro público e sem multi-empresa. Direção (2026-10-09): virar SaaS para vidraçarias, simples para quem tem pouca familiaridade com tecnologia; depende de spec própria (ver `BACKLOG.md`).
+Modo local (sem `.env`) usa IndexedDB e não pede login. Abrir cadastro em produção ainda depende de CNPJ, WhatsApp de suporte e revisão jurídica (`BACKLOG.md` Blocked). Fase 2 (planos/cobrança) é spec à parte.
 
 **Produção:** https://appvidros.pages.dev
 
@@ -30,40 +30,37 @@ Poucos acessos por instalação. Hoje sem cadastro público e sem multi-empresa.
 
 ## Acesso e papéis
 
-Login por e-mail e senha (Supabase Auth). Cadastro público desligado; usuários são criados no dashboard.
+Cadastro e login no app (e-mail/senha; Google opcional). Telefone OTP e Facebook ficam para depois. Quem cria conta vira `admin` da própria loja e inicia teste de 30 dias. Conta vencida ou desativada fica em modo consulta (lê e reenvia emitidos; gravações abrem aviso).
 
 | Papel | Pode |
 | --- | --- |
-| `admin` | Orçamentos, catálogo, configurações e logo |
-| `vendedor` | Orçamentos; lê catálogo e configurações |
+| `admin` | Orçamentos, catálogo, configurações, logo, excluir conta |
+| `vendedor` | Dormante na fase 1 (spec futura de vários usuários) |
 
-A trava real é o RLS no Postgres (`supabase/migrations/20260924120000_init.sql`). A UI só esconde Catálogo e Configurações de quem é vendedor.
+A trava real é o RLS (`account_id` + `account_can_write()` em `supabase/migrations/20261010120000_accounts.sql`). Detalhe operacional: `specs/007-saas-vidracarias/quickstart.md` e `supabase/operator/`.
 
 ## Desenvolvimento
 
 ```bash
 npm install
-cp .env.example .env   # opcional: preencher para usar o Supabase
-npm run dev
+cp .env.example .env   # opcional: Supabase remoto ou local
+npm run dev            # ou npm run dev:staging com .env.staging.local
 npm test
 npm run lint
 npm run build
 ```
 
-Sem `.env`, o app roda 100% local (IndexedDB) e não pede login.
+Sem `.env`, o app roda 100% local (IndexedDB) e não pede login. Supabase local + isolamento: ver quickstart da spec 007 (`scripts/tenant-isolation.mjs`, `scripts/signup-browser.mjs`).
 
 ## Deploy
 
-### Supabase (uma vez)
+### Supabase
 
-1. Criar projeto e rodar `supabase/migrations/20260924120000_init.sql` no SQL Editor.
-2. Authentication → Providers → Email → desligar "Enable sign ups".
-3. Criar usuários em Authentication → Users. O trigger grava cada um como `vendedor`; promover quem administra:
-   ```sql
-   update public.profiles set role = 'admin' where id = '<uuid>';
-   ```
-4. Copiar Project URL e a chave **publishable/anon** para o `.env`. Nunca usar a `service_role` no front.
-5. Authentication → URL Configuration → Site URL: `https://appvidros.pages.dev` (links dos e-mails de convite e troca de senha).
+1. Rodar as migrations em ordem (`20260924120000_init.sql`, `20261010120000_accounts.sql`, demais em `supabase/migrations/`).
+2. Authentication → Providers: e-mail com sign-ups ligados quando for abrir cadastro; Google se for usar.
+3. Site URL / Redirect URLs: produção e staging (links de confirmação e troca de senha).
+4. Copiar Project URL e chave **publishable/anon** para o `.env` / Cloudflare. Nunca usar a `service_role` no front.
+5. Virada da Forte Vidros e checklist de produção: quickstart da spec 007 (T019 / export real ainda pendente do dono).
 
 O plano free do Supabase pausa o projeto após 7 dias sem uso. Uso semanal mantém acordado.
 

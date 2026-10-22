@@ -37,15 +37,15 @@ Catalog edits do not reprice saved items. A draft item reprices only when that i
 
 ## Auth flow
 
-`getSupabase()` returns null without both env vars. Then `AccessProvider` uses role `local` and renders `App` with no login. `App` treats every role except `vendedor` as admin (`isAdmin`), so local mode sees Catálogo and Configurações.
+`getSupabase()` returns null without both env vars. Then `AccessProvider` uses role `local`, a stub active `Account`, and renders `App` with no login. `App` treats every role except `vendedor` as admin (`isAdmin`), so local mode sees Catálogo and Configurações.
 
-With env: `signInWithPassword` on `LoginScreen`. Role comes from `profiles.role` (`admin` or anything else becomes `vendedor`). New auth users get `vendedor` from trigger `handle_new_user`. Promoting an admin is a manual SQL update (see README). There is no signup UI.
+With env: `EntryScreen` (sign up / sign in, Google when enabled) then `AccountSetupScreen` if the user has no `accounts` row. `AccessProvider` loads `getMyAccount()`, derives `accountState` (trial/active/expired/disabled, `canWrite`). New auth users get `profiles.role = admin` (`handle_new_user` in the accounts migration). Phase 1 keeps the UI on admin paths; `vendedor` stays dormant until multi-user ships.
 
-RLS: any `authenticated` user can select/insert/update/delete `quotes`. Catalog, settings, and logo storage writes require `is_admin()`. The UI hides those screens from `vendedor`. A direct Supabase call from a vendedor still fails RLS on catalog/settings.
+RLS (accounts migration): rows are scoped by `account_id` = `current_account_id()`. Writes also require `account_can_write()` (trial or paid). Catalog/settings/logo still require admin role policies where defined. Expired accounts can read and resend emitted quotes; `App.tsx` `blocked()` opens `ExpiredNotice` before writes.
 
 ## API / integration flow
 
-Browser calls Supabase with the anon key (`src/data/supabaseClient.ts`). Repository methods map to `from('quotes'|'catalog'|'settings')` and `rpc('next_quote_number')`. Logo file is `logos/shop/logo.png`; the settings row keeps `logo_path` and the payload omits the data URL. Reads turn the file back into a data URL because the PDF path expects one.
+Browser calls Supabase with the anon key (`src/data/supabaseClient.ts`). Repository methods map to `from('quotes'|'catalog'|'settings')` and `rpc('next_quote_number')` (per account). Account/suggestions go through `AccountService` (`create_account`, `set_marketing_opt_in`, `delete_my_account`, `suggestions` table). Logo file is `logos/{account_id}/logo.png`; the settings row keeps `logo_path` and the payload omits the data URL. Reads turn the file back into a data URL because the PDF path expects one.
 
 ViaCEP is a direct `fetch` in `src/data/viacep.ts` (customer form and settings). WhatsApp is `https://wa.me/?text=` after Web Share, in `shareQuoteText` (`src/pdf/generateQuotePdf.ts`). No Google Sheets at runtime.
 
@@ -53,12 +53,13 @@ ViaCEP is a direct `fetch` in `src/data/viacep.ts` (customer form and settings).
 
 | Service | Use |
 | --- | --- |
-| Supabase Auth | Email/password. Users created in the dashboard. |
-| Supabase Postgres | JSON documents + `quote_counters`. |
-| Supabase Storage | Private bucket `logos`. |
+| Supabase Auth | E-mail/senha + Google (optional). Sign up in the app. |
+| Supabase Postgres | `accounts`, JSON documents + per-account `quote_counters`, suggestions. |
+| Supabase Storage | Private buckets `logos`, `quote-photos`. |
 | ViaCEP | Address from CEP. |
 | Cloudflare Pages | Static `dist/`. Project `appvidros`. |
-| WhatsApp | Share link only. No Business API. |
+| WhatsApp | Share link + support `wa.me`. No Business API. |
+| Asaas (future phase 2) | Not in phase 1. |
 
 ## Boundaries
 

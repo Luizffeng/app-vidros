@@ -1,6 +1,6 @@
 # Components
 
-React UI. No price formulas and no Supabase queries except `EntryScreen` (sign-in, sign-up, password reset).
+React UI. No price formulas. Supabase Auth only in `EntryScreen` / password screens; account RPCs via `AccountService` from `App` / setup / delete flows.
 
 ## Files
 

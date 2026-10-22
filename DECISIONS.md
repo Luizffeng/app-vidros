@@ -2,12 +2,11 @@
 
 Only choices visible in code or in README / constitution / handoff. Not a changelog.
 
-## Single shop, two roles, no public signup
+## One account per vidraçaria (spec 007)
 
-- **Decision:** One establishment. Roles `admin` and `vendedor`. Users are created in the Supabase dashboard. Signup stays off outside the app.
-- **Reason/evidence:** README “Não é SaaS”. Migration header and `handle_new_user` default `vendedor`. No signup call in `LoginScreen.tsx`. No company table.
-- **Consequence:** Do not add tenants, billing, or open registration unless the product ask changes. New users are vendedores until SQL promotes them.
-- **Under revision (2026-10-09):** the owner wants a SaaS (several shops, plans) that stays simple for non-technical users, and the `vendedor` role disabled until there is demand. Both change only through their own specs (backlog: "SaaS", "Login, contas e autorização"); until then this decision holds in code.
+- **Decision:** Each shop is an `accounts` row. Data tables carry `account_id`; RLS scopes reads to the caller’s account and writes to `account_can_write()` (trial or paid). Sign up is in the app (`EntryScreen` + `AccountSetupScreen`): e-mail/senha and Google (phone OTP and Facebook deferred). New auth users get `profiles.role = admin` and create their account (30-day trial). Forte Vidros is the first account (active, no trial end) after cutover.
+- **Reason/evidence:** Spec `specs/007-saas-vidracarias/`. Migration `supabase/migrations/20261010120000_accounts.sql`. `AccountService`, `accountState`, example catalog + Primeiros passos, `ExpiredNotice`, `/suporte`, footer delete-account.
+- **Consequence:** Do not add billing/plans outside the phase-2 spec. Multi-user roles (`vendedor`) stay dormant until that backlog item. Opening public signup in production waits on CNPJ, support WhatsApp, and legal review (BACKLOG Blocked).
 
 ## Storage behind `QuoteRepository`
 

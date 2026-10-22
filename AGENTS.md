@@ -8,7 +8,7 @@ Reusable procedures (pricing, persisted field, customer output, UI, browser chec
 
 ## What this repo is
 
-App Vidros: single-shop SPA to build, emit, and share glass quotes for one establishment (Forte Vidros is seeded data, not a tenant). Today: one shop, no public signup. Direction (2026-10-09): becoming a SaaS for glaziers, simple for non-technical users; needs its own spec (`BACKLOG.md`). Do not add tenants or billing outside that spec. Production: https://appvidros.pages.dev. Package name: `app-vidros`.
+App Vidros: SPA for glaziers to build, emit, and share glass quotes. Spec 007: one Supabase `accounts` row per shop (RLS by `account_id`); sign up + 30-day trial in the app; Forte Vidros is the seeded/cutover account, not a special code path. Local mode (no env) stays IndexedDB without login. Do not add billing/plans outside the phase-2 SaaS spec (`BACKLOG.md`). Production: https://appvidros.pages.dev. Package name: `app-vidros`.
 
 ## Stack
 
@@ -34,23 +34,24 @@ Screens come from the URL (`src/nav/routes.ts`): `/` Início, `/orcamentos`, `/o
 | `src/domain/pricing/` | Pure price functions. See `src/domain/pricing/AGENTS.md`. |
 | `src/data/` | Repository adapters, seed, catalog normalize, ViaCEP, logo bytes, Início banners, item drafts (localStorage). |
 | `src/nav/` | Routes, history navigator, `useRoute`, `useBackLayer`, `useLeaveGuard`. |
-| `src/auth/access.tsx` | Session gate and role. |
+| `src/auth/access.tsx` | Session gate, role, account + `accountState`, `AccountService`. |
 | `src/components/` | UI. See `src/components/AGENTS.md`. |
 | `src/pdf/generateQuotePdf.ts` | Client PDF, download, Web Share, `wa.me`. |
 | `src/data/seed/` | Initial catalog JSON. |
-| `supabase/migrations/20260924120000_init.sql` | Schema, RLS, quote-number RPC, logo bucket. |
+| `supabase/migrations/20260924120000_init.sql` | Base schema, RLS, quote-number RPC, logo bucket. |
+| `supabase/migrations/20261010120000_accounts.sql` | Accounts, `account_id`, trial write gate, RPCs, operator SQL companion in `supabase/operator/`. |
 | `assets/item-images/` | SVG/PNG diagrams. Not imported by `src/`. |
 | `specs/`, `.specify/` | Spec Kit feature specs (`002-modelos-de-calculo`, `003-composicao-do-item`, `004-transicoes`, `005-voltar-e-urls`, `006-pagina-inicial`) and constitution. Not runtime. |
 
 ## Where things live
 
-- **API calls:** `src/data/supabaseRepository.ts`, `src/data/supabaseClient.ts`, `src/auth/access.tsx`, `src/components/EntryScreen.tsx`, `src/data/viacep.ts`. No app-owned HTTP server.
-- **Business logic:** `src/domain/quote.ts`, `src/domain/pricing/`. Rules: [BUSINESS_RULES.md](BUSINESS_RULES.md).
-- **Auth:** Supabase email/password. Gate: `src/auth/access.tsx`. Real write lock: RLS in the migration. UI hide: `AppHeader.tsx`, `App.tsx` (`isAdmin`).
+- **API calls:** `src/data/supabaseRepository.ts`, `src/data/supabaseClient.ts`, `src/data/accountService.ts`, `src/auth/access.tsx`, `src/components/EntryScreen.tsx`, `src/data/viacep.ts`. No app-owned HTTP server.
+- **Business logic:** `src/domain/quote.ts`, `src/domain/pricing/`, `src/domain/account.ts`, `src/domain/onboarding.ts`. Rules: [BUSINESS_RULES.md](BUSINESS_RULES.md).
+- **Auth:** Supabase e-mail/senha + Google (optional). Gate: `src/auth/access.tsx`. Write lock: RLS `account_can_write()` + UI `blocked()` / `ExpiredNotice`. Role `vendedor` dormant (phase 1 always admin after signup).
 - **State:** React `useState` inside `App`; current screen from the URL via `useRoute`. Only context is `AccessContext`. No Redux/Zustand.
-- **Tests:** colocated `*.test.ts` under `src/`. Run `npm test`. Browser scripts (not in `npm test`, need a local-mode dev server): `scripts/smoke-quote-browser.mjs` (create → item → emit → PDF), `scripts/validate-catalog-browser.mjs` (catalog edit/save/filter), `scripts/motion-perf-browser.mjs` (transitions at 4× CPU vs a baseline), `scripts/nav-back-browser.mjs` (back button, URLs, item draft, Início).
-- **Config / env:** `.env.example`, `src/vite-env.d.ts`. Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Missing either value means local mode.
-- **Integrations:** Supabase (Auth, Postgres, Storage bucket `logos`), ViaCEP, WhatsApp `wa.me`, Cloudflare Pages.
+- **Tests:** colocated `*.test.ts` under `src/`. Run `npm test`. Browser/scripts (need a running app / local Supabase as noted): `scripts/smoke-quote-browser.mjs`, `scripts/validate-catalog-browser.mjs`, `scripts/motion-perf-browser.mjs`, `scripts/nav-back-browser.mjs`, `scripts/tenant-isolation.mjs`, `scripts/signup-browser.mjs`.
+- **Config / env:** `.env.example`, `.env.staging.local` for `npm run dev:staging` (see `specs/007-saas-vidracarias/quickstart.md`). `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Missing either value means local mode.
+- **Integrations:** Supabase (Auth, Postgres, Storage `logos` / `quote-photos`), ViaCEP, WhatsApp `wa.me`, Cloudflare Pages.
 
 ## Context rules
 

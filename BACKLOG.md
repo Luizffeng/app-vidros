@@ -15,7 +15,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Now
 
-- [ ] `feat` (G) **SaaS para vidraçarias, fase 1:** spec [specs/007-saas-vidracarias](specs/007-saas-vidracarias/spec.md) (2026-10-10). Conta = loja = um usuário, cadastro aberto (Google, e-mail; telefone e Facebook depois), teste grátis de 30 dias com modo consulta ao vencer ("Novo orçamento"/"Revisar" abrem aviso de vencimento, sem rascunho), aviso a partir de 7 dias antes e lembretes de valor depois, catálogo de exemplo com preços redondos próximos do mercado + "Primeiros passos" no Início, "Fale com a gente" (WhatsApp humano e sugestões que não expiram), isolamento por conta, migração da Forte Vidros, rodapé institucional e excluir conta. Fase 2 (planos e cobrança) e painel do provedor em specs próprias. Plano em 5 entregas ([plan.md](specs/007-saas-vidracarias/plan.md)): contas e isolamento + virada da Forte Vidros; cadastro e teste; catálogo de exemplo e Primeiros passos; Fale com a gente e rodapé; telefone e Facebook. Antes de abrir cadastro: projeto Supabase de staging, textos legais, WhatsApp/horário do suporte, faixa de preço plausível (box e correr). Tarefas em [tasks.md](specs/007-saas-vidracarias/tasks.md) (66). Na branch `007-saas-vidracarias`: entregas 1 (contas e isolamento) e 2 (cadastro, teste de 30 dias, modo consulta, termos/privacidade/novidades) prontas e testadas no Supabase local; virada da produção pendente (T019 com export real, depois checklist do quickstart). Próxima: entrega 3 (catálogo de exemplo e Primeiros passos)
+_(vazio — puxar de Next)_
 
 ## Next
 
@@ -25,15 +25,18 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 - [ ] `feat` (M) **Reconquista após o teste:** quem não assina depois dos 30 dias e consentiu recebe oferta pelo WhatsApp (ex.: 50% nos 3 primeiros meses, ou primeiro mês por R$ 1,99 com assinatura no cartão). Depende da fase 2 (cartão) e do painel do provedor. Ordem dos contatos: primeiro um lembrete de valor sem falar de pagamento (ex.: orçamentos prestes a vencer), depois a assinatura, por fim o desconto. A longo prazo, CRM com régua de contato (ativação no teste, vencimento, reconquista)
 - [ ] `feat` (G) **Vários usuários por loja (precisa de spec):** convites, papéis admin/vendedor e o que cada um vê, vincular métodos de entrada a uma conta. Pedido do dono 2026-10-15: revisar os papéis (hoje `admin` e `vendedor`; na prática a loja usa um gerente) e liberar Configurações para todos, com o que cada papel pode mudar (ex.: vendedor ajusta a validade da proposta; cadastro da loja, margem e excluir conta só admin). Hoje o vendedor não abre Catálogo nem Configurações; Suporte (fale com a gente, dicas, novidades) já aparece para todos. Mudar o que cada papel grava exige RLS. Entrada (Google, e-mail, telefone, Facebook), recuperar senha, sessão, isolamento por conta (RLS) e desativação do Vendedor já estão na [spec 007](specs/007-saas-vidracarias/spec.md). Liga com **Usuário no Cadastro**. Só quando houver demanda
 - [ ] `feat` (G) **Frete automático por km (precisa de spec):** pedido do dono 2026-10-10. Calcula o frete a partir do CEP da loja (Cadastro) e do CEP do cliente, × custo por km configurável (padrão R$ 2,00/km), e entra no orçamento como custo adicional editável. Decidir: ida ou ida e volta, valor mínimo, arredondamento, distância de rota vs linha reta, serviço de CEP → coordenadas e de rota (BrasilAPI/ViaCEP + OSRM/OpenRouteService/Google; custo e limite de uso), sem CEP do cliente (fica manual). Hoje: Frete digitado como custo adicional comum
+- [ ] `feat` (M) **Arquivar orçamentos (precisa de spec):** tirar da lista principal sem apagar. Ideia de UI: mini botão no card e/ou long-press no card do orçamento. Arquivar o grupo (número do orçamento), não uma revisão isolada — por enquanto. Spec antes de implementar: filtro Arquivados, desarquivar, rascunho vs emitido, busca, Início/contadores, campo persistido (`archivedAt`?) + IndexedDB/Supabase
 - [ ] `data` (M) **Backup/restauração de orçamentos** (export IndexedDB/JSON). Prioridade baixa: produção usa Supabase
 
 ## Blocked
 
 - [ ] `feat` (M) **Porta de Correr 1 Folha:** novo cálculo em `priceItem` + teste de paridade. Aguardando o dono refinar o cálculo (planilha/orçamento real, BOM, medidas exemplo)
-- [ ] `docs` (P) **Abrir cadastro em produção (spec 007):** aguarda CNPJ (razão social, endereço), número de WhatsApp da empresa e revisão jurídica dos rascunhos em [src/content/legal/](src/content/legal/). Dono também vai registrar a marca AppVidros no INPI. O desenvolvimento das entregas 1–4 não depende disso (Supabase local)
+- [ ] `docs` (P) **Abrir cadastro em produção (spec 007):** aguarda CNPJ (razão social, endereço), número de WhatsApp da empresa e revisão jurídica dos rascunhos em [src/content/legal/](src/content/legal/). Dono também vai registrar a marca AppVidros no INPI
+- [ ] `data` (M) **Virada Forte Vidros em produção (spec 007 T019):** ensaiar cutover com export real do dono (contagem de orçamentos, números, soma `grandTotal`, contadores, versão do catálogo, logo em `{account_id}/logo.png`, Início sem linha de trial / Primeiros passos completo). Código e SQL de ensaio com dados sintéticos já feitos
 
 ## Later
 
+- [ ] `feat` (M) **Cadastro por telefone OTP e Facebook (spec 007 T061/T062):** `signInWithOtp` SMS/WhatsApp + botão Facebook em `EntryScreen`; Twilio/Facebook desligados por padrão no `supabase/config.toml`. Adiado ao fechar a fase 1
 - [ ] `feat` **Medidas finais por item (produção):** UI de medidas de produção/conferência por item (seed das medidas do orçamento), junto com plano de corte / módulo de produção. Domínio `finalMeasures` + testes já existem; sem UI até lá (spec 009 US1). Até lá: foto na seção Fotos ou medida correta no item.
 
 - [ ] `ui` (M) **Responsividade fina (~390px):** reavaliar; boa parte resolvida em 2026-10-06
@@ -56,6 +59,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ### 2026-10-22
 
+- [x] `feat` **SaaS fase 1 (spec 007):** conta = loja, RLS por `account_id`, cadastro e-mail/Google + teste 30 dias e modo consulta, catálogo de exemplo + Primeiros passos, Fale com a gente / sugestões, rodapé e excluir conta. Entregas 1–4 + polish docs/testes. Residuais: telefone/Facebook → Later; virada Forte Vidros (T019) e abrir cadastro em produção → Blocked
 - [x] `feat` **Condições de pagamento (texto da loja):** Configurações › Orçamento; sai no PDF e no WhatsApp de todo orçamento quando preenchido (spec 008)
 - [x] `feat` **Fotos do orçamento:** internas, draft/emitido; até 10 fotos, retenção 6 meses; nunca na proposta; revisão compartilha path; bucket `quote-photos` (spec 009 US2+). Aplicar migração no Supabase antes de usar fotos na nuvem. Medidas finais (US1) adiadas → Later
 
