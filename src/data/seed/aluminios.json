@@ -606,5 +606,13 @@
     "valorBarra": 0,
     "metragemBarra": 6.0,
     "valorMetro": 0
+  },
+  {
+    "id": 77,
+    "codigo": "TUBO 5X5",
+    "descricao": "TUBO 5 X 5 CM",
+    "valorBarra": 200.0,
+    "metragemBarra": 6.0,
+    "valorMetro": 33.33333333
   }
 ]

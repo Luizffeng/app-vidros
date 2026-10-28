@@ -95,7 +95,14 @@ export function normalizeQuote(quote: Quote): Quote {
       const { laborRate, ...input } = item.input
       return {
         ...item,
-        input: { ...input, extras: normalizeExtras(input.extras), ...normalizeLaborRate(laborRate) },
+        input: {
+          ...input,
+          extras: normalizeExtras(input.extras),
+          ...normalizeLaborRate(laborRate),
+          ...(input.kind === 'correr' && input.subtype === 'P1F' && input.hasTube5x5 == null
+            ? { hasTube5x5: true }
+            : {}),
+        },
         ...(finalMeasures ? { finalMeasures } : { finalMeasures: undefined }),
       }
     }),

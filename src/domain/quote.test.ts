@@ -283,6 +283,28 @@ describe('marginMode no orçamento salvo', () => {
     expect(normalizeQuote(bad).marginMode).toBeUndefined()
     expect(normalizeQuote({ ...old, marginMode: 'vendedor' }).marginMode).toBe('vendedor')
   })
+
+  it('P1F salvo antes do tubo 5x5 abre com tubo incluído', () => {
+    const quote = addItem(createEmptyDraft('ORC-2026-0001', catalog.config.version), catalog, {
+      kind: 'correr',
+      subtype: 'P1F',
+      widthMm: 900,
+      heightMm: 2100,
+      glassColor: 'Incolor',
+      thicknessMm: '08',
+      profileColor: 'Fosco',
+      markup: 0.3,
+      extras: [],
+    })
+    const { hasTube5x5: _drop, ...legacyInput } = quote.items[0].input as CorrerInput
+    void _drop
+    const legacy = {
+      ...quote,
+      items: [{ ...quote.items[0], input: legacyInput }],
+    } as Quote
+
+    expect(normalizeQuote(legacy).items[0].input).toMatchObject({ hasTube5x5: true })
+  })
 })
 
 describe('rascunho desatualizado', () => {

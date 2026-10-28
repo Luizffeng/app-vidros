@@ -4,6 +4,8 @@ O que entrou no app nos últimos meses. Sugestões enviadas em [Suporte › Fale
 
 ## Outubro de 2026
 
+- **Toque no item** do orçamento abre a edição. Um item ainda não salvo aparece como Rascunho e também abre ao toque.
+- **Porta de correr 1 folha** em Orçamentos: calcule vidro, perfis e acessórios; escolha se inclui o Tubo 5x5cm. Portas e janelas de 2 folhas agora incluem o perfil AL 67.
 - **Conta própria para cada vidraçaria**, com teste grátis de 30 dias.
 - **Primeiros passos** no Início: o catálogo já vem com preços de exemplo, e o app mostra o que falta ajustar para a sua loja.
 - **Adicionais no PDF e no WhatsApp** mostram o valor de venda (com margem), não o custo.

@@ -13,6 +13,8 @@ export interface ItemFormState {
   hasLatch: boolean
   /** Ausente em rascunhos salvos antes do campo existir = marcado. */
   hasAluminum?: boolean
+  /** Ausente em rascunhos salvos antes do campo existir = marcado. */
+  hasTube5x5?: boolean
   finish: EspelhoFinish
   espelhoColor: string
   espelhoThickness: string

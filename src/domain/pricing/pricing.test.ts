@@ -97,8 +97,8 @@ describe('pricing parity with spreadsheet examples', () => {
     })
     expect(r.breakdown.labor).toBeCloseTo(54, 1)
     expect(r.breakdown.glass).toBeCloseTo(170.19, 2)
-    expect(r.breakdown.aluminum).toBeCloseTo(87.3616666565, 4)
-    expect(r.breakdown.finalPrice).toBeCloseTo(471.44716665345, 2)
+    expect(r.breakdown.aluminum).toBeCloseTo(102.0283333225, 4)
+    expect(r.breakdown.finalPrice).toBeCloseTo(490.51383331925, 2)
   })
 
   it('calc_CORRER P2F 900x2100 Fume 08 Branco', () => {
@@ -115,7 +115,62 @@ describe('pricing parity with spreadsheet examples', () => {
     })
     expect(r.breakdown.labor).toBeCloseTo(85.5, 1)
     expect(r.breakdown.glass).toBeCloseTo(330.2802, 2)
-    expect(r.breakdown.finalPrice).toBeCloseTo(844.853739156375, 2)
+    expect(r.breakdown.finalPrice).toBeCloseTo(898.4787391539375, 2)
+  })
+
+  it('corrigir AL 67 em duas folhas e manter quatro folhas sem ele', () => {
+    const quantity = (subtype: CorrerInput['subtype'], widthMm: number, heightMm: number, code: string) =>
+      priceCorrer(catalog, {
+        kind: 'correr',
+        subtype,
+        widthMm,
+        heightMm,
+        glassColor: 'Incolor',
+        thicknessMm: '08',
+        profileColor: 'Fosco',
+        markup: 0.3,
+        extras: [],
+      }).bom.find((line) => line.code === code)?.quantity
+
+    expect(quantity('J2F', 1200, 1000, 'AL 67')).toBe(2)
+    expect(quantity('P2F', 900, 2100, 'AL 67')).toBe(4.5)
+    expect(quantity('J4F', 1950, 754, 'AL 67')).toBeUndefined()
+    expect(quantity('P4F', 2400, 2100, 'AL 67')).toBeUndefined()
+  })
+
+  it('calc_CORRER P1F inclui composição e permite retirar tubo 5x5', () => {
+    const input: CorrerInput = {
+      kind: 'correr',
+      subtype: 'P1F',
+      widthMm: 900,
+      heightMm: 2100,
+      glassColor: 'Incolor',
+      thicknessMm: '08',
+      profileColor: 'Fosco',
+      markup: 0.3,
+      extras: [],
+    }
+    const withTube = priceCorrer(catalog, input)
+    const withoutTube = priceCorrer(catalog, { ...input, hasTube5x5: false })
+    const quantities = Object.fromEntries(withTube.bom.map((line) => [line.code, line.quantity]))
+
+    expect(quantities).toMatchObject({
+      'AL 49': 2,
+      'AL 50': 2,
+      'AL 75': 1,
+      'AL 43': 1,
+      'AL 67': 2.5,
+      'TUBO 5X5': 2.5,
+      'KIT 10': 1,
+      ESCOVA: 2,
+      '1406': 2,
+      '1125': 2,
+      'SILICONE ACT': 1,
+    })
+    expect(withTube.bom.find((line) => line.category === 'vidro')?.quantity).toBe(2.043)
+    expect(quantities['AL 66']).toBeUndefined()
+    expect(quantities['AL 15']).toBeUndefined()
+    expect(withoutTube.bom.find((line) => line.code === 'TUBO 5X5')).toBeUndefined()
   })
 
   it('calc_PIVOTANTE 795x2168 Incolor 08 Fosco with latch', () => {

@@ -1,4 +1,4 @@
-import type { CorrerSubtype, CostBreakdown, ItemInput } from './types'
+import type { CorrerSubtype, CostBreakdown, EspelhoFinish, ItemExtra, ItemInput, ProductKind } from './types'
 
 /** Descrição do item em três linhas: tipo, cor/espessura e medida. */
 export interface ItemDescription {
@@ -10,6 +10,7 @@ export interface ItemDescription {
 const CORRER_TITLES: Record<CorrerSubtype, string> = {
   J2F: 'Janela de correr 2 folhas',
   J4F: 'Janela de correr 4 folhas',
+  P1F: 'Porta de correr 1 folha',
   P2F: 'Porta de correr 2 folhas',
   P4F: 'Porta de correr 4 folhas',
 }
@@ -92,6 +93,102 @@ export function describeItem(input: ItemInput): ItemDescription {
       }
     case 'custom':
       return { title: clean(input.description) || 'Item avulso' }
+  }
+}
+
+function typedNumber(value: string): number {
+  const n = Number(value.trim().replace(',', '.'))
+  return Number.isFinite(n) ? n : 0
+}
+
+/** Mesma descrição do item salvo, a partir dos campos ainda não gravados. */
+export function describeFormDraft(state: {
+  kind: ProductKind
+  subtype: CorrerSubtype
+  spanCm: string
+  widthMm: string
+  heightMm: string
+  glassColor: string
+  profileColor: string
+  thicknessMm: string
+  hasLatch: boolean
+  finish: EspelhoFinish
+  espelhoColor: string
+  espelhoThickness: string
+  customDesc: string
+}): ItemDescription {
+  const widthMm = typedNumber(state.widthMm)
+  const heightMm = typedNumber(state.heightMm)
+  const markup = 0
+  const extras: ItemExtra[] = []
+  switch (state.kind) {
+    case 'box':
+      return describeItem({
+        kind: 'box',
+        spanCm: typedNumber(state.spanCm),
+        glassColor: state.glassColor,
+        profileColor: state.profileColor,
+        markup,
+        extras,
+      })
+    case 'correr':
+      return describeItem({
+        kind: 'correr',
+        subtype: state.subtype,
+        widthMm,
+        heightMm,
+        glassColor: state.glassColor,
+        thicknessMm: state.thicknessMm,
+        profileColor: state.profileColor,
+        markup,
+        extras,
+      })
+    case 'pivotante':
+      return describeItem({
+        kind: 'pivotante',
+        widthMm,
+        heightMm,
+        glassColor: state.glassColor,
+        thicknessMm: state.thicknessMm,
+        profileColor: state.profileColor,
+        hasLatch: state.hasLatch,
+        markup,
+        extras,
+      })
+    case 'maxiar':
+      return describeItem({
+        kind: 'maxiar',
+        widthMm,
+        heightMm,
+        glassColor: state.glassColor,
+        thicknessMm: state.thicknessMm,
+        profileColor: state.profileColor,
+        markup,
+        extras,
+      })
+    case 'fixo':
+      return describeItem({
+        kind: 'fixo',
+        widthMm,
+        heightMm,
+        glassColor: state.glassColor,
+        thicknessMm: state.thicknessMm,
+        markup,
+        extras,
+      })
+    case 'espelho':
+      return describeItem({
+        kind: 'espelho',
+        finish: state.finish,
+        widthMm,
+        heightMm,
+        glassColor: state.espelhoColor,
+        thicknessMm: state.espelhoThickness,
+        markup,
+        extras,
+      })
+    case 'custom':
+      return describeItem({ kind: 'custom', description: state.customDesc, amount: 0 })
   }
 }
 

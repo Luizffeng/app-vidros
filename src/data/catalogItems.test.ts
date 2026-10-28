@@ -5,6 +5,7 @@ import {
   nextNumericId,
   normalizeCatalog,
   parseImportedCatalog,
+  withRequiredAluminios,
 } from './catalogItems'
 
 describe('catalogItems', () => {
@@ -118,5 +119,30 @@ describe('catalogItems', () => {
         aluminios: [seed.aluminios[0]],
       }),
     ).toThrow(/vidros/)
+  })
+
+  it('withRequiredAluminios acrescenta TUBO 5X5 só quando falta', () => {
+    const seed = normalizeCatalog(loadSeedCatalog())
+    const legacy = {
+      ...seed,
+      aluminios: seed.aluminios.filter((row) => row.codigo !== 'TUBO 5X5'),
+    }
+    const added = withRequiredAluminios(legacy)
+    const tube = added.aluminios.find((row) => row.codigo === 'TUBO 5X5')
+    expect(tube).toMatchObject({
+      id: nextNumericId(legacy.aluminios),
+      descricao: 'TUBO 5 X 5 CM',
+      valorBarra: 200,
+      metragemBarra: 6,
+      ativo: true,
+    })
+    expect(tube?.exemplo).toBeUndefined()
+    expect(withRequiredAluminios(added)).toBe(added)
+
+    const example = withRequiredAluminios({
+      ...legacy,
+      config: { ...legacy.config, exemplo: true },
+    })
+    expect(example.aluminios.find((row) => row.codigo === 'TUBO 5X5')?.exemplo).toBe(true)
   })
 })

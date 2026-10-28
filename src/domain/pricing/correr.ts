@@ -16,6 +16,10 @@ function is2F(subtype: string) {
   return subtype === 'J2F' || subtype === 'P2F'
 }
 
+function isP1F(subtype: string) {
+  return subtype === 'P1F'
+}
+
 export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult {
   const { config } = catalog
   const surcharge = aluminumSurcharge(config, input.profileColor)
@@ -23,19 +27,27 @@ export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult
 
   const areaVao = ceiling((input.widthMm * input.heightMm) / 1e6, 0.1)
 
-  const fixedW = is2F(subtype)
-    ? ceiling(input.widthMm / 2, 50)
-    : ceiling(input.widthMm / 4, 50)
-  const fixedH = ceiling(input.heightMm - 60, 50)
-  const fixedM2 =
-    (is2F(subtype) ? 1 : 2) * roundUp((fixedW * fixedH) / 1e6, 3)
+  const fixedW = isP1F(subtype)
+    ? 0
+    : is2F(subtype)
+      ? ceiling(input.widthMm / 2, 50)
+      : ceiling(input.widthMm / 4, 50)
+  const fixedH = isP1F(subtype) ? 0 : ceiling(input.heightMm - 60, 50)
+  const fixedM2 = isP1F(subtype)
+    ? 0
+    : (is2F(subtype) ? 1 : 2) * roundUp((fixedW * fixedH) / 1e6, 3)
 
-  const movingW = is2F(subtype)
-    ? ceiling(input.widthMm / 2 + 50, 50)
-    : ceiling(input.widthMm / 4 + 50, 50)
-  const movingH = ceiling(input.heightMm - 20, 50)
-  const movingM2 =
-    (is2F(subtype) ? 1 : 2) * roundUp((movingW * movingH) / 1e6, 3)
+  const movingW = isP1F(subtype)
+    ? ceiling(input.widthMm + 50, 50)
+    : is2F(subtype)
+      ? ceiling(input.widthMm / 2 + 50, 50)
+      : ceiling(input.widthMm / 4 + 50, 50)
+  const movingH = isP1F(subtype)
+    ? ceiling(input.heightMm + 40, 50)
+    : ceiling(input.heightMm - 20, 50)
+  const movingM2 = isP1F(subtype)
+    ? roundUp((movingW * movingH) / 1e6, 3)
+    : (is2F(subtype) ? 1 : 2) * roundUp((movingW * movingH) / 1e6, 3)
 
   const glassM2 = fixedM2 + movingM2
   const vidro = findVidro(catalog, 'Temperado', input.glassColor, input.thicknessMm)
@@ -43,25 +55,38 @@ export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult
 
   const qty = {
     // meters of profiles — from sheet IFS formulas
-    al49: ceiling(input.widthMm, 500) / 1000, // approx from sheet patterns
-    al50: ceiling(input.widthMm, 500) / 1000,
-    al75: ceiling(input.widthMm, 500) / 1000,
-    al43: ceiling(input.widthMm, 500) / 1000,
-    al66: is2F(subtype)
+    al49: isP1F(subtype)
+      ? ceiling(input.widthMm * 2, 500) / 1000
+      : ceiling(input.widthMm, 500) / 1000,
+    al50: isP1F(subtype)
+      ? ceiling(input.widthMm * 2, 500) / 1000
+      : ceiling(input.widthMm, 500) / 1000,
+    al75: isP1F(subtype)
+      ? ceiling(input.widthMm + 50, 500) / 1000
+      : ceiling(input.widthMm, 500) / 1000,
+    al43: isP1F(subtype)
+      ? ceiling(input.widthMm + 50, 500) / 1000
+      : ceiling(input.widthMm, 500) / 1000,
+    al66: isP1F(subtype)
+      ? 0
+      : is2F(subtype)
       ? ceiling(input.heightMm * 2, 500) / 1000
       : ceiling(input.heightMm * 4, 500) / 1000,
-    al67: 0, // sheet shows 0 for J4F sample; keep formula path
-    al15: is2F(subtype)
+    al67: isP1F(subtype) ? ceiling(input.heightMm, 500) / 1000 : 0,
+    al15: isP1F(subtype)
+      ? 0
+      : is2F(subtype)
       ? ceiling(input.heightMm, 500) / 1000
       : ceiling(input.heightMm * 2, 500) / 1000,
-    al47: is2F(subtype) ? 0 : ceiling(input.heightMm, 500) / 1000,
+    al47: isP1F(subtype) || is2F(subtype) ? 0 : ceiling(input.heightMm, 500) / 1000,
+    tubo5x5: 0,
     bateVV: subtype === 'J4F' ? 1 : 0,
     bateVA: subtype === 'J2F' ? 1 : 0,
     kit09: subtype === 'P4F' ? 1 : 0,
-    kit10: subtype === 'P2F' ? 1 : 0,
+    kit10: subtype === 'P1F' || subtype === 'P2F' ? 1 : 0,
     escova: 0, // filled after
-    batente: is2F(subtype) ? 2 : 6,
-    roldana: is2F(subtype) ? 2 : 4,
+    batente: isP1F(subtype) || is2F(subtype) ? 2 : 6,
+    roldana: isP1F(subtype) || is2F(subtype) ? 2 : 4,
     silicone: 1,
   }
 
@@ -85,27 +110,45 @@ export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult
   // AL47: E:1[= IFS(2F:0, 4F: CEILING(C5,500)/1000)] → CEILING(754,500)/1000=1 ✓
   // Escova E:7[= E22*2+E26+E27] — E22 is AL75 qty
 
-  const eAl75 = ceiling(input.widthMm, 500) / 1000
-  const eAl15 = is2F(subtype)
-    ? ceiling(input.heightMm, 500) / 1000
-    : ceiling(input.heightMm * 2, 500) / 1000
-  const eAl47 = is2F(subtype) ? 0 : ceiling(input.heightMm, 500) / 1000
-  const eAl66 = is2F(subtype)
+  const eAl75 = isP1F(subtype)
+    ? ceiling(input.widthMm + 50, 500) / 1000
+    : ceiling(input.widthMm, 500) / 1000
+  const eAl15 = isP1F(subtype)
+    ? 0
+    : is2F(subtype)
+      ? ceiling(input.heightMm, 500) / 1000
+      : ceiling(input.heightMm * 2, 500) / 1000
+  const eAl47 = isP1F(subtype) || is2F(subtype) ? 0 : ceiling(input.heightMm, 500) / 1000
+  const eAl66 = isP1F(subtype)
+    ? 0
+    : is2F(subtype)
     ? ceiling(input.heightMm * 2, 500) / 1000
     : // Planilha de referência (exemplo J4F) usa fator 2 na prática para U vertical;
       // a fórmula exportada (*4) diverge do valor cacheado — priorizamos o exemplo.
       ceiling(input.heightMm * 2, 500) / 1000
-  const eWidth = ceiling(input.widthMm, 500) / 1000
+  const eWidth = isP1F(subtype)
+    ? ceiling(input.widthMm * 2, 500) / 1000
+    : ceiling(input.widthMm, 500) / 1000
+  const eAl43 = isP1F(subtype)
+    ? ceiling(input.widthMm + 50, 500) / 1000
+    : eWidth
 
   qty.al49 = eWidth
   qty.al50 = eWidth
   qty.al75 = eAl75
-  qty.al43 = eWidth
+  qty.al43 = eAl43
   qty.al66 = eAl66
-  qty.al67 = 0
+  qty.al67 = isP1F(subtype)
+    ? ceiling(input.heightMm, 500) / 1000
+    : is2F(subtype)
+      ? eAl66
+      : 0
   qty.al15 = eAl15
   qty.al47 = eAl47
   qty.escova = eAl75 * 2 + eAl15 + eAl47
+  qty.tubo5x5 = isP1F(subtype) && input.hasTube5x5 !== false
+    ? ceiling(input.heightMm + 60, 500) / 1000
+    : 0
 
   const aluLines = [
     ['AL 49', qty.al49],
@@ -116,6 +159,7 @@ export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult
     ['AL 67', qty.al67],
     ['AL 15', qty.al15],
     ['AL 47', qty.al47],
+    ['TUBO 5X5', qty.tubo5x5],
   ] as const
 
   const bom: BomLine[] = []

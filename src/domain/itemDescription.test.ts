@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { describeItem } from './itemDescription'
+import { describeFormDraft, describeItem } from './itemDescription'
 import type { CorrerSubtype, ItemInput } from './types'
 
 const base = { markup: 0.3, extras: [] }
@@ -53,6 +53,7 @@ describe('describeItem', () => {
   it.each<[CorrerSubtype, string]>([
     ['J2F', 'Janela de correr 2 folhas'],
     ['J4F', 'Janela de correr 4 folhas'],
+    ['P1F', 'Porta de correr 1 folha'],
     ['P2F', 'Porta de correr 2 folhas'],
     ['P4F', 'Porta de correr 4 folhas'],
   ])('correr %s', (subtype, title) => {
@@ -71,6 +72,30 @@ describe('describeItem', () => {
       title,
       spec: 'Alumínio Fosco · Vidro Incolor 08mm',
       size: '1500 × 1200 mm',
+    })
+  })
+
+  it('rascunho de correr usa o subtipo do item salvo', () => {
+    expect(
+      describeFormDraft({
+        kind: 'correr',
+        subtype: 'P1F',
+        spanCm: '',
+        widthMm: '900',
+        heightMm: '2100',
+        glassColor: 'Incolor',
+        profileColor: 'Fosco',
+        thicknessMm: '08',
+        hasLatch: false,
+        finish: 'Espelho Lapidado',
+        espelhoColor: '',
+        espelhoThickness: '',
+        customDesc: '',
+      }),
+    ).toEqual({
+      title: 'Porta de correr 1 folha',
+      spec: 'Alumínio Fosco · Vidro Incolor 08mm',
+      size: '900 × 2100 mm',
     })
   })
 

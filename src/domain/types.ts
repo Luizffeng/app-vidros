@@ -7,7 +7,7 @@ export type ProductKind =
   | 'espelho'
   | 'custom'
 
-export type CorrerSubtype = 'J2F' | 'J4F' | 'P2F' | 'P4F'
+export type CorrerSubtype = 'J2F' | 'J4F' | 'P1F' | 'P2F' | 'P4F'
 export type EspelhoFinish = 'Espelho Lapidado' | 'Espelho Bisotado'
 
 export interface AluminumColor {
@@ -208,6 +208,8 @@ export interface CorrerInput extends ItemNote, ItemLaborRate {
   glassColor: string
   thicknessMm: string
   profileColor: string
+  /** Tubo 5x5 da porta P1F. Ausente = incluído (itens antigos). */
+  hasTube5x5?: boolean
   markup: number
   extras: ItemExtra[]
 }

@@ -219,36 +219,47 @@ async function itemDrafts(page) {
   await newQuote(page)
   await addMirror(page)
   const modal = page.locator('.modal--item')
-  const banner = page.locator('.item-draft-banner')
+  const draft = page.locator('.item-draft')
   const total = () => page.locator('.action-bar__total').innerText()
 
   await page.getByRole('button', { name: 'Adicionar item' }).click()
   await page.getByRole('button', { name: 'Espelho', exact: true }).click()
   await back(page)
-  check('só escolher o tipo e voltar não cria rascunho', (await banner.count()) === 0)
+  check('só escolher o tipo e voltar não cria rascunho', (await draft.count()) === 0)
 
   await page.getByRole('button', { name: 'Adicionar item' }).click()
   await page.getByRole('button', { name: 'Espelho', exact: true }).click()
   await modal.getByLabel('Largura (mm)').fill('1234')
   await back(page)
-  await banner.waitFor()
-  check('voltar com medida guarda item em rascunho', (await banner.innerText()).includes('Item não terminado: Espelho'))
+  await draft.waitFor()
+  check(
+    'voltar com medida guarda item em rascunho',
+    (await draft.innerText()).includes('Espelho') && (await draft.innerText()).includes('Rascunho'),
+  )
 
-  await banner.getByRole('button', { name: 'Continuar' }).click()
+  await draft.locator('button.item-block__head').click()
   check('continuar reabre com o valor digitado', (await modal.getByLabel('Largura (mm)').inputValue()) === '1234')
   await page.keyboard.press('Escape')
   await modal.waitFor({ state: 'detached' })
   await page.reload({ waitUntil: 'networkidle' })
-  await banner.waitFor()
+  await draft.waitFor()
   ok('rascunho do item sobrevive ao recarregar')
   await page.getByRole('button', { name: 'Adicionar item' }).click()
+  const replacePop = page.getByRole('dialog', { name: 'Item não terminado' })
+  await replacePop.waitFor()
+  check('Adicionar item pergunta antes de trocar o rascunho', (await modal.count()) === 0)
+  await replacePop.getByRole('button', { name: 'Começar outro' }).click()
+  await page.getByRole('button', { name: 'Espelho', exact: true }).waitFor()
+  await back(page)
   check(
-    'Adicionar item abre o rascunho direto',
-    (await modal.getByLabel('Largura (mm)').inputValue()) === '1234',
+    'fechar a escolha de tipo mantém o rascunho',
+    (await draft.innerText()).includes('Espelho') && (await draft.innerText()).includes('Rascunho'),
   )
+  await draft.getByRole('button', { name: 'Editar' }).click()
+  check('continuar ainda traz o valor digitado', (await modal.getByLabel('Largura (mm)').inputValue()) === '1234')
   await modal.getByRole('button', { name: 'Cancelar' }).click()
   await modal.waitFor({ state: 'detached' })
-  check('Cancelar descarta o rascunho', (await banner.count()) === 0)
+  check('Cancelar descarta o rascunho', (await draft.count()) === 0)
 
   const before = await total()
   await page.getByRole('button', { name: 'Editar' }).first().click()

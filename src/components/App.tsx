@@ -96,7 +96,7 @@ import { Dropdown } from './Dropdown'
 import { SearchField } from './SearchField'
 import { QuoteList } from './QuoteList'
 import { ITEM_KINDS, ItemForm } from './ItemForm'
-import { ItemBlockHead } from './ItemBlockHead'
+import { ItemBlockHead, DraftBlockHead } from './ItemBlockHead'
 import { Modal } from './Modal'
 import { ExpiredNotice } from './ExpiredNotice'
 import { PublicPage } from './PublicPage'
@@ -173,6 +173,7 @@ export function App() {
   const [pendingDeleteQuote, setPendingDeleteQuote] = useState(false)
   const [emitBlocked, setEmitBlocked] = useState(false)
   const [emitExamples, setEmitExamples] = useState<ExampleUse | null>(null)
+  const [pendingNewItem, setPendingNewItem] = useState(false)
   const [onboardingHidden, setOnboardingHidden] = useState(onboardingHiddenThisSession)
   const [itemModal, setItemModal] = useState<
     null | { mode: 'pick' } | { mode: 'create'; kind: ProductKind } | { mode: 'edit'; id: string }
@@ -265,18 +266,20 @@ export function App() {
     Boolean(pendingRemoveId) ||
     pendingDeleteQuote ||
     (emitBlocked && Boolean(quote && emitGapMessage(quote))) ||
-    Boolean(emitExamples)
+    Boolean(emitExamples) ||
+    pendingNewItem
   // These pops share one back layer: open at most one, or closing one leaves the layer to eat the next back.
   const closeConfirms = () => {
     setPendingRemoveId(null)
     setPendingDeleteQuote(false)
     setEmitBlocked(false)
     setEmitExamples(null)
+    setPendingNewItem(false)
   }
   useBackLayer(confirmOpen, closeConfirms)
 
   useEffect(() => {
-    if (!pendingRemoveId && !pendingDeleteQuote && !emitBlocked && !emitExamples) return
+    if (!pendingRemoveId && !pendingDeleteQuote && !emitBlocked && !emitExamples && !pendingNewItem) return
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target
       if (!(target instanceof Element)) return
@@ -284,14 +287,15 @@ export function App() {
         target.closest('.confirm-pop') ||
         target.closest('.item-remove') ||
         target.closest('.topbar__delete') ||
-        target.closest('.emit-wrap')
+        target.closest('.emit-wrap') ||
+        target.closest('.items-toolbar')
       )
         return
       closeConfirms()
     }
     document.addEventListener('pointerdown', onPointerDown)
     return () => document.removeEventListener('pointerdown', onPointerDown)
-  }, [pendingRemoveId, pendingDeleteQuote, emitBlocked, emitExamples])
+  }, [pendingRemoveId, pendingDeleteQuote, emitBlocked, emitExamples, pendingNewItem])
 
   const searchedQuotes = useMemo(() => {
     const q = listQuery.trim().toLowerCase()
@@ -931,9 +935,25 @@ export function App() {
   }
   const createDraft = itemDraft?.create
   const editDraft = itemModal?.mode === 'edit' ? itemDraft?.edits[itemModal.id] : undefined
+  const continueCreateDraft = () => {
+    if (!createDraft) return
+    setPendingNewItem(false)
+    setError(null)
+    setItemModal({ mode: 'create', kind: createDraft.kind })
+  }
   const openAddItem = () => {
     setError(null)
-    setItemModal(createDraft ? { mode: 'create', kind: createDraft.kind } : { mode: 'pick' })
+    if (createDraft) {
+      if (pendingNewItem) {
+        setPendingNewItem(false)
+        return
+      }
+      closeConfirms()
+      setPendingNewItem(true)
+      document.querySelector('.items-toolbar')?.scrollIntoView({ block: 'nearest' })
+      return
+    }
+    setItemModal({ mode: 'pick' })
   }
 
   return screen(
@@ -1049,7 +1069,17 @@ export function App() {
             key={item.id}
             className={`item-block${itemModal?.mode === 'edit' && itemModal.id === item.id ? ' item-block--editing' : ''}`}
           >
-            <ItemBlockHead item={item} />
+            <ItemBlockHead
+              item={item}
+              onOpen={
+                readOnly
+                  ? undefined
+                  : () => {
+                      setError(null)
+                      setItemModal({ mode: 'edit', id: item.id })
+                    }
+              }
+            />
             <div className={`item-block__tools${canWrite || !readOnly ? ' item-block__tools--actions' : ''}`}>
             <button type="button" className="item-block__cost-btn" onClick={() => setCostItemId(item.id)}>
               Detalhes do custo
@@ -1096,26 +1126,24 @@ export function App() {
         ))}
 
         {!readOnly && createDraft && !itemModal && (
-          <Banner
-            tone="warn"
-            className="item-draft-banner"
-            actions={
-              <>
-                <button type="button" className="btn" onClick={openAddItem}>
-                  Continuar
-                </button>
-                <button
-                  type="button"
-                  className="btn ghost"
+          <article className="item-block item-draft">
+            <DraftBlockHead state={createDraft} onOpen={continueCreateDraft} />
+            <div className="item-block__tools item-block__tools--actions">
+              <div className="item-block__actions">
+                <IconButton label="Editar" size="sm" tone="edit" onClick={continueCreateDraft}>
+                  <PencilIcon />
+                </IconButton>
+                <IconButton
+                  label="Remover"
+                  size="sm"
+                  tone="danger"
                   onClick={() => setItemDraft(clearCreateDraft(quote.id))}
                 >
-                  Descartar
-                </button>
-              </>
-            }
-          >
-            Item não terminado: <strong>{kindLabel(createDraft.kind)}</strong>
-          </Banner>
+                  <TrashIcon />
+                </IconButton>
+              </div>
+            </div>
+          </article>
         )}
 
         {!readOnly && (
@@ -1124,6 +1152,21 @@ export function App() {
               <PlusIcon />
               Adicionar item
             </button>
+            <ConfirmPop
+              open={pendingNewItem && Boolean(createDraft)}
+              place="above"
+              block
+              tone="primary"
+              label="Item não terminado"
+              message="Há um item não terminado. Continuar nele ou começar outro?"
+              yesLabel="Continuar"
+              noLabel="Começar outro"
+              onYes={continueCreateDraft}
+              onNo={() => {
+                setPendingNewItem(false)
+                setItemModal({ mode: 'pick' })
+              }}
+            />
           </div>
         )}
       </CollapsibleSection>
@@ -1136,7 +1179,10 @@ export function App() {
                 key={k.id}
                 type="button"
                 className="chip"
-                onClick={() => setItemModal({ mode: 'create', kind: k.id })}
+                onClick={() => {
+                  if (createDraft) setItemDraft(clearCreateDraft(quote.id))
+                  setItemModal({ mode: 'create', kind: k.id })
+                }}
               >
                 {k.label}
               </button>

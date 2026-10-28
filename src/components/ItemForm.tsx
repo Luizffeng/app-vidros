@@ -25,6 +25,7 @@ import { DropdownField, type DropdownOption } from './Dropdown'
 const CORRER_SUBTYPES: DropdownOption<CorrerSubtype>[] = [
   { value: 'J2F', label: 'Janela 2 folhas (J2F)' },
   { value: 'J4F', label: 'Janela 4 folhas (J4F)' },
+  { value: 'P1F', label: 'Porta 1 folha (P1F)' },
   { value: 'P2F', label: 'Porta 2 folhas (P2F)' },
   { value: 'P4F', label: 'Porta 4 folhas (P4F)' },
 ]
@@ -122,6 +123,9 @@ function sameFormState(a: ItemFormState, b: ItemFormState): boolean {
         .filter((r) => r.description.trim() || r.amount.trim())
         .map((r) => [r.description.trim(), r.amount.trim(), r.committed]),
     }
+    for (const key of Object.keys(fields)) {
+      if (fields[key] === undefined) delete fields[key]
+    }
     return JSON.stringify(Object.keys(fields).sort().map((key) => [key, fields[key]]))
   }
   return norm(a) === norm(b)
@@ -150,6 +154,7 @@ function draftInput(fields: {
   subtype: CorrerSubtype
   hasLatch: boolean
   hasAluminum: boolean
+  hasTube5x5: boolean
   finish: EspelhoFinish
   espelhoColor: string
   espelhoThickness: string
@@ -190,6 +195,7 @@ function draftInput(fields: {
         glassColor: fields.glassColor,
         thicknessMm: fields.thicknessMm,
         profileColor: fields.profileColor,
+        ...(fields.subtype === 'P1F' ? { hasTube5x5: fields.hasTube5x5 } : {}),
         markup: mk,
         extras: extras ?? [],
       }
@@ -281,6 +287,7 @@ function seedFromInput(
   subtype: CorrerSubtype
   hasLatch: boolean
   hasAluminum: boolean
+  hasTube5x5: boolean
   finish: EspelhoFinish
   espelhoColor: string
   espelhoThickness: string
@@ -300,6 +307,7 @@ function seedFromInput(
     subtype: 'J2F' as CorrerSubtype,
     hasLatch: true,
     hasAluminum: true,
+    hasTube5x5: true,
     finish: 'Espelho Lapidado' as EspelhoFinish,
     espelhoColor: 'Prata',
     espelhoThickness: '04',
@@ -330,6 +338,7 @@ function seedFromInput(
         thicknessMm: initial.thicknessMm,
         profileColor: initial.profileColor,
         subtype: initial.subtype,
+        hasTube5x5: initial.hasTube5x5 !== false,
         markup: pctStr(initial.markup),
       }
     case 'pivotante':
@@ -459,6 +468,7 @@ export function ItemForm({
   const [subtype, setSubtype] = useState<CorrerSubtype>(start.subtype)
   const [hasLatch, setHasLatch] = useState(start.hasLatch)
   const [hasAluminum, setHasAluminum] = useState(start.hasAluminum ?? true)
+  const [hasTube5x5, setHasTube5x5] = useState(start.hasTube5x5 ?? true)
   const [finish, setFinish] = useState<EspelhoFinish>(start.finish)
   const [espelhoColor, setEspelhoColor] = useState(start.espelhoColor)
   const [espelhoThickness, setEspelhoThickness] = useState(start.espelhoThickness)
@@ -483,6 +493,7 @@ export function ItemForm({
     subtype,
     hasLatch,
     hasAluminum,
+    hasTube5x5,
     finish,
     espelhoColor,
     espelhoThickness,
@@ -560,6 +571,7 @@ export function ItemForm({
       subtype,
       hasLatch,
       hasAluminum,
+      hasTube5x5,
       finish,
       espelhoColor,
       espelhoThickness,
@@ -590,6 +602,7 @@ export function ItemForm({
     subtype,
     hasLatch,
     hasAluminum,
+    hasTube5x5,
     finish,
     espelhoColor,
     espelhoThickness,
@@ -643,6 +656,7 @@ export function ItemForm({
       subtype,
       hasLatch,
       hasAluminum,
+      hasTube5x5,
       finish,
       espelhoColor,
       espelhoThickness,
@@ -752,6 +766,16 @@ export function ItemForm({
             </div>
           )}
 
+          {kind === 'correr' && (
+            <DropdownField
+              className="full"
+              label="Tipo"
+              value={subtype}
+              options={CORRER_SUBTYPES}
+              onChange={setSubtype}
+            />
+          )}
+
           {kind !== 'box' && (
             <div className="field-pair field-pair--half full">
               <label>
@@ -775,14 +799,15 @@ export function ItemForm({
             </div>
           )}
 
-          {kind === 'correr' && (
-            <DropdownField
-              className="full"
-              label="Tipo"
-              value={subtype}
-              options={CORRER_SUBTYPES}
-              onChange={setSubtype}
-            />
+          {kind === 'correr' && subtype === 'P1F' && (
+            <label className="check-field__box check-field__box--row full">
+              <span>Incluir Tubo 5x5cm</span>
+              <input
+                type="checkbox"
+                checked={hasTube5x5}
+                onChange={(e) => setHasTube5x5(e.target.checked)}
+              />
+            </label>
           )}
 
           {kind === 'espelho' ? (

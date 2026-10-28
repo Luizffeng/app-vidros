@@ -29,8 +29,8 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Blocked
 
-- [ ] `feat` (M) **Porta de Correr 1 Folha:** novo cálculo em `priceItem` + teste de paridade. Aguardando o dono refinar o cálculo (planilha/orçamento real, BOM, medidas exemplo)
 - [ ] `docs` (P) **Abrir cadastro em produção (spec 007):** aguarda CNPJ (razão social, endereço), número de WhatsApp da empresa e revisão jurídica dos rascunhos em [src/content/legal/](src/content/legal/). Dono também vai registrar a marca AppVidros no INPI. O desenvolvimento das entregas 1–4 não depende disso (Supabase local)
+- [ ] `data` (M) **Virada Forte Vidros em produção (spec 007 T019):** ensaiar cutover com export real do dono (contagem de orçamentos, números, soma `grandTotal`, contadores, versão do catálogo, logo em `{account_id}/logo.png`, Início sem linha de trial / Primeiros passos completo). Código e SQL de ensaio com dados sintéticos já feitos
 
 ## Later
 
@@ -55,6 +55,11 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 - App nativo (iOS/Android). Ganho conhecido: só app nativo (ex.: Android empacotado com Capacitor) manda o PDF direto ao WhatsApp, sem a folha de compartilhar do sistema; pelo navegador, arquivo só sai por essa folha. A tela de legenda do WhatsApp continua de qualquer jeito
 
 ## Done
+
+### 2026-10-28
+
+- [x] `feat` **Porta de correr 1 folha:** um vidro móvel, perfis próprios, Tubo 5x5cm opcional (marcado por padrão) e AL 67 nas portas e janelas de 2 folhas. O perfil entra no catálogo das lojas que abrem o app e na migração SQL
+- [x] `ui` **Toque no item abre a edição:** o card do item salvo e o do rascunho abrem o formulário. O item não salvo mostra Rascunho, na mesma cor da tag de orçamento
 
 ### 2026-10-22
 
