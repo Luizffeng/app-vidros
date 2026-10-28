@@ -2129,8 +2129,14 @@ a.btn.primary {
 }
 
 .item-block {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.75rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.7rem 0.75rem 0.45rem;
+}
+
+.item-block + .item-block {
+  margin-top: 0.55rem;
 }
 
 .item-block__head {
@@ -2406,9 +2412,7 @@ button.item-block__head:hover {
 }
 
 .item-block--editing {
-  outline: 1px solid rgba(212, 160, 23, 0.45);
-  outline-offset: 4px;
-  border-radius: 8px;
+  border-color: rgba(212, 160, 23, 0.55);
 }
 
 .item-draft .item-block__tools {
