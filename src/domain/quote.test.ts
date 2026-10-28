@@ -3,6 +3,7 @@ import { loadSeedCatalog } from '../data/seedCatalog'
 import type { Catalog, CorrerInput, EspelhoInput, MarginMode, Quote } from './types'
 import {
   addItem,
+  duplicateItem,
   catalogVersionDate,
   createEmptyDraft,
   createRevision,
@@ -56,6 +57,39 @@ function sampleQuote() {
   quote = addItem(quote, catalog, { kind: 'custom', description: '', amount: 80 })
   return quote
 }
+
+describe('duplicar item', () => {
+  it('insere a cópia logo abaixo, com os mesmos parâmetros e outro id', () => {
+    const quote = sampleQuote()
+    const source = quote.items[0]
+    const next = duplicateItem(quote, catalog, source.id)
+    const copy = next.items[1]
+    expect(next.items.map((item) => item.id)).toEqual([
+      source.id,
+      copy.id,
+      quote.items[1].id,
+      quote.items[2].id,
+    ])
+    expect(copy.id).not.toBe(source.id)
+    expect(copy.input).toMatchObject({
+      kind: 'espelho',
+      widthMm: 3445,
+      heightMm: 745,
+      glassColor: 'Prata',
+      thicknessMm: '04',
+    })
+    if (copy.input.kind !== 'espelho' || source.input.kind !== 'espelho') throw new Error('esperado espelho')
+    expect(copy.input.extras[0]).toMatchObject({ description: 'Instalação', amount: 50 })
+    expect(copy.input.extras[0].id).not.toBe(source.input.extras[0].id)
+    expect(copy.result.breakdown.finalPrice).toBe(source.result.breakdown.finalPrice)
+    expect(next.grandTotal).toBeCloseTo(quote.grandTotal + source.result.breakdown.finalPrice, 5)
+  })
+
+  it('item ausente deixa o orçamento como está', () => {
+    const quote = sampleQuote()
+    expect(duplicateItem(quote, catalog, 'nao-existe')).toBe(quote)
+  })
+})
 
 describe('custos adicionais', () => {
   it('rascunho novo começa sem custos', () => {

@@ -27,6 +27,7 @@ import {
   quoteShareText,
   recomputeTotals,
   refreshItemDetail,
+  duplicateItem,
   removeItem,
   repriceDraft,
   setAdditionalCosts,
@@ -429,6 +430,17 @@ export function App() {
       setItemDraft(clearEditDraft(quote.id, itemId))
       itemFormRef.current = null
       setItemModal(null)
+      setError(null)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
+    }
+  }
+
+  const onDuplicateItem = async (itemId: string) => {
+    if (!quote || !catalog || blocked()) return
+    try {
+      closeConfirms()
+      await persist(duplicateItem(quote, catalog, itemId, marginMode))
       setError(null)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -1087,15 +1099,12 @@ export function App() {
             {!readOnly && (
               <div className="item-block__actions">
                 <IconButton
-                  label="Editar"
+                  label="Duplicar"
                   size="sm"
-                  tone="edit"
-                  onClick={() => {
-                    setError(null)
-                    setItemModal({ mode: 'edit', id: item.id })
-                  }}
+                  tone="revise"
+                  onClick={() => void onDuplicateItem(item.id)}
                 >
-                  <PencilIcon />
+                  <RevisionIcon />
                 </IconButton>
                 <IconButton
                   label="Remover"
@@ -1125,14 +1134,11 @@ export function App() {
           </article>
         ))}
 
-        {!readOnly && createDraft && !itemModal && (
-          <article className="item-block item-draft">
+        {!readOnly && createDraft && (
+          <article className={`item-block item-draft${itemModal?.mode === 'create' ? ' item-block--editing' : ''}`}>
             <DraftBlockHead state={createDraft} onOpen={continueCreateDraft} />
             <div className="item-block__tools item-block__tools--actions">
               <div className="item-block__actions">
-                <IconButton label="Editar" size="sm" tone="edit" onClick={continueCreateDraft}>
-                  <PencilIcon />
-                </IconButton>
                 <IconButton
                   label="Remover"
                   size="sm"
@@ -1941,21 +1947,6 @@ function CrossIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function PencilIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M4 20h4l10.5-10.5a1.5 1.5 0 0 0 0-2.1L16.6 5.5a1.5 1.5 0 0 0-2.1 0L4 16v4z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinejoin="round"
-      />
-      <path d="M13.5 6.5l4 4" fill="none" stroke="currentColor" strokeWidth="1.7" />
     </svg>
   )
 }

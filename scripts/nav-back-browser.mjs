@@ -255,18 +255,18 @@ async function itemDrafts(page) {
     'fechar a escolha de tipo mantém o rascunho',
     (await draft.innerText()).includes('Espelho') && (await draft.innerText()).includes('Rascunho'),
   )
-  await draft.getByRole('button', { name: 'Editar' }).click()
+  await draft.locator('button.item-block__head').click()
   check('continuar ainda traz o valor digitado', (await modal.getByLabel('Largura (mm)').inputValue()) === '1234')
   await modal.getByRole('button', { name: 'Cancelar' }).click()
   await modal.waitFor({ state: 'detached' })
   check('Cancelar descarta o rascunho', (await draft.count()) === 0)
 
   const before = await total()
-  await page.getByRole('button', { name: 'Editar' }).first().click()
+  await page.locator('article.item-block:not(.item-draft) button.item-block__head').first().click()
   await modal.getByLabel('Largura (mm)').fill('999')
   await back(page)
   check('voltar na edição não muda o total', (await total()) === before, before)
-  await page.getByRole('button', { name: 'Editar' }).first().click()
+  await page.locator('article.item-block:not(.item-draft) button.item-block__head').first().click()
   check(
     'reabrir a edição mostra a alteração guardada',
     (await modal.getByLabel('Largura (mm)').inputValue()) === '999' &&

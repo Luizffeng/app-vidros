@@ -185,6 +185,31 @@ export function addItem(
   return recomputeTotals({ ...quote, items: [...quote.items, item] })
 }
 
+/** Cópia com os mesmos parâmetros, logo abaixo do item. Preço recalculado. */
+export function duplicateItem(
+  quote: Quote,
+  catalog: Catalog,
+  itemId: string,
+  mode: MarginMode = 'empresa',
+): Quote {
+  const index = quote.items.findIndex((item) => item.id === itemId)
+  if (index < 0) return quote
+  const input = cloneItemInput(quote.items[index].input)
+  const copy: QuoteItem = {
+    id: uuid(),
+    input,
+    result: priceItem(withPriceOverrides(catalog, quote.priceOverrides), input, mode),
+  }
+  const items = quote.items.slice()
+  items.splice(index + 1, 0, copy)
+  return recomputeTotals({ ...quote, items })
+}
+
+function cloneItemInput(input: ItemInput): ItemInput {
+  if (!('extras' in input)) return { ...input }
+  return { ...input, extras: input.extras.map((extra) => ({ ...extra, id: uuid() })) }
+}
+
 export function updateItem(
   quote: Quote,
   catalog: Catalog,

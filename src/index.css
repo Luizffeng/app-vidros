@@ -2247,6 +2247,17 @@ button.item-block__head:hover {
   background: rgba(255, 255, 255, 0.06);
 }
 
+.btn.btn-icon--sm.revise {
+  background: transparent;
+  border: none;
+  color: #8ecfff;
+}
+
+.btn.btn-icon--sm.revise:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: transparent;
+}
+
 .btn.btn-icon--sm svg {
   width: 1.05rem;
   height: 1.05rem;
