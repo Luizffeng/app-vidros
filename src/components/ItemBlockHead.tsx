@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { describeFormDraft, describeItem } from '../domain/itemDescription'
 import { formatBrl } from '../domain/quote'
 import type { QuoteItem } from '../domain/types'
@@ -6,13 +7,12 @@ import type { ItemFormState } from '../data/itemDraft'
 export function ItemBlockHead({ item, onOpen }: { item: QuoteItem; onOpen?: () => void }) {
   const { title, spec, size } = describeItem(item.input)
   const body = (
-    <>
-      <ItemText title={title} spec={spec} />
-      <div className="item-block__figures">
-        <span className="item-block__price">{formatBrl(item.result.breakdown.finalPrice)}</span>
-        {size && <span className="item-block__size">{size}</span>}
-      </div>
-    </>
+    <ItemHead
+      title={title}
+      spec={spec}
+      aside={<span className="item-block__price">{formatBrl(item.result.breakdown.finalPrice)}</span>}
+      size={size}
+    />
   )
   if (!onOpen) return <div className="item-block__head">{body}</div>
   return (
@@ -25,13 +25,12 @@ export function ItemBlockHead({ item, onOpen }: { item: QuoteItem; onOpen?: () =
 export function DraftBlockHead({ state, onOpen }: { state: ItemFormState; onOpen?: () => void }) {
   const { title, spec, size } = describeFormDraft(state)
   const body = (
-    <>
-      <ItemText title={title} spec={spec} />
-      <div className="item-block__figures">
-        <span className="item-draft__status">Rascunho</span>
-        {size && <span className="item-block__size">{size}</span>}
-      </div>
-    </>
+    <ItemHead
+      title={title}
+      spec={spec}
+      aside={<span className="item-draft__status">Rascunho</span>}
+      size={size}
+    />
   )
   if (!onOpen) return <div className="item-block__head">{body}</div>
   return (
@@ -41,10 +40,21 @@ export function DraftBlockHead({ state, onOpen }: { state: ItemFormState; onOpen
   )
 }
 
-function ItemText({ title, spec }: { title: string; spec?: string }) {
+function ItemHead({
+  title,
+  spec,
+  aside,
+  size,
+}: {
+  title: string
+  spec?: string
+  aside: ReactNode
+  size?: string
+}) {
   return (
-    <div className="item-block__info">
+    <>
       <strong className="item-block__title">{title}</strong>
+      {aside}
       {spec && (
         <span className="item-block__spec">
           {spec.split(' · ').map((part, i) => (
@@ -55,6 +65,7 @@ function ItemText({ title, spec }: { title: string; spec?: string }) {
           ))}
         </span>
       )}
-    </div>
+      {size && <span className="item-block__size">{size}</span>}
+    </>
   )
 }
