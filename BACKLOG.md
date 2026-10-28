@@ -58,8 +58,9 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ### 2026-10-28
 
-- [x] `feat` **Porta de correr 1 folha:** um vidro móvel, perfis próprios, Tubo 5x5cm opcional (marcado por padrão) e AL 67 nas portas e janelas de 2 folhas. O perfil entra no catálogo das lojas que abrem o app e na migração SQL
+- [x] `feat` **Porta de correr 1 folha:** um vidro móvel, perfis próprios, Tubo 5x5cm opcional (marcado por padrão) e AL 67 nas portas e janelas de 2 folhas. Catálogo novo nasce com o tubo a R$ 210. Catálogo já gravado não muda
 - [x] `ui` **Toque no item abre a edição:** o card do item salvo e o do rascunho abrem o formulário. O item não salvo mostra Rascunho, na mesma cor da tag de orçamento
+- [x] `feat` **Duplicar item:** cópia logo abaixo, mesmos parâmetros, preço recalculado. O lápis saiu porque o card já abre a edição
 
 ### 2026-10-22
 

@@ -3,7 +3,7 @@ import { getSupabase } from './supabaseClient'
 import { SupabaseQuoteRepository } from './supabaseRepository'
 import { normalizeQuote } from '../domain/quote'
 import type { AppSettings, Catalog, Quote, QuoteRepository } from '../domain/types'
-import { normalizeCatalog, withRequiredAluminios } from './catalogItems'
+import { normalizeCatalog } from './catalogItems'
 import { defaultSettings, normalizeSettings } from './defaultSettings'
 import { loadSeedCatalog } from './seedCatalog'
 
@@ -78,10 +78,7 @@ export class LocalQuoteRepository implements QuoteRepository {
     if (stored) {
       const { id, ...catalog } = stored
       void id
-      const normalized = normalizeCatalog(catalog)
-      const next = withRequiredAluminios(normalized)
-      if (next !== normalized) await db.put('catalog', { ...next, id: 'current' })
-      return next
+      return normalizeCatalog(catalog)
     }
     const seed = normalizeCatalog(loadSeedCatalog())
     await db.put('catalog', { ...seed, id: 'current' })

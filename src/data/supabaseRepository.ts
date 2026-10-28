@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { AppSettings, Catalog, Quote, QuoteRepository } from '../domain/types'
 import { phoneDigits } from '../domain/brazil'
 import { normalizeQuote } from '../domain/quote'
-import { normalizeCatalog, withRequiredAluminios } from './catalogItems'
+import { normalizeCatalog } from './catalogItems'
 import { defaultSettings, normalizeSettings } from './defaultSettings'
 import { toExampleCatalog } from './exampleCatalog'
 import { loadSeedCatalog } from './seedCatalog'
@@ -89,15 +89,7 @@ export class SupabaseQuoteRepository implements QuoteRepository {
     fail(error)
     const row = data as CatalogRow | null
     if (row?.payload) {
-      const stored = normalizeCatalog(row.payload)
-      const catalog = withRequiredAluminios(stored)
-      if (catalog !== stored) {
-        const saved = await this.supabase
-          .from('catalog')
-          .upsert({ payload: catalog, updated_at: new Date().toISOString() }, { onConflict: 'account_id' })
-        if (saved.error && !isDenied(saved.error)) fail(saved.error)
-      }
-      return catalog
+      return normalizeCatalog(row.payload)
     }
 
     const seed = normalizeCatalog(toExampleCatalog(loadSeedCatalog()))

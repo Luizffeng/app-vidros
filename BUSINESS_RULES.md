@@ -30,7 +30,8 @@ Rules encoded in the current code. Locations are the evidence. Unclear items are
 
 - Device back closes the open window first (item form, picker, menus, confirms, previews). With nothing open it goes back one screen. Início is the root; back there leaves the app. `src/nav/navigator.ts`.
 - Leaving Catálogo or Configurações with unsaved changes asks first. Cancel keeps the screen and the edits. `useLeaveGuard`.
-- Item draft: closing the item form by back, Esc, Fechar or outside tap keeps the typed values in this browser (localStorage `app-vidros:item-draft:{quoteId}`), one new item plus edits per existing item. The unfinished new item is a row with status Rascunho; tapping the row or the pencil reopens it, and the trash discards it without a confirm. Adding another item asks before replacing it. "Cancelar", saving the item, emitting or deleting the quote clear it. Drafts of quotes no longer in the list are removed when the list or Início loads. Never used by pricing, PDF or share text. `src/data/itemDraft.ts`.
+- Item draft: closing the item form by back, Esc, Fechar or outside tap keeps the typed values in this browser (localStorage `app-vidros:item-draft:{quoteId}`), one new item plus edits per existing item. The unfinished new item is a row with status Rascunho; tapping the row reopens it, and the trash discards it without a confirm. Adding another item asks before replacing it. "Cancelar", saving the item, emitting or deleting the quote clear it. Drafts of quotes no longer in the list are removed when the list or Início loads. Never used by pricing, PDF or share text. `src/data/itemDraft.ts`.
+- Duplicate, on a draft only, inserts a new item immediately below. New id, same input (extras get new ids), price recomputed with the quote's overrides. It does not copy `finalMeasures`. `duplicateItem`.
 
 ## Início
 

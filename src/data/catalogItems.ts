@@ -1,5 +1,4 @@
 import { isCatalogItemActive } from '../domain/catalogActive'
-import { aluminioValorMetro } from '../domain/catalogEdit'
 import type {
   Acessorio,
   Aluminio,
@@ -8,8 +7,7 @@ import type {
   PricingConfig,
   Vidro,
 } from '../domain/types'
-import { roundExamplePrice } from './exampleCatalog'
-import { loadSeedCatalog, normalizePricingConfig } from './seedCatalog'
+import { normalizePricingConfig } from './seedCatalog'
 
 export { isCatalogItemActive }
 
@@ -40,24 +38,6 @@ export function normalizeCatalog(catalog: Catalog): Catalog {
     acessorios: catalog.acessorios.filter(hasCatalogCodigo).map(normalizeRow),
     aluminios: catalog.aluminios.filter(hasCatalogCodigo).map(normalizeRow),
   }
-}
-
-/** Perfil exigido pelo cálculo e ausente em catálogos gravados antes dele existir. */
-export function withRequiredAluminios(catalog: Catalog): Catalog {
-  if (catalog.aluminios.some((row) => row.codigo === 'TUBO 5X5')) return catalog
-  const seed = loadSeedCatalog().aluminios.find((row) => row.codigo === 'TUBO 5X5')
-  if (!seed) return catalog
-  const exemplo = catalog.config.exemplo === true
-  const valorBarra = exemplo ? roundExamplePrice(seed.valorBarra) : seed.valorBarra
-  const row: Aluminio = {
-    ...seed,
-    id: nextNumericId(catalog.aluminios),
-    valorBarra,
-    valorMetro: exemplo ? aluminioValorMetro(valorBarra, seed.metragemBarra) : seed.valorMetro,
-    ativo: true,
-    ...(exemplo ? { exemplo: true } : {}),
-  }
-  return { ...catalog, aluminios: [...catalog.aluminios, row] }
 }
 
 function isRecord(v: unknown): v is Record<string, unknown> {
