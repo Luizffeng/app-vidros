@@ -1,4 +1,4 @@
-# App Vidros
+# AppVidros
 
 App web para vidraçaria montar, emitir e enviar orçamentos. Hoje atende uma loja, a Forte Vidros, cadastrada como estabelecimento dentro do app (Configurações). O motor de cálculo espelha as regras da planilha de referência (BOX, Correr, Pivotante, Maxim-ar, Vidro fixo, Espelho), sem usar Google Sheets como banco de dados.
 

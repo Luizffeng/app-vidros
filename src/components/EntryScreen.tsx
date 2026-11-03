@@ -161,7 +161,7 @@ export function EntryScreen() {
     <div className="shell entry">
       <header className="topbar">
         <div>
-          <p className="brand-sm">App Vidros</p>
+          <p className="brand-sm">AppVidros</p>
           <h1 className="title-sm">{title}</h1>
         </div>
       </header>
@@ -266,7 +266,7 @@ export function NewPasswordScreen({ onDone }: { onDone: () => void }) {
     <div className="shell entry">
       <header className="topbar">
         <div>
-          <p className="brand-sm">App Vidros</p>
+          <p className="brand-sm">AppVidros</p>
           <h1 className="title-sm">Nova senha</h1>
         </div>
       </header>

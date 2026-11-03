@@ -33,7 +33,7 @@ export function ExpiredNotice({
           </>
         )}{' '}
         Você ainda pode ver, baixar e reenviar seus orçamentos. Para criar novos,{' '}
-        {disabled ? 'fale com a gente.' : 'assine o App Vidros.'}
+        {disabled ? 'fale com a gente.' : 'assine o AppVidros.'}
       </p>
       <div className="modal__actions">
         {!disabled && (

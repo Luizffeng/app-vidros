@@ -125,7 +125,7 @@ export function PublicPage({ page }: { page: Page }) {
             <BackArrowIcon />
           </IconButton>
           <div className="app-header__titles">
-            <p className="brand-sm">App Vidros</p>
+            <p className="brand-sm">AppVidros</p>
             <h1 className="title-sm">{title}</h1>
           </div>
         </header>

@@ -45,7 +45,7 @@ export function AccountSetupScreen({
     <div className="shell entry">
       <header className="topbar">
         <div>
-          <p className="brand-sm">App Vidros</p>
+          <p className="brand-sm">AppVidros</p>
           <h1 className="title-sm">Sua vidraçaria</h1>
         </div>
       </header>

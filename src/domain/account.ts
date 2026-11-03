@@ -38,7 +38,7 @@ export type SupportIntent = 'talk' | 'subscribe' | 'renew'
 
 export function supportMessage(intent: SupportIntent, account: Pick<Account, 'id' | 'name'>): string {
   const who = `${account.name} (${shortId(account.id)})`
-  if (intent === 'subscribe') return `Olá! Quero assinar o App Vidros. Loja: ${who}`
-  if (intent === 'renew') return `Olá! Quero renovar minha assinatura do App Vidros. Loja: ${who}`
+  if (intent === 'subscribe') return `Olá! Quero assinar o AppVidros. Loja: ${who}`
+  if (intent === 'renew') return `Olá! Quero renovar minha assinatura do AppVidros. Loja: ${who}`
   return `Olá! Sou da ${who}.`
 }

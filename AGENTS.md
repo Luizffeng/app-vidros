@@ -8,7 +8,7 @@ Reusable procedures (pricing, persisted field, customer output, UI, browser chec
 
 ## What this repo is
 
-App Vidros: single-shop SPA to build, emit, and share glass quotes for one establishment (Forte Vidros is seeded data, not a tenant). Today: one shop, no public signup. Direction (2026-10-09): becoming a SaaS for glaziers, simple for non-technical users; needs its own spec (`BACKLOG.md`). Do not add tenants or billing outside that spec. Production: https://appvidros.pages.dev. Package name: `app-vidros`.
+AppVidros: single-shop SPA to build, emit, and share glass quotes for one establishment (Forte Vidros is seeded data, not a tenant). Today: one shop, no public signup. Direction (2026-10-09): becoming a SaaS for glaziers, simple for non-technical users; needs its own spec (`BACKLOG.md`). Do not add tenants or billing outside that spec. Production: https://appvidros.pages.dev. Package name: `app-vidros`.
 
 ## Stack
 

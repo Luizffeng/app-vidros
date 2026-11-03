@@ -1,5 +1,5 @@
 /**
- * Empresa dona do App Vidros. Vazio até abrir o CNPJ: o rodapé mostra só o que estiver
+ * Empresa dona do AppVidros. Vazio até abrir o CNPJ: o rodapé mostra só o que estiver
  * preenchido e os textos legais mantêm o marcador entre colchetes.
  */
 export const COMPANY = {

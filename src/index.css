@@ -736,6 +736,7 @@ label .percent-input .money-input {
 
 .item-form__alert {
   flex: none;
+  overflow: visible;
   padding: 0.85rem 1.1rem 0;
 }
 
@@ -3179,11 +3180,12 @@ button.item-block__head:hover {
 }
 
 /* Same pulse as .item-block--arrive: only the edge. Light red (same hue as
-   .banner--missing), not white — white reads as a second frame on a saturated card. */
+   .banner--missing), not white — white reads as a second frame on a saturated card.
+   inset -2px puts the flash outside the card border (fits in .item-form__alert pad). */
 .banner--attention::after {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: -2px;
   border-radius: inherit;
   border: 1px solid #ffb4b4;
   pointer-events: none;

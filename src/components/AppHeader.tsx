@@ -272,7 +272,7 @@ export function AppHeader({
         </IconButton>
       )}
       <div className="app-header__titles">
-        <p className="brand-sm">App Vidros</p>
+        <p className="brand-sm">AppVidros</p>
         <h1 className="title-sm">{title}</h1>
       </div>
       <HeaderMenu current={current} onNavigate={onNavigate} />

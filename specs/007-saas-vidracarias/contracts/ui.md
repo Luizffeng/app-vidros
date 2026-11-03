@@ -52,8 +52,8 @@ Ajuda gets a "Dicas" `Section` between "Fale com a gente" and "Sugestões": each
 Opened instead of creating anything by: Novo orçamento, Revisar, Duplicar, Emitir, item add/edit, catalog save, settings save.
 
 - Title: "Seu teste grátis terminou" / "Sua assinatura venceu".
-- Body: "Terminou em {dd/mm/aaaa}. Você ainda pode ver, baixar e reenviar seus orçamentos. Para criar novos, assine o App Vidros."
-- Primary "Quero assinar" / "Renovar" → `wa.me/{suporte}?text=Olá! Quero assinar o App Vidros. Loja: {nome} ({shortId})`.
+- Body: "Terminou em {dd/mm/aaaa}. Você ainda pode ver, baixar e reenviar seus orçamentos. Para criar novos, assine o AppVidros."
+- Primary "Quero assinar" / "Renovar" → `wa.me/{suporte}?text=Olá! Quero assinar o AppVidros. Loja: {nome} ({shortId})`.
 - Secondary "Falar com a gente" → `/ajuda` (also on the Início account banners). Close returns to the same place, nothing created.
 
 ## Primeiros passos tasks
