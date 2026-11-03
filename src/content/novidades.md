@@ -2,6 +2,12 @@
 
 O que entrou no app nos últimos meses. Sugestões enviadas em [Suporte › Fale com a gente](/suporte/fale-com-a-gente) que viram novidade aparecem aqui.
 
+## Novembro de 2026
+
+- **Vidro, kit, acessório ou alumínio sem preço** no item: o app avisa, deixa inserir o valor na hora ou abrir o catálogo na linha certa.
+- **Avisos de sucesso** (valores atualizados, catálogo salvo e afins) fecham com um X.
+- **Item novo ou duplicado** pisca a borda uma vez para mostrar onde entrou.
+
 ## Outubro de 2026
 
 - **Toque no item** do orçamento abre a edição. Um item ainda não salvo aparece como Rascunho e também abre ao toque.

@@ -740,6 +740,11 @@ label .percent-input .money-input {
   padding: 0.85rem 1.1rem 0;
 }
 
+/* Room so shake does not clip the card edge against the modal / divider. */
+.item-form__alert:has(.banner--attention) {
+  padding: 0.95rem 1.35rem 0.2rem;
+}
+
 .item-form__alert .banner {
   margin: 0;
 }
@@ -3175,21 +3180,9 @@ button.item-block__head:hover {
   color: #fff;
 }
 
+/* Missing-price (and same-kind) alerts: horizontal shake, not edge pulse. */
 .banner--attention {
   position: relative;
-}
-
-/* Same pulse as .item-block--arrive: only the edge. Light red (same hue as
-   .banner--missing), not white — white reads as a second frame on a saturated card.
-   inset -2px puts the flash outside the card border (fits in .item-form__alert pad). */
-.banner--attention::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  border: 1px solid #ffb4b4;
-  pointer-events: none;
-  opacity: 0;
 }
 
 .missing-price__lead {
@@ -4615,10 +4608,32 @@ a.carousel__body {
   }
 }
 
+@keyframes alert-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
-  .banner--attention::after,
   .item-block--arrive::after {
     animation: item-edge 1000ms linear 1;
+  }
+
+  .banner--attention {
+    animation: alert-shake 500ms var(--ease-std) 1;
   }
 }
 

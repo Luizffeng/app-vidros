@@ -15,7 +15,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Now
 
-- [ ] `docs` (P) **Convite fechado + domínio canônico:** SMTP Resend, `otp_expiry` 86400 e templates Invite/Reset ok. Sem migration nova (schema `accounts` + `create_account` já em produção). **Bloqueio do Invite do Tiago:** `main` local está 1 commit à frente do `origin` (código "Nova senha" no convite ainda não no ar). Depois do push/deploy: Site URL/Redirect = URL do app (`appvidros.app` se o custom domain do Pages estiver Active; senão `pages.dev` até virar); Invite `tiagosilva050707@gmail.com`. Bulk Redirect `pages.dev` → canônico fica opcional. Cadastro público continua desligado. Decisão 2026-10-29 / 2026-11-03
+- [ ] `docs` (P) **Convite fechado + domínio canônico:** SMTP Resend, `otp_expiry` 86400, templates Invite/Reset e push em `main` (2026-11-03) ok — aguardar build do Pages. Sem migration nova. Próximo: Site URL/Redirect = URL do app (`appvidros.app` se custom domain Active; senão `pages.dev`); Invite `tiagosilva050707@gmail.com`. Bulk Redirect `pages.dev` → canônico opcional. Cadastro público continua desligado. Decisão 2026-10-29 / 2026-11-03
 - [ ] `ui` (P) **Textos dos banners do Início:** os 2 banners em `src/data/banners.ts` são provisórios ("Fale com a gente", "Novidades" → `/novidades`; "plano anual" saiu até a fase 2); o dono revisa os textos e os destinos. "Fale com a gente" ganha destino com `/ajuda` (spec 007, T054)
 - [ ] `feat` (G) **SaaS para vidraçarias, fase 1:** spec [specs/007-saas-vidracarias](specs/007-saas-vidracarias/spec.md) (2026-10-10). Conta = loja = um usuário, cadastro aberto (Google, e-mail; telefone e Facebook depois), teste grátis de 30 dias com modo consulta ao vencer ("Novo orçamento"/"Revisar" abrem aviso de vencimento, sem rascunho), aviso a partir de 7 dias antes e lembretes de valor depois, catálogo de exemplo com preços redondos próximos do mercado + "Primeiros passos" no Início, "Fale com a gente" (WhatsApp humano e sugestões que não expiram), isolamento por conta, migração da Forte Vidros, rodapé institucional e excluir conta. Fase 2 (planos e cobrança) e painel do provedor em specs próprias. Plano em 5 entregas ([plan.md](specs/007-saas-vidracarias/plan.md)): contas e isolamento + virada da Forte Vidros; cadastro e teste; catálogo de exemplo e Primeiros passos; Fale com a gente e rodapé; telefone e Facebook. Antes de abrir cadastro: projeto Supabase de staging, textos legais, WhatsApp/horário do suporte, faixa de preço plausível (box e correr). Tarefas em [tasks.md](specs/007-saas-vidracarias/tasks.md) (66). Na branch `007-saas-vidracarias`: entregas 1 (contas e isolamento) e 2 (cadastro, teste de 30 dias, modo consulta, termos/privacidade/novidades) prontas e testadas no Supabase local; virada da produção pendente (T019 com export real, depois checklist do quickstart). Próxima: entrega 3 (catálogo de exemplo e Primeiros passos)
 
@@ -61,6 +61,10 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 - App nativo (iOS/Android). Ganho conhecido: só app nativo (ex.: Android empacotado com Capacitor) manda o PDF direto ao WhatsApp, sem a folha de compartilhar do sistema; pelo navegador, arquivo só sai por essa folha. A tela de legenda do WhatsApp continua de qualquer jeito
 
 ## Done
+
+### 2026-11-03
+
+- [x] `ui` **Preço faltando no item:** aviso vermelho com tremer; inserir preço (modal) ou ir ao catálogo com busca e linha; espessura/cor sem preço continuam selecionáveis; card verde ao salvar; X nos avisos ok; item novo/duplicado pisca a borda; card emitido igual ao rascunho sem os botões
 
 ### 2026-10-29
 
