@@ -35,7 +35,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 - [ ] `feat` (G) **Membros da org (precisa de spec):** convite para entrar numa org que já existe, papéis Admin e Standard, e gestão (listar, mudar papel, remover). Standard é o papel restrito (hoje `vendedor`, dormente): orça; catálogo, margem, cadastro da loja e excluir conta ficam com o Admin. Org nova continua sendo "Sua vidraçaria" ou o convite do operador, fora desta spec. A virada da Forte não espera isto: os dois donos já nascem Admin. Mudar o que cada papel grava exige RLS. Liga com **Usuário no Cadastro**. Decisão 2026-10-29; pedido de papéis 2026-10-15
 - [ ] `feat` (G) **Frete automático por km (precisa de spec):** pedido do dono 2026-10-10. Calcula o frete a partir do CEP da loja (Cadastro) e do CEP do cliente, × custo por km configurável (padrão R$ 2,00/km), e entra no orçamento como custo adicional editável. Decidir: ida ou ida e volta, valor mínimo, arredondamento, distância de rota vs linha reta, serviço de CEP → coordenadas e de rota (BrasilAPI/ViaCEP + OSRM/OpenRouteService/Google; custo e limite de uso), sem CEP do cliente (fica manual). Hoje: Frete digitado como custo adicional comum
 - [ ] `data` (M) **Backup/restauração de orçamentos** (export IndexedDB/JSON). Prioridade baixa: produção usa Supabase
-- [ ] `ui` (P) **Títulos dos cards do Início alinhados:** o título de Orçamentos, Catálogo, Configurações e Suporte fica na mesma altura. Reservar 3 linhas de resumo abaixo do título, mesmo vazias (hoje o título sobe quando o texto tem 1 linha; Suporte, com 2, fica mais alto). Resumo alinhado à esquerda, logo abaixo do título. O ! de Configurações continua no canto. Pedido 2026-10-29
+
 ## Blocked
 
 - [ ] `docs` (P) **Abrir cadastro em produção (spec 007):** aguarda CNPJ (razão social, endereço), número de WhatsApp da empresa e revisão jurídica dos rascunhos em [src/content/legal/](src/content/legal/). Dono também vai registrar a marca AppVidros no INPI. O desenvolvimento das entregas 1–4 não depende disso (Supabase local). Ao ligar o cadastro, `otp_expiry` volta para 3600 (1 hora); o convite fechado usa 24 h só enquanto o cadastro estiver desligado. Decisão 2026-10-29
@@ -64,6 +64,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ### 2026-11-03
 
+- [x] `ui` **Títulos dos cards do Início na mesma altura:** logo abaixo do ícone, com três linhas de resumo reservadas mesmo vazias. O ! de Configurações continua no canto
 - [x] `ui` **AppVidros no cabeçalho volta ao Início**
 - [x] `ui` **Suporte › Dicas mostra os primeiros passos de novo:** o card volta no Início; tarefa e preço já feitos ficam. Os cards da aba ficam com o mesmo espaço
 - [x] `ui` **Preço faltando no item:** aviso vermelho com tremer; inserir preço (modal) ou ir ao catálogo com busca e linha; espessura/cor sem preço continuam selecionáveis; card verde ao salvar; X nos avisos ok; item novo/duplicado pisca a borda; card emitido igual ao rascunho sem os botões

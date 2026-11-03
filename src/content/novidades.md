@@ -9,6 +9,7 @@ O que entrou no app nos últimos meses. Sugestões enviadas em [Suporte › Fale
 - **Item novo ou duplicado** pisca a borda uma vez para mostrar onde entrou.
 - **AppVidros** no topo de cada tela volta para o Início.
 - **Mostrar os primeiros passos de novo** em Suporte › Dicas traz o card de volta no Início. O que já está feito continua feito.
+- **Atalhos do Início** com o título sempre no mesmo lugar, logo abaixo do ícone.
 
 ## Outubro de 2026
 

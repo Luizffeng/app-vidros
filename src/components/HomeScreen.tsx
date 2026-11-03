@@ -47,7 +47,7 @@ function Tile({
         </span>
       )}
       <span className="tile__title">{title}</span>
-      {summary && <span className="tile__summary">{summary}</span>}
+      <span className="tile__summary">{summary}</span>
     </button>
   )
 }

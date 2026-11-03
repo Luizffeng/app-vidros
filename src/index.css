@@ -3919,8 +3919,8 @@ a.carousel__body {
   aspect-ratio: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.2rem;
+  align-items: stretch;
+  gap: 0;
   padding: 0.9rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius);
@@ -3948,9 +3948,9 @@ a.carousel__body {
 .tile__icon {
   display: grid;
   place-items: center;
+  align-self: flex-start;
   width: 2.5rem;
   height: 2.5rem;
-  margin-bottom: auto;
   border-radius: 12px;
   background: rgba(212, 160, 23, 0.14);
   color: var(--accent);
@@ -3986,14 +3986,20 @@ a.carousel__body {
 }
 
 .tile__title {
+  margin-top: 0.55rem;
   font-family: var(--display);
   font-size: 1.1rem;
   font-weight: 700;
+  line-height: 1.2;
 }
 
+/* Three summary lines stay reserved, empty or not, so the title does not move. */
 .tile__summary {
   display: grid;
+  align-content: start;
+  margin-top: 0.45rem;
   gap: 0.05rem;
+  min-height: calc(3 * 1.3em + 2 * 0.05rem);
   font-size: 0.85rem;
   line-height: 1.3;
   color: var(--muted);
