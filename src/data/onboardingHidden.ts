@@ -1,5 +1,6 @@
 const KEY = 'app-vidros:onboarding-hidden'
 const COLLAPSED_KEY = 'app-vidros:onboarding-collapsed'
+const REPLAY_KEY = 'app-vidros:onboarding-replay'
 
 function read(key: string): boolean {
   try {
@@ -34,4 +35,16 @@ export function onboardingCollapsedThisSession(): boolean {
 
 export function setOnboardingCollapsed(collapsed: boolean): void {
   write(COLLAPSED_KEY, collapsed)
+}
+
+/** Modo local: o card fica fora até este pedido, e só nesta abertura do app. */
+export function onboardingReplayedThisSession(): boolean {
+  return read(REPLAY_KEY)
+}
+
+/** Suporte › Dicas: traz o card de volta e abre ele. */
+export function replayOnboardingThisSession(): void {
+  write(KEY, false)
+  write(COLLAPSED_KEY, false)
+  write(REPLAY_KEY, true)
 }

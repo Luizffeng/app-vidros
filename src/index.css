@@ -1232,6 +1232,21 @@ label .percent-input .money-input {
   min-width: 0;
 }
 
+button.app-header__brand {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+button.app-header__brand:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 .app-header__menu {
   position: relative;
   flex: none;
@@ -4078,6 +4093,13 @@ a.carousel__body {
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.45;
+}
+
+/* Tip rows and the two reset cards share one stack gap. The global rule opens
+   0.85rem before a plain card; here those cards still belong to the list. */
+.support__tips > .section.collapsible-section:has(+ .section:not(.collapsible-section)),
+.support__tips > .section:not(.collapsible-section):not(:last-child) {
+  margin-bottom: var(--section-stack);
 }
 
 .support__news-intro {

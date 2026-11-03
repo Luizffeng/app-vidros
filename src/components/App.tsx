@@ -50,7 +50,12 @@ import {
   type ItemDraftRecord,
   type ItemFormState,
 } from '../data/itemDraft'
-import { hideOnboardingThisSession, onboardingHiddenThisSession } from '../data/onboardingHidden'
+import {
+  hideOnboardingThisSession,
+  onboardingHiddenThisSession,
+  onboardingReplayedThisSession,
+  replayOnboardingThisSession,
+} from '../data/onboardingHidden'
 import { createRepository } from '../data/repository'
 import { digitsOnly, formatCep, lookupCep } from '../data/viacep'
 import {
@@ -70,7 +75,6 @@ import {
   exampleUseInQuote,
   firstExampleTab,
   onboardingTasks,
-  onboardingVisible,
   usesExample,
   type ExampleUse,
   type OnboardingTask,
@@ -179,6 +183,7 @@ export function App() {
   const [pendingNewItem, setPendingNewItem] = useState(false)
   const [arrivedId, setArrivedId] = useState<string | null>(null)
   const [onboardingHidden, setOnboardingHidden] = useState(onboardingHiddenThisSession)
+  const [onboardingReplay, setOnboardingReplay] = useState(onboardingReplayedThisSession)
   const [itemModal, setItemModal] = useState<
     null | { mode: 'pick' } | { mode: 'create'; kind: ProductKind } | { mode: 'edit'; id: string }
   >(null)
@@ -743,8 +748,12 @@ export function App() {
     goTop(SECTION_ROUTES[section])
   }
 
-  const tasks =
-    isAdmin && canWrite && access.role !== 'local' ? onboardingTasks(catalog, settings, quotes) : []
+  const onboardingEligible = isAdmin && canWrite && access.role !== 'vendedor'
+  const tasks = onboardingEligible ? onboardingTasks(catalog, settings, quotes) : []
+  const onboardingCardOn =
+    onboardingEligible &&
+    !onboardingHidden &&
+    (access.role === 'local' ? onboardingReplay : !settings.onboardingDismissedAt)
   const taskRoute = (task: OnboardingTask): Route | null =>
     task.id === 'primeiroOrcamento'
       ? null
@@ -760,7 +769,8 @@ export function App() {
   const place = (r: Route) => ('tab' in r ? `${r.screen}/${r.tab}` : r.screen)
   const nextStep = (
     <NextStep
-      tasks={!onboardingHidden && onboardingVisible(tasks, settings) ? tasks : []}
+      key={onboardingCardOn ? 'on' : 'off'}
+      tasks={onboardingCardOn ? tasks : []}
       place={place(route)}
       isHere={(task) => {
         const target = taskRoute(task)
@@ -777,6 +787,15 @@ export function App() {
     onSaveSettings({ ...settings, onboardingDismissedAt: new Date().toISOString() }).catch((e) =>
       setError(e instanceof Error ? e.message : String(e)),
     )
+  }
+  const onShowOnboarding = async () => {
+    if (settings.onboardingDismissedAt) {
+      const { onboardingDismissedAt: _gone, ...rest } = settings
+      await onSaveSettings(rest)
+    }
+    replayOnboardingThisSession()
+    setOnboardingHidden(false)
+    setOnboardingReplay(true)
   }
 
   const screen = (node: ReactNode) => (
@@ -805,6 +824,8 @@ export function App() {
         onTabChange={(tab) => replace({ screen: 'help', tab })}
         onNavigate={goSection}
         nextStep={nextStep}
+        onboardingAway={onboardingEligible && !onboardingCardOn}
+        onShowOnboarding={onboardingEligible ? onShowOnboarding : undefined}
       />,
     )
   }
@@ -818,7 +839,7 @@ export function App() {
         isAdmin={isAdmin}
         account={access.account}
         accountState={access.accountState}
-        onboarding={!onboardingHidden && onboardingVisible(tasks, settings) ? tasks : null}
+        onboarding={onboardingCardOn ? tasks : null}
         onNavigate={goSection}
         onOpen={(target) => (target.screen === 'home' ? goSection('home') : push(target, 'fade'))}
         onOpenTask={onOpenTask}

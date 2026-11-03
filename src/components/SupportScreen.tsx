@@ -45,11 +45,16 @@ export function SupportScreen({
   onTabChange,
   onNavigate,
   nextStep,
+  onboardingAway,
+  onShowOnboarding,
 }: {
   tab: HelpTab
   onTabChange: (tab: HelpTab) => void
   onNavigate: (section: AppSection) => void
   nextStep?: ReactNode
+  /** Card de primeiros passos está fora do Início. */
+  onboardingAway?: boolean
+  onShowOnboarding?: () => Promise<void>
 }) {
   const { account, accounts } = useAccess()
   const [list, setList] = useState<Suggestion[] | null>(null)
@@ -59,6 +64,8 @@ export function SupportScreen({
   const [error, setError] = useState<string | null>(null)
   const [tipsSeen, setTipsSeen] = useState(anyTipSeen)
   const [tipsBack, setTipsBack] = useState(false)
+  const [onboardingBack, setOnboardingBack] = useState(false)
+  const [onboardingError, setOnboardingError] = useState<string | null>(null)
 
   useLeaveGuard(text.trim() !== '', 'Descartar a sugestão que você escreveu?')
 
@@ -158,7 +165,7 @@ export function SupportScreen({
       )}
 
       {tab === 'tips' && (
-        <div className="tab-panel" role="tabpanel" id="help-panel-tips" aria-labelledby="help-tab-tips">
+        <div className="tab-panel support__tips" role="tabpanel" id="help-panel-tips" aria-labelledby="help-tab-tips">
           {Object.values(TIPS).map((tip) => (
             <CollapsibleSection key={tip.title} title={tip.title}>
               <p className="tip-help">{tip.help}</p>
@@ -180,6 +187,30 @@ export function SupportScreen({
                 </button>
               ) : (
                 <p className="muted">Pronto: as dicas voltam a aparecer no orçamento.</p>
+              )}
+            </Section>
+          )}
+          {(onboardingAway || onboardingBack) && onShowOnboarding && (
+            <Section
+              title="Primeiros passos"
+              hint="O card volta no Início. Preço e tarefa já feita continuam como estão."
+            >
+              {onboardingError && <Banner tone="error">{onboardingError}</Banner>}
+              {onboardingAway ? (
+                <button
+                  type="button"
+                  className="btn support__send"
+                  onClick={() => {
+                    setOnboardingError(null)
+                    void onShowOnboarding()
+                      .then(() => setOnboardingBack(true))
+                      .catch(() => setOnboardingError('Não foi possível mostrar os primeiros passos agora.'))
+                  }}
+                >
+                  Mostrar os primeiros passos de novo
+                </button>
+              ) : (
+                <p className="muted">Pronto: o card volta no Início.</p>
               )}
             </Section>
           )}

@@ -64,6 +64,8 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ### 2026-11-03
 
+- [x] `ui` **AppVidros no cabeçalho volta ao Início**
+- [x] `ui` **Suporte › Dicas mostra os primeiros passos de novo:** o card volta no Início; tarefa e preço já feitos ficam. Os cards da aba ficam com o mesmo espaço
 - [x] `ui` **Preço faltando no item:** aviso vermelho com tremer; inserir preço (modal) ou ir ao catálogo com busca e linha; espessura/cor sem preço continuam selecionáveis; card verde ao salvar; X nos avisos ok; item novo/duplicado pisca a borda; card emitido igual ao rascunho sem os botões
 
 ### 2026-10-29

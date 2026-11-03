@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { useAccess } from '../auth/access'
+import { goTop } from '../nav/navigator'
 import { IconButton } from './IconButton'
 import { useDismiss } from './useDismiss'
 import { usePresence } from './usePresence'
@@ -252,6 +253,15 @@ export const BackArrowIcon = () => (
   </svg>
 )
 
+/** Gold word in the header. Same path as the menu item Início. */
+export function AppBrand() {
+  return (
+    <button type="button" className="brand-sm app-header__brand" onClick={() => goTop({ screen: 'home' })}>
+      AppVidros
+    </button>
+  )
+}
+
 export function AppHeader({
   title,
   current,
@@ -272,7 +282,7 @@ export function AppHeader({
         </IconButton>
       )}
       <div className="app-header__titles">
-        <p className="brand-sm">AppVidros</p>
+        <AppBrand />
         <h1 className="title-sm">{title}</h1>
       </div>
       <HeaderMenu current={current} onNavigate={onNavigate} />

@@ -7,6 +7,8 @@ O que entrou no app nos últimos meses. Sugestões enviadas em [Suporte › Fale
 - **Vidro, kit, acessório ou alumínio sem preço** no item: o app avisa, deixa inserir o valor na hora ou abrir o catálogo na linha certa.
 - **Avisos de sucesso** (valores atualizados, catálogo salvo e afins) fecham com um X.
 - **Item novo ou duplicado** pisca a borda uma vez para mostrar onde entrou.
+- **AppVidros** no topo de cada tela volta para o Início.
+- **Mostrar os primeiros passos de novo** em Suporte › Dicas traz o card de volta no Início. O que já está feito continua feito.
 
 ## Outubro de 2026
 

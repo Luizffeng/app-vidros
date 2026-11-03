@@ -3,7 +3,7 @@ import { parseMarkdown, type Block, type Inline } from '../content/markdown'
 import { PAGE_SOURCES } from '../content/pages'
 import { push, up } from '../nav/navigator'
 import { parseRoute, type PublicPage as Page } from '../nav/routes'
-import { BackArrowIcon } from './AppHeader'
+import { BackArrowIcon, AppBrand } from './AppHeader'
 import { IconButton } from './IconButton'
 
 function openInternal(e: MouseEvent<HTMLAnchorElement>, href: string) {
@@ -125,7 +125,7 @@ export function PublicPage({ page }: { page: Page }) {
             <BackArrowIcon />
           </IconButton>
           <div className="app-header__titles">
-            <p className="brand-sm">AppVidros</p>
+            <AppBrand />
             <h1 className="title-sm">{title}</h1>
           </div>
         </header>
