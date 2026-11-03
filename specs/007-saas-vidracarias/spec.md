@@ -184,7 +184,7 @@ Abaixo dos blocos do Início, ao rolar, um rodapé discreto com: Fale com a gent
 - Orçamento emitido durante o teste continua imutável e acessível depois do teste (regra de imutabilidade).
 - Sem internet ao enviar uma sugestão: o texto não se perde; o app avisa e permite tentar de novo.
 - Usuário não marcou "receber novidades e ofertas": não recebe oferta de reconquista nem mensagem de marketing; mensagens de serviço (vencimento, resposta a sugestão) continuam no app.
-- Logins extras existentes da Forte Vidros (ex.: contas de vendedor criadas antes): passam a apontar para a conta da Forte Vidros ou são desativados, a decidir com o dono na virada.
+- Logins existentes da Forte Vidros (`luiz5001@hotmail.com` e `edvaldo.eng@gmail.com`) entram na mesma conta, os dois como admin (decisão do dono, 2026-10-29; nenhum outro login). Qualquer outro login presente no Auth na hora da migração entra junto; o tester entra só depois. Convite de membro e papel Standard ficam na spec de membros da org.
 - Banners do Início que falam de "plano anual" não podem prometer o que ainda não existe: até a fase 2, o texto fala de assinatura pelo suporte ou sai do carrossel.
 - Modo local (sem Supabase configurado) continua funcionando para desenvolvimento, como uma conta única sem teste.
 
@@ -255,7 +255,7 @@ Abaixo dos blocos do Início, ao rolar, um rodapé discreto com: Fale com a gent
 - Oferta automática de reconquista após o teste (ex.: 50% nos 3 primeiros meses, ou primeiro mês por R$ 1,99 com assinatura no cartão) e CRM: dependem da cobrança (fase 2) e do painel do provedor. A fase 1 entrega só o consentimento (FR-005) e a lista para contato manual (FR-028).
 - Painel do provedor (suporte, assinaturas, mais dias de teste, descontos, banners, versões publicadas, respostas às sugestões, conversa pelo app): spec própria. Na fase 1, as ações de FR-018, FR-026 e FR-028 do lado do operador podem ser feitas por ferramenta interna simples.
 - Conversa em tempo real dentro do app (chat): depende do painel do provedor; na fase 1 a conversa é pelo WhatsApp.
-- Vários usuários por loja, convites e papel Vendedor (backlog "Vários usuários por loja").
+- Membros da org: convite para uma conta que já existe, papéis Admin e Standard, gestão da org (backlog "Membros da org"). A virada coloca os dois logins da Forte como admin na mesma conta.
 - Perfil de quem atende e vendedor no PDF (backlog "Usuário no Cadastro"): com conta = loja, nome e WhatsApp da loja bastam por ora.
 - Vincular ou trocar método de entrada de uma conta existente.
 

@@ -107,7 +107,11 @@ export function CostDetailModal({
       </p>
 
       {notice && (
-        <Banner tone={notice.ok ? 'ok' : 'error'} className="cost-banner">
+        <Banner
+          tone={notice.ok ? 'ok' : 'error'}
+          className="cost-banner"
+          onDismiss={notice.ok ? () => setNotice(null) : undefined}
+        >
           {notice.text}
         </Banner>
       )}

@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from 'react'
 import type { ItemFormState } from '../data/itemDraft'
 import { isCatalogItemActive } from '../domain/catalogActive'
 import { marginLabel } from '../domain/itemDescription'
-import { priceItem } from '../domain/pricing'
+import { MissingPriceError, priceItem } from '../domain/pricing'
 import { formatBrl } from '../domain/quote'
 import type {
   Catalog,
@@ -18,9 +18,12 @@ import type {
   ProductKind,
   Quote,
 } from '../domain/types'
+import type { CatalogTab } from '../nav/routes'
 import { Banner } from './Banner'
 import { CostDetailModal } from './CostDetailModal'
 import { DropdownField, type DropdownOption } from './Dropdown'
+import { missingPriceUi } from './missingPriceUi'
+import { Modal } from './Modal'
 
 const CORRER_SUBTYPES: DropdownOption<CorrerSubtype>[] = [
   { value: 'J2F', label: 'Janela 2 folhas (J2F)' },
@@ -396,6 +399,155 @@ function seedFromInput(
   }
 }
 
+function headlineLines(headline: string): [string, string] {
+  const cut = ' no catálogo!'
+  if (headline.endsWith(cut)) return [headline.slice(0, -cut.length), 'no catálogo!']
+  return [headline, '']
+}
+
+function scrollFormToTop(from: HTMLElement | null) {
+  if (!from) return
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  let parent = from.parentElement
+  while (parent) {
+    const { overflowY } = getComputedStyle(parent)
+    if ((overflowY === 'auto' || overflowY === 'scroll') && parent.scrollTop > 0) {
+      parent.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' })
+      return
+    }
+    parent = parent.parentElement
+  }
+}
+
+function MissingPriceCard({
+  missing,
+  ui,
+  busy,
+  onSave,
+  onOpenCatalog,
+  bannerRef,
+}: {
+  missing: MissingPriceError
+  ui: 'modal' | 'inline'
+  busy: boolean
+  onSave: (price: number) => Promise<void>
+  onOpenCatalog: () => void
+  bannerRef: Ref<HTMLDivElement>
+}) {
+  const [open, setOpen] = useState(false)
+  const [raw, setRaw] = useState('')
+  const [priceError, setPriceError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setOpen(false)
+    setRaw('')
+    setPriceError(null)
+  }, [missing.message, missing.id])
+
+  const save = async () => {
+    const price = parseMoney(raw)
+    if (price == null) {
+      setPriceError('Valor inválido')
+      return
+    }
+    setPriceError(null)
+    try {
+      await onSave(price)
+      setOpen(false)
+    } catch (e) {
+      setPriceError(e instanceof Error ? e.message : 'Não salvou')
+    }
+  }
+
+  const [titleLine, titleRest] = headlineLines(missing.headline)
+  const field = (
+    <label>
+      {missing.unit}
+      <input
+        className="money-input"
+        inputMode="decimal"
+        value={raw}
+        onChange={(e) => setRaw(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key !== 'Enter') return
+          e.preventDefault()
+          void save()
+        }}
+      />
+    </label>
+  )
+  const saveButton = (
+    <button type="button" className="btn primary" disabled={busy} onClick={() => void save()}>
+      {busy ? 'Salvando…' : 'Salvar'}
+    </button>
+  )
+  const catalogButton = (
+    <button type="button" className="btn" disabled={busy} onClick={onOpenCatalog}>
+      Ir para Catálogo
+    </button>
+  )
+  const editor = (place: 'inline' | 'modal') => (
+    <div className="missing-price__editor">
+      {place === 'modal' ? (
+        <div className="missing-price__save-row">
+          {field}
+          {saveButton}
+        </div>
+      ) : (
+        field
+      )}
+      {priceError && <p className="missing-price__error">{priceError}</p>}
+      {place === 'modal' ? (
+        catalogButton
+      ) : (
+        <div className="missing-price__actions">
+          {saveButton}
+          {catalogButton}
+        </div>
+      )}
+    </div>
+  )
+
+  return (
+    <>
+      <div className="item-form__alert">
+        <Banner ref={bannerRef} tone="error" className="banner--missing banner--attention">
+          <div className="missing-price">
+            <div className="missing-price__lead">
+              <span className="missing-price__title">
+                {titleLine}
+                {titleRest && (
+                  <>
+                    <br />
+                    {titleRest}
+                  </>
+                )}
+              </span>
+              {missing.canPrice && !open && (
+                <button type="button" className="btn" aria-label="Inserir preço" onClick={() => setOpen(true)}>
+                  Inserir
+                </button>
+              )}
+              {!missing.canPrice && (
+                <button type="button" className="btn" onClick={onOpenCatalog}>
+                  Ir para Catálogo
+                </button>
+              )}
+            </div>
+            <p className="missing-price__which">{missing.label}</p>
+            {ui === 'inline' && open && editor('inline')}
+          </div>
+        </Banner>
+      </div>
+      {ui === 'modal' && open && (
+        <Modal title={missing.label} className="modal--price" onClose={() => setOpen(false)}>
+          {editor('modal')}
+        </Modal>
+      )}
+    </>
+  )
+}
+
 interface Props {
   catalog: Catalog
   marginMode: MarginMode
@@ -422,6 +574,12 @@ interface Props {
     onUpdateCatalog: (ref: CatalogRef, price: number) => Promise<void>
     onUpdateLaborCatalog: (key: LaborKey, rate: number) => Promise<void>
   }
+  onOpenCatalog?: (target: {
+    tab: CatalogTab
+    q: string
+    line?: number
+    inactive?: boolean
+  }) => void
 }
 
 export function ItemForm({
@@ -438,6 +596,7 @@ export function ItemForm({
   hideTitle = false,
   lockKind,
   costDetail,
+  onOpenCatalog,
 }: Props) {
   const cfg = catalog.config
   const [pristine] = useState((): ItemFormState => {
@@ -515,6 +674,9 @@ export function ItemForm({
     onStateChangeRef.current?.(state, !sameFormState(state, pristine))
   }, [stateKey, pristine])
   const [formError, setFormError] = useState<string | null>(null)
+  const [priceBusy, setPriceBusy] = useState(false)
+  const [priceNotice, setPriceNotice] = useState(false)
+  const alertRef = useRef<HTMLDivElement>(null)
   const [numSnap, setNumSnap] = useState({
     spanCm,
     widthMm,
@@ -524,7 +686,12 @@ export function ItemForm({
     customDesc,
     customAmount,
   })
-  const previewCache = useRef<{ kind: ProductKind; input: ItemInput; result: PricingResult } | null>(null)
+  const previewCache = useRef<{
+    ok: true
+    kind: ProductKind
+    input: ItemInput
+    result: PricingResult
+  } | null>(null)
 
   useEffect(() => {
     const id = window.setTimeout(() => {
@@ -536,7 +703,7 @@ export function ItemForm({
   const espelhoColors = useMemo(() => {
     const set = new Set(
       catalog.vidros
-        .filter((v) => isCatalogItemActive(v) && v.tipo === finish && v.valorM2 != null)
+        .filter((v) => isCatalogItemActive(v) && v.tipo === finish)
         .map((v) => v.cor),
     )
     return [...set]
@@ -550,13 +717,22 @@ export function ItemForm({
             isCatalogItemActive(v) &&
             v.tipo === finish &&
             v.cor === espelhoColor &&
-            v.valorM2 != null &&
             v.espessuraMm,
         )
         .map((v) => v.espessuraMm as string),
     )
-    return [...set]
+    return [...set].sort((a, b) => Number(a) - Number(b) || a.localeCompare(b))
   }, [catalog.vidros, finish, espelhoColor])
+
+  useEffect(() => {
+    if (kind !== 'espelho' || espelhoColors.length === 0 || espelhoColors.includes(espelhoColor)) return
+    setEspelhoColor(espelhoColors[0])
+  }, [kind, espelhoColors, espelhoColor])
+
+  useEffect(() => {
+    if (kind !== 'espelho' || espelhoThicknesses.length === 0 || espelhoThicknesses.includes(espelhoThickness)) return
+    setEspelhoThickness(espelhoThicknesses[0])
+  }, [kind, espelhoThicknesses, espelhoThickness])
 
   const priced = useMemo(() => {
     const cached = () => (previewCache.current?.kind === kind ? previewCache.current : null)
@@ -585,9 +761,10 @@ export function ItemForm({
     try {
       const input = withLaborRate(raw, laborRate)
       const result = priceItem(catalog, input, marginMode)
-      previewCache.current = { kind, input, result }
+      previewCache.current = { ok: true, kind, input, result }
       return previewCache.current
-    } catch {
+    } catch (e) {
+      if (e instanceof MissingPriceError) return { ok: false as const, missing: e }
       return cached()
     }
   }, [
@@ -607,7 +784,54 @@ export function ItemForm({
     espelhoColor,
     espelhoThickness,
   ])
-  const preview = priced?.result ?? null
+  const preview = priced?.ok ? priced.result : null
+  const missing = priced && !priced.ok ? priced.missing : null
+
+  const replayMissing = () => {
+    scrollFormToTop(alertRef.current)
+    const el = alertRef.current
+    if (!el) return
+    el.classList.remove('banner--attention')
+    void el.offsetWidth
+    el.classList.add('banner--attention')
+  }
+
+  const saveMissingPrice = async (price: number) => {
+    if (!missing?.id || !costDetail) return
+    setPriceBusy(true)
+    try {
+      await costDetail.onUpdateCatalog({ table: missing.table, id: missing.id }, price)
+      setPriceNotice(true)
+    } finally {
+      setPriceBusy(false)
+    }
+  }
+
+  useEffect(() => {
+    setPriceNotice(false)
+  }, [
+    kind,
+    glassColor,
+    profileColor,
+    thicknessMm,
+    subtype,
+    hasLatch,
+    hasAluminum,
+    hasTube5x5,
+    finish,
+    espelhoColor,
+    espelhoThickness,
+  ])
+
+  const openMissingCatalog = () => {
+    if (!missing || !onOpenCatalog) return
+    onOpenCatalog({
+      tab: missing.table,
+      q: missing.code,
+      ...(missing.id != null ? { line: missing.id } : {}),
+      ...(missing.inactive ? { inactive: true } : {}),
+    })
+  }
 
   const onKindChange = (k: ProductKind) => {
     setKind(k)
@@ -641,6 +865,10 @@ export function ItemForm({
   }
 
   const submit = () => {
+    if (missing) {
+      replayMissing()
+      return
+    }
     if (kind === 'custom' && !customDesc.trim()) {
       setFormError('Descreva o item avulso')
       return
@@ -727,6 +955,25 @@ export function ItemForm({
           </button>
         ))}
       </div>
+      )}
+
+      {missing ? (
+        <MissingPriceCard
+          missing={missing}
+          ui={missingPriceUi()}
+          busy={priceBusy}
+          onSave={saveMissingPrice}
+          onOpenCatalog={openMissingCatalog}
+          bannerRef={alertRef}
+        />
+      ) : (
+        priceNotice && (
+          <div className="item-form__alert">
+            <Banner tone="ok" onDismiss={() => setPriceNotice(false)}>
+              Preço do item atualizado.
+            </Banner>
+          </div>
+        )
       )}
 
       <div className="item-form__fields">
@@ -1025,7 +1272,7 @@ export function ItemForm({
         </div>
       )}
 
-      {costDetail && costOpen && priced && (
+      {costDetail && costOpen && priced?.ok && (
         <CostDetailModal
           item={{ id: 'item-form', input: priced.input, result: priced.result }}
           quote={costDetail.quote}

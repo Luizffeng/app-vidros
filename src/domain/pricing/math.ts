@@ -1,5 +1,42 @@
 import { isCatalogItemActive } from '../catalogActive'
-import type { BomLine, Catalog, MarginMode, PricingConfig } from '../types'
+import type { BomLine, Catalog, CatalogTable, MarginMode, PricingConfig } from '../types'
+
+/** Peça do catálogo sem preço (ou ausente) no meio do cálculo. */
+export class MissingPriceError extends Error {
+  readonly table: CatalogTable
+  readonly id: number | null
+  readonly code: string
+  readonly label: string
+  readonly headline: string
+  readonly unit: string
+  /** Linha ativa existe; só falta o número. */
+  readonly canPrice: boolean
+  /** A linha achada está desativada. */
+  readonly inactive: boolean
+
+  constructor(fields: {
+    message: string
+    table: CatalogTable
+    id: number | null
+    code: string
+    label: string
+    headline: string
+    unit: string
+    canPrice: boolean
+    inactive: boolean
+  }) {
+    super(fields.message)
+    this.name = 'MissingPriceError'
+    this.table = fields.table
+    this.id = fields.id
+    this.code = fields.code
+    this.label = fields.label
+    this.headline = fields.headline
+    this.unit = fields.unit
+    this.canPrice = fields.canPrice
+    this.inactive = fields.inactive
+  }
+}
 
 export function laborLine(quantity: number, unit: 'm2' | 'un', rate: number, total: number): BomLine {
   return { code: '', description: 'Mão de obra', quantity, unitPrice: rate, total, category: 'mao_de_obra', unit }
@@ -43,35 +80,63 @@ export function findVidro(
   cor: string,
   espessuraMm?: string | null,
 ) {
-  const match = catalog.vidros.find(
-    (v) =>
-      isCatalogItemActive(v) &&
-      v.tipo === tipo &&
-      v.cor === cor &&
-      (espessuraMm == null || v.espessuraMm === espessuraMm),
-  )
-  if (!match || match.valorM2 == null) {
-    throw new Error(
-      `Vidro sem preço: ${tipo} / ${cor}${espessuraMm ? ` / ${espessuraMm}mm` : ''}`,
-    )
-  }
-  return match
+  const same = (v: Catalog['vidros'][number]) =>
+    v.tipo === tipo && v.cor === cor && (espessuraMm == null || v.espessuraMm === espessuraMm)
+  const active = catalog.vidros.find((v) => isCatalogItemActive(v) && same(v))
+  if (active && active.valorM2 != null) return active
+  const row = active ?? catalog.vidros.find(same)
+  const label = [tipo, cor, espessuraMm ? `${espessuraMm} mm` : ''].filter(Boolean).join(' - ')
+  throw new MissingPriceError({
+    message: `Vidro sem preço: ${tipo} / ${cor}${espessuraMm ? ` / ${espessuraMm}mm` : ''}`,
+    table: 'vidros',
+    id: row?.id ?? null,
+    code: row?.codigo || tipo,
+    label,
+    headline: 'Vidro sem preço no catálogo!',
+    unit: 'R$/m²',
+    canPrice: Boolean(active && active.valorM2 == null),
+    inactive: Boolean(row && !isCatalogItemActive(row)),
+  })
 }
 
 export function findAcessorio(catalog: Catalog, codigo: string) {
-  const match = catalog.acessorios.find(
-    (a) => isCatalogItemActive(a) && a.codigo === codigo,
-  )
-  if (!match) throw new Error(`Acessório não encontrado: ${codigo}`)
-  return match
+  const active = catalog.acessorios.find((a) => isCatalogItemActive(a) && a.codigo === codigo)
+  if (active && active.valor != null) return active
+  const row = active ?? catalog.acessorios.find((a) => a.codigo === codigo)
+  const missingPrice = Boolean(active && active.valor == null)
+  throw new MissingPriceError({
+    message: missingPrice ? `Acessório sem preço: ${codigo}` : `Acessório não encontrado: ${codigo}`,
+    table: 'acessorios',
+    id: row?.id ?? null,
+    code: row?.codigo || codigo,
+    label: row?.descricao || codigo,
+    headline: missingPrice
+      ? 'Acessório sem preço no catálogo!'
+      : 'Acessório não encontrado no catálogo!',
+    unit: 'Valor (R$)',
+    canPrice: missingPrice,
+    inactive: Boolean(row && !isCatalogItemActive(row)),
+  })
 }
 
 export function findAluminio(catalog: Catalog, codigo: string) {
-  const match = catalog.aluminios.find(
-    (a) => isCatalogItemActive(a) && a.codigo === codigo,
-  )
-  if (!match) throw new Error(`Alumínio não encontrado: ${codigo}`)
-  return match
+  const active = catalog.aluminios.find((a) => isCatalogItemActive(a) && a.codigo === codigo)
+  if (active && active.valorBarra != null) return active
+  const row = active ?? catalog.aluminios.find((a) => a.codigo === codigo)
+  const missingPrice = Boolean(active && active.valorBarra == null)
+  throw new MissingPriceError({
+    message: missingPrice ? `Alumínio sem preço: ${codigo}` : `Alumínio não encontrado: ${codigo}`,
+    table: 'aluminios',
+    id: row?.id ?? null,
+    code: row?.codigo || codigo,
+    label: row?.descricao || codigo,
+    headline: missingPrice
+      ? 'Alumínio sem preço no catálogo!'
+      : 'Alumínio não encontrado no catálogo!',
+    unit: 'R$/barra',
+    canPrice: missingPrice,
+    inactive: Boolean(row && !isCatalogItemActive(row)),
+  })
 }
 
 export function nearestKitSize(sizes: number[], spanCm: number): number {
@@ -85,10 +150,20 @@ export function findKitBox(catalog: Catalog, cor: string, tamanhoCm: number) {
   const match = catalog.kitBox.find(
     (k) => isCatalogItemActive(k) && k.cor === cor && k.tamanhoCm === tamanhoCm,
   )
-  if (!match || match.valor == null) {
-    throw new Error(`Kit Box sem preço: ${cor} / ${tamanhoCm}cm`)
-  }
-  return match
+  if (match && match.valor != null) return match
+  const row =
+    match ?? catalog.kitBox.find((k) => k.cor === cor && k.tamanhoCm === tamanhoCm)
+  throw new MissingPriceError({
+    message: `Kit Box sem preço: ${cor} / ${tamanhoCm}cm`,
+    table: 'kitBox',
+    id: row?.id ?? null,
+    code: row?.codigo || cor,
+    label: `${cor} - ${tamanhoCm} cm`,
+    headline: 'Kit sem preço no catálogo!',
+    unit: 'Valor (R$)',
+    canPrice: Boolean(match && match.valor == null),
+    inactive: Boolean(row && !isCatalogItemActive(row)),
+  })
 }
 
 export function sumItemExtras(extras: { amount: number }[] | number | undefined): number {

@@ -5,7 +5,7 @@ Rules encoded in the current code. Locations are the evidence. Unclear items are
 ## Access
 
 - Without Supabase env, role is `local` and the UI is the admin UI, because admin means “not vendedor”. `src/auth/access.tsx`, `src/components/App.tsx` (`isAdmin`).
-- With Supabase, no session shows `EntryScreen`: "Criar conta grátis" only when the project allows sign ups (`GET /auth/v1/settings`), Google only when that provider is on, e-mail/senha, "Esqueci a senha". Failed password shows a generic invalid message. `src/components/EntryScreen.tsx`, `fetchAuthOptions` in `src/data/supabaseClient.ts`.
+- With Supabase, no session shows `EntryScreen`: "Criar conta grátis" only when the project allows sign ups (`GET /auth/v1/settings`), Google only when that provider is on, e-mail/senha, "Esqueci a senha". Failed password shows a generic invalid message. An invite link (`type=invite`) and a reset link (`type=recovery`) open "Nova senha" before the app; with no account yet, "Sua vidraçaria" follows. `src/components/EntryScreen.tsx`, `src/auth/passwordLink.ts`, `fetchAuthOptions` in `src/data/supabaseClient.ts`.
 - `/termos`, `/privacidade`, `/novidades` open with or without a session. `src/auth/access.tsx`, `src/components/PublicPage.tsx`.
 - One account (vidraçaria) per login. A session without an account shows "Sua vidraçaria" (`create_account`: name, WhatsApp 10–13 digits, opt-in unchecked) and starts a 30-day trial. `src/components/AccountSetupScreen.tsx`, `supabase/migrations/20261010120000_accounts.sql`.
 - Every signed-in user is admin of their own account (`vendedor` is dormant). Database: read own account only; write own account only while `account_can_write()` (trial or subscription not ended, not disabled). Same migration.

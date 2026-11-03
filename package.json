@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:preco-modal": "VITE_SUPABASE_URL= VITE_SUPABASE_ANON_KEY= VITE_MISSING_PRICE_UI=modal vite --host 127.0.0.1 --port 5173 --strictPort",
+    "dev:preco-aviso": "VITE_SUPABASE_URL= VITE_SUPABASE_ANON_KEY= VITE_MISSING_PRICE_UI=inline vite --host 127.0.0.1 --port 5174 --strictPort",
     "build": "tsc -b && vite build",
     "test": "vitest run",
     "lint": "oxlint",

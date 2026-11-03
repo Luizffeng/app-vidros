@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { loadSeedCatalog } from '../../data/seedCatalog'
+import { isCatalogItemActive } from '../catalogActive'
 import type { CorrerInput, ItemInput, MarginMode } from '../types'
 import {
   buildBreakdown,
   customerExtraSellPrice,
+  findAcessorio,
   findKitBox,
   findVidro,
+  MissingPriceError,
   priceBox,
   priceCorrer,
   priceCustom,
@@ -334,6 +337,42 @@ describe('inactive catalog items', () => {
     expect(() => findVidro(inactiveFirst, 'Box', 'Incolor', '08')).toThrow(
       /Vidro sem preço/,
     )
+  })
+
+  it('names the catalog row when the glass price is empty', () => {
+    const row = catalog.vidros.find((v) => isCatalogItemActive(v) && v.valorM2 != null)
+    expect(row).toBeTruthy()
+    const next = {
+      ...catalog,
+      vidros: catalog.vidros.map((v) => (v.id === row!.id ? { ...v, valorM2: null } : v)),
+    }
+    try {
+      findVidro(next, row!.tipo, row!.cor, row!.espessuraMm)
+      expect.unreachable()
+    } catch (e) {
+      expect(e).toBeInstanceOf(MissingPriceError)
+      const err = e as MissingPriceError
+      expect(err.id).toBe(row!.id)
+      expect(err.canPrice).toBe(true)
+      expect(err.table).toBe('vidros')
+      expect(err.headline).toBe('Vidro sem preço no catálogo!')
+      expect(err.code).toBe(row!.codigo)
+      expect(err.message).toMatch(/Vidro sem preço/)
+    }
+  })
+
+  it('names a missing accessory without a price field', () => {
+    try {
+      findAcessorio(catalog, 'NAO-EXISTE')
+      expect.unreachable()
+    } catch (e) {
+      expect(e).toBeInstanceOf(MissingPriceError)
+      const err = e as MissingPriceError
+      expect(err.canPrice).toBe(false)
+      expect(err.table).toBe('acessorios')
+      expect(err.headline).toBe('Acessório não encontrado no catálogo!')
+      expect(err.message).toMatch(/Acessório não encontrado/)
+    }
   })
 
   it('findKitBox rejects inactive kit', () => {

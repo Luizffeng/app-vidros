@@ -9,7 +9,7 @@ export type Route =
   | { screen: 'home' }
   | { screen: 'quotes'; filter?: QuoteFilter; q?: string }
   | { screen: 'quote'; id: string }
-  | { screen: 'catalog'; tab: CatalogTab }
+  | { screen: 'catalog'; tab: CatalogTab; q?: string; line?: number; inactive?: boolean }
   | { screen: 'settings'; tab: SettingsTab }
   | { screen: 'page'; page: PublicPage }
   | { screen: 'help'; tab: HelpTab }
@@ -76,8 +76,16 @@ export function parseRoute(pathname: string, search = ''): Route {
       if (q) route.q = q
       return route
     }
-    case 'catalogo':
-      return { screen: 'catalog', tab: fromSlug(CATALOG_SLUGS, parts[1]) ?? 'vidros' }
+    case 'catalogo': {
+      const route: Route = { screen: 'catalog', tab: fromSlug(CATALOG_SLUGS, parts[1]) ?? 'vidros' }
+      const q = params.get('busca')?.trim()
+      const lineRaw = params.get('linha')
+      const line = lineRaw && /^\d+$/.test(lineRaw) ? Number(lineRaw) : undefined
+      if (q) route.q = q
+      if (line != null) route.line = line
+      if (params.get('situacao') === 'todos') route.inactive = true
+      return route
+    }
     case 'configuracoes':
       return {
         screen: 'settings',
@@ -106,8 +114,15 @@ export function formatRoute(route: Route): string {
     }
     case 'quote':
       return `/orcamentos/${encodeURIComponent(route.id)}`
-    case 'catalog':
-      return `/catalogo/${CATALOG_SLUGS[route.tab]}`
+    case 'catalog': {
+      const params = new URLSearchParams()
+      if (route.q?.trim()) params.set('busca', route.q.trim())
+      if (route.line != null) params.set('linha', String(route.line))
+      if (route.inactive) params.set('situacao', 'todos')
+      const query = params.toString()
+      const path = `/catalogo/${CATALOG_SLUGS[route.tab]}`
+      return query ? `${path}?${query}` : path
+    }
     case 'settings':
       return `/configuracoes/${SETTINGS_SLUGS[route.tab]}`
     case 'page':

@@ -599,6 +599,11 @@ label .percent-input .money-input {
   opacity: 0.45;
 }
 
+.catalog-row--target {
+  scroll-margin-top: 5rem;
+  box-shadow: inset 3px 0 0 var(--danger);
+}
+
 .catalog-table .cell-toggle {
   width: 2.25rem;
   text-align: center;
@@ -727,6 +732,19 @@ label .percent-input .money-input {
   min-height: 0;
   overflow: auto;
   padding: 0.85rem 1.1rem 0.35rem;
+}
+
+.item-form__alert {
+  flex: none;
+  padding: 0.85rem 1.1rem 0;
+}
+
+.item-form__alert .banner {
+  margin: 0;
+}
+
+.item-form:has(.item-form__alert) .item-form__fields {
+  padding-top: 0.64rem;
 }
 
 .item-form__note {
@@ -2147,16 +2165,16 @@ a.btn.primary {
   column-gap: 0.75rem;
   row-gap: 0.15rem;
   align-items: start;
-}
-
-button.item-block__head {
   width: 100%;
   margin: 0;
   padding: 0.15rem;
+  text-align: left;
+}
+
+button.item-block__head {
   border: none;
   border-radius: 8px;
   background: transparent;
-  text-align: left;
   cursor: pointer;
 }
 
@@ -2341,7 +2359,8 @@ button.item-block__head:hover {
 }
 
 .confirm-pop--block.confirm-pop--above {
-  width: min(22rem, calc(100vw - 2rem));
+  width: min(22rem, 100%);
+  max-width: 100%;
 }
 
 .confirm-pop__actions {
@@ -2357,6 +2376,25 @@ button.item-block__head:hover {
 .confirm-pop--warn {
   border-color: rgba(224, 90, 90, 0.55);
   color: #f3d0d0;
+}
+
+/* LeaveGuard: ConfirmPop centered. Same scrim as .modal-backdrop. */
+.leave-guard {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: max(1rem, env(safe-area-inset-top, 0px)) max(1rem, env(safe-area-inset-right, 0px))
+    max(1rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px));
+  background: rgba(6, 12, 11, 0.72);
+  backdrop-filter: blur(4px);
+  overscroll-behavior: contain;
+}
+
+.leave-guard .confirm-pop--static {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  width: min(22rem, 100%);
 }
 
 .emit-wrap {
@@ -2415,6 +2453,21 @@ button.item-block__head:hover {
 
 .item-block--editing {
   border-color: rgba(212, 160, 23, 0.55);
+}
+
+.item-block--arrive {
+  position: relative;
+  scroll-margin-top: 5rem;
+}
+
+.item-block--arrive::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid var(--accent);
+  pointer-events: none;
+  opacity: 0;
 }
 
 .item-draft .item-block__tools {
@@ -3115,6 +3168,101 @@ button.item-block__head:hover {
   color: #ffc9c9;
 }
 
+.banner--missing {
+  background: rgba(220, 24, 24, 0.34);
+  border-color: #ff3b3b;
+  color: #fff;
+}
+
+.banner--attention {
+  position: relative;
+}
+
+/* Same pulse as .item-block--arrive: only the edge. Light red (same hue as
+   .banner--missing), not white — white reads as a second frame on a saturated card. */
+.banner--attention::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid #ffb4b4;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.missing-price__lead {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.missing-price__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.missing-price__lead > .btn {
+  flex: none;
+  margin-left: auto;
+}
+
+.missing-price__which {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  color: rgba(255, 236, 236, 0.92);
+}
+
+.missing-price__editor {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.55rem;
+}
+
+.missing-price__editor label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.missing-price__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.missing-price__error {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.modal--price {
+  width: min(420px, 100%);
+}
+
+.modal--price .missing-price__editor {
+  margin-top: 0;
+}
+
+.modal--price .missing-price__save-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.45rem;
+}
+
+.modal--price .missing-price__save-row label {
+  flex: 1;
+  min-width: 0;
+}
+
+.modal--price .missing-price__save-row .btn {
+  flex: none;
+}
+
+.modal--price .missing-price__editor > .btn {
+  width: 100%;
+}
+
 .banner--warn {
   background: rgba(212, 160, 23, 0.14);
   border-color: rgba(212, 160, 23, 0.45);
@@ -3142,6 +3290,20 @@ button.item-block__head:hover {
   display: flex;
   gap: 0.4rem;
   margin-left: auto;
+}
+
+.banner--dismiss {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.banner--dismiss > .btn.btn-icon--sm {
+  flex: none;
+  width: 1.7rem;
+  height: 1.7rem;
+  min-height: 1.7rem;
+  margin-left: auto;
+  padding: 0;
 }
 
 .banner .btn {
@@ -3463,7 +3625,8 @@ button.item-block__head:hover {
   }
 }
 
-.modal-backdrop {
+.modal-backdrop,
+.leave-guard {
   animation: fade-in var(--dur-md) var(--ease-out) backwards;
 }
 
@@ -3480,7 +3643,8 @@ button.item-block__head:hover {
   }
 }
 
-.modal-backdrop[data-state='closing'] {
+.modal-backdrop[data-state='closing'],
+.leave-guard[data-state='closing'] {
   pointer-events: none;
   animation: fade-out var(--dur-sm) var(--ease-in) both;
 }
@@ -4437,6 +4601,25 @@ a.carousel__body {
   }
 }
 
+@keyframes item-edge {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .banner--attention::after,
+  .item-block--arrive::after {
+    animation: item-edge 1000ms linear 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-sm: 100ms;
@@ -4447,7 +4630,8 @@ a.carousel__body {
     --motion-scale: 1;
   }
 
-  .modal-backdrop {
+  .modal-backdrop,
+  .leave-guard {
     backdrop-filter: none;
   }
 

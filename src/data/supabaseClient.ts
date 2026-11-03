@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { markPasswordSetup } from '../auth/passwordLink'
 
 let client: SupabaseClient | null = null
 
@@ -6,7 +7,10 @@ export function getSupabase(): SupabaseClient | null {
   const url = import.meta.env.VITE_SUPABASE_URL?.trim()
   const key = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()
   if (!url || !key) return null
-  if (!client) client = createClient(url, key)
+  if (!client) {
+    if (typeof window !== 'undefined') markPasswordSetup(window.location.href)
+    client = createClient(url, key)
+  }
   return client
 }
 

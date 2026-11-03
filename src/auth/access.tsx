@@ -7,6 +7,7 @@ import { useRoute } from '../nav/useRoute'
 import { getSupabase } from '../data/supabaseClient'
 import { accountState } from '../domain/account'
 import type { Account, AccountService, AccountState } from '../domain/types'
+import { clearPasswordSetup, passwordSetupPending, rememberPasswordSetup } from './passwordLink'
 
 /** `vendedor` fica dormente até a spec de vários usuários por loja. */
 export type AccessRole = 'local' | 'admin' | 'vendedor'
@@ -45,7 +46,7 @@ export function AccessProvider({ children }: { children: ReactNode }) {
   /** undefined = carregando; null = sessão sem conta */
   const [account, setAccount] = useState<Account | null | undefined>(undefined)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [recovering, setRecovering] = useState(false)
+  const [recovering, setRecovering] = useState(passwordSetupPending)
   const { route } = useRoute()
 
   useEffect(() => {
@@ -56,7 +57,10 @@ export function AccessProvider({ children }: { children: ReactNode }) {
       setUserId(data.session?.user.id ?? null)
     })
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY') setRecovering(true)
+      if (event === 'PASSWORD_RECOVERY') {
+        rememberPasswordSetup()
+        setRecovering(true)
+      }
       setUserId(session?.user.id ?? null)
     })
     return () => {
@@ -80,6 +84,12 @@ export function AccessProvider({ children }: { children: ReactNode }) {
     void loadAccount()
   }, [supabase, userId, loadAccount])
 
+  useEffect(() => {
+    if (!supabase || userId !== null) return
+    clearPasswordSetup()
+    setRecovering(false)
+  }, [supabase, userId])
+
   const access = useMemo<Access | null>(() => {
     if (!supabase || !account) return null
     return {
@@ -102,7 +112,23 @@ export function AccessProvider({ children }: { children: ReactNode }) {
 
   if (userId === null) return publicPage ?? <EntryScreen />
 
-  if (recovering) return <NewPasswordScreen onDone={() => setRecovering(false)} />
+  if (recovering) {
+    if (userId === undefined) {
+      return (
+        <div className="shell">
+          <p className="muted">Carregando…</p>
+        </div>
+      )
+    }
+    return (
+      <NewPasswordScreen
+        onDone={() => {
+          clearPasswordSetup()
+          setRecovering(false)
+        }}
+      />
+    )
+  }
 
   if (loadError) {
     return (

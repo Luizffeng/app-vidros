@@ -54,7 +54,9 @@ Rehearsed 2026-10-10 with synthetic data (settings, catalog, one quote, counter,
 
 ## Production cutover (US4)
 
-Apply by pasting the migration in the Supabase SQL Editor (production has no CLI migration history; `db push` would try to rerun the init migration).
+Verified 2026-10-29. Production already had `account_id` (one Forte Vidros row, plan `active`, no end). Both logins are `admin` on that account. Logo object is at `{account_id}/logo.png`. The owner checked the app. Do not paste `20261010120000_accounts.sql` again.
+
+Apply by pasting the migration in the Supabase SQL Editor only on a database that still has `catalog.id = 'current'` (production has no CLI migration history; `db push` would try to rerun the init migration).
 
 1. **Backup**: Dashboard → Database → Backups (confirm a recent one), then save the "before" result:
 
@@ -67,7 +69,13 @@ Apply by pasting the migration in the Supabase SQL Editor (production has no CLI
    select md5(payload::text) as catalogo from public.catalog;
    select md5(payload::text) as config, logo_path from public.settings;
    select count(*) as logins from public.profiles;
+   select u.email, p.role
+     from public.profiles p
+     join auth.users u on u.id = p.id
+    order by u.email;
    ```
+
+   A lista de e-mails tem de ser só `luiz5001@hotmail.com` e `edvaldo.eng@gmail.com` (conferido em 2026-10-29). Qualquer outro login entra na Forte Vidros como admin.
 
 2. **Migrate** (outside working hours): paste and run `supabase/migrations/20261010120000_accounts.sql`.
 3. **After** checks: run the same queries (catalog and settings no longer have `id`; the hashes must match), plus:
@@ -81,5 +89,5 @@ Apply by pasting the migration in the Supabase SQL Editor (production has no CLI
 4. **Logo**: Dashboard → Storage → `logos` → `shop/logo.png` → Move to `<account id>/logo.png` (the full id from step 3, same value as in `settings.logo_path`). If the "before" `logo_path` was null, upload the logo in Configurações › Logo after step 5: from this version a missing logo means no logo in the PDF (the embedded Forte Vidros logo is only the local-mode default).
 5. **Deploy**: merge the app changes into `main` (Cloudflare builds). Between steps 2 and 5 the app is down (the old app filters by `id = 'current'`, which no longer exists, and the new app needs `accounts`), so steps 2–5 should take minutes.
 6. **Verify in the app**: same quotes, numbers and totals; next quote continues the sequence; logo in the PDF; Catálogo and Configurações save.
-7. **Extra logins**: all existing logins now belong to the Forte Vidros account with full access (decision default). To remove one: Authentication → Users → delete.
+7. **Logins**: `luiz5001@hotmail.com` and `edvaldo.eng@gmail.com` both belong to the Forte Vidros account as `admin` (owner decision 2026-10-29; confirmed no other login). Confirm the e-mail list in step 1 before migrating. To remove one: Authentication → Users → delete.
 8. Sign ups stay disabled in production until BACKLOG "Abrir cadastro em produção" is unblocked. The entry screen reads `GET /auth/v1/settings`: with sign ups off it shows only "Entrar" (as today); turning on Authentication → Sign In / Providers → "Allow new users to sign up" shows "Criar conta grátis".

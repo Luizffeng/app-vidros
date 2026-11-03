@@ -195,7 +195,11 @@ export function SettingsEditor({
 
       {nextStep}
       {error && <Banner tone="error">{error}</Banner>}
-      {message && !error && <Banner tone="ok">{message}</Banner>}
+      {message && !error && (
+        <Banner tone="ok" onDismiss={() => setMessage(null)}>
+          {message}
+        </Banner>
+      )}
 
       {tab === 'account' && (
         <div className="tab-panel" role="tabpanel" id="settings-panel-account" aria-labelledby="settings-tab-account">

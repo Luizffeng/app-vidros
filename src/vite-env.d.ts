@@ -3,6 +3,8 @@
 interface ImportMetaEnv {
   readonly VITE_SUPABASE_URL?: string
   readonly VITE_SUPABASE_ANON_KEY?: string
+  /** Compare missing-price editors: `modal` (default) or `inline`. */
+  readonly VITE_MISSING_PRICE_UI?: 'modal' | 'inline'
 }
 
 interface ImportMeta {

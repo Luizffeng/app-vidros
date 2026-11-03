@@ -19,9 +19,10 @@ React UI. No price formulas and no Supabase queries except `EntryScreen` (sign-i
 | `DeleteAccount.tsx` | "Excluir minha conta e dados" (admin of a cloud account only): red link opens a `Modal` with type-EXCLUIR confirm. Terms and privacy cite its path. |
 | `CollapsibleSection.tsx` | `<details>` card with heading, `count` pill and chevron. Editor sections, Settings › Conta, Suporte › Dicas and Novidades. Height/fade animation only after the first user toggle. On user open, a short rAF loop scrolls with the height growth so footer sections (Fotos) stay in view without a post-expand jump; open state forces `overflow: visible`. |
 | `Section.tsx`, `Banner.tsx`, `ConfirmPop.tsx`, `IconButton.tsx` | Shared building blocks; see "Shared patterns" below. |
+| `LeaveGuard.tsx` | Unsaved-leave `ConfirmPop` for `useLeaveGuard` (Catálogo, Configurações, sugestão do Suporte). Mounted once per screen in `App`. Device back cancels in `navigator.ts` (no history entry: the menu pops its own on the same click). |
 | `AppHeader.tsx` | Title, optional back arrow (`onBack`), hamburger menu: Início, Orçamentos, Catálogo, Configurações (hidden for `vendedor`), Suporte (headset icon), Sair. Owns `AppSection` and the section icons. `HeaderMenu` is also used in the editor head (`App.tsx`). |
 | `selectAllOnFocus.ts` | Global listener (installed in `main.tsx`): `inputMode="decimal"` and `data-select-all` inputs select their value on focus. |
-| `EntryScreen.tsx` | No session: "Criar conta grátis" / "Já tenho conta", Google (when on), e-mail/senha, "Esqueci a senha"; `NewPasswordScreen` after the reset link; `PasswordField`, `LegalLinks`. |
+| `EntryScreen.tsx` | No session: "Criar conta grátis" / "Já tenho conta", Google (when on), e-mail/senha, "Esqueci a senha"; `NewPasswordScreen` after an invite or reset link; `PasswordField`, `LegalLinks`. |
 | `AccountSetupScreen.tsx` | Session without account: "Sua vidraçaria" form → `createAccount`. |
 | `PublicPage.tsx` | `/termos`, `/privacidade`, `/novidades` from markdown in `src/content/` (`parseMarkdown`). `BlockView`/`InlineText` also render Suporte › Novidades. |
 | `ExpiredNotice.tsx` | Modal opened by `blocked()` in `App.tsx` when the account is read-only; WhatsApp links from `src/data/support.ts`. |
@@ -42,10 +43,11 @@ One way per job. Reuse these before writing new markup or CSS; if a case does no
 | Job | Use | Not |
 | --- | --- | --- |
 | Inline "are you sure?" next to a button | `ConfirmPop` (`place` left/below/above/static, `block` for long text, `tone`, `alert`, `warn`) inside a `position: relative` wrapper. One open per screen: opening one closes the others (quote editor: `closeConfirms` in `App.tsx`) | per-screen `*-pop` classes, two pops open at once |
+| Leave a screen with unsaved edits | `useLeaveGuard` + `LeaveGuard` (the same `ConfirmPop`, centered). Voltar, link interno and device back ask; Não stays with the edit | `window.confirm`, a second confirm component |
 | Tip that teaches a control | `TipPop` around the control: arrow to it, pulsing ring on it, full-width "Entendi". Text names the highlighted control ("o botão destacado", "a lixeira destacada"), never "aqui" | a loose banner or "toque aqui" text |
 | Square icon-only button | `IconButton` (`label` is the aria-label and title; `size` md/sm; `tone` default/edit/danger/danger-solid/revise) | raw `btn btn-icon`, `.icon-btn` |
 | Button with icon and text | `className="btn … with-icon"`, icon first. Disabled with a reason: `ActionButton` in `App.tsx` | per-button flex/svg rules |
-| Notice (saved, error, outdated, draft) | `Banner` (`tone` ok/warn/error; `actions` for buttons, which wrap under the text on narrow screens). Errors get `role="alert"`, others `role="status"` | `div.banner.ok`, `outdated-banner`, custom grids |
+| Notice (saved, error, outdated, draft) | `Banner` (`tone` ok/warn/error; `actions` for buttons, which wrap under the text on narrow screens; `onDismiss` for an X that stays on the right and hides the notice for this visit). Errors get `role="alert"`, others `role="status"` | `div.banner.ok`, `outdated-banner`, custom grids |
 | Card with a title | `Section` (`title`, `count`, `hint`, `actions`); collapsible: `CollapsibleSection` (`title`, `count`, `actions` shown only while open) | hand-built `section` + `h2` + `.section-head` |
 | Pick one of a list | `DropdownField` in forms, `Dropdown` in toolbars. The list opens upward when the scroll area has no room below | native `<select>`; wrapping a `Dropdown` in `<label>` (re-clicks the button on pick) |
 | Space between cards | Nothing: `.section` brings 0.85rem; a run of `CollapsibleSection`s packs to 0.42rem and the last one before a plain card goes back to 0.85rem (CSS `:has`). A low-key line after the cards (e.g. `DeleteAccount`) sits 1.25rem below | per-screen `margin-top`/`margin-bottom` on cards, wrappers that add their own gap |

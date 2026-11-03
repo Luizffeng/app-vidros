@@ -108,7 +108,11 @@ export function SupportScreen({
           </Section>
           <Section title="Sugestões" count={list && list.length > 0 ? list.length : undefined}>
             {error && <Banner tone="error">{error}</Banner>}
-            {sent && !error && <Banner tone="ok">Recebemos sua sugestão. Obrigado!</Banner>}
+            {sent && !error && (
+              <Banner tone="ok" onDismiss={() => setSent(false)}>
+                Recebemos sua sugestão. Obrigado!
+              </Banner>
+            )}
             <label className="support__field">
               O que faria o app melhor para você?
               <textarea

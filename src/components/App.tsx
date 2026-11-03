@@ -63,6 +63,7 @@ import {
   withDefaultDdd,
 } from '../domain/brazil'
 import { bumpCatalogVersion, confirmed, sameRef, setCatalogPrice, withPriceOverrides } from '../domain/catalogEdit'
+import { MissingPriceError } from '../domain/pricing'
 import { groupRevisions } from '../domain/quoteGroups'
 import {
   exampleNames,
@@ -106,6 +107,7 @@ import { SupportScreen } from './SupportScreen'
 import { PdfPreview } from './PdfPreview'
 import { SettingsEditor } from './SettingsEditor'
 import { HomeScreen } from './HomeScreen'
+import { LeaveGuard } from './LeaveGuard'
 import { getRoute, goTop, push, replace, up } from '../nav/navigator'
 import type { Route } from '../nav/routes'
 import { useBackLayer } from '../nav/useBackLayer'
@@ -175,6 +177,7 @@ export function App() {
   const [emitBlocked, setEmitBlocked] = useState(false)
   const [emitExamples, setEmitExamples] = useState<ExampleUse | null>(null)
   const [pendingNewItem, setPendingNewItem] = useState(false)
+  const [arrivedId, setArrivedId] = useState<string | null>(null)
   const [onboardingHidden, setOnboardingHidden] = useState(onboardingHiddenThisSession)
   const [itemModal, setItemModal] = useState<
     null | { mode: 'pick' } | { mode: 'create'; kind: ProductKind } | { mode: 'edit'; id: string }
@@ -229,6 +232,14 @@ export function App() {
       })
       .catch((e) => setError(String(e)))
   }, [screenKey])
+
+  useEffect(() => {
+    if (!arrivedId) return
+    const el = document.querySelector<HTMLElement>(`[data-item-id="${CSS.escape(arrivedId)}"]`)
+    if (!el) return
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    el.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' })
+  }, [arrivedId])
 
   useEffect(() => {
     if (screenKey !== 'quotes') return
@@ -412,12 +423,15 @@ export function App() {
     if (!quote || !catalog) return
     try {
       const next = addItem(quote, catalog, input, marginMode)
+      const added = next.items[next.items.length - 1]
       await persist(next)
       setItemDraft(clearCreateDraft(quote.id))
       itemFormRef.current = null
       setItemModal(null)
       setError(null)
+      if (added) setArrivedId(added.id)
     } catch (e) {
+      if (e instanceof MissingPriceError) return
       setError(e instanceof Error ? e.message : String(e))
     }
   }
@@ -432,6 +446,7 @@ export function App() {
       setItemModal(null)
       setError(null)
     } catch (e) {
+      if (e instanceof MissingPriceError) return
       setError(e instanceof Error ? e.message : String(e))
     }
   }
@@ -440,8 +455,12 @@ export function App() {
     if (!quote || !catalog || blocked()) return
     try {
       closeConfirms()
-      await persist(duplicateItem(quote, catalog, itemId, marginMode))
+      const next = duplicateItem(quote, catalog, itemId, marginMode)
+      const index = quote.items.findIndex((item) => item.id === itemId)
+      const copy = index >= 0 ? next.items[index + 1] : undefined
+      await persist(next)
       setError(null)
+      if (copy && copy.id !== itemId) setArrivedId(copy.id)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     }
@@ -762,6 +781,7 @@ export function App() {
 
   const screen = (node: ReactNode) => (
     <div key={screenKey} ref={screenRef} className="screen">
+      <LeaveGuard />
       {node}
       {expiredNotice && access.account && (
         <ExpiredNotice
@@ -818,6 +838,17 @@ export function App() {
         onSave={onSaveCatalog}
         onNavigate={goSection}
         nextStep={nextStep}
+        initialQuery={route.q ?? ''}
+        initialShowInactive={route.inactive === true}
+        focusLine={route.line}
+        onQueryChange={(q) => {
+          if ((route.q ?? '') === q) return
+          replace({
+            screen: 'catalog',
+            tab: route.tab,
+            ...(q ? { q } : {}),
+          })
+        }}
       />,
     )
   }
@@ -1050,7 +1081,7 @@ export function App() {
         </Banner>
       )}
       {repriceFailed !== null && !outdated && (
-        <Banner tone={repriceFailed ? 'warn' : 'ok'}>
+        <Banner tone={repriceFailed ? 'warn' : 'ok'} onDismiss={() => setRepriceFailed(null)}>
           Valores atualizados.
           {repriceFailed === 1 && ' 1 item manteve o valor anterior.'}
           {repriceFailed > 1 && ` ${repriceFailed} itens mantiveram o valor anterior.`}
@@ -1079,7 +1110,8 @@ export function App() {
         {quote.items.map((item) => (
           <article
             key={item.id}
-            className={`item-block${itemModal?.mode === 'edit' && itemModal.id === item.id ? ' item-block--editing' : ''}`}
+            data-item-id={item.id}
+            className={`item-block${itemModal?.mode === 'edit' && itemModal.id === item.id ? ' item-block--editing' : ''}${item.id === arrivedId ? ' item-block--arrive' : ''}`}
           >
             <ItemBlockHead
               item={item}
@@ -1274,6 +1306,24 @@ export function App() {
             submitLabel={itemModal.mode === 'edit' ? 'Salvar alterações' : 'Adicionar item'}
             requireChange={itemModal.mode === 'edit'}
             onCancel={discardItemModal}
+            onOpenCatalog={(target) => {
+              const form = itemFormRef.current
+              if (form && itemModal.mode === 'create') setItemDraft(saveCreateDraft(quote.id, form.state))
+              else if (form && itemModal.mode === 'edit') {
+                setItemDraft(saveEditDraft(quote.id, itemModal.id, form.state))
+              }
+              closeItemModal()
+              push(
+                {
+                  screen: 'catalog',
+                  tab: target.tab,
+                  ...(target.q ? { q: target.q } : {}),
+                  ...(target.line != null ? { line: target.line } : {}),
+                  ...(target.inactive ? { inactive: true } : {}),
+                },
+                'fade',
+              )
+            }}
             onSubmit={(input) => {
               if (itemModal.mode === 'edit') void onUpdateItem(itemModal.id, input)
               else void onAddItem(input)

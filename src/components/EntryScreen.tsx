@@ -244,7 +244,7 @@ export function EntryScreen() {
   )
 }
 
-/** Volta do link "Esqueci a senha": a sessão já existe, falta a senha nova. */
+/** Volta do link de convite ou de "Esqueci a senha": a sessão já existe, falta a senha nova. */
 export function NewPasswordScreen({ onDone }: { onDone: () => void }) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { isCatalogItemActive, nextNumericId } from '../data/catalogItems'
 import { aluminioValorMetro, bumpCatalogVersion } from '../domain/catalogEdit'
 import { clearEditedExamples, confirmExampleTable, examplePending } from '../domain/onboarding'
@@ -44,6 +44,14 @@ function cloneCatalog(catalog: Catalog): Catalog {
   return structuredClone(catalog)
 }
 
+function catalogRowClass(active: boolean, targeted: boolean) {
+  const names = [
+    active ? '' : 'catalog-row--inactive',
+    targeted ? 'catalog-row--target' : '',
+  ].filter(Boolean)
+  return names.length ? names.join(' ') : undefined
+}
+
 function matchesQuery(query: string, parts: Array<string | number | null | undefined>) {
   if (!query.trim()) return true
   const q = query.trim().toLowerCase()
@@ -86,6 +94,10 @@ export function CatalogEditor({
   onSave,
   onNavigate,
   nextStep,
+  initialQuery = '',
+  initialShowInactive = false,
+  focusLine,
+  onQueryChange,
 }: {
   catalog: Catalog
   marginMode: MarginMode
@@ -94,10 +106,14 @@ export function CatalogEditor({
   onSave: (catalog: Catalog) => Promise<void>
   onNavigate: (section: AppSection) => void
   nextStep?: ReactNode
+  initialQuery?: string
+  initialShowInactive?: boolean
+  focusLine?: number
+  onQueryChange?: (query: string) => void
 }) {
   const [draft, setDraft] = useState(() => cloneCatalog(catalog))
-  const [query, setQuery] = useState('')
-  const [showInactive, setShowInactive] = useState(false)
+  const [query, setQuery] = useState(initialQuery)
+  const [showInactive, setShowInactive] = useState(initialShowInactive)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -107,6 +123,24 @@ export function CatalogEditor({
     [draft, catalog],
   )
   useLeaveGuard(dirty, DISCARD_MESSAGE)
+
+  const onQueryChangeRef = useRef(onQueryChange)
+  useEffect(() => {
+    onQueryChangeRef.current = onQueryChange
+  })
+  useEffect(() => {
+    const id = window.setTimeout(() => onQueryChangeRef.current?.(query), 300)
+    return () => window.clearTimeout(id)
+  }, [query])
+
+  const scrolledLine = useRef<number | null>(null)
+  useEffect(() => {
+    if (focusLine == null || scrolledLine.current === focusLine) return
+    const row = document.querySelector<HTMLElement>(`[data-catalog-line="${focusLine}"]`)
+    if (!row) return
+    scrolledLine.current = focusLine
+    row.scrollIntoView({ block: 'center', behavior: 'auto' })
+  }, [focusLine, tab, query, showInactive, draft])
 
   const edited = useMemo(() => clearEditedExamples(catalog, draft), [catalog, draft])
   const pendingExamples =
@@ -157,7 +191,11 @@ export function CatalogEditor({
       </p>
 
       {error && <Banner tone="error">{error}</Banner>}
-      {message && !error && <Banner tone="ok">{message}</Banner>}
+      {message && !error && (
+        <Banner tone="ok" onDismiss={() => setMessage(null)}>
+          {message}
+        </Banner>
+      )}
 
       <div className="catalog-toolbar">
         <Dropdown
@@ -211,6 +249,7 @@ export function CatalogEditor({
             rows={draft.vidros}
             query={query}
             showInactive={showInactive}
+            focusLine={focusLine}
             onChange={(vidros) => setDraft((d) => ({ ...d, vidros }))}
           />
         )}
@@ -219,6 +258,7 @@ export function CatalogEditor({
             rows={draft.kitBox}
             query={query}
             showInactive={showInactive}
+            focusLine={focusLine}
             onChange={(kitBox) => setDraft((d) => ({ ...d, kitBox }))}
           />
         )}
@@ -227,6 +267,7 @@ export function CatalogEditor({
             rows={draft.acessorios}
             query={query}
             showInactive={showInactive}
+            focusLine={focusLine}
             onChange={(acessorios) => setDraft((d) => ({ ...d, acessorios }))}
           />
         )}
@@ -235,6 +276,7 @@ export function CatalogEditor({
             rows={draft.aluminios}
             query={query}
             showInactive={showInactive}
+            focusLine={focusLine}
             onChange={(aluminios) => setDraft((d) => ({ ...d, aluminios }))}
           />
         )}
@@ -404,11 +446,13 @@ function VidrosTable({
   rows,
   query,
   showInactive,
+  focusLine,
   onChange,
 }: {
   rows: Vidro[]
   query: string
   showInactive: boolean
+  focusLine?: number
   onChange: (rows: Vidro[]) => void
 }) {
   const [open, setOpen] = useState(false)
@@ -478,7 +522,8 @@ function VidrosTable({
             {filtered.map((row) => (
               <tr
                 key={row.id}
-                className={isCatalogItemActive(row) ? undefined : 'catalog-row--inactive'}
+                data-catalog-line={row.id}
+                className={catalogRowClass(isCatalogItemActive(row), row.id === focusLine)}
               >
                 <td>{row.codigo}</td>
                 <td>{row.tipo}</td>
@@ -554,11 +599,13 @@ function KitBoxTable({
   rows,
   query,
   showInactive,
+  focusLine,
   onChange,
 }: {
   rows: KitBox[]
   query: string
   showInactive: boolean
+  focusLine?: number
   onChange: (rows: KitBox[]) => void
 }) {
   const [open, setOpen] = useState(false)
@@ -628,7 +675,8 @@ function KitBoxTable({
             {filtered.map((row) => (
               <tr
                 key={row.id}
-                className={isCatalogItemActive(row) ? undefined : 'catalog-row--inactive'}
+                data-catalog-line={row.id}
+                className={catalogRowClass(isCatalogItemActive(row), row.id === focusLine)}
               >
                 <td>{row.codigo}</td>
                 <td>{row.tipo}</td>
@@ -704,11 +752,13 @@ function AcessoriosTable({
   rows,
   query,
   showInactive,
+  focusLine,
   onChange,
 }: {
   rows: Acessorio[]
   query: string
   showInactive: boolean
+  focusLine?: number
   onChange: (rows: Acessorio[]) => void
 }) {
   const [open, setOpen] = useState(false)
@@ -769,7 +819,8 @@ function AcessoriosTable({
             {filtered.map((row) => (
               <tr
                 key={row.id}
-                className={isCatalogItemActive(row) ? undefined : 'catalog-row--inactive'}
+                data-catalog-line={row.id}
+                className={catalogRowClass(isCatalogItemActive(row), row.id === focusLine)}
               >
                 <td>{row.codigo}</td>
                 <td className="cell-desc">{row.descricao}</td>
@@ -836,11 +887,13 @@ function AluminiosTable({
   rows,
   query,
   showInactive,
+  focusLine,
   onChange,
 }: {
   rows: Aluminio[]
   query: string
   showInactive: boolean
+  focusLine?: number
   onChange: (rows: Aluminio[]) => void
 }) {
   const [open, setOpen] = useState(false)
@@ -913,7 +966,8 @@ function AluminiosTable({
             {filtered.map((row) => (
               <tr
                 key={row.id}
-                className={isCatalogItemActive(row) ? undefined : 'catalog-row--inactive'}
+                data-catalog-line={row.id}
+                className={catalogRowClass(isCatalogItemActive(row), row.id === focusLine)}
               >
                 <td>{row.codigo}</td>
                 <td className="cell-desc">{row.descricao ?? '—'}</td>

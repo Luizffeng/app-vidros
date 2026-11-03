@@ -22,6 +22,12 @@ let pendingPops = 0
 let queue: (() => void)[] = []
 const guards = new Set<Guard>()
 const listeners = new Set<() => void>()
+/** Next user popstate already passed the leave dialog. */
+let skipGuard = false
+/** Open leave dialog. Device back answers no and stays. */
+let leaveSettle: ((ok: boolean) => void) | null = null
+let showLeave: ((message: string | null, answer: (ok: boolean) => void) => void) | null = null
+let navChain: Promise<void> = Promise.resolve()
 
 const entry = (i: number, layer = false): Entry => (layer ? { app: APP, idx: i, layer: true } : { app: APP, idx: i })
 const currentPath = () => formatRoute(parseRoute(location.pathname, location.search))
@@ -74,9 +80,50 @@ function dropLayers(then: () => void) {
   expectPop(-pushed)
 }
 
-function confirmLeave(): boolean {
-  const guard = guards.values().next().value
-  return !guard || window.confirm(guard.message)
+function guardMessage(): string | null {
+  return guards.values().next().value?.message ?? null
+}
+
+/** One screen change at a time, and not while our own history.go is still landing. */
+function schedule(task: () => void | Promise<void>) {
+  const runTask = async () => {
+    if (pendingPops > 0) await new Promise<void>((resolve) => queue.push(resolve))
+    await task()
+  }
+  navChain = navChain.then(runTask, runTask)
+}
+
+/**
+ * App dialog instead of window.confirm. No history entry: the menu's own
+ * back-layer pops on the same click, and a dialog entry would be the one popped.
+ * Device back while this is open cancels (see onPop).
+ */
+function confirmLeave(): Promise<boolean> {
+  const message = guardMessage()
+  if (!message) return Promise.resolve(true)
+  if (!showLeave || leaveSettle) return Promise.resolve(false)
+  return new Promise((resolve) => {
+    let settled = false
+    const finish = (ok: boolean) => {
+      if (settled) return
+      settled = true
+      if (leaveSettle === finish) leaveSettle = null
+      showLeave?.(null, finish)
+      resolve(ok)
+    }
+    leaveSettle = finish
+    showLeave!(message, finish)
+  })
+}
+
+/** React host for the leave dialog. `null` message hides it. */
+export function bindLeaveAsk(
+  show: (message: string | null, answer: (ok: boolean) => void) => void,
+): () => void {
+  showLeave = show
+  return () => {
+    if (showLeave === show) showLeave = null
+  }
 }
 
 function pushScreen(route: Route, nav: Nav) {
@@ -117,10 +164,27 @@ function onPop(event: PopStateEvent) {
     return
   }
   const route = parseRoute(location.pathname, location.search)
-  if (!sameScreen(route, snapshot.route) && !confirmLeave()) {
-    expectPop(idx - nextIdx)
+  const delta = idx - nextIdx
+  if (leaveSettle) {
+    const finish = leaveSettle
+    if (delta !== 0) {
+      queue.unshift(() => finish(false))
+      expectPop(delta)
+    } else finish(false)
     return
   }
+  if (!skipGuard && delta !== 0 && !sameScreen(route, snapshot.route) && guardMessage()) {
+    queue.unshift(() => {
+      schedule(async () => {
+        if (!(await confirmLeave())) return
+        skipGuard = true
+        history.go(-delta)
+      })
+    })
+    expectPop(delta)
+    return
+  }
+  skipGuard = false
   const nav: Nav = nextIdx < idx ? 'back' : 'forward'
   idx = nextIdx
   stack[idx] = formatRoute(route)
@@ -173,8 +237,8 @@ export function subscribe(listener: () => void): () => void {
 
 /** New screen on top of the current one. */
 export function push(route: Route, nav: Nav = 'forward') {
-  run(() => {
-    if (!sameScreen(route, snapshot.route) && !confirmLeave()) return
+  schedule(async () => {
+    if (!sameScreen(route, snapshot.route) && !(await confirmLeave())) return
     dropLayers(() => pushScreen(route, nav))
   })
 }
@@ -193,9 +257,9 @@ export function replace(route: Route, nav: Nav | null = null) {
 
 /** Top-level section (menu, home tiles): drops the path down to Início first. */
 export function goTop(route: Route, nav: Nav = 'fade') {
-  run(() => {
+  schedule(async () => {
     if (sameScreen(route, snapshot.route)) return replace(route)
-    if (!confirmLeave()) return
+    if (!(await confirmLeave())) return
     dropLayers(() => {
       const land = () => {
         if (stack[0] !== '/') {
@@ -216,13 +280,17 @@ export function goTop(route: Route, nav: Nav = 'fade') {
 
 /** Header back arrow: same as the device back; without app history, the parent screen. */
 export function up() {
-  run(() => {
+  schedule(async () => {
     if (idx > 0) {
+      const leaving = layers.length === 0 && Boolean(guardMessage())
+      if (leaving && !(await confirmLeave())) return
+      if (leaving) skipGuard = true
       history.back()
       return
     }
     const parent = parentOf(snapshot.route)
-    if (parent && confirmLeave()) replace(parent, 'back')
+    if (!parent || !(await confirmLeave())) return
+    replace(parent, 'back')
   })
 }
 

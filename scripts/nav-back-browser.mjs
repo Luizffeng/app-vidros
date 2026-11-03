@@ -170,21 +170,22 @@ async function screens(page, quoteUrl) {
   const money = page.locator('.catalog-table .money-input').first()
   await money.fill('7,77')
   await money.blur()
-  let asked = 0
-  page.once('dialog', (d) => {
-    asked += 1
-    void d.dismiss()
-  })
   await back(page)
-  check('alteração não salva pergunta antes de sair', asked === 1)
+  const discard = page.getByRole('alertdialog', { name: 'Alterações não salvas' })
+  await discard.waitFor()
+  check(
+    'alteração não salva pergunta antes de sair',
+    (await discard.getByText('Descartar as alterações não salvas do catálogo?').count()) === 1,
+  )
+  await discard.getByRole('button', { name: 'Não' }).click()
+  await discard.waitFor({ state: 'detached' })
   check('cancelar fica no catálogo', path(page) === '/catalogo/aluminios', path(page))
-  page.once('dialog', (d) => {
-    asked += 1
-    void d.accept()
-  })
+  check('cancelar mantém o valor', (await money.inputValue()) === '7,77')
   await back(page)
+  await discard.waitFor()
+  await discard.getByRole('button', { name: 'Sim' }).click()
   await heading(page, 'Início')
-  check('confirmar descarta e vai ao Início (abas não são passos)', asked === 2)
+  check('confirmar descarta e vai ao Início (abas não são passos)', path(page) === '/', path(page))
 
   await page.goto(`${BASE}${quoteUrl}`, { waitUntil: 'networkidle' })
   await page.getByRole('heading', { level: 1, name: /^ORC-/ }).waitFor()

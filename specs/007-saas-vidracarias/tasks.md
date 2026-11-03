@@ -67,7 +67,7 @@ description: "Task list for SaaS fase 1 (conta própria e teste grátis)"
 **Independent Test**: rehearsal on local Supabase with a copy of production-shaped data.
 
 - [X] T018 [US4] Document the rehearsal in specs/007-saas-vidracarias/quickstart.md: the owner exports production `quotes`, `catalog`, `settings`, `quote_counters`, `profiles` into tmp-browser-qa/ (gitignored; contains customer data, never committed), load into the local DB with only the init migration, then apply the accounts migration
-- [ ] T019 [US4] (done with synthetic data 2026-10-10; pending the owner's production export) Rehearse: compare quote count, numbers, `grandTotal` sum, counters, catalog version before/after; next quote continues the sequence; logo moved to `{account_id}/logo.png` loads in the PDF; Início shows no trial line and no Primeiros passos card
+- [X] T019 [US4] Production already on the accounts schema (verified 2026-10-29, not a second apply): one Forte Vidros account `5f6f9bd5-6a95-4f18-8552-12d2c48044d5`, plan `active` with no end, 45 quotes, `grandTotal` sum 115685.85, last number `ORC-2026-0046`, counter 2026 = 46, catalog version 2026-10-28 with no example prices, both logins `admin` on that account, logo object at `{account_id}/logo.png`, owner checked the app
 - [X] T020 [US4] Write the production cutover checklist in specs/007-saas-vidracarias/quickstart.md "Production cutover" with exact SQL checks and the logo move command; owner decides extra logins (default: keep mapped to Forte Vidros)
 
 **Checkpoint**: delivery step 1 ready to ship (owner runs the cutover).
