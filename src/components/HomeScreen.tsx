@@ -178,9 +178,9 @@ export function HomeScreen({
         />
         {isAdmin && (
           <Tile
-            title="Catálogo"
+            title="Preços"
             icon={<CatalogIcon />}
-            label={catalogLine ? `Catálogo: ${catalogLine}` : 'Catálogo'}
+            label={catalogLine ? `Preços: ${catalogLine}` : 'Preços'}
             summary={catalogLine}
             onClick={() => onNavigate('catalog')}
           />

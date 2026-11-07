@@ -208,8 +208,8 @@ async function runOnce(browser) {
 
     await page.getByRole('button', { name: 'Menu' }).click()
     results.push(
-      await measure(page, 'menu → Catálogo', async () => {
-        await page.getByRole('menuitem', { name: 'Catálogo' }).click()
+      await measure(page, 'menu → Preços', async () => {
+        await page.getByRole('menuitem', { name: 'Preços' }).click()
         await page.locator('.catalog-table').first().waitFor()
       }),
     )

@@ -358,7 +358,7 @@ export function CostDetailModal({
                               line.laborKey
                                 ? onUpdateLaborCatalog(line.laborKey, value!)
                                 : onUpdateCatalog(line.source!, value!),
-                            'Catálogo atualizado.',
+                            'Preços atualizados.',
                           )
                         }
                         onNo={() => setConfirmCatalog(false)}

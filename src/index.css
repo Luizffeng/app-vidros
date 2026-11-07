@@ -2549,6 +2549,41 @@ button.item-block__head:hover {
   flex: none;
 }
 
+/* Desktop quotes: "Novo orçamento" sits on this row. Phones keep the bottom bar.
+   Specificity matches .btn.with-icon, and this block comes later, so the phone hide wins.
+   With no quotes there is no search, so the row would be an empty gap on phones. */
+.shell--quotes .list-new {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .list-filters:not(:has(.list-search)) {
+    display: none;
+  }
+}
+
+@media (min-width: 721px) {
+  .shell--quotes .list-new {
+    display: inline-flex;
+    flex: none;
+    height: var(--filter-h);
+    min-height: 48px;
+    white-space: nowrap;
+  }
+
+  .shell--quotes .list-filters:not(:has(.list-search)) {
+    justify-content: flex-end;
+  }
+
+  .shell--quotes.shell--with-bar {
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+  }
+
+  .shell--quotes .action-bar {
+    display: none;
+  }
+}
+
 .list-status .dropdown__button {
   height: var(--filter-h);
   min-height: 48px;
@@ -4361,7 +4396,7 @@ a.carousel__body {
   color: var(--accent);
 }
 
-/* Próximo passo: thin strip under the header of Orçamentos, Catálogo, Configurações and Suporte. */
+/* Próximo passo: thin strip under the header of Orçamentos, Preços, Configurações and Suporte. */
 .next-step {
   display: flex;
   align-items: center;

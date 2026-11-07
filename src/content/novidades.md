@@ -4,8 +4,10 @@ O que entrou no app nos últimos meses. Sugestões enviadas em [Suporte › Fale
 
 ## Novembro de 2026
 
-- **Vidro, kit, acessório ou alumínio sem preço** no item: o app avisa, deixa inserir o valor na hora ou abrir o catálogo na linha certa.
-- **Avisos de sucesso** (valores atualizados, catálogo salvo e afins) fecham com um X.
+- **Novo orçamento** no computador fica à direita do filtro, no topo da lista. No celular continua na barra de baixo.
+- **Preços** é o nome da tela de vidros, kits, ferragens e alumínios (Início, menu e título).
+- **Vidro, kit, acessório ou alumínio sem preço** no item: o app avisa, deixa inserir o valor na hora ou abrir Preços na linha certa.
+- **Avisos de sucesso** (valores atualizados, preços salvos e afins) fecham com um X.
 - **Item novo ou duplicado** pisca a borda uma vez para mostrar onde entrou.
 - **AppVidros** no topo de cada tela volta para o Início.
 - **Mostrar os primeiros passos de novo** em Suporte › Dicas traz o card de volta no Início. O que já está feito continua feito.
@@ -17,14 +19,14 @@ O que entrou no app nos últimos meses. Sugestões enviadas em [Suporte › Fale
 - **Duplicar item** no orçamento cria uma cópia logo abaixo, com as mesmas medidas e opções.
 - **Porta de correr 1 folha** em Orçamentos: calcule vidro, perfis e acessórios; escolha se inclui o Tubo 5x5cm.
 - **Conta própria para cada vidraçaria**, com teste grátis de 30 dias.
-- **Primeiros passos** no Início: o catálogo já vem com preços de exemplo, e o app mostra o que falta ajustar para a sua loja.
+- **Primeiros passos** no Início: os preços já vêm de exemplo, e o app mostra o que falta ajustar para a sua loja.
 - **Adicionais no PDF e no WhatsApp** mostram o valor de venda (com margem), não o custo.
 - **Condições de pagamento** em Configurações › Orçamento: um texto da loja que sai no PDF e no WhatsApp de todo orçamento.
 - **Fotos no orçamento** (só na loja): anexe até 10 fotos da obra, medidas ou anotações (galeria, câmera ou arquivos); abra em tela cheia, passe de uma para outra, pinça ou toque duplo para zoom; não saem na proposta ao cliente.
 - **PDF do orçamento:** emitido mostra só o número (sem a palavra “Emitido”); data e validade à direita; condições de pagamento na mesma linha do total.
 - **Emitir** avisa o que falta no orçamento (nome do cliente ou item) e leva direto até lá.
 - **Suporte**: fale com a gente pelo WhatsApp, mande sugestões, veja dicas de uso e as novidades do app.
-- **Tela de Início** com atalhos para orçamentos, catálogo e configurações.
+- **Tela de Início** com atalhos para orçamentos, preços e configurações.
 - O **botão voltar do celular** funciona dentro do app, e cada tela tem seu próprio endereço.
 - **Configurações › Conta** reúne os dados da loja, a escolha de receber novidades e ofertas, e a opção de excluir a conta.
 - **Mostrar senha** na tela de entrada.

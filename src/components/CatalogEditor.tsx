@@ -163,7 +163,7 @@ export function CatalogEditor({
       setMessage(
         confirmTab
           ? `Preços confirmados · versão ${next.config.version}`
-          : `Catálogo salvo · versão ${next.config.version}`,
+          : `Preços salvos · versão ${next.config.version}`,
       )
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -182,7 +182,7 @@ export function CatalogEditor({
   return (
     <div className="shell shell--wide shell--with-bar">
       <div className="sticky-head">
-        <AppHeader title="Catálogo" current="catalog" onNavigate={onNavigate} onBack={up} />
+        <AppHeader title="Preços" current="catalog" onNavigate={onNavigate} onBack={up} />
       </div>
 
       {nextStep}
@@ -200,7 +200,7 @@ export function CatalogEditor({
       <div className="catalog-toolbar">
         <Dropdown
           className="catalog-kind"
-          label="Tabela do catálogo"
+          label="Tabela de preços"
           value={tab}
           onChange={(next) => {
             onTabChange(next)

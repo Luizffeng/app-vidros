@@ -131,7 +131,7 @@ try {
   await firstPrice.fill('123,00')
   await firstPrice.blur()
   await page.getByRole('button', { name: 'Salvar', exact: true }).click()
-  await page.getByText(/Catálogo salvo/).waitFor()
+  await page.getByText(/Preços salvos/).waitFor()
   check('preço editado deixa de ser exemplo', !(await firstPrice.getAttribute('class')).includes('money-input--exemplo'))
   check('contador cai um', (await pendingCount()) === examplesBefore - 1)
 

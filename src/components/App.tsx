@@ -892,7 +892,7 @@ export function App() {
 
   if (route.screen === 'quotes') {
     return screen(
-      <div className="shell shell--wide shell--with-bar">
+      <div className="shell shell--wide shell--with-bar shell--quotes">
         <div className="sticky-head">
           <AppHeader title="Orçamentos" current="list" onNavigate={goSection} onBack={up} />
         </div>
@@ -901,26 +901,32 @@ export function App() {
         {notice && <Banner tone="warn">{notice}</Banner>}
 
         <section aria-label="Orçamentos">
-          {quotes.length > 0 && (
-            <div className="list-filters">
-              <SearchField
-                label="Buscar por código, cliente ou telefone"
-                value={listQuery}
-                onChange={setListQuery}
-              />
-              <Dropdown
-                className="list-status"
-                label="Filtrar por status"
-                value={listStatus}
-                onChange={setListStatus}
-                options={[
-                  { value: 'all', label: `Todos (${listGroups.all.length})` },
-                  { value: 'emitted', label: `Emitidos (${listGroups.emitted.length})` },
-                  { value: 'draft', label: `Rascunhos (${listGroups.draft.length})` },
-                ]}
-              />
-            </div>
-          )}
+          <div className="list-filters">
+            {quotes.length > 0 && (
+              <>
+                <SearchField
+                  label="Buscar por código, cliente ou telefone"
+                  value={listQuery}
+                  onChange={setListQuery}
+                />
+                <Dropdown
+                  className="list-status"
+                  label="Filtrar por status"
+                  value={listStatus}
+                  onChange={setListStatus}
+                  options={[
+                    { value: 'all', label: `Todos (${listGroups.all.length})` },
+                    { value: 'emitted', label: `Emitidos (${listGroups.emitted.length})` },
+                    { value: 'draft', label: `Rascunhos (${listGroups.draft.length})` },
+                  ]}
+                />
+              </>
+            )}
+            <button type="button" className="btn primary with-icon list-new" onClick={() => void openNew()}>
+              <PlusIcon />
+              Novo orçamento
+            </button>
+          </div>
           {quotes.length === 0 ? (
             <p className="muted">Nenhum orçamento ainda.</p>
           ) : filteredGroups.length === 0 ? (

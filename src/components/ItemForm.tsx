@@ -483,7 +483,7 @@ function MissingPriceCard({
   )
   const catalogButton = (
     <button type="button" className="btn" disabled={busy} onClick={onOpenCatalog}>
-      Ir para Catálogo
+      Ir para Preços
     </button>
   )
   const editor = (place: 'inline' | 'modal') => (
@@ -530,7 +530,7 @@ function MissingPriceCard({
               )}
               {!missing.canPrice && (
                 <button type="button" className="btn" onClick={onOpenCatalog}>
-                  Ir para Catálogo
+                  Ir para Preços
                 </button>
               )}
             </div>

@@ -157,8 +157,8 @@ async function screens(page, quoteUrl) {
   ok('voltar da lista vai ao Início')
 
   await page.getByRole('button', { name: 'Menu' }).click()
-  await page.getByRole('menuitem', { name: 'Catálogo' }).click()
-  await heading(page, 'Catálogo')
+  await page.getByRole('menuitem', { name: 'Preços' }).click()
+  await heading(page, 'Preços')
   check('catálogo tem endereço', path(page) === '/catalogo/vidros', path(page))
   await pick(page, 'Tabela do catálogo', 'Alumínios')
   await page.waitForTimeout(300)

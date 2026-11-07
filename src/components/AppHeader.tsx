@@ -120,7 +120,7 @@ export function HeaderMenu({
     entries.push(
       {
         id: 'catalog',
-        label: 'Catálogo',
+        label: 'Preços',
         icon: <CatalogIcon />,
         current: current === 'catalog',
         onSelect: () => onNavigate('catalog'),

@@ -25,7 +25,7 @@ export const DEFAULT_BANNERS: Banner[] = [
   },
   {
     id: 'catalogo',
-    title: 'Seus preços, seu catálogo',
+    title: 'Seus preços',
     text: 'Atualize vidros, kits e alumínios; os rascunhos avisam quando algo muda.',
     action: { route: { screen: 'catalog', tab: 'vidros' } },
   },

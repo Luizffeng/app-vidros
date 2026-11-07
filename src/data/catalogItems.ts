@@ -45,7 +45,7 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 }
 
 function requireArray(v: unknown, label: string): unknown[] {
-  if (!Array.isArray(v)) throw new Error(`Catálogo inválido: ${label} deve ser lista.`)
+  if (!Array.isArray(v)) throw new Error(`Arquivo inválido: ${label} deve ser lista.`)
   return v
 }
 
@@ -60,7 +60,7 @@ function assertRowsHaveIdAndCodigo(
 
 /** Valida JSON importado e devolve Catalog normalizado */
 export function parseImportedCatalog(raw: unknown): Catalog {
-  if (!isRecord(raw)) throw new Error('JSON inválido: esperado objeto do catálogo.')
+  if (!isRecord(raw)) throw new Error('JSON inválido: esperado objeto de preços.')
   if (!isRecord(raw.config)) throw new Error('JSON inválido: falta config.')
 
   const catalog: Catalog = {
