@@ -121,7 +121,7 @@ async function main() {
       ['Mão de obra / margem', 'Mão de obra'],
       ['Vidros', 'Vidros'],
     ]) {
-      await pick(page, 'Tabela do catálogo', table)
+      await pick(page, 'Tabela de preços', table)
       await page.getByRole('heading', { name: heading, level: 2, exact: true }).waitFor()
       ok(`tabela ${table}`)
     }

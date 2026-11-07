@@ -400,9 +400,13 @@ function seedFromInput(
 }
 
 function headlineLines(headline: string): [string, string] {
-  const cut = ' no catálogo!'
-  if (headline.endsWith(cut)) return [headline.slice(0, -cut.length), 'no catálogo!']
-  return [headline, '']
+  const cut = headline.endsWith(' sem preço cadastrado!')
+    ? ' sem preço cadastrado!'
+    : headline.endsWith(' não cadastrado!')
+      ? ' não cadastrado!'
+      : ''
+  if (!cut) return [headline, '']
+  return [headline.slice(0, -cut.length), cut.trim()]
 }
 
 function scrollFormToTop(from: HTMLElement | null) {

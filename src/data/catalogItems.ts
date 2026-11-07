@@ -87,7 +87,7 @@ export function downloadCatalogJson(catalog: Catalog, filename?: string) {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = filename ?? `app-vidros-catalogo-${catalog.config.version}.json`
+  a.download = filename ?? `app-vidros-precos-${catalog.config.version}.json`
   a.click()
   URL.revokeObjectURL(url)
 }

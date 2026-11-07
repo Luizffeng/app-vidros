@@ -40,7 +40,7 @@ export function DeleteAccount() {
       {confirming && (
         <Modal className="modal--notice modal--danger" title="Excluir conta e dados?" onClose={close}>
           <p>
-            Apaga a conta, os orçamentos, o catálogo, o logo e o seu login. <strong>Não dá para desfazer.</strong>
+            Apaga a conta, os orçamentos, os preços, o logo e o seu login. <strong>Não dá para desfazer.</strong>
           </p>
           <p>Se quiser guardar algum orçamento, baixe o PDF antes.</p>
           <label className="delete-account__confirm">

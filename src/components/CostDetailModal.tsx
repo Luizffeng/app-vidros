@@ -131,7 +131,7 @@ export function CostDetailModal({
             </button>
           }
         >
-          Este item foi calculado com preços antigos do catálogo. Para editar, atualize o item com o catálogo atual.
+          Este item foi calculado com preços antigos. Para editar, atualize o item com os preços atuais.
         </Banner>
       )}
 
@@ -207,7 +207,7 @@ export function CostDetailModal({
                         <button
                           type="button"
                           className="cost-line__alert"
-                          aria-label="Mudou no catálogo"
+                          aria-label="Mudou nos preços"
                           aria-expanded={alertKey === key}
                           onClick={() => setAlertKey((k) => (k === key ? null : key))}
                         >
@@ -264,12 +264,12 @@ export function CostDetailModal({
                         </button>
                       }
                     >
-                      {line.laborKey ? 'Taxa' : 'Preço'} atualizado no catálogo: agora{' '}
+                      {line.laborKey ? 'Taxa' : 'Preço'} atualizado: agora{' '}
                       <strong>{unitPrice(line, line.catalogNow)}</strong> (neste item {unitPrice(line)}).
                     </Banner>
                   )}
                   {canEdit && line.blockedReason === 'inactive' && (
-                    <p className="cost-line__hint">Código desativado no catálogo.</p>
+                    <p className="cost-line__hint">Código desativado.</p>
                   )}
                   {canEdit && line.overridden && !isEditing && (
                     <button
@@ -278,11 +278,11 @@ export function CostDetailModal({
                       disabled={busy}
                       onClick={() =>
                         void (line.laborKey
-                          ? run(() => onSetLaborRate(null), 'Taxa do catálogo restaurada.')
-                          : run(() => onSetOverride(line.source!, null), 'Preço do catálogo restaurado.'))
+                          ? run(() => onSetLaborRate(null), 'Taxa cadastrada restaurada.')
+                          : run(() => onSetOverride(line.source!, null), 'Preço cadastrado restaurado.'))
                       }
                     >
-                      {line.laborKey ? 'Voltar à taxa do catálogo' : 'Voltar ao preço do catálogo'}
+                      {line.laborKey ? 'Voltar à taxa cadastrada' : 'Voltar ao preço cadastrado'}
                     </button>
                   )}
 
@@ -323,7 +323,7 @@ export function CostDetailModal({
                           disabled={busy || value == null}
                           onClick={() => setConfirmCatalog(true)}
                         >
-                          Atualizar no catálogo
+                          Atualizar nos preços
                         </button>
                         <button
                           type="button"
@@ -343,7 +343,7 @@ export function CostDetailModal({
                         block
                         alert
                         busy={busy}
-                        label="Confirmar preço no catálogo"
+                        label="Confirmar preço"
                         message={
                           <>
                             {line.laborKey

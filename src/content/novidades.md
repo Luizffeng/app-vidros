@@ -5,13 +5,14 @@ O que entrou no app nos últimos meses. Sugestões enviadas em [Suporte › Fale
 ## Novembro de 2026
 
 - **Novo orçamento** no computador fica à direita do filtro, no topo da lista. No celular continua na barra de baixo.
-- **Preços** é o nome da tela de vidros, kits, ferragens e alumínios (Início, menu e título).
-- **Vidro, kit, acessório ou alumínio sem preço** no item: o app avisa, deixa inserir o valor na hora ou abrir Preços na linha certa.
+- **Preços** é a tela de vidros, kits, ferragens e alumínios (Início, menu e título). O endereço usa a palavra preços.
+- **Vidro, kit, acessório ou alumínio sem preço** no item: o app avisa "sem preço cadastrado", deixa inserir o valor na hora ou abrir Preços na linha certa.
 - **Avisos de sucesso** (valores atualizados, preços salvos e afins) fecham com um X.
 - **Item novo ou duplicado** pisca a borda uma vez para mostrar onde entrou.
 - **AppVidros** no topo de cada tela volta para o Início.
 - **Mostrar os primeiros passos de novo** em Suporte › Dicas traz o card de volta no Início. O que já está feito continua feito.
 - **Atalhos do Início** com o título sempre no mesmo lugar, logo abaixo do ícone.
+- **Ícone do AppVidros** na aba do navegador e na tela do celular.
 
 ## Outubro de 2026
 

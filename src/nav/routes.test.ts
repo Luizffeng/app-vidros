@@ -34,9 +34,9 @@ describe('routes', () => {
   })
 
   it('uses Portuguese slugs', () => {
-    expect(formatRoute({ screen: 'catalog', tab: 'kitBox' })).toBe('/catalogo/kit-box')
+    expect(formatRoute({ screen: 'catalog', tab: 'kitBox' })).toBe('/precos/kit-box')
     expect(formatRoute({ screen: 'catalog', tab: 'vidros', q: 'VEBPra04', line: 12 })).toBe(
-      '/catalogo/vidros?busca=VEBPra04&linha=12',
+      '/precos/vidros?busca=VEBPra04&linha=12',
     )
     expect(formatRoute({ screen: 'settings', tab: 'account' })).toBe('/configuracoes/conta')
     expect(formatRoute({ screen: 'quotes', filter: 'draft' })).toBe('/orcamentos?filtro=rascunhos')
@@ -48,8 +48,9 @@ describe('routes', () => {
   })
 
   it('falls back to the first tab and to home', () => {
-    expect(parseRoute('/catalogo')).toEqual({ screen: 'catalog', tab: 'vidros' })
-    expect(parseRoute('/catalogo/xyz')).toEqual({ screen: 'catalog', tab: 'vidros' })
+    expect(parseRoute('/precos')).toEqual({ screen: 'catalog', tab: 'vidros' })
+    expect(parseRoute('/precos/xyz')).toEqual({ screen: 'catalog', tab: 'vidros' })
+    expect(parseRoute('/catalogo/aluminios')).toEqual({ screen: 'catalog', tab: 'aluminios' })
     expect(parseRoute('/configuracoes/')).toEqual({ screen: 'settings', tab: 'account' })
     expect(parseRoute('/configuracoes/cadastro')).toEqual({ screen: 'settings', tab: 'account' })
     expect(parseRoute('/suporte')).toEqual({ screen: 'help', tab: 'contact' })
@@ -62,7 +63,7 @@ describe('routes', () => {
 
   it('ignores unknown filter and blank search', () => {
     expect(parseRoute('/orcamentos', '?filtro=todos&busca=%20')).toEqual({ screen: 'quotes' })
-    expect(parseRoute('/catalogo/vidros', '?busca=%20&linha=x')).toEqual({
+    expect(parseRoute('/precos/vidros', '?busca=%20&linha=x')).toEqual({
       screen: 'catalog',
       tab: 'vidros',
     })

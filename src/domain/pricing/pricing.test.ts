@@ -355,7 +355,7 @@ describe('inactive catalog items', () => {
       expect(err.id).toBe(row!.id)
       expect(err.canPrice).toBe(true)
       expect(err.table).toBe('vidros')
-      expect(err.headline).toBe('Vidro sem preço no catálogo!')
+      expect(err.headline).toBe('Vidro sem preço cadastrado!')
       expect(err.code).toBe(row!.codigo)
       expect(err.message).toMatch(/Vidro sem preço/)
     }
@@ -370,7 +370,7 @@ describe('inactive catalog items', () => {
       const err = e as MissingPriceError
       expect(err.canPrice).toBe(false)
       expect(err.table).toBe('acessorios')
-      expect(err.headline).toBe('Acessório não encontrado no catálogo!')
+      expect(err.headline).toBe('Acessório não cadastrado!')
       expect(err.message).toMatch(/Acessório não encontrado/)
     }
   })

@@ -21,7 +21,7 @@ import { Modal } from './Modal'
 import { SearchField } from './SearchField'
 import { Section } from './Section'
 
-const DISCARD_MESSAGE = 'Descartar as alterações não salvas do catálogo?'
+const DISCARD_MESSAGE = 'Descartar as alterações não salvas dos preços?'
 
 const TABS: { value: CatalogTab; label: string }[] = [
   { value: 'vidros', label: 'Vidros' },

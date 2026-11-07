@@ -35,7 +35,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 - [ ] `feat` (M) **Reconquista após o teste:** quem não assina depois dos 30 dias e consentiu recebe oferta pelo WhatsApp (ex.: 50% nos 3 primeiros meses, ou primeiro mês por R$ 1,99 com assinatura no cartão). Depende da fase 2 (cartão) e do painel do provedor. Ordem dos contatos: primeiro um lembrete de valor sem falar de pagamento (ex.: orçamentos prestes a vencer), depois a assinatura, por fim o desconto. A longo prazo, CRM com régua de contato (ativação no teste, vencimento, reconquista)
 - [ ] `feat` (P) **Alterar senha em Configurações › Conta:** quem entrou com e-mail/senha troca a senha logado (`updateUser`), sem o link de "Esqueci a senha". Fora do escopo do convite; entra depois do SMTP/convite do tester. Pedido 2026-10-29
 - [ ] `feat` (M) **Autônomo: nome da pessoa, não "loja" (precisa de spec curta):** no cadastro/"Sua vidraçaria" e nos Primeiros passos, quem trabalha sozinho informa o próprio nome (e WhatsApp); PDF, WhatsApp e textos do app usam esse nome no lugar de "vidraçaria/loja". Hoje `marginMode: autonomo` só muda preço (sem margem); o rótulo e o `establishment.name` ainda falam loja. Decidir: escolha explícita no setup (loja vs autônomo) vs inferir do modo de margem; se logo/endereço ficam opcionais. Pedido 2026-11-03
-- [ ] `feat` (M) **Primeiros passos: instalar no celular (PWA):** último passo opcional do onboarding ensina a instalar o AppVidros pelo Chrome (Adicionar à tela inicial / Instalar app), para abrir sem a barra do navegador. Liga com a task **PWA** (manifest, ícone, `display`); o passo de UI pode sair antes do offline completo. Pedido 2026-11-03
+- [ ] `feat` (M) **Atalho na tela do celular (sem loja):** passo no app (Primeiros passos ou Suporte › Dicas) ensina a abrir o AppVidros direto, sem a barra do navegador e sem Play Store nem App Store. Android, no Chrome: "Instalar app" ou "Adicionar à tela inicial". iPhone: também dá, só pelo Safari (Compartilhar → Adicionar à Tela de Início); o Chrome do iPhone não instala. Manifest mínimo (`name`, ícone, `display: standalone`, `start_url`) para o atalho abrir em tela cheia. Offline continua na task **PWA** (Later). Ícone: quadrado verde-escuro com AV dourado, o mesmo do favicon. Pedido 2026-11-03 e 2026-11-06
 - [ ] `docs` (P) **E-mails de segurança (Supabase Auth):** ligar e brandear as notificações Security (hoje todas off): senha alterada, e-mail alterado, telefone alterado, método de entrada ligado/removido, MFA adicionado/removido. Templates no painel Auth, cara AppVidros. Pedido 2026-11-03
 - [ ] `docs` (P) **Outros templates de Auth:** além de Invite e Reset, brandear Confirm sign up, Magic link/OTP, Change email, Reauthentication (lista Authentication → Emails → Templates). Confirm sign up só importa se "Confirm email" ligar. Pedido 2026-11-03
 - [ ] `docs` (M) **Caixas corporativas AppVidros:** endereços no domínio `appvidros.app` (ex.: `suporte@`, `financeiro@`, `novidades@`, `noreply@` já via Resend em `mail.appvidros.app`, interno). Decidir provedor (Google Workspace, Cloudflare Email Routing + caixa, etc.), quem lê cada uma, e o que vai no rodapé/legal/CNPJ. Pedido 2026-11-03; liga com Abrir cadastro / CNPJ
@@ -46,7 +46,6 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Blocked
 
-- [ ] `ui` (P) **Favicon com AV:** a aba ainda usa o ícone roxo padrão (`public/favicon.svg`). Logo final em aberto; escolher uma ideia antes de trocar. (1) quadrado verde-escuro com AV dourado. (2) AV dourado com um traço de vidro no V. (3) pastilha redonda dourada com AV escuro. (4) só o monograma AV, sem moldura, para a aba pequena. O PWA reusa o mesmo desenho. Pedido 2026-11-06
 - [ ] `docs` (P) **Abrir cadastro em produção (spec 007):** aguarda CNPJ (razão social, endereço), número de WhatsApp da empresa e revisão jurídica dos rascunhos em [src/content/legal/](src/content/legal/). Dono também vai registrar a marca AppVidros no INPI. O desenvolvimento das entregas 1–4 não depende disso (Supabase local). Ao ligar o cadastro, `otp_expiry` volta para 3600 (1 hora); o convite fechado usa 24 h só enquanto o cadastro estiver desligado. Decisão 2026-10-29
 
 ## Later
@@ -72,8 +71,9 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ### 2026-11-06
 
-- [x] `ui` **Tela Preços:** menu, Início e título saem de Catálogo. O endereço continua `/catalogo`. Item sem preço abre "Ir para Preços"
+- [x] `ui` **Tela Preços:** menu, Início, título e endereço `/precos`. O antigo `/catalogo` ainda abre e a barra troca. Avisos falam "sem preço cadastrado"
 - [x] `ui` **Novo orçamento no computador:** à direita do filtro, no topo da lista. No celular segue na barra de baixo
+- [x] `ui` **Ícone AV:** a imagem dourada no verde é o favicon da aba e o ícone do atalho no celular
 - [x] `docs` **Backlog:** fase 1 do SaaS saiu de Now (entregas e virada já estavam em Done). Tela de novidades saiu de Later (já existe em Suporte › Novidades)
 
 ### 2026-11-03

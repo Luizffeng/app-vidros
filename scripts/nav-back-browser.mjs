@@ -159,13 +159,13 @@ async function screens(page, quoteUrl) {
   await page.getByRole('button', { name: 'Menu' }).click()
   await page.getByRole('menuitem', { name: 'Preços' }).click()
   await heading(page, 'Preços')
-  check('catálogo tem endereço', path(page) === '/catalogo/vidros', path(page))
-  await pick(page, 'Tabela do catálogo', 'Alumínios')
+  check('preços tem endereço', path(page) === '/precos/vidros', path(page))
+  await pick(page, 'Tabela de preços', 'Alumínios')
   await page.waitForTimeout(300)
-  check('aba do catálogo no endereço', path(page) === '/catalogo/aluminios', path(page))
+  check('aba de preços no endereço', path(page) === '/precos/aluminios', path(page))
   await page.reload({ waitUntil: 'networkidle' })
   await page.getByRole('heading', { name: 'Alumínios', level: 2, exact: true }).waitFor()
-  ok('recarregar mantém a tabela do catálogo')
+  ok('recarregar mantém a tabela de preços')
 
   const money = page.locator('.catalog-table .money-input').first()
   await money.fill('7,77')
@@ -175,11 +175,11 @@ async function screens(page, quoteUrl) {
   await discard.waitFor()
   check(
     'alteração não salva pergunta antes de sair',
-    (await discard.getByText('Descartar as alterações não salvas do catálogo?').count()) === 1,
+    (await discard.getByText('Descartar as alterações não salvas dos preços?').count()) === 1,
   )
   await discard.getByRole('button', { name: 'Não' }).click()
   await discard.waitFor({ state: 'detached' })
-  check('cancelar fica no catálogo', path(page) === '/catalogo/aluminios', path(page))
+  check('cancelar fica em preços', path(page) === '/precos/aluminios', path(page))
   check('cancelar mantém o valor', (await money.inputValue()) === '7,77')
   await back(page)
   await discard.waitFor()

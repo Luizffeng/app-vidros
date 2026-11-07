@@ -10,7 +10,7 @@ Ao criar uma conta, você ("Usuário", "você") declara que leu, entendeu e acei
 
 ## 1. O que é o AppVidros
 
-1.1. O AppVidros é uma ferramenta online para montar, calcular, emitir e compartilhar orçamentos de serviços de vidraçaria, com catálogo de preços, configurações da loja e geração de PDF.
+1.1. O AppVidros é uma ferramenta online para montar, calcular, emitir e compartilhar orçamentos de serviços de vidraçaria, com os preços e as configurações da loja e geração de PDF.
 
 1.2. O AppVidros é uma **ferramenta de apoio**. Os preços, medidas, margens e condições dos orçamentos são definidos pelo Usuário, que é o único responsável pelo que oferece aos próprios clientes.
 
@@ -28,7 +28,7 @@ Ao criar uma conta, você ("Usuário", "você") declara que leu, entendeu e acei
 
 3.1. Toda conta nova tem um **teste grátis de 30 (trinta) dias**, com todos os recursos, sem necessidade de cartão de crédito.
 
-3.2. Ao fim do teste, sem assinatura ativa, a conta passa para o **modo consulta**: você continua vendo, baixando e reenviando os orçamentos já feitos, mas não pode criar, editar ou emitir orçamentos nem alterar catálogo e configurações até assinar.
+3.2. Ao fim do teste, sem assinatura ativa, a conta passa para o **modo consulta**: você continua vendo, baixando e reenviando os orçamentos já feitos, mas não pode criar, editar ou emitir orçamentos nem alterar preços e configurações até assinar.
 
 3.3. Podemos, a nosso critério, estender o teste de uma conta.
 
@@ -55,7 +55,7 @@ d) revender ou sublicenciar o AppVidros sem autorização por escrito.
 
 ## 6. Seus dados e os dados dos seus clientes
 
-6.1. Os orçamentos, catálogos, logos e dados que você cadastra pertencem a você.
+6.1. Os orçamentos, preços, logos e dados que você cadastra pertencem a você.
 
 6.2. Os dados pessoais dos **seus clientes** (nome, endereço, telefone) que você insere nos orçamentos são tratados por você, como **controlador**, e pelo AppVidros, como **operador**, somente para prestar o serviço, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018). Você é responsável por ter base legal para usar esses dados e por atender os pedidos dos seus clientes sobre eles.
 

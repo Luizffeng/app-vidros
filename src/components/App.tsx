@@ -1099,9 +1099,9 @@ export function App() {
           }
         >
           {outdated.catalog && outdated.margin ? (
-            <>O <strong>catálogo</strong> e o <strong>cálculo de margem</strong> mudaram{since}.</>
+            <>Os <strong>preços</strong> e o <strong>cálculo de margem</strong> mudaram{since}.</>
           ) : outdated.catalog ? (
-            <>O <strong>catálogo</strong> foi atualizado{since}.</>
+            <>Os <strong>preços</strong> foram atualizados{since}.</>
           ) : (
             <>O <strong>cálculo de margem</strong> mudou{since}.</>
           )}
@@ -1459,7 +1459,7 @@ export function App() {
                   tone="primary"
                   label="Preços de exemplo"
                   message={`Este orçamento usa preços de exemplo (${emitExamples ? exampleNames(emitExamples) : ''}). ${
-                    isAdmin ? 'Revisar antes de emitir?' : 'Avise quem cuida do catálogo.'
+                    isAdmin ? 'Revisar antes de emitir?' : 'Avise quem cuida dos preços.'
                   }`}
                   yesLabel={isAdmin ? 'Revisar' : 'Emitir assim'}
                   noLabel={isAdmin ? 'Emitir assim' : 'Cancelar'}

@@ -92,7 +92,7 @@ export function findVidro(
     id: row?.id ?? null,
     code: row?.codigo || tipo,
     label,
-    headline: 'Vidro sem preço no catálogo!',
+    headline: 'Vidro sem preço cadastrado!',
     unit: 'R$/m²',
     canPrice: Boolean(active && active.valorM2 == null),
     inactive: Boolean(row && !isCatalogItemActive(row)),
@@ -111,8 +111,8 @@ export function findAcessorio(catalog: Catalog, codigo: string) {
     code: row?.codigo || codigo,
     label: row?.descricao || codigo,
     headline: missingPrice
-      ? 'Acessório sem preço no catálogo!'
-      : 'Acessório não encontrado no catálogo!',
+      ? 'Acessório sem preço cadastrado!'
+      : 'Acessório não cadastrado!',
     unit: 'Valor (R$)',
     canPrice: missingPrice,
     inactive: Boolean(row && !isCatalogItemActive(row)),
@@ -131,8 +131,8 @@ export function findAluminio(catalog: Catalog, codigo: string) {
     code: row?.codigo || codigo,
     label: row?.descricao || codigo,
     headline: missingPrice
-      ? 'Alumínio sem preço no catálogo!'
-      : 'Alumínio não encontrado no catálogo!',
+      ? 'Alumínio sem preço cadastrado!'
+      : 'Alumínio não cadastrado!',
     unit: 'R$/barra',
     canPrice: missingPrice,
     inactive: Boolean(row && !isCatalogItemActive(row)),
@@ -159,7 +159,7 @@ export function findKitBox(catalog: Catalog, cor: string, tamanhoCm: number) {
     id: row?.id ?? null,
     code: row?.codigo || cor,
     label: `${cor} - ${tamanhoCm} cm`,
-    headline: 'Kit sem preço no catálogo!',
+    headline: 'Kit sem preço cadastrado!',
     unit: 'Valor (R$)',
     canPrice: Boolean(match && match.valor == null),
     inactive: Boolean(row && !isCatalogItemActive(row)),

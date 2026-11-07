@@ -15,7 +15,7 @@ Poucos acessos por instalação. Hoje sem cadastro público e sem multi-empresa.
 - Rascunho pode ser excluído; emitido não
 - PDF para o cliente (sem medidas internas, custo ou margem), com logo e validade
 - Envio pelo WhatsApp com prévia editável e botão de copiar
-- Catálogo editável (vidros, kit box, acessórios, alumínios, config) com export/import JSON
+- Preços editáveis (vidros, kit box, acessórios, alumínios, config) com export/import JSON
 - Configurações: validade, dados do estabelecimento e logo
 
 ## Stack
@@ -37,7 +37,7 @@ Login por e-mail e senha (Supabase Auth). Cadastro público desligado; usuários
 | `admin` | Orçamentos, catálogo, configurações e logo |
 | `vendedor` | Orçamentos; lê catálogo e configurações |
 
-A trava real é o RLS no Postgres (`supabase/migrations/20260924120000_init.sql`). A UI só esconde Catálogo e Configurações de quem é vendedor.
+A trava real é o RLS no Postgres (`supabase/migrations/20260924120000_init.sql`). A UI só esconde Preços e Configurações de quem é vendedor.
 
 ## Desenvolvimento
 
@@ -86,7 +86,7 @@ Exclude vale primeiro. Se sobrar arquivo do app, o build roda. Essa lista fica n
 
 ## Dados
 
-Catálogo inicial em `src/data/seed/` (exportado da planilha de exemplo). No Supabase, a primeira leitura grava o seed na tabela `catalog`; depois, edições pela tela Catálogo. Orçamentos locais (IndexedDB) não migram sozinhos para o remoto.
+Preços iniciais em `src/data/seed/` (exportado da planilha de exemplo). No Supabase, a primeira leitura grava o seed na tabela `catalog`; depois, edições pela tela Preços. Orçamentos locais (IndexedDB) não migram sozinhos para o remoto.
 
 ## Backlog e specs
 

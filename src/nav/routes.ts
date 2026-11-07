@@ -76,7 +76,9 @@ export function parseRoute(pathname: string, search = ''): Route {
       if (q) route.q = q
       return route
     }
+    case 'precos':
     case 'catalogo': {
+      // catalogo: old links (the screen was Catálogo until 2026-11-06)
       const route: Route = { screen: 'catalog', tab: fromSlug(CATALOG_SLUGS, parts[1]) ?? 'vidros' }
       const q = params.get('busca')?.trim()
       const lineRaw = params.get('linha')
@@ -120,7 +122,7 @@ export function formatRoute(route: Route): string {
       if (route.line != null) params.set('linha', String(route.line))
       if (route.inactive) params.set('situacao', 'todos')
       const query = params.toString()
-      const path = `/catalogo/${CATALOG_SLUGS[route.tab]}`
+      const path = `/precos/${CATALOG_SLUGS[route.tab]}`
       return query ? `${path}?${query}` : path
     }
     case 'settings':
