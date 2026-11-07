@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from '
 import type { ItemFormState } from '../data/itemDraft'
 import { isCatalogItemActive } from '../domain/catalogActive'
 import { marginLabel } from '../domain/itemDescription'
-import { MissingPriceError, priceItem } from '../domain/pricing'
+import { MissingPriceError, priceItemPreview, type CostGroup } from '../domain/pricing'
 import { formatBrl } from '../domain/quote'
 import type {
   Catalog,
@@ -24,6 +24,8 @@ import { CostDetailModal } from './CostDetailModal'
 import { DropdownField, type DropdownOption } from './Dropdown'
 import { missingPriceUi } from './missingPriceUi'
 import { Modal } from './Modal'
+
+const EMPTY_ZEROED: ReadonlySet<CostGroup> = new Set()
 
 const CORRER_SUBTYPES: DropdownOption<CorrerSubtype>[] = [
   { value: 'J2F', label: 'Janela 2 folhas (J2F)' },
@@ -399,16 +401,6 @@ function seedFromInput(
   }
 }
 
-function headlineLines(headline: string): [string, string] {
-  const cut = headline.endsWith(' sem preço cadastrado!')
-    ? ' sem preço cadastrado!'
-    : headline.endsWith(' não cadastrado!')
-      ? ' não cadastrado!'
-      : ''
-  if (!cut) return [headline, '']
-  return [headline.slice(0, -cut.length), cut.trim()]
-}
-
 function scrollFormToTop(from: HTMLElement | null) {
   if (!from) return
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -463,7 +455,6 @@ function MissingPriceCard({
     }
   }
 
-  const [titleLine, titleRest] = headlineLines(missing.headline)
   const field = (
     <label>
       {missing.unit}
@@ -517,28 +508,20 @@ function MissingPriceCard({
       <div className="item-form__alert">
         <Banner ref={bannerRef} tone="error" className="banner--missing banner--attention">
           <div className="missing-price">
-            <div className="missing-price__lead">
-              <span className="missing-price__title">
-                {titleLine}
-                {titleRest && (
-                  <>
-                    <br />
-                    {titleRest}
-                  </>
-                )}
-              </span>
-              {missing.canPrice && !open && (
-                <button type="button" className="btn" aria-label="Inserir preço" onClick={() => setOpen(true)}>
-                  Inserir
-                </button>
-              )}
-              {!missing.canPrice && (
-                <button type="button" className="btn" onClick={onOpenCatalog}>
-                  Ir para Preços
-                </button>
-              )}
+            <div className="missing-price__copy">
+              <span className="missing-price__title">{missing.headline}</span>
+              <p className="missing-price__which">{missing.label}</p>
             </div>
-            <p className="missing-price__which">{missing.label}</p>
+            {missing.canPrice && !open && (
+              <button type="button" className="btn" aria-label="Inserir preço" onClick={() => setOpen(true)}>
+                Inserir
+              </button>
+            )}
+            {!missing.canPrice && (
+              <button type="button" className="btn" onClick={onOpenCatalog}>
+                Ir para Preços
+              </button>
+            )}
             {ui === 'inline' && open && editor('inline')}
           </div>
         </Banner>
@@ -764,11 +747,22 @@ export function ItemForm({
     if (!raw) return cached()
     try {
       const input = withLaborRate(raw, laborRate)
-      const result = priceItem(catalog, input, marginMode)
-      previewCache.current = { ok: true, kind, input, result }
-      return previewCache.current
+      const preview = priceItemPreview(catalog, input, marginMode)
+      if (!preview.missing) {
+        previewCache.current = { ok: true, kind, input, result: preview.result }
+        return previewCache.current
+      }
+      return {
+        ok: false as const,
+        missing: preview.missing,
+        input,
+        result: preview.result,
+        zeroed: preview.zeroed,
+      }
     } catch (e) {
-      if (e instanceof MissingPriceError) return { ok: false as const, missing: e }
+      if (e instanceof MissingPriceError) {
+        return { ok: false as const, missing: e, result: null, zeroed: EMPTY_ZEROED }
+      }
       return cached()
     }
   }, [
@@ -788,8 +782,10 @@ export function ItemForm({
     espelhoColor,
     espelhoThickness,
   ])
-  const preview = priced?.ok ? priced.result : null
+  const preview = priced?.ok ? priced.result : (priced?.result ?? null)
   const missing = priced && !priced.ok ? priced.missing : null
+  const zeroed = priced && !priced.ok ? priced.zeroed : EMPTY_ZEROED
+  const missingRow = (group: CostGroup) => (zeroed.has(group) ? 'breakdown__missing' : undefined)
 
   const replayMissing = () => {
     scrollFormToTop(alertRef.current)
@@ -1224,23 +1220,23 @@ export function ItemForm({
             <strong>{formatBrl(preview.breakdown.finalPrice)}</strong>
           </div>
           <ul className="breakdown">
-            <li>
+            <li className={missingRow('labor')}>
               <span>Mão de obra</span>
               <span>{formatBrl(preview.breakdown.labor)}</span>
             </li>
-            <li>
+            <li className={missingRow('glass')}>
               <span>Vidros</span>
               <span>{formatBrl(preview.breakdown.glass)}</span>
             </li>
-            <li>
+            <li className={missingRow('aluminum')}>
               <span>Alumínios</span>
               <span>{formatBrl(preview.breakdown.aluminum)}</span>
             </li>
-            <li>
+            <li className={missingRow('hardware')}>
               <span>Ferragens</span>
               <span>{formatBrl(preview.breakdown.hardware)}</span>
             </li>
-            <li>
+            <li className={missingRow('accessories')}>
               <span>Acessórios</span>
               <span>{formatBrl(preview.breakdown.accessories)}</span>
             </li>
@@ -1269,7 +1265,12 @@ export function ItemForm({
             )}
           </ul>
           {costDetail && kind !== 'custom' && (
-            <button type="button" className="item-block__cost-btn" onClick={() => setCostOpen(true)}>
+            <button
+              type="button"
+              className="item-block__cost-btn"
+              disabled={Boolean(missing)}
+              onClick={() => setCostOpen(true)}
+            >
               Detalhes do custo
             </button>
           )}

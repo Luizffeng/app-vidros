@@ -4,9 +4,10 @@ O que entrou no app nos últimos meses. Sugestões enviadas em [Suporte › Fale
 
 ## Novembro de 2026
 
+- **Vidro fixo de 6 mm e 8 mm** leva o perfil AL 66 em volta: duas larguras e duas alturas, arredondadas de 500 em 500 mm.
 - **Novo orçamento** no computador fica à direita do filtro, no topo da lista. No celular continua na barra de baixo.
 - **Preços** é a tela de vidros, kits, ferragens e alumínios (Início, menu e título). O endereço usa a palavra preços.
-- **Vidro, kit, acessório ou alumínio sem preço** no item: o app avisa "sem preço cadastrado", deixa inserir o valor na hora ou abrir Preços na linha certa.
+- **Vidro, kit, acessório ou alumínio sem preço** no item: o aviso fica numa linha, com Inserir embaixo. A lista de custo continua na tela e a linha sem preço aparece em vermelho, zerada.
 - **Avisos de sucesso** (valores atualizados, preços salvos e afins) fecham com um X.
 - **Item novo ou duplicado** pisca a borda uma vez para mostrar onde entrou.
 - **AppVidros** no topo de cada tela volta para o Início.

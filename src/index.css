@@ -2445,6 +2445,11 @@ button.item-block__head:hover {
   color: rgba(232, 240, 234, 0.92);
 }
 
+.breakdown li.breakdown__missing,
+.breakdown li.breakdown__missing span {
+  color: var(--danger);
+}
+
 .item-form {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
@@ -3228,6 +3233,7 @@ button.item-block__head:hover {
   background: rgba(220, 24, 24, 0.34);
   border-color: #ff3b3b;
   color: #fff;
+  padding-block: 0.4rem;
 }
 
 /* Missing-price (and same-kind) alerts: horizontal shake, not edge pulse. */
@@ -3235,32 +3241,38 @@ button.item-block__head:hover {
   position: relative;
 }
 
-.missing-price__lead {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
+.missing-price {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  column-gap: 0.35rem;
+}
+
+.missing-price__copy {
+  min-width: 0;
 }
 
 .missing-price__title {
-  flex: 1 1 auto;
-  min-width: 0;
+  display: block;
   font-weight: 600;
-  line-height: 1.25;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
-.missing-price__lead > .btn {
-  flex: none;
-  margin-left: auto;
+.banner--missing .missing-price > .btn {
+  padding-inline: 0.4rem;
 }
 
 .missing-price__which {
-  margin: 0.2rem 0 0;
+  margin: 0.12rem 0 0;
   font-size: 0.8rem;
+  line-height: 1.2;
   color: rgba(255, 236, 236, 0.92);
 }
 
 .missing-price__editor {
   display: grid;
+  grid-column: 1 / -1;
   gap: 0.45rem;
   margin-top: 0.55rem;
 }

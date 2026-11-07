@@ -15,6 +15,7 @@ import {
   priceEspelho,
   priceFixo,
   priceItem,
+  priceItemPreview,
   priceMaxiar,
   pricePivotante,
 } from './index'
@@ -269,8 +270,33 @@ describe('pricing parity with spreadsheet examples', () => {
     expect(r.breakdown.glass).toBeCloseTo(34.875, 3)
     expect(r.breakdown.labor).toBeCloseTo(9, 2)
     expect(r.breakdown.accessories).toBeCloseTo(20, 2)
-    expect(r.breakdown.finalPrice).toBeCloseTo(83.0375, 3)
+    const al66 = catalog.aluminios.find((a) => a.codigo === 'AL 66')
+    expect(al66?.valorMetro).toBeGreaterThan(0)
+    // 2×400 + 2×400 = 1600 mm, sobe para 2000 mm = 2 m
+    expect(r.bom.find((l) => l.code === 'AL 66')?.quantity).toBe(2)
+    expect(r.breakdown.aluminum).toBeCloseTo(al66!.valorMetro * 2, 4)
+    expect(r.breakdown.finalPrice).toBeCloseTo((34.875 + 9 + 20 + al66!.valorMetro * 2) * 1.3, 3)
     expect((r.notes ?? []).some((n) => n.includes('0,25'))).toBe(true)
+  })
+
+  it('vidro fixo 06 e 08 leva AL66 no perímetro, de 500 em 500 mm', () => {
+    const base = {
+      kind: 'fixo' as const,
+      widthMm: 1000,
+      heightMm: 1200,
+      glassColor: 'Incolor',
+      markup: 0.3,
+      extras: [],
+    }
+    const mm08 = priceFixo(catalog, { ...base, thicknessMm: '08' })
+    const mm06 = priceFixo(catalog, { ...base, thicknessMm: '06' })
+    const mm10 = priceFixo(catalog, { ...base, thicknessMm: '10' })
+    // 2×1000 + 2×1200 = 4400 mm, sobe para 4500 mm = 4,5 m
+    expect(mm08.bom.find((l) => l.code === 'AL 66')?.quantity).toBe(4.5)
+    expect(mm06.bom.find((l) => l.code === 'AL 66')?.quantity).toBe(4.5)
+    expect(mm08.breakdown.aluminum).toBeCloseTo(mm06.breakdown.aluminum, 4)
+    expect(mm10.breakdown.aluminum).toBe(0)
+    expect(mm10.bom.some((l) => l.code === 'AL 66')).toBe(false)
   })
 
   it('vidro fixo large Verde 10', () => {
@@ -359,6 +385,34 @@ describe('inactive catalog items', () => {
       expect(err.code).toBe(row!.codigo)
       expect(err.message).toMatch(/Vidro sem preço/)
     }
+  })
+
+  it('preview keeps the other costs and zeroes the glass line when its price is empty', () => {
+    const input: ItemInput = {
+      kind: 'fixo',
+      widthMm: 400,
+      heightMm: 400,
+      glassColor: 'Incolor',
+      thicknessMm: '08',
+      markup: 0.3,
+      extras: [],
+    }
+    const full = priceItem(catalog, input)
+    const row = catalog.vidros.find(
+      (v) => v.tipo === 'Temperado' && v.cor === 'Incolor' && v.espessuraMm === '08',
+    )
+    expect(row?.valorM2).not.toBeNull()
+    const next = {
+      ...catalog,
+      vidros: catalog.vidros.map((v) => (v.id === row!.id ? { ...v, valorM2: null } : v)),
+    }
+    expect(() => priceItem(next, input)).toThrow(MissingPriceError)
+    const preview = priceItemPreview(next, input)
+    expect(preview.missing?.table).toBe('vidros')
+    expect(preview.zeroed.has('glass')).toBe(true)
+    expect(preview.result.breakdown.glass).toBe(0)
+    expect(preview.result.breakdown.labor).toBeCloseTo(full.breakdown.labor, 2)
+    expect(preview.result.breakdown.accessories).toBeCloseTo(full.breakdown.accessories, 2)
   })
 
   it('names a missing accessory without a price field', () => {

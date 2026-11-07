@@ -69,6 +69,11 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Done
 
+### 2026-11-07
+
+- [x] `feat` **Vidro fixo 6 e 8 mm:** AL 66 no perímetro, `teto(2×largura + 2×altura, 500 mm)`. 10 mm segue sem perfil. Orçamento já salvo não recalcula sozinho
+- [x] `ui` **Preço faltando:** aviso numa linha, Inserir no pé do card. Lista de custo permanece; a linha sem preço fica vermelha e zerada. Detalhes do custo não abre enquanto faltar preço
+
 ### 2026-11-06
 
 - [x] `ui` **Tela Preços:** menu, Início, título e endereço `/precos`. O antigo `/catalogo` ainda abre e a barra troca. Avisos falam "sem preço cadastrado"

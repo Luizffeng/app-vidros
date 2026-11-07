@@ -3,6 +3,7 @@ import {
   buildBreakdown,
   ceiling,
   findAcessorio,
+  findAluminio,
   findVidro,
   laborLine,
   roundUp,
@@ -25,11 +26,17 @@ export function priceFixo(catalog: Catalog, input: FixoInput): PricingResult {
   const siliconeQty = Math.max(1, Math.ceil(areaVao))
   const accessories = silicone.valor * siliconeQty
   const labor = areaVao * config.labor.temperedPerM2
+  const frameMeters =
+    input.thicknessMm === '06' || input.thicknessMm === '08'
+      ? ceiling(2 * input.widthMm + 2 * input.heightMm, 500) / 1000
+      : 0
+  const al66 = frameMeters > 0 ? findAluminio(catalog, 'AL 66') : null
+  const aluminum = al66 ? al66.valorMetro * frameMeters : 0
 
   const breakdown = buildBreakdown({
     labor,
     glass: glassCost,
-    aluminum: 0,
+    aluminum,
     hardware: 0,
     accessories,
     extras: sumItemExtras(input.extras),
@@ -50,6 +57,20 @@ export function priceFixo(catalog: Catalog, input: FixoInput): PricingResult {
         unit: 'm2',
         source: { table: 'vidros', id: vidro.id },
       },
+      ...(al66
+        ? [
+            {
+              code: al66.codigo,
+              description: al66.descricao || al66.codigo,
+              quantity: frameMeters,
+              unitPrice: al66.valorMetro,
+              total: aluminum,
+              category: 'aluminio' as const,
+              unit: 'm' as const,
+              source: { table: 'aluminios' as const, id: al66.id },
+            },
+          ]
+        : []),
       {
         code: silicone.codigo,
         description: silicone.descricao,

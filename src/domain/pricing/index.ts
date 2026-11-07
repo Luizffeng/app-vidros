@@ -1,10 +1,10 @@
-import type { Catalog, CustomInput, ItemInput, LaborKey, MarginMode, PricingResult, ProductKind } from '../types'
+import type { Catalog, CatalogTable, CustomInput, ItemInput, LaborKey, MarginMode, PricingResult, ProductKind } from '../types'
 import { priceBox } from './box'
 import { priceCorrer } from './correr'
 import { priceMaxiar } from './maxiar'
 import { pricePivotante } from './pivotante'
 import { priceEspelho, priceFixo } from './fixoEspelho'
-import { buildBreakdown } from './math'
+import { buildBreakdown, MissingPriceError } from './math'
 
 export function priceCustom(input: CustomInput): PricingResult {
   const amount = input.amount || 0
@@ -88,6 +88,97 @@ export function priceItem(
   const result = priceByKind(withLaborRate(catalog, input), input)
   if (input.kind === 'custom' || mode === 'empresa') return result
   return { ...result, breakdown: buildBreakdown(result.breakdown, mode) }
+}
+
+export type CostGroup = 'labor' | 'glass' | 'aluminum' | 'hardware' | 'accessories'
+
+const GROUP_BY_CATEGORY = {
+  vidro: 'glass',
+  aluminio: 'aluminum',
+  ferragem: 'hardware',
+  acessorio: 'accessories',
+  mao_de_obra: 'labor',
+} as const satisfies Record<string, CostGroup>
+
+export interface MissingPricePreview {
+  result: PricingResult
+  /** First gap, for the alert. Null when every line has a price. */
+  missing: MissingPriceError | null
+  /** Groups counted as zero because the catalog price is missing. */
+  zeroed: ReadonlySet<CostGroup>
+}
+
+function catalogWithZero(catalog: Catalog, err: MissingPriceError): Catalog | null {
+  const id = err.id
+  if (id == null) return null
+  if (err.table === 'vidros') {
+    if (!catalog.vidros.some((row) => row.id === id)) return null
+    return {
+      ...catalog,
+      vidros: catalog.vidros.map((row) => (row.id === id ? { ...row, valorM2: 0, ativo: true } : row)),
+    }
+  }
+  if (err.table === 'acessorios') {
+    if (!catalog.acessorios.some((row) => row.id === id)) return null
+    return {
+      ...catalog,
+      acessorios: catalog.acessorios.map((row) => (row.id === id ? { ...row, valor: 0, ativo: true } : row)),
+    }
+  }
+  if (err.table === 'aluminios') {
+    if (!catalog.aluminios.some((row) => row.id === id)) return null
+    return {
+      ...catalog,
+      aluminios: catalog.aluminios.map((row) =>
+        row.id === id ? { ...row, valorBarra: 0, valorMetro: 0, ativo: true } : row,
+      ),
+    }
+  }
+  if (err.table === 'kitBox') {
+    if (!catalog.kitBox.some((row) => row.id === id)) return null
+    return {
+      ...catalog,
+      kitBox: catalog.kitBox.map((row) => (row.id === id ? { ...row, valor: 0, ativo: true } : row)),
+    }
+  }
+  const _table: Exclude<CatalogTable, 'vidros' | 'acessorios' | 'aluminios' | 'kitBox'> = err.table
+  return _table
+}
+
+/**
+ * Same numbers as `priceItem` when the catalog is complete.
+ * A missing price stays out of the saved quote: the preview counts that group as zero
+ * so the cost list can stay on screen.
+ */
+export function priceItemPreview(
+  catalog: Catalog,
+  input: ItemInput,
+  mode: MarginMode = 'empresa',
+): MissingPricePreview {
+  const zeroedIds: { table: CatalogTable; id: number }[] = []
+  let missing: MissingPriceError | null = null
+  let current = catalog
+  for (let attempt = 0; attempt < 8; attempt++) {
+    try {
+      const result = priceItem(current, input, mode)
+      const zeroed = new Set<CostGroup>()
+      for (const line of result.bom) {
+        const source = line.source
+        if (!source || line.category === 'outro' || !zeroedIds.some((row) => row.table === source.table && row.id === source.id)) continue
+        const group = GROUP_BY_CATEGORY[line.category]
+        if (group) zeroed.add(group)
+      }
+      return { result, missing, zeroed }
+    } catch (e) {
+      if (!(e instanceof MissingPriceError)) throw e
+      const next = catalogWithZero(current, e)
+      if (!next) throw e
+      if (!missing) missing = e
+      zeroedIds.push({ table: e.table, id: e.id! })
+      current = next
+    }
+  }
+  throw missing ?? new Error('Prévia de preço incompleto não fechou')
 }
 
 export * from './box'
