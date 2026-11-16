@@ -13,7 +13,6 @@ import type {
   ItemInput,
   LaborKey,
   MarginMode,
-  PricingConfig,
   PricingResult,
   ProductKind,
   Quote,
@@ -27,27 +26,9 @@ import { Modal } from './Modal'
 
 const EMPTY_ZEROED: ReadonlySet<CostGroup> = new Set()
 
-const CORRER_SUBTYPES: DropdownOption<CorrerSubtype>[] = [
-  { value: 'J2F', label: 'Janela 2 folhas (J2F)' },
-  { value: 'J4F', label: 'Janela 4 folhas (J4F)' },
-  { value: 'P1F', label: 'Porta 1 folha (P1F)' },
-  { value: 'P2F', label: 'Porta 2 folhas (P2F)' },
-  { value: 'P4F', label: 'Porta 4 folhas (P4F)' },
-]
-
 const ESPELHO_FINISHES: DropdownOption<EspelhoFinish>[] = [
   { value: 'Espelho Lapidado', label: 'Lapidado' },
   { value: 'Espelho Bisotado', label: 'Bisotado' },
-]
-
-export const ITEM_KINDS: { id: ProductKind; label: string }[] = [
-  { id: 'box', label: 'Box' },
-  { id: 'correr', label: 'Correr' },
-  { id: 'pivotante', label: 'Pivotante' },
-  { id: 'maxiar', label: 'Maxim-ar' },
-  { id: 'fixo', label: 'Vidro fixo' },
-  { id: 'espelho', label: 'Espelho' },
-  { id: 'custom', label: 'Avulso / texto' },
 ]
 
 function PlusIcon() {
@@ -551,6 +532,8 @@ interface Props {
   requireChange?: boolean
   hideTitle?: boolean
   lockKind?: ProductKind
+  /** Correr model chosen in the type menu. Ignored when `initial` already has one. */
+  lockSubtype?: CorrerSubtype
   /** Opens "Detalhes do custo" for the item being typed; prices it changes apply to the quote or catalog. */
   costDetail?: {
     quote: Quote
@@ -582,6 +565,7 @@ export function ItemForm({
   requireChange = false,
   hideTitle = false,
   lockKind,
+  lockSubtype,
   costDetail,
   onOpenCatalog,
 }: Props) {
@@ -591,6 +575,7 @@ export function ItemForm({
     return {
       ...seeded,
       kind: lockKind ?? seeded.kind,
+      subtype: !initial && lockSubtype ? lockSubtype : seeded.subtype,
       markup:
         !initial && lockKind && lockKind !== 'custom' ? pctStr(cfg.defaultMarkup[lockKind]) : seeded.markup,
       extraRows: seedExtraRows(initial).map(({ description, amount, committed }) => ({
@@ -604,14 +589,14 @@ export function ItemForm({
   })
   const start = initialState ?? pristine
 
-  const [kind, setKind] = useState<ProductKind>(start.kind)
+  const [kind] = useState<ProductKind>(start.kind)
   const [spanCm, setSpanCm] = useState(start.spanCm)
   const [widthMm, setWidthMm] = useState(start.widthMm)
   const [heightMm, setHeightMm] = useState(start.heightMm)
   const [glassColor, setGlassColor] = useState(start.glassColor)
   const [profileColor, setProfileColor] = useState(start.profileColor)
   const [thicknessMm, setThicknessMm] = useState(start.thicknessMm)
-  const [subtype, setSubtype] = useState<CorrerSubtype>(start.subtype)
+  const [subtype] = useState<CorrerSubtype>(start.subtype)
   const [hasLatch, setHasLatch] = useState(start.hasLatch)
   const [hasAluminum, setHasAluminum] = useState(start.hasAluminum ?? true)
   const [hasTube5x5, setHasTube5x5] = useState(start.hasTube5x5 ?? true)
@@ -833,15 +818,6 @@ export function ItemForm({
     })
   }
 
-  const onKindChange = (k: ProductKind) => {
-    setKind(k)
-    setLaborRate(undefined)
-    if (k !== 'custom') {
-      setMarkup(pctStr(cfg.defaultMarkup[k as keyof PricingConfig['defaultMarkup']]))
-    }
-    setFormError(null)
-  }
-
   const addExtra = () => {
     const draft = extraRows.find((row) => !row.committed)
     if (!draft) {
@@ -942,20 +918,6 @@ export function ItemForm({
   return (
     <div className="item-form">
       {!hideTitle && <h3>{title}</h3>}
-      {!lockKind && (
-      <div className="kind-grid">
-        {ITEM_KINDS.map((k) => (
-          <button
-            key={k.id}
-            type="button"
-            className={kind === k.id ? 'chip active' : 'chip'}
-            onClick={() => onKindChange(k.id)}
-          >
-            {k.label}
-          </button>
-        ))}
-      </div>
-      )}
 
       {missing ? (
         <MissingPriceCard
@@ -1011,16 +973,6 @@ export function ItemForm({
               </label>
               {glassColorField}
             </div>
-          )}
-
-          {kind === 'correr' && (
-            <DropdownField
-              className="full"
-              label="Tipo"
-              value={subtype}
-              options={CORRER_SUBTYPES}
-              onChange={setSubtype}
-            />
           )}
 
           {kind !== 'box' && (
