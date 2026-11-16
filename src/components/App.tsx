@@ -7,6 +7,7 @@ import type {
   CustomerInfo,
   ItemInput,
   LaborKey,
+  CorrerSubtype,
   MarginMode,
   ProductKind,
   Quote,
@@ -101,7 +102,8 @@ import { CostDetailModal } from './CostDetailModal'
 import { Dropdown } from './Dropdown'
 import { SearchField } from './SearchField'
 import { QuoteList } from './QuoteList'
-import { ITEM_KINDS, ItemForm } from './ItemForm'
+import { ItemForm } from './ItemForm'
+import { ItemTypeMenu, itemTypeLabel } from './ItemTypeMenu'
 import { ItemBlockHead, DraftBlockHead } from './ItemBlockHead'
 import { Modal } from './Modal'
 import { ExpiredNotice } from './ExpiredNotice'
@@ -120,8 +122,6 @@ import { useRoute } from '../nav/useRoute'
 const repo = createRepository()
 const pdfShareSupported = canSharePdfFiles()
 const BLOCKED_MESSAGE = 'Sua conta está em modo consulta. Nada foi gravado.'
-
-const kindLabel = (kind: ProductKind) => ITEM_KINDS.find((k) => k.id === kind)?.label ?? kind
 
 const SECTION_ROUTES: Record<AppSection, Route> = {
   home: { screen: 'home' },
@@ -185,7 +185,10 @@ export function App() {
   const [onboardingHidden, setOnboardingHidden] = useState(onboardingHiddenThisSession)
   const [onboardingReplay, setOnboardingReplay] = useState(onboardingReplayedThisSession)
   const [itemModal, setItemModal] = useState<
-    null | { mode: 'pick' } | { mode: 'create'; kind: ProductKind } | { mode: 'edit'; id: string }
+    | null
+    | { mode: 'pick' }
+    | { mode: 'create'; kind: ProductKind; subtype?: CorrerSubtype }
+    | { mode: 'edit'; id: string }
   >(null)
   const [itemDraft, setItemDraft] = useState<ItemDraftRecord | null>(null)
   const itemFormRef = useRef<{ state: ItemFormState; dirty: boolean } | null>(null)
@@ -1009,7 +1012,11 @@ export function App() {
     if (!createDraft) return
     setPendingNewItem(false)
     setError(null)
-    setItemModal({ mode: 'create', kind: createDraft.kind })
+    setItemModal({
+      mode: 'create',
+      kind: createDraft.kind,
+      ...(createDraft.kind === 'correr' ? { subtype: createDraft.subtype } : {}),
+    })
   }
   const openAddItem = () => {
     setError(null)
@@ -1237,22 +1244,17 @@ export function App() {
       </CollapsibleSection>
 
       {!readOnly && itemModal?.mode === 'pick' && (
-        <Modal title="Tipo do item" onClose={closeItemModal}>
-          <div className="kind-grid kind-grid--pick">
-            {ITEM_KINDS.map((k) => (
-              <button
-                key={k.id}
-                type="button"
-                className="chip"
-                onClick={() => {
-                  if (createDraft) setItemDraft(clearCreateDraft(quote.id))
-                  setItemModal({ mode: 'create', kind: k.id })
-                }}
-              >
-                {k.label}
-              </button>
-            ))}
-          </div>
+        <Modal title="Tipo do item" className="modal--types" onClose={closeItemModal}>
+          <ItemTypeMenu
+            onChoose={(choice) => {
+              if (createDraft) setItemDraft(clearCreateDraft(quote.id))
+              setItemModal({
+                mode: 'create',
+                kind: choice.kind,
+                ...(choice.subtype ? { subtype: choice.subtype } : {}),
+              })
+            }}
+          />
         </Modal>
       )}
 
@@ -1277,9 +1279,12 @@ export function App() {
           title={
             itemModal.mode === 'edit'
               ? editingItem
-                ? `Editar item: ${kindLabel(editingItem.input.kind)}`
+                ? `Editar item: ${itemTypeLabel(
+                    editingItem.input.kind,
+                    editingItem.input.kind === 'correr' ? editingItem.input.subtype : undefined,
+                  )}`
                 : 'Editar item'
-              : `Novo item: ${kindLabel(itemModal.kind)}`
+              : `Novo item: ${itemTypeLabel(itemModal.kind, itemModal.subtype)}`
           }
           onClose={keepItemModal}
         >
@@ -1305,14 +1310,15 @@ export function App() {
             </Banner>
           )}
           <ItemForm
-            key={`${itemModal.mode === 'edit' ? itemModal.id : itemModal.kind}-${itemFormVersion}`}
+            key={`${itemModal.mode === 'edit' ? itemModal.id : `${itemModal.kind}:${itemModal.subtype ?? ''}`}-${itemFormVersion}`}
             catalog={quoteCatalog ?? catalog}
             marginMode={marginMode}
             initial={editingItem?.input}
             initialState={
               itemModal.mode === 'edit'
                 ? editDraft
-                : createDraft?.kind === itemModal.kind
+                : createDraft?.kind === itemModal.kind &&
+                    (itemModal.kind !== 'correr' || createDraft.subtype === itemModal.subtype)
                   ? createDraft
                   : undefined
             }
@@ -1320,6 +1326,7 @@ export function App() {
               itemFormRef.current = { state, dirty }
             }}
             lockKind={itemModal.mode === 'edit' ? editingItem?.input.kind : itemModal.kind}
+            lockSubtype={itemModal.mode === 'create' ? itemModal.subtype : undefined}
             costDetail={{
               quote,
               catalog,

@@ -4,16 +4,16 @@ O que entrou no app nos últimos meses. Sugestões enviadas em [Suporte › Fale
 
 ## Novembro de 2026
 
+- **Tipo do item** no orçamento: cada família aparece numa faixa, com o desenho quando existe; o toque abre os modelos (janela e porta de correr, box padrão) e o formulário já começa nas medidas.
 - **Vidro fixo de 6 mm e 8 mm** leva o perfil AL 66 em volta: duas larguras e duas alturas, arredondadas de 500 em 500 mm.
 - **Novo orçamento** no computador fica à direita do filtro, no topo da lista. No celular continua na barra de baixo.
 - **Preços** é a tela de vidros, kits, ferragens e alumínios (Início, menu e título). O endereço usa a palavra preços.
 - **Vidro, kit, acessório ou alumínio sem preço** no item: o aviso fica numa linha, com Inserir embaixo. A lista de custo continua na tela e a linha sem preço aparece em vermelho, zerada.
 - **Avisos de sucesso** (valores atualizados, preços salvos e afins) fecham com um X.
 - **Item novo ou duplicado** pisca a borda uma vez para mostrar onde entrou.
-- **AppVidros** no topo de cada tela volta para o Início.
+- **AppVidros** no topo de cada tela volta para o Início. O ícone na aba do navegador e na tela do celular é o mesmo.
 - **Mostrar os primeiros passos de novo** em Suporte › Dicas traz o card de volta no Início. O que já está feito continua feito.
 - **Atalhos do Início** com o título sempre no mesmo lugar, logo abaixo do ícone.
-- **Ícone do AppVidros** na aba do navegador e na tela do celular.
 
 ## Outubro de 2026
 
