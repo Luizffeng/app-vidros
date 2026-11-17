@@ -487,6 +487,21 @@ label .percent-input .money-input {
   vertical-align: baseline;
 }
 
+/* Box labor: dropdown + catalog rate (same trail width as margem %). */
+.item-labor-pick__rate {
+  margin: 0;
+  gap: 0.15rem;
+}
+
+.item-labor-pick__rate > span:last-child {
+  display: flex;
+  align-items: center;
+  min-height: 2.45rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .section-hint {
   margin: 0 0 0.75rem;
   font-size: 0.85rem;

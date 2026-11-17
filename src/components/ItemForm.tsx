@@ -1165,7 +1165,7 @@ export function ItemForm({
           {(kind === 'box' || kind === 'boxForaPadrao') && (
             <>
               <p className="field-hint full">
-                A mão de obra é a cadastrada em{' '}
+                Valores cadastrados em{' '}
                 {onOpenCatalog ? (
                   <button
                     type="button"
@@ -1177,19 +1177,29 @@ export function ItemForm({
                 ) : (
                   'Preços'
                 )}
-                : valor fixo do box e valor por m².
+                .
               </p>
-              <label className="check-field__box check-field__box--row full">
-                <span>Mão de obra do box fixa</span>
-                <input
-                  type="checkbox"
-                  checked={laborFixed}
-                  onChange={(e) => {
-                    setLaborFixed(e.target.checked)
+              <div className="field-pair field-pair--trail full item-labor-pick">
+                <DropdownField
+                  label="Mão de obra para Box:"
+                  value={laborFixed ? 'fixed' : 'perM2'}
+                  options={[
+                    { value: 'fixed', label: 'Fixo' },
+                    { value: 'perM2', label: 'Por m²' },
+                  ]}
+                  onChange={(v) => {
+                    setLaborFixed(v === 'fixed')
                     setLaborRate(undefined)
                   }}
                 />
-              </label>
+                <p className="field item-labor-pick__rate">
+                  <span aria-hidden="true">Valor</span>
+                  <span>
+                    {formatBrl(laborFixed ? cfg.labor.boxAvulso : cfg.labor.boxPerM2)}
+                    {laborFixed ? '' : '/m²'}
+                  </span>
+                </p>
+              </div>
             </>
           )}
 
