@@ -61,6 +61,17 @@ describe('catalogItems', () => {
     expect('boxSiliconeQty' in normalized.config).toBe(false)
   })
 
+  it('normalizeCatalog fills defaultMarkup.boxForaPadrao when missing', () => {
+    const seed = loadSeedCatalog()
+    const { boxForaPadrao: _drop, ...markupWithout } = seed.config.defaultMarkup
+    void _drop
+    const normalized = normalizeCatalog({
+      ...seed,
+      config: { ...seed.config, defaultMarkup: markupWithout as typeof seed.config.defaultMarkup },
+    })
+    expect(normalized.config.defaultMarkup.boxForaPadrao).toBe(seed.config.defaultMarkup.box)
+  })
+
   it('parseImportedCatalog round-trips full seed export', () => {
     const seed = normalizeCatalog(loadSeedCatalog())
     const parsed = parseImportedCatalog(JSON.parse(JSON.stringify(seed)))

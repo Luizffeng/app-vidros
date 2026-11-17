@@ -188,6 +188,20 @@ function draftInput(fields: {
         extras: extras ?? [],
       }
     }
+    case 'boxForaPadrao': {
+      const widthMm = parsePositive(fields.widthMm)
+      const heightMm = parsePositive(fields.heightMm)
+      if (widthMm == null || heightMm == null) return null
+      return {
+        kind: 'boxForaPadrao',
+        widthMm,
+        heightMm,
+        glassColor: fields.glassColor,
+        profileColor: fields.profileColor,
+        markup: mk,
+        extras: extras ?? [],
+      }
+    }
     case 'correr': {
       const widthMm = parsePositive(fields.widthMm)
       const heightMm = parsePositive(fields.heightMm)
@@ -329,6 +343,16 @@ function seedFromInput(
         ...base,
         kind: 'box',
         spanCm: String(initial.spanCm),
+        glassColor: initial.glassColor,
+        profileColor: initial.profileColor,
+        markup: pctStr(initial.markup),
+      }
+    case 'boxForaPadrao':
+      return {
+        ...base,
+        kind: 'boxForaPadrao',
+        widthMm: String(initial.widthMm),
+        heightMm: String(initial.heightMm),
         glassColor: initial.glassColor,
         profileColor: initial.profileColor,
         markup: pctStr(initial.markup),

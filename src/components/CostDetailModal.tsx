@@ -13,7 +13,7 @@ const UNIT_LABEL = { m2: 'm²', m: 'm', un: 'un' } as const
 const UNIT_NAME = { m2: 'm²', m: 'metro', un: 'unidade' } as const
 const LABOR_USED_BY: Record<LaborKey, string> = {
   temperedPerM2: 'Correr, Pivotante, Vidro fixo e Espelho',
-  boxPerM2: 'Box',
+  boxPerM2: 'Box e box fora do padrão',
   maxiarAvulso: 'Maxim-ar',
 }
 

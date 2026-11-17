@@ -1,5 +1,5 @@
 import type { Catalog, CatalogTable, CustomInput, ItemInput, LaborKey, MarginMode, PricingResult, ProductKind } from '../types'
-import { priceBox } from './box'
+import { priceBox, priceBoxForaPadrao } from './box'
 import { priceCorrer } from './correr'
 import { priceMaxiar } from './maxiar'
 import { pricePivotante } from './pivotante'
@@ -44,6 +44,8 @@ function priceByKind(catalog: Catalog, input: ItemInput): PricingResult {
   switch (input.kind) {
     case 'box':
       return priceBox(catalog, input)
+    case 'boxForaPadrao':
+      return priceBoxForaPadrao(catalog, input)
     case 'correr':
       return priceCorrer(catalog, input)
     case 'pivotante':
@@ -66,6 +68,7 @@ function priceByKind(catalog: Catalog, input: ItemInput): PricingResult {
 /** Which `config.labor` rate each kind uses. */
 export const LABOR_KEY: Record<Exclude<ProductKind, 'custom'>, LaborKey> = {
   box: 'boxPerM2',
+  boxForaPadrao: 'boxPerM2',
   correr: 'temperedPerM2',
   pivotante: 'temperedPerM2',
   maxiar: 'maxiarAvulso',

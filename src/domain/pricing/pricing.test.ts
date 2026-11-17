@@ -3,13 +3,17 @@ import { loadSeedCatalog } from '../../data/seedCatalog'
 import { isCatalogItemActive } from '../catalogActive'
 import type { CorrerInput, ItemInput, MarginMode } from '../types'
 import {
+  aluminumSurcharge,
   buildBreakdown,
+  ceiling,
   customerExtraSellPrice,
   findAcessorio,
+  findAluminio,
   findKitBox,
   findVidro,
   MissingPriceError,
   priceBox,
+  priceBoxForaPadrao,
   priceCorrer,
   priceCustom,
   priceEspelho,
@@ -68,6 +72,57 @@ describe('pricing parity with spreadsheet examples', () => {
     })
     expect(r.breakdown.hardware).toBeCloseTo(156.81, 2)
     expect(r.breakdown.finalPrice).toBeCloseTo(907.548135, 2)
+  })
+
+  it('calc_BOX_FORA_PADRAO = box com altura + temperado 08 + AL66/AL67 (2100 mm → 2,5 m)', () => {
+    const widthMm = 1400
+    const heightMm = 2100
+    const glassColor = 'Incolor'
+    const profileColor = 'Fosco'
+    const markup = 0.3
+    const tempered = findVidro(catalog, 'Temperado', glassColor, '08')
+    const boxLike = {
+      ...catalog,
+      config: { ...catalog.config, boxDefaultHeightM: heightMm / 1000 },
+      vidros: catalog.vidros.map((v) =>
+        v.tipo === 'Box' && v.cor === glassColor && v.espessuraMm === '08'
+          ? { ...v, valorM2: tempered.valorM2 }
+          : v,
+      ),
+    }
+    const base = priceBox(boxLike, {
+      kind: 'box',
+      spanCm: widthMm / 10,
+      glassColor,
+      profileColor,
+      markup,
+      extras: [],
+    })
+    const aluQty = ceiling(heightMm, 500) / 1000
+    expect(aluQty).toBe(2.5)
+    const surcharge = aluminumSurcharge(catalog.config, profileColor)
+    const al66 = findAluminio(catalog, 'AL 66')
+    const al67 = findAluminio(catalog, 'AL 67')
+    const aluCost = (al66.valorMetro + al67.valorMetro) * aluQty * (1 + surcharge)
+
+    const r = priceBoxForaPadrao(catalog, {
+      kind: 'boxForaPadrao',
+      widthMm,
+      heightMm,
+      glassColor,
+      profileColor,
+      markup,
+      extras: [],
+    })
+    expect(r.breakdown.labor).toBeCloseTo(base.breakdown.labor, 6)
+    expect(r.breakdown.glass).toBeCloseTo(base.breakdown.glass, 6)
+    expect(r.breakdown.hardware).toBeCloseTo(base.breakdown.hardware, 6)
+    expect(r.breakdown.accessories).toBeCloseTo(base.breakdown.accessories, 6)
+    expect(r.breakdown.aluminum).toBeCloseTo(aluCost, 6)
+    expect(r.breakdown.totalCost).toBeCloseTo(base.breakdown.totalCost + aluCost, 6)
+    expect(r.breakdown.finalPrice).toBeCloseTo((base.breakdown.totalCost + aluCost) * (1 + markup), 6)
+    expect(r.bom.filter((l) => l.code === 'AL 66' || l.code === 'AL 67')).toHaveLength(2)
+    expect(r.bom.find((l) => l.category === 'vidro')!.description).toMatch(/temperado/i)
   })
 
   it('calc_CORRER J4F 1950x754 Verde 06 Fosco', () => {
@@ -558,6 +613,15 @@ describe('composição do custo (BOM)', () => {
     { kind: 'box', spanCm: 140, glassColor: 'Incolor', profileColor: 'Fosco', markup: 0.3, extras: [] },
     { kind: 'box', spanCm: 120, glassColor: 'Incolor', profileColor: 'Fosco', markup: 0.3, extras: [] },
     { kind: 'box', spanCm: 140, glassColor: 'Incolor', profileColor: 'Preto', markup: 0.3, extras: [] },
+    {
+      kind: 'boxForaPadrao',
+      widthMm: 1400,
+      heightMm: 2100,
+      glassColor: 'Incolor',
+      profileColor: 'Fosco',
+      markup: 0.3,
+      extras: [],
+    },
     { kind: 'correr', subtype: 'J4F', widthMm: 1950, heightMm: 754, glassColor: 'Verde', thicknessMm: '06', profileColor: 'Fosco', markup: 0.3, extras: [] },
     { kind: 'correr', subtype: 'J2F', widthMm: 1200, heightMm: 1000, glassColor: 'Incolor', thicknessMm: '08', profileColor: 'Fosco', markup: 0.3, extras: [] },
     { kind: 'correr', subtype: 'P2F', widthMm: 900, heightMm: 2100, glassColor: 'Fume', thicknessMm: '08', profileColor: 'Branco', markup: 0.3, extras: [] },
@@ -597,7 +661,7 @@ describe('composição do custo (BOM)', () => {
   it('cor com acréscimo entra no preço unitário de alumínio e ferragem', () => {
     const surcharge = catalog.config.aluminumColors.find((c) => c.color === 'Branco')!.surcharge
     expect(surcharge).toBeGreaterThan(0)
-    const input = refs[5] as CorrerInput
+    const input = refs.find((r) => r.kind === 'correr' && r.profileColor === 'Branco') as CorrerInput
     const base = priceItem(catalog, { ...input, profileColor: 'Fosco' }).bom
     const colored = priceItem(catalog, input).bom
     for (const line of colored.filter((l) => l.category === 'aluminio' || l.category === 'ferragem')) {

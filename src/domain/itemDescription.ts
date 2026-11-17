@@ -91,6 +91,12 @@ export function describeItem(input: ItemInput): ItemDescription {
         spec: framedSpec(input.profileColor, input.glassColor),
         size: Number(input.spanCm) > 0 ? `Vão ${input.spanCm} cm` : undefined,
       }
+    case 'boxForaPadrao':
+      return {
+        title: 'Box fora do padrão',
+        spec: framedSpec(input.profileColor, input.glassColor),
+        size: sizeMm(input.widthMm, input.heightMm),
+      }
     case 'custom':
       return { title: clean(input.description) || 'Item avulso' }
   }
@@ -126,6 +132,16 @@ export function describeFormDraft(state: {
       return describeItem({
         kind: 'box',
         spanCm: typedNumber(state.spanCm),
+        glassColor: state.glassColor,
+        profileColor: state.profileColor,
+        markup,
+        extras,
+      })
+    case 'boxForaPadrao':
+      return describeItem({
+        kind: 'boxForaPadrao',
+        widthMm,
+        heightMm,
         glassColor: state.glassColor,
         profileColor: state.profileColor,
         markup,

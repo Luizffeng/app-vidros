@@ -1,5 +1,6 @@
 export type ProductKind =
   | 'box'
+  | 'boxForaPadrao'
   | 'correr'
   | 'pivotante'
   | 'maxiar'
@@ -200,6 +201,17 @@ export interface BoxInput extends ItemNote, ItemLaborRate {
   extras: ItemExtra[]
 }
 
+/** Box com altura informada; vidro temperado 08 mm; + AL 66 e AL 67 pela altura. */
+export interface BoxForaPadraoInput extends ItemNote, ItemLaborRate {
+  kind: 'boxForaPadrao'
+  widthMm: number
+  heightMm: number
+  glassColor: string
+  profileColor: string
+  markup: number
+  extras: ItemExtra[]
+}
+
 export interface CorrerInput extends ItemNote, ItemLaborRate {
   kind: 'correr'
   subtype: CorrerSubtype
@@ -268,6 +280,7 @@ export interface CustomInput extends ItemNote {
 
 export type ItemInput =
   | BoxInput
+  | BoxForaPadraoInput
   | CorrerInput
   | PivotanteInput
   | MaxiarInput

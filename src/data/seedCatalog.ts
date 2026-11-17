@@ -17,7 +17,14 @@ export function normalizePricingConfig(raw: PricingConfig): PricingConfig {
   }
   void _legacyDays
   void _legacySilicone
-  return rest
+  const markup = rest.defaultMarkup ?? ({} as PricingConfig['defaultMarkup'])
+  return {
+    ...rest,
+    defaultMarkup: {
+      ...markup,
+      boxForaPadrao: markup.boxForaPadrao ?? markup.box ?? 0.3,
+    },
+  }
 }
 
 export function loadSeedCatalog(): Catalog {
