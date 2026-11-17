@@ -1,5 +1,5 @@
 import { catalogPrice, sameRef, withPriceOverrides } from './catalogEdit'
-import { LABOR_KEY } from './pricing'
+import { laborKeyFor } from './pricing'
 import type { BomLine, Catalog, LaborKey, Quote, QuoteItem } from './types'
 
 export type CostGroupCategory = BomLine['category']
@@ -49,7 +49,7 @@ export function composeCost(
 
   /** Unit price the line would get today, comparable to `line.unitPrice`. */
   const priceNow = (line: BomLine): number | undefined => {
-    if (line.category === 'mao_de_obra') return input.laborRate ?? catalog.config.labor[LABOR_KEY[input.kind]]
+    if (line.category === 'mao_de_obra') return input.laborRate ?? catalog.config.labor[laborKeyFor(input)]
     if (!line.source || !line.unit) return undefined
     const field = catalogPrice(effective, line.source)
     if (field == null) return undefined
@@ -73,7 +73,7 @@ export function composeCost(
     const basePrice = line.surcharge ? line.unitPrice / (1 + line.surcharge) : line.unitPrice
     const base = { ...line, overridden, basePrice }
     if (line.category === 'mao_de_obra') {
-      const laborKey = LABOR_KEY[input.kind]
+      const laborKey = laborKeyFor(input)
       return {
         ...base,
         overridden: input.laborRate != null,

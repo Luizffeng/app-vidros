@@ -74,6 +74,31 @@ describe('pricing parity with spreadsheet examples', () => {
     expect(r.breakdown.finalPrice).toBeCloseTo(907.548135, 2)
   })
 
+  it('calc_BOX laborFixed usa boxAvulso (1 un) em vez de boxPerM2', () => {
+    const base = priceBox(catalog, {
+      kind: 'box',
+      spanCm: 140,
+      glassColor: 'Incolor',
+      profileColor: 'Fosco',
+      markup: 0.3,
+      extras: [],
+    })
+    const fixed = priceBox(catalog, {
+      kind: 'box',
+      spanCm: 140,
+      glassColor: 'Incolor',
+      profileColor: 'Fosco',
+      laborFixed: true,
+      markup: 0.3,
+      extras: [],
+    })
+    expect(fixed.breakdown.labor).toBeCloseTo(catalog.config.labor.boxAvulso, 6)
+    expect(fixed.breakdown.glass).toBeCloseTo(base.breakdown.glass, 6)
+    const line = fixed.bom.find((l) => l.category === 'mao_de_obra')!
+    expect(line.unit).toBe('un')
+    expect(line.quantity).toBe(1)
+  })
+
   it('calc_BOX_FORA_PADRAO = box com altura + temperado 08 + AL66/AL67 (2100 mm → 2,5 m)', () => {
     const widthMm = 1400
     const heightMm = 2100

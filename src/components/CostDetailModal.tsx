@@ -13,13 +13,14 @@ const UNIT_LABEL = { m2: 'm²', m: 'm', un: 'un' } as const
 const UNIT_NAME = { m2: 'm²', m: 'metro', un: 'unidade' } as const
 const LABOR_USED_BY: Record<LaborKey, string> = {
   temperedPerM2: 'Correr, Pivotante, Vidro fixo e Espelho',
-  boxPerM2: 'Box e box fora do padrão',
+  boxPerM2: 'Box e box fora do padrão (por m²)',
+  boxAvulso: 'Box e box fora do padrão (fixa)',
   maxiarAvulso: 'Maxim-ar',
 }
 
 function editLabel(line: CostLine): string {
   if (line.barLength) return `R$ por barra (${line.barLength} m)`
-  if (line.laborKey === 'maxiarAvulso') return 'R$ por peça'
+  if (line.laborKey === 'maxiarAvulso' || line.laborKey === 'boxAvulso') return 'R$ por peça'
   return `R$ por ${UNIT_NAME[line.unit ?? 'un']}`
 }
 

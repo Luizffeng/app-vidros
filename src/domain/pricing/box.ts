@@ -24,6 +24,18 @@ function boxGlassWidthsM(adjustedSpanM: number): { fixedGlass: number; movingGla
   return { fixedGlass, movingGlass }
 }
 
+function boxLabor(
+  config: Catalog['config'],
+  areaM2: number,
+  laborFixed: boolean | undefined,
+): { quantity: number; unit: 'm2' | 'un'; rate: number; total: number; fixed: boolean } {
+  const fixed = laborFixed === true
+  const quantity = fixed ? 1 : areaM2
+  const unit = fixed ? 'un' : 'm2'
+  const rate = fixed ? config.labor.boxAvulso : config.labor.boxPerM2
+  return { quantity, unit, rate, total: quantity * rate, fixed }
+}
+
 export function priceBox(catalog: Catalog, input: BoxInput): PricingResult {
   const { config } = catalog
   const spanM = input.spanCm / 100
@@ -36,8 +48,7 @@ export function priceBox(catalog: Catalog, input: BoxInput): PricingResult {
   const kit = findKitBox(catalog, input.profileColor, kitSize)
   const silicone = findAcessorio(catalog, 'SILICONE ACT')
 
-  const laborM2 = spanM * height
-  const labor = laborM2 * config.labor.boxPerM2
+  const labor = boxLabor(config, spanM * height, input.laborFixed)
   const glassM2 = (fixedGlass + movingGlass) * height
   const glass = glassM2 * (vidro.valorM2 ?? 0)
   const kitCost = kit.valor ?? 0
@@ -45,7 +56,7 @@ export function priceBox(catalog: Catalog, input: BoxInput): PricingResult {
   const extras = sumItemExtras(input.extras)
 
   const breakdown = buildBreakdown({
-    labor,
+    labor: labor.total,
     glass,
     aluminum: 0,
     hardware: kitCost,
@@ -88,13 +99,14 @@ export function priceBox(catalog: Catalog, input: BoxInput): PricingResult {
         unit: 'un',
         source: { table: 'acessorios', id: silicone.id },
       },
-      laborLine(laborM2, 'm2', config.labor.boxPerM2, labor),
+      laborLine(labor.quantity, labor.unit, labor.rate, labor.total),
     ],
     breakdown,
     notes: [
       `Altura padrão ${height} m`,
       `Vidro fixo ${fixedGlass.toFixed(2)} m / móvel ${movingGlass.toFixed(2)} m`,
       `Kit ${kitSize} cm`,
+      labor.fixed ? 'Mão de obra fixa (box avulso)' : 'Mão de obra por m²',
     ],
   }
 }
@@ -117,8 +129,7 @@ export function priceBoxForaPadrao(catalog: Catalog, input: BoxForaPadraoInput):
   const surcharge = aluminumSurcharge(config, input.profileColor)
   const aluQty = ceiling(input.heightMm, 500) / 1000
 
-  const laborM2 = spanM * height
-  const labor = laborM2 * config.labor.boxPerM2
+  const labor = boxLabor(config, spanM * height, input.laborFixed)
   const glassM2 = (fixedGlass + movingGlass) * height
   const glass = glassM2 * (vidro.valorM2 ?? 0)
   const kitCost = kit.valor ?? 0
@@ -129,7 +140,7 @@ export function priceBoxForaPadrao(catalog: Catalog, input: BoxForaPadraoInput):
   const extras = sumItemExtras(input.extras)
 
   const breakdown = buildBreakdown({
-    labor,
+    labor: labor.total,
     glass,
     aluminum,
     hardware: kitCost,
@@ -198,7 +209,7 @@ export function priceBoxForaPadrao(catalog: Catalog, input: BoxForaPadraoInput):
         unit: 'un',
         source: { table: 'acessorios', id: silicone.id },
       },
-      laborLine(laborM2, 'm2', config.labor.boxPerM2, labor),
+      laborLine(labor.quantity, labor.unit, labor.rate, labor.total),
     ],
     breakdown,
     notes: [
@@ -206,6 +217,7 @@ export function priceBoxForaPadrao(catalog: Catalog, input: BoxForaPadraoInput):
       `Vidro fixo ${fixedGlass.toFixed(2)} m / móvel ${movingGlass.toFixed(2)} m`,
       `Kit ${kitSize} cm`,
       `AL 66 / AL 67 ${aluQty} m cada`,
+      labor.fixed ? 'Mão de obra fixa (box avulso)' : 'Mão de obra por m²',
     ],
   }
 }

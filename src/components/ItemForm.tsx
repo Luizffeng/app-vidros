@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from 'react'
+import { readBoxLaborFixed, writeBoxLaborFixed } from '../data/boxLaborPref'
 import type { ItemFormState } from '../data/itemDraft'
 import { isCatalogItemActive } from '../domain/catalogActive'
 import { marginLabel } from '../domain/itemDescription'
@@ -42,6 +43,7 @@ const ESPELHO_FINISHES: DropdownOption<EspelhoFinish>[] = [
 
 export const ITEM_KINDS: { id: ProductKind; label: string }[] = [
   { id: 'box', label: 'Box' },
+  { id: 'boxForaPadrao', label: 'Box fora do padrão' },
   { id: 'correr', label: 'Correr' },
   { id: 'pivotante', label: 'Pivotante' },
   { id: 'maxiar', label: 'Maxim-ar' },
@@ -160,6 +162,7 @@ function draftInput(fields: {
   hasLatch: boolean
   hasAluminum: boolean
   hasTube5x5: boolean
+  laborFixed: boolean
   finish: EspelhoFinish
   espelhoColor: string
   espelhoThickness: string
@@ -184,6 +187,7 @@ function draftInput(fields: {
         spanCm,
         glassColor: fields.glassColor,
         profileColor: fields.profileColor,
+        ...(fields.laborFixed ? { laborFixed: true } : {}),
         markup: mk,
         extras: extras ?? [],
       }
@@ -198,6 +202,7 @@ function draftInput(fields: {
         heightMm,
         glassColor: fields.glassColor,
         profileColor: fields.profileColor,
+        ...(fields.laborFixed ? { laborFixed: true } : {}),
         markup: mk,
         extras: extras ?? [],
       }
@@ -307,6 +312,7 @@ function seedFromInput(
   hasLatch: boolean
   hasAluminum: boolean
   hasTube5x5: boolean
+  laborFixed: boolean
   finish: EspelhoFinish
   espelhoColor: string
   espelhoThickness: string
@@ -327,6 +333,7 @@ function seedFromInput(
     hasLatch: true,
     hasAluminum: true,
     hasTube5x5: true,
+    laborFixed: readBoxLaborFixed(),
     finish: 'Espelho Lapidado' as EspelhoFinish,
     espelhoColor: 'Prata',
     espelhoThickness: '04',
@@ -345,6 +352,7 @@ function seedFromInput(
         spanCm: String(initial.spanCm),
         glassColor: initial.glassColor,
         profileColor: initial.profileColor,
+        laborFixed: initial.laborFixed === true,
         markup: pctStr(initial.markup),
       }
     case 'boxForaPadrao':
@@ -355,6 +363,7 @@ function seedFromInput(
         heightMm: String(initial.heightMm),
         glassColor: initial.glassColor,
         profileColor: initial.profileColor,
+        laborFixed: initial.laborFixed === true,
         markup: pctStr(initial.markup),
       }
     case 'correr':
@@ -587,7 +596,7 @@ interface Props {
   }
   onOpenCatalog?: (target: {
     tab: CatalogTab
-    q: string
+    q?: string
     line?: number
     inactive?: boolean
   }) => void
@@ -639,6 +648,7 @@ export function ItemForm({
   const [hasLatch, setHasLatch] = useState(start.hasLatch)
   const [hasAluminum, setHasAluminum] = useState(start.hasAluminum ?? true)
   const [hasTube5x5, setHasTube5x5] = useState(start.hasTube5x5 ?? true)
+  const [laborFixed, setLaborFixed] = useState(start.laborFixed ?? false)
   const [finish, setFinish] = useState<EspelhoFinish>(start.finish)
   const [espelhoColor, setEspelhoColor] = useState(start.espelhoColor)
   const [espelhoThickness, setEspelhoThickness] = useState(start.espelhoThickness)
@@ -664,6 +674,7 @@ export function ItemForm({
     hasLatch,
     hasAluminum,
     hasTube5x5,
+    laborFixed,
     finish,
     espelhoColor,
     espelhoThickness,
@@ -759,6 +770,7 @@ export function ItemForm({
       hasLatch,
       hasAluminum,
       hasTube5x5,
+      laborFixed,
       finish,
       espelhoColor,
       espelhoThickness,
@@ -802,6 +814,7 @@ export function ItemForm({
     hasLatch,
     hasAluminum,
     hasTube5x5,
+    laborFixed,
     finish,
     espelhoColor,
     espelhoThickness,
@@ -842,6 +855,7 @@ export function ItemForm({
     hasLatch,
     hasAluminum,
     hasTube5x5,
+    laborFixed,
     finish,
     espelhoColor,
     espelhoThickness,
@@ -860,6 +874,13 @@ export function ItemForm({
   const onKindChange = (k: ProductKind) => {
     setKind(k)
     setLaborRate(undefined)
+    if (
+      (k === 'box' || k === 'boxForaPadrao') &&
+      kind !== 'box' &&
+      kind !== 'boxForaPadrao'
+    ) {
+      setLaborFixed(readBoxLaborFixed())
+    }
     if (k !== 'custom') {
       setMarkup(pctStr(cfg.defaultMarkup[k as keyof PricingConfig['defaultMarkup']]))
     }
@@ -909,6 +930,7 @@ export function ItemForm({
       hasLatch,
       hasAluminum,
       hasTube5x5,
+      laborFixed,
       finish,
       espelhoColor,
       espelhoThickness,
@@ -930,6 +952,7 @@ export function ItemForm({
     }
     const trimmedNote = note.trim()
     const kept = withLaborRate(input, laborRate)
+    if (kind === 'box' || kind === 'boxForaPadrao') writeBoxLaborFixed(laborFixed)
     onSubmit(trimmedNote ? { ...kept, note: trimmedNote } : kept)
     setFormError(null)
   }
@@ -1106,6 +1129,8 @@ export function ItemForm({
                 />
               </div>
             </>
+          ) : kind === 'boxForaPadrao' ? (
+            <div className="full">{glassColorField}</div>
           ) : (
             kind !== 'box' && (
               <div className="field-pair field-pair--half full">
@@ -1120,7 +1145,11 @@ export function ItemForm({
             )
           )}
 
-          {(kind === 'box' || kind === 'correr' || kind === 'pivotante' || kind === 'maxiar') &&
+          {(kind === 'box' ||
+            kind === 'boxForaPadrao' ||
+            kind === 'correr' ||
+            kind === 'pivotante' ||
+            kind === 'maxiar') &&
             withMargin(
               <DropdownField
                 label="Cor do perfil"
@@ -1132,6 +1161,37 @@ export function ItemForm({
                 onChange={setProfileColor}
               />,
             )}
+
+          {(kind === 'box' || kind === 'boxForaPadrao') && (
+            <>
+              <p className="field-hint full">
+                A mão de obra é a cadastrada em{' '}
+                {onOpenCatalog ? (
+                  <button
+                    type="button"
+                    className="btn link btn-edit"
+                    onClick={() => onOpenCatalog({ tab: 'config' })}
+                  >
+                    Preços
+                  </button>
+                ) : (
+                  'Preços'
+                )}
+                : valor fixo do box e valor por m².
+              </p>
+              <label className="check-field__box check-field__box--row full">
+                <span>Mão de obra do box fixa</span>
+                <input
+                  type="checkbox"
+                  checked={laborFixed}
+                  onChange={(e) => {
+                    setLaborFixed(e.target.checked)
+                    setLaborRate(undefined)
+                  }}
+                />
+              </label>
+            </>
+          )}
 
           {kind === 'fixo' && marginMode !== 'autonomo' && (
             <label className="inline-field full">

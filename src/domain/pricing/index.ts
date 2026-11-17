@@ -65,7 +65,7 @@ function priceByKind(catalog: Catalog, input: ItemInput): PricingResult {
   }
 }
 
-/** Which `config.labor` rate each kind uses. */
+/** Default `config.labor` rate each kind uses (box kinds may switch via `laborFixed`). */
 export const LABOR_KEY: Record<Exclude<ProductKind, 'custom'>, LaborKey> = {
   box: 'boxPerM2',
   boxForaPadrao: 'boxPerM2',
@@ -76,9 +76,15 @@ export const LABOR_KEY: Record<Exclude<ProductKind, 'custom'>, LaborKey> = {
   espelho: 'temperedPerM2',
 }
 
+/** Rate key for this item, including box with fixed labor. */
+export function laborKeyFor(input: Exclude<ItemInput, { kind: 'custom' }>): LaborKey {
+  if ((input.kind === 'box' || input.kind === 'boxForaPadrao') && input.laborFixed) return 'boxAvulso'
+  return LABOR_KEY[input.kind]
+}
+
 function withLaborRate(catalog: Catalog, input: ItemInput): Catalog {
   if (input.kind === 'custom' || input.laborRate == null) return catalog
-  const labor = { ...catalog.config.labor, [LABOR_KEY[input.kind]]: input.laborRate }
+  const labor = { ...catalog.config.labor, [laborKeyFor(input)]: input.laborRate }
   return { ...catalog, config: { ...catalog.config, labor } }
 }
 

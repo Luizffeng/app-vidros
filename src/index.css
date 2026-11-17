@@ -480,6 +480,13 @@ label .percent-input .money-input {
   color: var(--muted);
 }
 
+.field-hint .btn.link {
+  display: inline;
+  padding: 0;
+  font-size: inherit;
+  vertical-align: baseline;
+}
+
 .section-hint {
   margin: 0 0 0.75rem;
   font-size: 0.85rem;
