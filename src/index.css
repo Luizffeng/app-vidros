@@ -480,11 +480,21 @@ label .percent-input .money-input {
   color: var(--muted);
 }
 
-.field-hint .btn.link {
+.field-hint .btn.link,
+.item-labor-pick__caption .btn.link {
   display: inline;
   padding: 0;
   font-size: inherit;
   vertical-align: baseline;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.item-labor-pick__caption {
+  margin: 0;
+  font-size: inherit;
+  color: inherit;
+  line-height: 1.35;
 }
 
 .section-hint {

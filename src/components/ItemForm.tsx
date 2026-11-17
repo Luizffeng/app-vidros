@@ -22,7 +22,7 @@ import type {
 import type { CatalogTab } from '../nav/routes'
 import { Banner } from './Banner'
 import { CostDetailModal } from './CostDetailModal'
-import { DropdownField, type DropdownOption } from './Dropdown'
+import { Dropdown, DropdownField, type DropdownOption } from './Dropdown'
 import { missingPriceUi } from './missingPriceUi'
 import { Modal } from './Modal'
 
@@ -1163,9 +1163,9 @@ export function ItemForm({
             )}
 
           {(kind === 'box' || kind === 'boxForaPadrao') && (
-            <>
-              <p className="field-hint full">
-                Valores cadastrados em{' '}
+            <div className="field full item-labor-pick">
+              <p className="item-labor-pick__caption">
+                Mão de obra – Valores cadastrado em{' '}
                 {onOpenCatalog ? (
                   <button
                     type="button"
@@ -1177,24 +1177,21 @@ export function ItemForm({
                 ) : (
                   'Preços'
                 )}
-                .
               </p>
-              <DropdownField
-                className="full"
-                label={`Mão de obra para Box · ${formatBrl(
-                  laborFixed ? cfg.labor.boxAvulso : cfg.labor.boxPerM2,
-                )}${laborFixed ? '' : '/m²'}`}
+              <Dropdown
+                className="dropdown--field"
+                label="Mão de obra"
                 value={laborFixed ? 'fixed' : 'perM2'}
                 options={[
-                  { value: 'fixed', label: `Fixo · ${formatBrl(cfg.labor.boxAvulso)}` },
-                  { value: 'perM2', label: `Por m² · ${formatBrl(cfg.labor.boxPerM2)}/m²` },
+                  { value: 'fixed', label: `Fixo (por box) • ${formatBrl(cfg.labor.boxAvulso)}` },
+                  { value: 'perM2', label: `Por m² • ${formatBrl(cfg.labor.boxPerM2)}` },
                 ]}
                 onChange={(v) => {
                   setLaborFixed(v === 'fixed')
                   setLaborRate(undefined)
                 }}
               />
-            </>
+            </div>
           )}
 
           {kind === 'fixo' && marginMode !== 'autonomo' && (
