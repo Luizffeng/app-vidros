@@ -1179,27 +1179,21 @@ export function ItemForm({
                 )}
                 .
               </p>
-              <div className="field-pair field-pair--trail full item-labor-pick">
-                <DropdownField
-                  label="Mão de obra para Box:"
-                  value={laborFixed ? 'fixed' : 'perM2'}
-                  options={[
-                    { value: 'fixed', label: 'Fixo' },
-                    { value: 'perM2', label: 'Por m²' },
-                  ]}
-                  onChange={(v) => {
-                    setLaborFixed(v === 'fixed')
-                    setLaborRate(undefined)
-                  }}
-                />
-                <p className="field item-labor-pick__rate">
-                  <span aria-hidden="true">Valor</span>
-                  <span>
-                    {formatBrl(laborFixed ? cfg.labor.boxAvulso : cfg.labor.boxPerM2)}
-                    {laborFixed ? '' : '/m²'}
-                  </span>
-                </p>
-              </div>
+              <DropdownField
+                className="full"
+                label={`Mão de obra para Box · ${formatBrl(
+                  laborFixed ? cfg.labor.boxAvulso : cfg.labor.boxPerM2,
+                )}${laborFixed ? '' : '/m²'}`}
+                value={laborFixed ? 'fixed' : 'perM2'}
+                options={[
+                  { value: 'fixed', label: `Fixo · ${formatBrl(cfg.labor.boxAvulso)}` },
+                  { value: 'perM2', label: `Por m² · ${formatBrl(cfg.labor.boxPerM2)}/m²` },
+                ]}
+                onChange={(v) => {
+                  setLaborFixed(v === 'fixed')
+                  setLaborRate(undefined)
+                }}
+              />
             </>
           )}
 
