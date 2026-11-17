@@ -52,6 +52,7 @@
   "boxDefaultHeightM": 1.9,
   "defaultMarkup": {
     "box": 0.3,
+    "boxForaPadrao": 0.3,
     "correr": 0.3,
     "pivotante": 0.3,
     "maxiar": 0.5,

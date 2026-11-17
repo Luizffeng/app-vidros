@@ -1,5 +1,6 @@
 export type ProductKind =
   | 'box'
+  | 'boxForaPadrao'
   | 'correr'
   | 'pivotante'
   | 'maxiar'
@@ -184,10 +185,10 @@ export interface ItemNote {
   note?: string
 }
 
-export type LaborKey = 'boxPerM2' | 'temperedPerM2' | 'maxiarAvulso'
+export type LaborKey = 'boxPerM2' | 'boxAvulso' | 'temperedPerM2' | 'maxiarAvulso'
 
 export interface ItemLaborRate {
-  /** Taxa de mão de obra só deste item (R$/m²; maxim-ar R$/peça). Ausente = taxa do catálogo. */
+  /** Taxa de mão de obra só deste item (R$/m²; maxim-ar e box avulso R$/peça). Ausente = taxa do catálogo. */
   laborRate?: number
 }
 
@@ -196,6 +197,21 @@ export interface BoxInput extends ItemNote, ItemLaborRate {
   spanCm: number
   glassColor: string
   profileColor: string
+  /** true = labor.boxAvulso (peça); ausente/false = labor.boxPerM2 × área. */
+  laborFixed?: boolean
+  markup: number
+  extras: ItemExtra[]
+}
+
+/** Box com altura informada; vidro temperado 08 mm; + AL 66 e AL 67 pela altura. */
+export interface BoxForaPadraoInput extends ItemNote, ItemLaborRate {
+  kind: 'boxForaPadrao'
+  widthMm: number
+  heightMm: number
+  glassColor: string
+  profileColor: string
+  /** true = labor.boxAvulso (peça); ausente/false = labor.boxPerM2 × área. */
+  laborFixed?: boolean
   markup: number
   extras: ItemExtra[]
 }
@@ -268,6 +284,7 @@ export interface CustomInput extends ItemNote {
 
 export type ItemInput =
   | BoxInput
+  | BoxForaPadraoInput
   | CorrerInput
   | PivotanteInput
   | MaxiarInput

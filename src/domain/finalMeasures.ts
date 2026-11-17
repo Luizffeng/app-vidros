@@ -9,6 +9,7 @@ export function seedFinalMeasures(input: ItemInput): FinalMeasure[] {
   switch (input.kind) {
     case 'box':
       return [field('spanCm', 'Largura', input.spanCm, 'cm')]
+    case 'boxForaPadrao':
     case 'correr':
     case 'pivotante':
     case 'maxiar':

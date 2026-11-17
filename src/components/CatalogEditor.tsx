@@ -33,6 +33,7 @@ const TABS: { value: CatalogTab; label: string }[] = [
 
 const MARGIN_LABELS: Record<keyof PricingConfig['defaultMarkup'], string> = {
   box: 'Box',
+  boxForaPadrao: 'Box fora do padrão',
   correr: 'Correr',
   pivotante: 'Pivotante',
   maxiar: 'Maxim-ar',

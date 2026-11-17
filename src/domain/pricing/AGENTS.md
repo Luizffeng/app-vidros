@@ -8,7 +8,7 @@ Owns item cost and sell price. Pure functions. No React, no fetch, no repository
 | --- | --- |
 | `index.ts` | `priceItem` switch and `priceCustom`. |
 | `math.ts` | `ceiling`, money round, catalog lookups, `buildBreakdown`, box span snap. |
-| `box.ts` | Box only. |
+| `box.ts` | Box padrão and box fora do padrão. |
 | `correr.ts` | J2F, J4F, P2F, P4F. |
 | `pivotante.ts` | Pivotante, including latch. |
 | `maxiar.ts` | Maxim-ar. |

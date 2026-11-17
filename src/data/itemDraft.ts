@@ -15,6 +15,8 @@ export interface ItemFormState {
   hasAluminum?: boolean
   /** Ausente em rascunhos salvos antes do campo existir = marcado. */
   hasTube5x5?: boolean
+  /** Box / box fora do padrão: mão de obra fixa. Ausente = última escolha ou por m². */
+  laborFixed?: boolean
   finish: EspelhoFinish
   espelhoColor: string
   espelhoThickness: string

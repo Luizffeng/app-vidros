@@ -1,5 +1,5 @@
 import type { Catalog, CatalogTable, CustomInput, ItemInput, LaborKey, MarginMode, PricingResult, ProductKind } from '../types'
-import { priceBox } from './box'
+import { priceBox, priceBoxForaPadrao } from './box'
 import { priceCorrer } from './correr'
 import { priceMaxiar } from './maxiar'
 import { pricePivotante } from './pivotante'
@@ -44,6 +44,8 @@ function priceByKind(catalog: Catalog, input: ItemInput): PricingResult {
   switch (input.kind) {
     case 'box':
       return priceBox(catalog, input)
+    case 'boxForaPadrao':
+      return priceBoxForaPadrao(catalog, input)
     case 'correr':
       return priceCorrer(catalog, input)
     case 'pivotante':
@@ -63,9 +65,10 @@ function priceByKind(catalog: Catalog, input: ItemInput): PricingResult {
   }
 }
 
-/** Which `config.labor` rate each kind uses. */
+/** Default `config.labor` rate each kind uses (box kinds may switch via `laborFixed`). */
 export const LABOR_KEY: Record<Exclude<ProductKind, 'custom'>, LaborKey> = {
   box: 'boxPerM2',
+  boxForaPadrao: 'boxPerM2',
   correr: 'temperedPerM2',
   pivotante: 'temperedPerM2',
   maxiar: 'maxiarAvulso',
@@ -73,9 +76,15 @@ export const LABOR_KEY: Record<Exclude<ProductKind, 'custom'>, LaborKey> = {
   espelho: 'temperedPerM2',
 }
 
+/** Rate key for this item, including box with fixed labor. */
+export function laborKeyFor(input: Exclude<ItemInput, { kind: 'custom' }>): LaborKey {
+  if ((input.kind === 'box' || input.kind === 'boxForaPadrao') && input.laborFixed) return 'boxAvulso'
+  return LABOR_KEY[input.kind]
+}
+
 function withLaborRate(catalog: Catalog, input: ItemInput): Catalog {
   if (input.kind === 'custom' || input.laborRate == null) return catalog
-  const labor = { ...catalog.config.labor, [LABOR_KEY[input.kind]]: input.laborRate }
+  const labor = { ...catalog.config.labor, [laborKeyFor(input)]: input.laborRate }
   return { ...catalog, config: { ...catalog.config, labor } }
 }
 

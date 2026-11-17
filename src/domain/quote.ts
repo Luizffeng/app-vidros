@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid'
 import { catalogPrice, sameRef, withPriceOverrides } from './catalogEdit'
 import { normalizeFinalMeasures } from './finalMeasures'
 import { describeItem, itemNote } from './itemDescription'
-import { customerExtraSellPrice, LABOR_KEY, priceItem } from './pricing'
+import { customerExtraSellPrice, laborKeyFor, priceItem } from './pricing'
 import { normalizeQuotePhotos } from './quotePhotos'
 import type {
   AdditionalCost,
@@ -263,7 +263,7 @@ export function setItemLaborRate(
   const item = quote.items.find((i) => i.id === itemId)
   if (!item || item.input.kind === 'custom') return quote
   const { laborRate: _old, ...base } = item.input
-  const keep = rate != null && rate !== catalog.config.labor[LABOR_KEY[base.kind]]
+  const keep = rate != null && rate !== catalog.config.labor[laborKeyFor(base)]
   return updateItem(quote, catalog, itemId, keep ? { ...base, laborRate: rate } : base, mode)
 }
 
