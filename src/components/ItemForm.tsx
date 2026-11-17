@@ -1184,7 +1184,7 @@ export function ItemForm({
                 value={laborFixed ? 'fixed' : 'perM2'}
                 options={[
                   { value: 'fixed', label: `Fixo (por box) • ${formatBrl(cfg.labor.boxAvulso)}` },
-                  { value: 'perM2', label: `Por m² • ${formatBrl(cfg.labor.boxPerM2)}` },
+                  { value: 'perM2', label: `Por m² • ${formatBrl(cfg.labor.boxPerM2)}/m²` },
                 ]}
                 onChange={(v) => {
                   setLaborFixed(v === 'fixed')
