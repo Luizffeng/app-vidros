@@ -50,6 +50,8 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Later
 
+- [ ] `feat` **Box maior que 2 m de largura:** lembrar. Sem spec por enquanto; o dono passa o detalhe depois. Pedido 2026-11-18
+- [ ] `feat` **Box com mais folhas (F2, F3):** lembrar. Sem spec por enquanto; o dono passa o detalhe depois. Pedido 2026-11-18
 - [ ] `feat` (M) **Arquivar orçamentos (pausado):** draft em [specs/010-arquivar-orcamentos](specs/010-arquivar-orcamentos/spec.md). Não é necessário agora; revisitar quando a lista pedir. Ideia: filtro Arquivados, grupo inteiro (não revisão isolada), mini botão + long-press
 - [ ] `feat` (M) **Cadastro por telefone OTP e Facebook (spec 007 T061/T062):** `signInWithOtp` SMS/WhatsApp + botão Facebook em `EntryScreen`; Twilio/Facebook desligados por padrão no `supabase/config.toml`. Adiado ao fechar a fase 1
 - [ ] `feat` **Medidas finais por item (produção):** UI de medidas de produção/conferência por item (seed das medidas do orçamento), junto com plano de corte / módulo de produção. Domínio `finalMeasures` + testes já existem; sem UI até lá (spec 009 US1). Até lá: foto na seção Fotos ou medida correta no item.
