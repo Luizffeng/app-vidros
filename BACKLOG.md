@@ -50,6 +50,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Later
 
+- [ ] `ui` (G) **Refazer a UI do app (precisa de spec):** passar a interface inteira por um visual novo. Referência inicial: Spell UI, no reel de @talescavalcanti.ia (print de 2026-11-23). Não é obrigatório usar esse site; outras referências podem entrar depois, de outros sites ou do GitHub público. Pedido 2026-11-23
 - [ ] `feat` **Box maior que 2 m de largura:** lembrar. Sem spec por enquanto; o dono passa o detalhe depois. Pedido 2026-11-18
 - [ ] `feat` **Box com mais folhas (F2, F3):** lembrar. Sem spec por enquanto; o dono passa o detalhe depois. Pedido 2026-11-18
 - [ ] `feat` (M) **Arquivar orçamentos (pausado):** draft em [specs/010-arquivar-orcamentos](specs/010-arquivar-orcamentos/spec.md). Não é necessário agora; revisitar quando a lista pedir. Ideia: filtro Arquivados, grupo inteiro (não revisão isolada), mini botão + long-press
