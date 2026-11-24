@@ -3287,6 +3287,31 @@ button.item-block__head:hover {
   color: rgba(255, 236, 236, 0.92);
 }
 
+.missing-price__hint {
+  grid-column: 1 / -1;
+  margin: 0.12rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  color: rgba(255, 236, 236, 0.92);
+  text-wrap: pretty;
+}
+
+.missing-price__link {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  line-height: inherit;
+  white-space: normal;
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+  cursor: pointer;
+}
+
 .missing-price__editor {
   display: grid;
   grid-column: 1 / -1;

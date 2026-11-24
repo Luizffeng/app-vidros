@@ -448,12 +448,16 @@ function scrollFormToTop(from: HTMLElement | null) {
   }
 }
 
+/** Perfis de 6 mm. A linha do aviso só aparece quando a fórmula pede um deles. */
+const SIX_MM_ALUMINUM = new Set(['AL 90', 'AL 91', 'AL 92', 'AL 93', 'AL 94', 'AL 95', 'AL 96'])
+
 function MissingPriceCard({
   missing,
   ui,
   busy,
   onSave,
   onOpenCatalog,
+  onOpenSettings,
   bannerRef,
 }: {
   missing: MissingPriceError
@@ -461,6 +465,7 @@ function MissingPriceCard({
   busy: boolean
   onSave: (price: number) => Promise<void>
   onOpenCatalog: () => void
+  onOpenSettings?: () => void
   bannerRef: Ref<HTMLDivElement>
 }) {
   const [open, setOpen] = useState(false)
@@ -555,6 +560,15 @@ function MissingPriceCard({
                 Ir para Preços
               </button>
             )}
+            {onOpenSettings && missing.table === 'aluminios' && SIX_MM_ALUMINUM.has(missing.code) && (
+              <p className="missing-price__hint">
+                Para usar os alumínios de 8mm, vá em{' '}
+                <button type="button" className="missing-price__link" onClick={onOpenSettings}>
+                  configurações
+                </button>
+                .
+              </p>
+            )}
             {ui === 'inline' && open && editor('inline')}
           </div>
         </Banner>
@@ -584,6 +598,8 @@ interface Props {
   requireChange?: boolean
   hideTitle?: boolean
   lockKind?: ProductKind
+  /** Ausente = vidro de 6 mm usa o jogo de 8 mm. */
+  use8mmAluminumOn6mmGlass?: boolean
   /** Opens "Detalhes do custo" for the item being typed; prices it changes apply to the quote or catalog. */
   costDetail?: {
     quote: Quote
@@ -600,6 +616,8 @@ interface Props {
     line?: number
     inactive?: boolean
   }) => void
+  /** Fecha o item e abre Configurações › Orçamento. */
+  onOpenSettings?: () => void
 }
 
 export function ItemForm({
@@ -615,8 +633,10 @@ export function ItemForm({
   requireChange = false,
   hideTitle = false,
   lockKind,
+  use8mmAluminumOn6mmGlass = true,
   costDetail,
   onOpenCatalog,
+  onOpenSettings,
 }: Props) {
   const cfg = catalog.config
   const [pristine] = useState((): ItemFormState => {
@@ -783,7 +803,7 @@ export function ItemForm({
     if (!raw) return cached()
     try {
       const input = withLaborRate(raw, laborRate)
-      const preview = priceItemPreview(catalog, input, marginMode)
+      const preview = priceItemPreview(catalog, input, marginMode, { use8mmAluminumOn6mmGlass })
       if (!preview.missing) {
         previewCache.current = { ok: true, kind, input, result: preview.result }
         return previewCache.current
@@ -805,6 +825,7 @@ export function ItemForm({
     catalog,
     laborRate,
     marginMode,
+    use8mmAluminumOn6mmGlass,
     kind,
     numSnap,
     glassColor,
@@ -1011,6 +1032,7 @@ export function ItemForm({
           busy={priceBusy}
           onSave={saveMissingPrice}
           onOpenCatalog={openMissingCatalog}
+          onOpenSettings={onOpenSettings}
           bannerRef={alertRef}
         />
       ) : (

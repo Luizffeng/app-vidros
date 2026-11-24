@@ -393,6 +393,71 @@ describe('rascunho desatualizado', () => {
     expect(draftOutdated(repriceDraft(draft, inactive, 'empresa').quote, inactive, 'empresa')).toBeNull()
   })
 
+  it('rascunho de 6 mm pede atualizar quando a opção muda; emitido não', () => {
+    const input = {
+      kind: 'correr' as const,
+      subtype: 'J2F' as const,
+      widthMm: 1200,
+      heightMm: 1000,
+      glassColor: 'Incolor',
+      thicknessMm: '06',
+      profileColor: 'Fosco',
+      markup: 0.3,
+      extras: [],
+    }
+    const quote = addItem(createEmptyDraft('ORC-2026-0009', catalog.config.version), catalog, input)
+    expect(quote.items[0].result.breakdown.use8mmAluminumOn6mmGlass).toBe(true)
+    expect(quote.items[0].result.bom.some((line) => line.code === 'AL 49')).toBe(true)
+    const off = { use8mmAluminumOn6mmGlass: false }
+    expect(draftOutdated(quote, catalog, 'empresa', off)).toEqual({ catalog: true, margin: false })
+    const failed = repriceDraft(quote, catalog, 'empresa', off)
+    expect(failed.failed).toBe(1)
+    expect(failed.quote.items[0].result.bom.some((line) => line.code === 'AL 49')).toBe(true)
+    expect(draftOutdated(failed.quote, catalog, 'empresa', off)).toEqual({ catalog: true, margin: false })
+
+    const emitted = emitQuote(setCustomer(quote, { name: 'Ana' }))
+    expect(draftOutdated(emitted, catalog, 'empresa', off)).toBeNull()
+
+    const eight = addItem(createEmptyDraft('ORC-2026-0009', catalog.config.version), catalog, {
+      ...input,
+      thicknessMm: '08',
+    })
+    expect(draftOutdated(eight, catalog, 'empresa', off)).toBeNull()
+
+    const priced: Catalog = {
+      ...catalog,
+      aluminios: catalog.aluminios.map((row) =>
+        ['AL 90', 'AL 91', 'AL 92', 'AL 93', 'AL 95', 'AL 96'].includes(row.codigo)
+          ? { ...row, valorBarra: 60 }
+          : row,
+      ),
+    }
+    expect(draftOutdated(quote, priced, 'empresa', off)?.catalog).toBe(true)
+    const next = repriceDraft(quote, priced, 'empresa', off)
+    expect(next.failed).toBe(0)
+    expect(next.quote.items[0].result.bom.some((line) => line.code === 'AL 90')).toBe(true)
+    expect(next.quote.items[0].result.bom.some((line) => line.code === 'AL 49')).toBe(false)
+    expect(next.quote.items[0].result.bom.some((line) => line.code === 'AL 67')).toBe(true)
+    expect(next.quote.items[0].result.breakdown.use8mmAluminumOn6mmGlass).toBe(false)
+    expect(draftOutdated(next.quote, priced, 'empresa', off)).toBeNull()
+    expect(draftOutdated(next.quote, priced, 'empresa')).toEqual({ catalog: true, margin: false })
+
+    const legacy = {
+      ...quote,
+      items: [
+        {
+          ...quote.items[0],
+          result: {
+            ...quote.items[0].result,
+            breakdown: { ...quote.items[0].result.breakdown, use8mmAluminumOn6mmGlass: undefined },
+          },
+        },
+      ],
+    }
+    expect(draftOutdated(legacy, catalog, 'empresa')).toBeNull()
+    expect(draftOutdated(legacy, catalog, 'empresa', off)).toEqual({ catalog: true, margin: false })
+  })
+
   it('revisão de emitido antigo fica desatualizada', () => {
     const emitted = emitQuote(setCustomer(draft, { name: 'Ana' }))
     expect(draftOutdated(createRevision(emitted), catalog, 'vendedor')).toEqual({

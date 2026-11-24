@@ -209,6 +209,7 @@ export function App() {
   /** Items that kept their old price after "Atualizar valores"; null = no note. */
   const [repriceFailed, setRepriceFailed] = useState<number | null>(null)
   const marginMode: MarginMode = settings?.marginMode ?? 'empresa'
+  const pricing = { use8mmAluminumOn6mmGlass: settings?.use8mmAluminumOn6mmGlass !== false }
   const quoteCatalog = useMemo(
     () => (catalog ? withPriceOverrides(catalog, quote?.priceOverrides) : null),
     [catalog, quote?.priceOverrides],
@@ -365,7 +366,7 @@ export function App() {
     if (q.status === 'draft' && canWrite) {
       const costs = dropEmptyFreight(q.additionalCosts)
       let next = costs !== q.additionalCosts ? recomputeTotals({ ...q, additionalCosts: costs }) : q
-      if (catalog) next = refreshItemDetail(next, catalog)
+      if (catalog) next = refreshItemDetail(next, catalog, pricing)
       if (next !== q) {
         await repo.saveQuote(next)
         setQuote(next)
@@ -427,7 +428,7 @@ export function App() {
   const onAddItem = async (input: ItemInput) => {
     if (!quote || !catalog) return
     try {
-      const next = addItem(quote, catalog, input, marginMode)
+      const next = addItem(quote, catalog, input, marginMode, pricing)
       const added = next.items[next.items.length - 1]
       await persist(next)
       setItemDraft(clearCreateDraft(quote.id))
@@ -444,7 +445,7 @@ export function App() {
   const onUpdateItem = async (itemId: string, input: ItemInput) => {
     if (!quote || !catalog) return
     try {
-      const next = updateItem(quote, catalog, itemId, input, marginMode)
+      const next = updateItem(quote, catalog, itemId, input, marginMode, pricing)
       await persist(next)
       setItemDraft(clearEditDraft(quote.id, itemId))
       itemFormRef.current = null
@@ -460,7 +461,7 @@ export function App() {
     if (!quote || !catalog || blocked()) return
     try {
       closeConfirms()
-      const next = duplicateItem(quote, catalog, itemId, marginMode)
+      const next = duplicateItem(quote, catalog, itemId, marginMode, pricing)
       const index = quote.items.findIndex((item) => item.id === itemId)
       const copy = index >= 0 ? next.items[index + 1] : undefined
       await persist(next)
@@ -485,14 +486,14 @@ export function App() {
 
   const onRepriceDraft = async () => {
     if (!quote || !catalog || blocked()) return
-    const { quote: next, failed } = repriceDraft(quote, catalog, marginMode)
+    const { quote: next, failed } = repriceDraft(quote, catalog, marginMode, pricing)
     await persist(next)
     setRepriceFailed(failed)
   }
 
   const onSetPriceOverride = async (ref: CatalogRef, price: number | null) => {
     if (!quote || !catalog) return
-    await persist(setPriceOverride(quote, catalog, ref, price, marginMode))
+    await persist(setPriceOverride(quote, catalog, ref, price, marginMode, pricing))
   }
 
   const onUpdateCatalogPrice = async (ref: CatalogRef, price: number) => {
@@ -505,12 +506,12 @@ export function App() {
     await repo.saveCatalog(next)
     setCatalog(next)
     const own = quote.priceOverrides?.filter((o) => !sameRef(o.ref, ref))
-    await persist(repriceDraft({ ...quote, priceOverrides: own }, next, marginMode).quote)
+    await persist(repriceDraft({ ...quote, priceOverrides: own }, next, marginMode, pricing).quote)
   }
 
   const onSetLaborRate = async (itemId: string, rate: number | null) => {
     if (!quote || !catalog) return
-    await persist(setItemLaborRate(quote, catalog, itemId, rate, marginMode))
+    await persist(setItemLaborRate(quote, catalog, itemId, rate, marginMode, pricing))
   }
 
   const onUpdateLaborCatalog = async (itemId: string, key: LaborKey, rate: number) => {
@@ -530,7 +531,7 @@ export function App() {
       const { laborRate: _own, ...input } = i.input
       return { ...i, input }
     })
-    await persist(repriceDraft({ ...quote, items }, next, marginMode).quote)
+    await persist(repriceDraft({ ...quote, items }, next, marginMode, pricing).quote)
   }
 
   const onDeleteDraft = async () => {
@@ -962,7 +963,7 @@ export function App() {
   /** Emitido, ou rascunho de conta em modo consulta */
   const readOnly = emitted || !canWrite
   const costItem = costItemId ? quote.items.find((i) => i.id === costItemId) : undefined
-  const outdated = draftOutdated(quote, catalog, marginMode)
+  const outdated = draftOutdated(quote, catalog, marginMode, pricing)
   const outdatedDate = outdated && outdatedSince(outdated, catalog, settings?.marginModeChangedAt)
   const since = outdatedDate ? ` em ${outdatedDate.toLocaleDateString('pt-BR')}` : ''
   const editingItem =
@@ -1265,7 +1266,7 @@ export function App() {
           onClose={() => setCostItemId(null)}
           onSetOverride={onSetPriceOverride}
           onUpdateCatalog={onUpdateCatalogPrice}
-          onRecalc={() => persist(updateItem(quote, catalog, costItem.id, costItem.input, marginMode))}
+          onRecalc={() => persist(updateItem(quote, catalog, costItem.id, costItem.input, marginMode, pricing))}
           onSetLaborRate={(rate) => onSetLaborRate(costItem.id, rate)}
           onUpdateLaborCatalog={(key, rate) => onUpdateLaborCatalog(costItem.id, key, rate)}
         />
@@ -1308,6 +1309,7 @@ export function App() {
             key={`${itemModal.mode === 'edit' ? itemModal.id : itemModal.kind}-${itemFormVersion}`}
             catalog={quoteCatalog ?? catalog}
             marginMode={marginMode}
+            use8mmAluminumOn6mmGlass={pricing.use8mmAluminumOn6mmGlass}
             initial={editingItem?.input}
             initialState={
               itemModal.mode === 'edit'
@@ -1350,6 +1352,15 @@ export function App() {
                 },
                 'fade',
               )
+            }}
+            onOpenSettings={() => {
+              const form = itemFormRef.current
+              if (form && itemModal.mode === 'create') setItemDraft(saveCreateDraft(quote.id, form.state))
+              else if (form && itemModal.mode === 'edit') {
+                setItemDraft(saveEditDraft(quote.id, itemModal.id, form.state))
+              }
+              closeItemModal()
+              push({ screen: 'settings', tab: 'quote' }, 'fade')
             }}
             onSubmit={(input) => {
               if (itemModal.mode === 'edit') void onUpdateItem(itemModal.id, input)

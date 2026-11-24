@@ -20,8 +20,12 @@ function isP1F(subtype: string) {
   return subtype === 'P1F'
 }
 
-/** 6 mm usa o jogo de 8 mm. Só 10 mm troca o código; a metragem é a mesma. */
-function correrProfiles(thicknessMm: string) {
+/**
+ * 8 mm (e 6 mm com a opção da loja) usa o jogo de 8 mm.
+ * 6 mm com a opção desligada usa os perfis de 6 mm; AL 67 fica, não tem par de 6 mm.
+ * 10 mm troca o código. A metragem é a mesma nos três casos.
+ */
+function correrProfiles(thicknessMm: string, use8mmOn6mm: boolean) {
   if (thicknessMm === '10') {
     return {
       top: 'AL 51',
@@ -30,7 +34,22 @@ function correrProfiles(thicknessMm: string) {
       cap: 'AL 13',
       overlap: 'AL 15',
       meeting: 'AL 17',
+      uFixed: 'AL 67',
+      uMoving: 'AL 67',
       mergeU: true,
+    }
+  }
+  if (thicknessMm === '06' && !use8mmOn6mm) {
+    return {
+      top: 'AL 90',
+      cover: 'AL 91',
+      bottom: 'AL 92',
+      cap: 'AL 93',
+      overlap: 'AL 95',
+      meeting: 'AL 94',
+      uFixed: 'AL 96',
+      uMoving: 'AL 67',
+      mergeU: false,
     }
   }
   return {
@@ -40,11 +59,17 @@ function correrProfiles(thicknessMm: string) {
     cap: 'AL 43',
     overlap: 'AL 46',
     meeting: 'AL 47',
+    uFixed: 'AL 66',
+    uMoving: 'AL 67',
     mergeU: false,
   }
 }
 
-export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult {
+export function priceCorrer(
+  catalog: Catalog,
+  input: CorrerInput,
+  use8mmAluminumOn6mmGlass = true,
+): PricingResult {
   const { config } = catalog
   const surcharge = aluminumSurcharge(config, input.profileColor)
   const subtype = input.subtype
@@ -174,12 +199,12 @@ export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult
     ? ceiling(input.heightMm + 60, 500) / 1000
     : 0
 
-  const profiles = correrProfiles(input.thicknessMm)
+  const profiles = correrProfiles(input.thicknessMm, use8mmAluminumOn6mmGlass)
   const uLines: [string, number][] = profiles.mergeU
     ? [['AL 67', qty.al66 + qty.al67]]
     : [
-        ['AL 66', qty.al66],
-        ['AL 67', qty.al67],
+        [profiles.uFixed, qty.al66],
+        [profiles.uMoving, qty.al67],
       ]
   const aluLines: [string, number][] = [
     [profiles.top, qty.al49],

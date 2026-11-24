@@ -362,6 +362,21 @@ export function SettingsEditor({
               ))}
             </fieldset>
           </Section>
+          <Section
+            title="Vidro de 6 mm"
+            hint="Ao marcar esta opção, os itens em vidro de 6mm passam a utilizar os mesmos alumínios para os vidros de 8mm."
+          >
+            <label className="check-field__box check-field__box--row">
+              <span>Usar alumínios para vidros de 8mm</span>
+              <input
+                type="checkbox"
+                checked={draft.use8mmAluminumOn6mmGlass !== false}
+                onChange={(e) =>
+                  setDraft((d) => ({ ...d, use8mmAluminumOn6mmGlass: e.target.checked }))
+                }
+              />
+            </label>
+          </Section>
           <Section title="Validade padrão" hint="Data do orçamento + N dias. Gravada na emissão.">
             <label className="inline-field">
               Dias

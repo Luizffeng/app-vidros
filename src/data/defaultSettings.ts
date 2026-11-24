@@ -31,6 +31,7 @@ export function defaultSettings(): AppSettings {
     logoDataUrl: DEFAULT_LOGO_DATA_URL,
     shareCta: DEFAULT_SHARE_CTA,
     paymentTerms: '',
+    use8mmAluminumOn6mmGlass: true,
   }
 }
 
@@ -59,6 +60,7 @@ export function normalizeSettings(raw: Partial<AppSettings> | null | undefined):
       typeof raw.paymentTerms === 'string'
         ? raw.paymentTerms.trim().slice(0, PAYMENT_TERMS_MAX)
         : '',
+    use8mmAluminumOn6mmGlass: raw.use8mmAluminumOn6mmGlass !== false,
     ...(typeof raw.onboardingDismissedAt === 'string' ? { onboardingDismissedAt: raw.onboardingDismissedAt } : {}),
   }
 }

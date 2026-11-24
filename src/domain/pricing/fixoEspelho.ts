@@ -11,7 +11,11 @@ import {
 } from './math'
 
 /** Vidro temperado fixo (painel) — derived from sheet labor/glass rules */
-export function priceFixo(catalog: Catalog, input: FixoInput): PricingResult {
+export function priceFixo(
+  catalog: Catalog,
+  input: FixoInput,
+  use8mmAluminumOn6mmGlass = true,
+): PricingResult {
   const { config } = catalog
   const areaVao = ceiling((input.widthMm * input.heightMm) / 1e6, 0.1)
   const glassW = ceiling(input.widthMm, 50)
@@ -29,9 +33,13 @@ export function priceFixo(catalog: Catalog, input: FixoInput): PricingResult {
   const frameCode =
     input.thicknessMm === '10'
       ? 'AL 67'
-      : input.thicknessMm === '06' || input.thicknessMm === '08'
+      : input.thicknessMm === '08'
         ? 'AL 66'
-        : null
+        : input.thicknessMm === '06'
+          ? use8mmAluminumOn6mmGlass
+            ? 'AL 66'
+            : 'AL 96'
+          : null
   const frameMeters = frameCode
     ? ceiling(2 * input.widthMm + 2 * input.heightMm, 500) / 1000
     : 0

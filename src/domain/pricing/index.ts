@@ -4,7 +4,16 @@ import { priceCorrer } from './correr'
 import { priceMaxiar } from './maxiar'
 import { pricePivotante } from './pivotante'
 import { priceEspelho, priceFixo } from './fixoEspelho'
-import { buildBreakdown, MissingPriceError } from './math'
+import { buildBreakdown, clearPreviewZeroRows, markPreviewZeroRow, MissingPriceError } from './math'
+
+/** Ausente ou true: vidro de 6 mm usa o jogo de alumínio de 8 mm. */
+export type PricingOptions = {
+  use8mmAluminumOn6mmGlass?: boolean
+}
+
+function uses8mmAluminumOn6mmGlass(options?: PricingOptions): boolean {
+  return options?.use8mmAluminumOn6mmGlass !== false
+}
 
 export function priceCustom(input: CustomInput): PricingResult {
   const amount = input.amount || 0
@@ -40,20 +49,21 @@ export function priceCustom(input: CustomInput): PricingResult {
   }
 }
 
-function priceByKind(catalog: Catalog, input: ItemInput): PricingResult {
+function priceByKind(catalog: Catalog, input: ItemInput, options?: PricingOptions): PricingResult {
+  const use8mm = uses8mmAluminumOn6mmGlass(options)
   switch (input.kind) {
     case 'box':
       return priceBox(catalog, input)
     case 'boxForaPadrao':
       return priceBoxForaPadrao(catalog, input)
     case 'correr':
-      return priceCorrer(catalog, input)
+      return priceCorrer(catalog, input, use8mm)
     case 'pivotante':
       return pricePivotante(catalog, input)
     case 'maxiar':
       return priceMaxiar(catalog, input)
     case 'fixo':
-      return priceFixo(catalog, input)
+      return priceFixo(catalog, input, use8mm)
     case 'espelho':
       return priceEspelho(catalog, input)
     case 'custom':
@@ -88,15 +98,27 @@ function withLaborRate(catalog: Catalog, input: ItemInput): Catalog {
   return { ...catalog, config: { ...catalog.config, labor } }
 }
 
+function stamp6mmChoice(result: PricingResult, input: ItemInput, options?: PricingOptions): PricingResult {
+  if ((input.kind !== 'correr' && input.kind !== 'fixo') || input.thicknessMm !== '06') return result
+  return {
+    ...result,
+    breakdown: { ...result.breakdown, use8mmAluminumOn6mmGlass: uses8mmAluminumOn6mmGlass(options) },
+  }
+}
+
 /** Pricers compute costs; the margin mode and the item's own labor rate are applied here. */
 export function priceItem(
   catalog: Catalog,
   input: ItemInput,
   mode: MarginMode = 'empresa',
+  options?: PricingOptions,
 ): PricingResult {
-  const result = priceByKind(withLaborRate(catalog, input), input)
-  if (input.kind === 'custom' || mode === 'empresa') return result
-  return { ...result, breakdown: buildBreakdown(result.breakdown, mode) }
+  const result = priceByKind(withLaborRate(catalog, input), input, options)
+  const priced =
+    input.kind === 'custom' || mode === 'empresa'
+      ? result
+      : { ...result, breakdown: buildBreakdown(result.breakdown, mode) }
+  return stamp6mmChoice(priced, input, options)
 }
 
 export type CostGroup = 'labor' | 'glass' | 'aluminum' | 'hardware' | 'accessories'
@@ -120,6 +142,7 @@ export interface MissingPricePreview {
 function catalogWithZero(catalog: Catalog, err: MissingPriceError): Catalog | null {
   const id = err.id
   if (id == null) return null
+  markPreviewZeroRow(err.table, id)
   if (err.table === 'vidros') {
     if (!catalog.vidros.some((row) => row.id === id)) return null
     return {
@@ -163,31 +186,37 @@ export function priceItemPreview(
   catalog: Catalog,
   input: ItemInput,
   mode: MarginMode = 'empresa',
+  options?: PricingOptions,
 ): MissingPricePreview {
-  const zeroedIds: { table: CatalogTable; id: number }[] = []
-  let missing: MissingPriceError | null = null
-  let current = catalog
-  for (let attempt = 0; attempt < 8; attempt++) {
-    try {
-      const result = priceItem(current, input, mode)
-      const zeroed = new Set<CostGroup>()
-      for (const line of result.bom) {
-        const source = line.source
-        if (!source || line.category === 'outro' || !zeroedIds.some((row) => row.table === source.table && row.id === source.id)) continue
-        const group = GROUP_BY_CATEGORY[line.category]
-        if (group) zeroed.add(group)
+  clearPreviewZeroRows()
+  try {
+    const zeroedIds: { table: CatalogTable; id: number }[] = []
+    let missing: MissingPriceError | null = null
+    let current = catalog
+    for (let attempt = 0; attempt < 8; attempt++) {
+      try {
+        const result = priceItem(current, input, mode, options)
+        const zeroed = new Set<CostGroup>()
+        for (const line of result.bom) {
+          const source = line.source
+          if (!source || line.category === 'outro' || !zeroedIds.some((row) => row.table === source.table && row.id === source.id)) continue
+          const group = GROUP_BY_CATEGORY[line.category]
+          if (group) zeroed.add(group)
+        }
+        return { result, missing, zeroed }
+      } catch (e) {
+        if (!(e instanceof MissingPriceError)) throw e
+        const next = catalogWithZero(current, e)
+        if (!next) throw e
+        if (!missing) missing = e
+        zeroedIds.push({ table: e.table, id: e.id! })
+        current = next
       }
-      return { result, missing, zeroed }
-    } catch (e) {
-      if (!(e instanceof MissingPriceError)) throw e
-      const next = catalogWithZero(current, e)
-      if (!next) throw e
-      if (!missing) missing = e
-      zeroedIds.push({ table: e.table, id: e.id! })
-      current = next
     }
+    throw missing ?? new Error('Prévia de preço incompleto não fechou')
+  } finally {
+    clearPreviewZeroRows()
   }
-  throw missing ?? new Error('Prévia de preço incompleto não fechou')
 }
 
 export * from './box'

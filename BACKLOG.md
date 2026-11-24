@@ -49,7 +49,6 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Later
 
-- [ ] `feat` (M) **Usar alumínio de 8 mm no vidro de 6 mm (precisa de spec):** o catálogo já tem perfis de 6 mm; nenhuma fórmula usa. Quando as fórmulas passarem a escolher perfil de 6 mm, a loja pode optar por continuar com o jogo de 8 mm no vidro de 6 mm. O interruptor fica em Configurações › Orçamento ou no detalhe do custo; a spec escolhe. Pedido 2026-11-23
 - [ ] `ui` (G) **Refazer a UI do app (precisa de spec):** passar a interface inteira por um visual novo. Referência inicial: Spell UI, no reel de @talescavalcanti.ia (print de 2026-11-23). Não é obrigatório usar esse site; outras referências podem entrar depois, de outros sites ou do GitHub público. Pedido 2026-11-23
 - [ ] `feat` **Box maior que 2 m de largura:** lembrar. Sem spec por enquanto; o dono passa o detalhe depois. Pedido 2026-11-18
 - [ ] `feat` **Box com mais folhas (F2, F3):** lembrar. Sem spec por enquanto; o dono passa o detalhe depois. Pedido 2026-11-18
@@ -74,6 +73,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ### 2026-11-23
 
+- [x] `feat` **Usar alumínio de 8 mm no vidro de 6 mm:** caixa em Configurações › Orçamento, “Usar alumínio de 8 mm no vidro de 6 mm”, ligada por padrão (campo ausente também fica ligado). Vale para a porta de correr e o U do vidro fixo. Ligada, o 6 mm segue o jogo de 8 mm. Desligada, o 6 mm usa AL 90, AL 91, AL 92, AL 93, AL 96 (no lugar do AL 66), AL 95 e AL 94; AL 67 continua onde a fórmula já usava, porque não tem par de 6 mm. Box, pivotante e maxim-ar não leem a caixa. Linha que a fórmula usa com preço abaixo de R$ 0,01 entra no aviso de preço faltando (um por vez; o item não grava). R$ 0,01 ou mais libera. Rascunho de 6 mm com preço diferente mostra “Atualizar valores”; emitido não recalcula.
 - [x] `fix` **Vidro de 10 mm troca o alumínio:** na porta de correr a metragem não depende da espessura; os códigos sim. 6 mm e 8 mm: AL 49, AL 50, AL 75, AL 43, AL 66, AL 67, trespasso AL 46 e (4 folhas) encontro AL 47. 6 mm usa o jogo de 8 mm, sem os perfis de 6 mm do catálogo. Trilho inferior de 6 e 8 mm continua AL 75 (não usa AL 45; AL 45 sai do catálogo ao carregar). 10 mm: AL 51, AL 52, AL 05, AL 13, AL 67 nas duas linhas de U (metros somados numa linha), trespasso AL 15 e encontro AL 17. Vidro fixo: 6 e 8 mm seguem com AL 66 no perímetro; 10 mm usa AL 67 na mesma metragem `teto(2×largura+2×altura, 500)/1000`. Box continua só 8 mm. Rascunho com preço diferente mostra "Atualizar valores"; emitido não recalcula.
 
 ### 2026-11-07
