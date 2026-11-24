@@ -20,6 +20,30 @@ function isP1F(subtype: string) {
   return subtype === 'P1F'
 }
 
+/** 6 mm usa o jogo de 8 mm. Só 10 mm troca o código; a metragem é a mesma. */
+function correrProfiles(thicknessMm: string) {
+  if (thicknessMm === '10') {
+    return {
+      top: 'AL 51',
+      cover: 'AL 52',
+      bottom: 'AL 05',
+      cap: 'AL 13',
+      overlap: 'AL 15',
+      meeting: 'AL 17',
+      mergeU: true,
+    }
+  }
+  return {
+    top: 'AL 49',
+    cover: 'AL 50',
+    bottom: 'AL 75',
+    cap: 'AL 43',
+    overlap: 'AL 46',
+    meeting: 'AL 47',
+    mergeU: false,
+  }
+}
+
 export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult {
   const { config } = catalog
   const surcharge = aluminumSurcharge(config, input.profileColor)
@@ -150,17 +174,23 @@ export function priceCorrer(catalog: Catalog, input: CorrerInput): PricingResult
     ? ceiling(input.heightMm + 60, 500) / 1000
     : 0
 
-  const aluLines = [
-    ['AL 49', qty.al49],
-    ['AL 50', qty.al50],
-    ['AL 75', qty.al75],
-    ['AL 43', qty.al43],
-    ['AL 66', qty.al66],
-    ['AL 67', qty.al67],
-    ['AL 15', qty.al15],
-    ['AL 47', qty.al47],
+  const profiles = correrProfiles(input.thicknessMm)
+  const uLines: [string, number][] = profiles.mergeU
+    ? [['AL 67', qty.al66 + qty.al67]]
+    : [
+        ['AL 66', qty.al66],
+        ['AL 67', qty.al67],
+      ]
+  const aluLines: [string, number][] = [
+    [profiles.top, qty.al49],
+    [profiles.cover, qty.al50],
+    [profiles.bottom, qty.al75],
+    [profiles.cap, qty.al43],
+    ...uLines,
+    [profiles.overlap, qty.al15],
+    [profiles.meeting, qty.al47],
     ['TUBO 5X5', qty.tubo5x5],
-  ] as const
+  ]
 
   const bom: BomLine[] = []
   let aluminumRaw = 0

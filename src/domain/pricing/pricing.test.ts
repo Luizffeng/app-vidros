@@ -164,7 +164,9 @@ describe('pricing parity with spreadsheet examples', () => {
     })
     expect(r.breakdown.labor).toBeCloseTo(67.5, 1)
     expect(r.breakdown.glass).toBeCloseTo(219.744, 1)
-    expect(r.breakdown.finalPrice).toBeCloseTo(626.9, 0)
+    // Trespasso AL 46 (2 m) no lugar de AL 15.
+    expect(r.breakdown.aluminum).toBeCloseTo(121.499999986, 4)
+    expect(r.breakdown.finalPrice).toBeCloseTo(621.84, 1)
   })
 
   it('calc_CORRER J2F 1200x1000 Incolor 08 Fosco', () => {
@@ -181,8 +183,12 @@ describe('pricing parity with spreadsheet examples', () => {
     })
     expect(r.breakdown.labor).toBeCloseTo(54, 1)
     expect(r.breakdown.glass).toBeCloseTo(170.19, 2)
-    expect(r.breakdown.aluminum).toBeCloseTo(102.0283333225, 4)
-    expect(r.breakdown.finalPrice).toBeCloseTo(490.51383331925, 2)
+    // Trespasso AL 46 no lugar de AL 15 (1 m): alumínio cai de 102,03 para cerca de 100,08.
+    expect(r.breakdown.aluminum).toBeCloseTo(100.0833333225, 4)
+    expect(r.breakdown.finalPrice).toBeCloseTo(487.98533331925, 2)
+    expect(r.bom.some((l) => l.code === 'AL 46')).toBe(true)
+    expect(r.bom.some((l) => l.code === 'AL 15' || l.code === 'AL 45')).toBe(false)
+    expect(r.bom.find((l) => l.code === 'AL 75')?.quantity).toBe(1.5)
   })
 
   it('calc_CORRER P2F 900x2100 Fume 08 Branco', () => {
@@ -199,7 +205,7 @@ describe('pricing parity with spreadsheet examples', () => {
     })
     expect(r.breakdown.labor).toBeCloseTo(85.5, 1)
     expect(r.breakdown.glass).toBeCloseTo(330.2802, 2)
-    expect(r.breakdown.finalPrice).toBeCloseTo(898.4787391539375, 2)
+    expect(r.breakdown.finalPrice).toBeCloseTo(890.5771766539375, 2)
   })
 
   it('corrigir AL 67 em duas folhas e manter quatro folhas sem ele', () => {
@@ -254,7 +260,63 @@ describe('pricing parity with spreadsheet examples', () => {
     expect(withTube.bom.find((line) => line.category === 'vidro')?.quantity).toBe(2.043)
     expect(quantities['AL 66']).toBeUndefined()
     expect(quantities['AL 15']).toBeUndefined()
+    expect(quantities['AL 46']).toBeUndefined()
     expect(withoutTube.bom.find((line) => line.code === 'TUBO 5X5')).toBeUndefined()
+  })
+
+  it('6 mm usa o jogo de 8 mm e 10 mm troca o código sem mudar a metragem', () => {
+    const sixMmCodes = ['AL 90', 'AL 91', 'AL 92', 'AL 93', 'AL 94', 'AL 95', 'AL 96', 'AL 45']
+    const lines = (subtype: CorrerInput['subtype'], thicknessMm: string, widthMm: number, heightMm: number) =>
+      priceCorrer(catalog, {
+        kind: 'correr',
+        subtype,
+        widthMm,
+        heightMm,
+        glassColor: 'Incolor',
+        thicknessMm,
+        profileColor: 'Fosco',
+        markup: 0.3,
+        extras: [],
+      }).bom.filter((line) => line.category === 'aluminio')
+
+    const sig = (rows: { code: string; quantity: number }[]) =>
+      rows.map((line) => `${line.code}:${line.quantity}`).join('|')
+
+    const j2f08 = lines('J2F', '08', 1200, 1000)
+    const j2f06 = lines('J2F', '06', 1200, 1000)
+    expect(sig(j2f06)).toBe(sig(j2f08))
+    expect(j2f08.map((line) => line.code)).toEqual(['AL 49', 'AL 50', 'AL 75', 'AL 43', 'AL 66', 'AL 67', 'AL 46'])
+    for (const code of sixMmCodes) {
+      expect(j2f06.some((line) => line.code === code)).toBe(false)
+      expect(j2f08.some((line) => line.code === code)).toBe(false)
+    }
+
+    const j2f10 = lines('J2F', '10', 1200, 1000)
+    expect(j2f10.map((line) => line.code)).toEqual(['AL 51', 'AL 52', 'AL 05', 'AL 13', 'AL 67', 'AL 15'])
+    expect(j2f10.find((line) => line.code === 'AL 67')?.quantity).toBe(4)
+    expect(j2f08.find((line) => line.code === 'AL 66')!.quantity + j2f08.find((line) => line.code === 'AL 67')!.quantity).toBe(4)
+    expect(j2f10.find((line) => line.code === 'AL 51')?.quantity).toBe(j2f08.find((line) => line.code === 'AL 49')?.quantity)
+    expect(j2f10.find((line) => line.code === 'AL 05')?.quantity).toBe(j2f08.find((line) => line.code === 'AL 75')?.quantity)
+    expect(j2f10.find((line) => line.code === 'AL 15')?.quantity).toBe(j2f08.find((line) => line.code === 'AL 46')?.quantity)
+
+    const j4f10 = lines('J4F', '10', 1950, 754)
+    const j4f08 = lines('J4F', '08', 1950, 754)
+    expect(j4f10.map((line) => line.code)).toEqual(['AL 51', 'AL 52', 'AL 05', 'AL 13', 'AL 67', 'AL 15', 'AL 17'])
+    expect(j4f08.map((line) => line.code)).toEqual(['AL 49', 'AL 50', 'AL 75', 'AL 43', 'AL 66', 'AL 46', 'AL 47'])
+    expect(j4f10.find((line) => line.code === 'AL 67')?.quantity).toBe(j4f08.find((line) => line.code === 'AL 66')?.quantity)
+    expect(j4f08.some((line) => line.code === 'AL 67')).toBe(false)
+    expect(j4f10.filter((line) => line.code === 'AL 67')).toHaveLength(1)
+
+    const p1f10 = lines('P1F', '10', 900, 2100)
+    expect(Object.fromEntries(p1f10.map((line) => [line.code, line.quantity]))).toMatchObject({
+      'AL 51': 2,
+      'AL 52': 2,
+      'AL 05': 1,
+      'AL 13': 1,
+      'AL 67': 2.5,
+      'TUBO 5X5': 2.5,
+    })
+    expect(p1f10.some((line) => line.code === 'AL 66' || line.code === 'AL 15' || line.code === 'AL 17')).toBe(false)
   })
 
   it('calc_PIVOTANTE 795x2168 Incolor 08 Fosco with latch', () => {
@@ -359,7 +421,7 @@ describe('pricing parity with spreadsheet examples', () => {
     expect((r.notes ?? []).some((n) => n.includes('0,25'))).toBe(true)
   })
 
-  it('vidro fixo 06 e 08 leva AL66 no perímetro, de 500 em 500 mm', () => {
+  it('vidro fixo 06 e 08 leva AL 66 no perímetro e 10 mm leva AL 67', () => {
     const base = {
       kind: 'fixo' as const,
       widthMm: 1000,
@@ -371,12 +433,15 @@ describe('pricing parity with spreadsheet examples', () => {
     const mm08 = priceFixo(catalog, { ...base, thicknessMm: '08' })
     const mm06 = priceFixo(catalog, { ...base, thicknessMm: '06' })
     const mm10 = priceFixo(catalog, { ...base, thicknessMm: '10' })
+    const al67 = catalog.aluminios.find((a) => a.codigo === 'AL 67')
     // 2×1000 + 2×1200 = 4400 mm, sobe para 4500 mm = 4,5 m
     expect(mm08.bom.find((l) => l.code === 'AL 66')?.quantity).toBe(4.5)
     expect(mm06.bom.find((l) => l.code === 'AL 66')?.quantity).toBe(4.5)
     expect(mm08.breakdown.aluminum).toBeCloseTo(mm06.breakdown.aluminum, 4)
-    expect(mm10.breakdown.aluminum).toBe(0)
+    expect(mm10.bom.find((l) => l.code === 'AL 67')?.quantity).toBe(4.5)
     expect(mm10.bom.some((l) => l.code === 'AL 66')).toBe(false)
+    expect(mm10.breakdown.aluminum).toBeCloseTo(al67!.valorMetro * 4.5, 4)
+    expect(mm10.bom.find((l) => l.code === 'AL 67')?.surcharge).toBeUndefined()
   })
 
   it('vidro fixo large Verde 10', () => {
@@ -389,9 +454,14 @@ describe('pricing parity with spreadsheet examples', () => {
       markup: 0.3,
       extras: [],
     })
+    const al67 = catalog.aluminios.find((a) => a.codigo === 'AL 67')
+    // 2×1200 + 2×1500 = 5400 mm, sobe para 5500 mm = 5,5 m de AL 67
+    expect(r.bom.find((l) => l.code === 'AL 67')?.quantity).toBe(5.5)
+    expect(r.breakdown.aluminum).toBeCloseTo(al67!.valorMetro * 5.5, 4)
     expect(r.breakdown.glass).toBeCloseTo(482.76, 2)
     expect(r.breakdown.labor).toBeCloseTo(81, 1)
-    expect(r.breakdown.finalPrice).toBeCloseTo(784.888, 2)
+    expect(r.breakdown.accessories).toBeCloseTo(40, 2)
+    expect(r.breakdown.finalPrice).toBeCloseTo((482.76 + 81 + 40 + al67!.valorMetro * 5.5) * 1.3, 2)
   })
 
   it('espelho lapidado prata 04', () => {

@@ -20,7 +20,6 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Next
 
-- [ ] `fix` (G) **Vidro de 10 mm troca o alumínio (precisa de spec):** hoje a espessura não muda o perfil. Na porta de correr, AL 66 e AL 67 entram pelo subtipo (P1F usa AL 67 na altura; 2 folhas usam AL 66). Com vidro de 10 mm, onde entra AL 66 passa a AL 67, e onde entra AL 67 entra um alumínio mais grosso, que recebe esse vidro. A spec lista cada item e cada código (o dono passa na hora). Catálogo novo ganha o perfil; catálogo já gravado não muda sozinho. Rascunho com 10 mm mostra "Atualizar valores"; emitido não muda. Pedido 2026-11-06
 - [ ] `feat` (G) **Tipo e subtipo antes do formulário (precisa de spec):** o modal "Tipo do item" deixa de ser fileira de chips. Cada família é uma faixa larga (nome + desenho); toque abre os subtipos embaixo, no mesmo gesto do card de orçamento ("N revisões"): no celular empurra a lista, no computador abre por cima. A escolha cai direto nas medidas. Tipo e subtipo saem do formulário. Correr já tem J2F, J4F, P1F, P2F e P4F. Box abre Box padrão (o de hoje), Box até o teto e Box de canto quando esses dois existirem. Desenho vem do item de imagens. Pedido 2026-11-06
 - [ ] `feat` (G) **Box até o teto e box de canto (precisa de spec):** dois itens novos, além do box atual (passa a "Box padrão" no seletor). Fórmulas, materiais e medidas o dono fecha na spec. Entram no seletor de tipo. Pedido 2026-11-06
 - [ ] `feat` (G) **Teto mensal de orçamentos por plano (precisa de spec):** separa quem trabalha sozinho de vidraçaria. Inicial: 60 orçamentos no mês (cerca de 3 por dia útil; 4 por dia dariam ~70, o teto fica em 60). Pró: 150 (vidraçaria pequena). Ultra / corporativo: 500. A spec estuda o custo antes de cravar os números: criar, emitir, PDF e cada requisição, para ver até onde o preço do plano cobre. Em aberto: revisão entra no teto ou não. Liga com **SaaS fase 2**. Pedido 2026-11-06
@@ -50,6 +49,7 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 
 ## Later
 
+- [ ] `feat` (M) **Usar alumínio de 8 mm no vidro de 6 mm (precisa de spec):** o catálogo já tem perfis de 6 mm; nenhuma fórmula usa. Quando as fórmulas passarem a escolher perfil de 6 mm, a loja pode optar por continuar com o jogo de 8 mm no vidro de 6 mm. O interruptor fica em Configurações › Orçamento ou no detalhe do custo; a spec escolhe. Pedido 2026-11-23
 - [ ] `ui` (G) **Refazer a UI do app (precisa de spec):** passar a interface inteira por um visual novo. Referência inicial: Spell UI, no reel de @talescavalcanti.ia (print de 2026-11-23). Não é obrigatório usar esse site; outras referências podem entrar depois, de outros sites ou do GitHub público. Pedido 2026-11-23
 - [ ] `feat` **Box maior que 2 m de largura:** lembrar. Sem spec por enquanto; o dono passa o detalhe depois. Pedido 2026-11-18
 - [ ] `feat` **Box com mais folhas (F2, F3):** lembrar. Sem spec por enquanto; o dono passa o detalhe depois. Pedido 2026-11-18
@@ -71,6 +71,10 @@ Arquivo vivo: features, correções e mudanças de implementação (refactor, te
 - App nativo (iOS/Android). Ganho conhecido: só app nativo (ex.: Android empacotado com Capacitor) manda o PDF direto ao WhatsApp, sem a folha de compartilhar do sistema; pelo navegador, arquivo só sai por essa folha. A tela de legenda do WhatsApp continua de qualquer jeito
 
 ## Done
+
+### 2026-11-23
+
+- [x] `fix` **Vidro de 10 mm troca o alumínio:** na porta de correr a metragem não depende da espessura; os códigos sim. 6 mm e 8 mm: AL 49, AL 50, AL 75, AL 43, AL 66, AL 67, trespasso AL 46 e (4 folhas) encontro AL 47. 6 mm usa o jogo de 8 mm, sem os perfis de 6 mm do catálogo. Trilho inferior de 6 e 8 mm continua AL 75 (não usa AL 45; AL 45 sai do catálogo ao carregar). 10 mm: AL 51, AL 52, AL 05, AL 13, AL 67 nas duas linhas de U (metros somados numa linha), trespasso AL 15 e encontro AL 17. Vidro fixo: 6 e 8 mm seguem com AL 66 no perímetro; 10 mm usa AL 67 na mesma metragem `teto(2×largura+2×altura, 500)/1000`. Box continua só 8 mm. Rascunho com preço diferente mostra "Atualizar valores"; emitido não recalcula.
 
 ### 2026-11-07
 
