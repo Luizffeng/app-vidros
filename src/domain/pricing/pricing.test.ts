@@ -319,6 +319,209 @@ describe('pricing parity with spreadsheet examples', () => {
     expect(p1f10.some((line) => line.code === 'AL 66' || line.code === 'AL 15' || line.code === 'AL 17')).toBe(false)
   })
 
+  it('6 mm desmarcado troca o código e mantém AL 67; 8 mm, 10 mm, box e pivotante não mudam', () => {
+    const sixMm = ['AL 90', 'AL 91', 'AL 92', 'AL 93', 'AL 94', 'AL 95', 'AL 96']
+    const priced = {
+      ...catalog,
+      aluminios: catalog.aluminios.map((row) =>
+        sixMm.includes(row.codigo) ? { ...row, valorBarra: 60 } : row,
+      ),
+    }
+    const off = { use8mmAluminumOn6mmGlass: false as const }
+    const pair: Record<string, string> = {
+      'AL 49': 'AL 90',
+      'AL 50': 'AL 91',
+      'AL 75': 'AL 92',
+      'AL 43': 'AL 93',
+      'AL 66': 'AL 96',
+      'AL 67': 'AL 67',
+      'AL 46': 'AL 95',
+      'AL 47': 'AL 94',
+    }
+    const aluminum = (use8mm: boolean, subtype: CorrerInput['subtype'], widthMm: number, heightMm: number, thicknessMm: string) =>
+      priceCorrer(
+        priced,
+        {
+          kind: 'correr',
+          subtype,
+          widthMm,
+          heightMm,
+          glassColor: 'Incolor',
+          thicknessMm,
+          profileColor: 'Fosco',
+          markup: 0.3,
+          extras: [],
+        },
+        use8mm,
+      ).bom
+        .filter((line) => line.category === 'aluminio')
+        .map((line) => `${line.code}:${line.quantity}`)
+
+    for (const [subtype, widthMm, heightMm] of [
+      ['J2F', 1200, 1000],
+      ['J4F', 1950, 754],
+      ['P1F', 900, 2100],
+      ['P2F', 900, 2100],
+      ['P4F', 1200, 2100],
+    ] as const) {
+      const eight = aluminum(true, subtype, widthMm, heightMm, '08')
+      const six = aluminum(false, subtype, widthMm, heightMm, '06')
+      expect(six).toEqual(eight.map((row) => {
+        const [code, qty] = row.split(':')
+        return `${pair[code] ?? code}:${qty}`
+      }))
+      expect(aluminum(true, subtype, widthMm, heightMm, '10')).toEqual(aluminum(false, subtype, widthMm, heightMm, '10'))
+    }
+
+    const j2f = aluminum(false, 'J2F', 1200, 1000, '06')
+    expect(j2f.some((row) => row.startsWith('AL 67:'))).toBe(true)
+    expect(j2f.some((row) => row.startsWith('AL 94:'))).toBe(false)
+    const j4f = aluminum(false, 'J4F', 1950, 754, '06')
+    expect(j4f.some((row) => row.startsWith('AL 67:'))).toBe(false)
+    expect(j4f.some((row) => row.startsWith('AL 94:'))).toBe(true)
+    const p1f = aluminum(false, 'P1F', 900, 2100, '06')
+    expect(p1f.some((row) => row.startsWith('AL 96:'))).toBe(false)
+    expect(p1f.some((row) => row.startsWith('AL 67:'))).toBe(true)
+
+    const fixoCodes = (thicknessMm: string, use8mm: boolean) =>
+      priceFixo(
+        priced,
+        { kind: 'fixo', widthMm: 1200, heightMm: 1500, glassColor: 'Incolor', thicknessMm, markup: 0.3, extras: [] },
+        use8mm,
+      ).bom
+        .filter((line) => line.category === 'aluminio')
+        .map((line) => `${line.code}:${line.quantity}`)
+    const fixo08 = fixoCodes('08', true)
+    expect(fixoCodes('06', true)).toEqual(fixo08)
+    expect(fixoCodes('06', false).map((row) => row.split(':')[0])).toEqual(['AL 96'])
+    expect(fixoCodes('06', false).map((row) => row.split(':')[1])).toEqual(fixo08.map((row) => row.split(':')[1]))
+    expect(fixoCodes('08', false)).toEqual(fixo08)
+    expect(fixoCodes('10', false)).toEqual(fixoCodes('10', true))
+
+    const sixInput: ItemInput = {
+      kind: 'correr',
+      subtype: 'J2F',
+      widthMm: 1200,
+      heightMm: 1000,
+      glassColor: 'Incolor',
+      thicknessMm: '06',
+      profileColor: 'Fosco',
+      markup: 0.3,
+      extras: [],
+    }
+    expect(priceItem(catalog, sixInput).breakdown.use8mmAluminumOn6mmGlass).toBe(true)
+    expect(priceItem(priced, sixInput, 'empresa', off).breakdown.use8mmAluminumOn6mmGlass).toBe(false)
+    expect(priceItem(catalog, { ...sixInput, thicknessMm: '08' }).breakdown.use8mmAluminumOn6mmGlass).toBeUndefined()
+
+    const box = priceItem(
+      catalog,
+      { kind: 'box', spanCm: 140, glassColor: 'Incolor', profileColor: 'Fosco', markup: 0.3, extras: [] },
+      'empresa',
+      off,
+    )
+    expect(box.bom.some((line) => sixMm.includes(line.code))).toBe(false)
+    expect(box.breakdown.use8mmAluminumOn6mmGlass).toBeUndefined()
+
+    const pivot = (options?: { use8mmAluminumOn6mmGlass: boolean }) =>
+      priceItem(
+        catalog,
+        {
+          kind: 'pivotante',
+          widthMm: 800,
+          heightMm: 2100,
+          glassColor: 'Incolor',
+          thicknessMm: '06',
+          profileColor: 'Fosco',
+          hasLatch: true,
+          markup: 0.3,
+          extras: [],
+        },
+        'empresa',
+        options,
+      ).bom.map((line) => `${line.code}:${line.quantity}`)
+    expect(pivot(off)).toEqual(pivot())
+  })
+
+  it('preço abaixo de R$ 0,01 é falta de preço; R$ 0,01 libera', () => {
+    const glass = catalog.vidros.find(
+      (row) => row.tipo === 'Temperado' && row.cor === 'Incolor' && row.espessuraMm === '08',
+    )!
+    const aluminum = catalog.aluminios.find((row) => row.codigo === 'AL 66')!
+    const silicone = catalog.acessorios.find((row) => row.codigo === 'SILICONE ACT')!
+    const input: ItemInput = {
+      kind: 'fixo',
+      widthMm: 1200,
+      heightMm: 1500,
+      glassColor: 'Incolor',
+      thicknessMm: '08',
+      markup: 0.3,
+      extras: [],
+    }
+    const withGlass = (valorM2: number | null) => ({
+      ...catalog,
+      vidros: catalog.vidros.map((row) => (row.id === glass.id ? { ...row, valorM2 } : row)),
+    })
+    const withBar = (valorBarra: number) => ({
+      ...catalog,
+      aluminios: catalog.aluminios.map((row) => (row.id === aluminum.id ? { ...row, valorBarra } : row)),
+    })
+    const withSilicone = (valor: number) => ({
+      ...catalog,
+      acessorios: catalog.acessorios.map((row) => (row.id === silicone.id ? { ...row, valor } : row)),
+    })
+
+    for (const valor of [0, 0.009]) {
+      expect(() => priceItem(withBar(valor), input)).toThrow(MissingPriceError)
+      try {
+        priceItem(withBar(valor), input)
+      } catch (e) {
+        const err = e as MissingPriceError
+        expect(err.headline).toBe('Alumínio sem preço cadastrado!')
+        expect(err.canPrice).toBe(true)
+        expect(err.code).toBe('AL 66')
+        expect(err.unit).toBe('R$/barra')
+      }
+      expect(() => priceItem(withGlass(valor), input)).toThrow(MissingPriceError)
+      expect(() => priceItem(withSilicone(valor), input)).toThrow(MissingPriceError)
+    }
+
+    expect(priceItem(withBar(0.01), input).bom.some((line) => line.code === 'AL 66')).toBe(true)
+    expect(priceItem(withGlass(0.01), input).breakdown.glass).toBeGreaterThan(0)
+    expect(priceItem(withSilicone(0.01), input).breakdown.accessories).toBeGreaterThan(0)
+
+    const zeroBar = withBar(0)
+    const preview = priceItemPreview(zeroBar, input)
+    expect(preview.missing?.code).toBe('AL 66')
+    expect(preview.missing?.headline).toBe('Alumínio sem preço cadastrado!')
+    expect(preview.zeroed.has('aluminum')).toBe(true)
+    expect(preview.result.breakdown.aluminum).toBe(0)
+    expect(preview.result.breakdown.labor).toBeCloseTo(priceItem(catalog, input).breakdown.labor, 2)
+    expect(() => priceItem(zeroBar, input)).toThrow(MissingPriceError)
+
+    const top = catalog.aluminios.find((row) => row.codigo === 'AL 49')!
+    const cover = catalog.aluminios.find((row) => row.codigo === 'AL 50')!
+    const correr: ItemInput = {
+      kind: 'correr',
+      subtype: 'J2F',
+      widthMm: 1200,
+      heightMm: 1000,
+      glassColor: 'Incolor',
+      thicknessMm: '08',
+      profileColor: 'Fosco',
+      markup: 0.3,
+      extras: [],
+    }
+    const bars = (prices: Record<number, number>) => ({
+      ...catalog,
+      aluminios: catalog.aluminios.map((row) =>
+        prices[row.id] == null ? row : { ...row, valorBarra: prices[row.id] },
+      ),
+    })
+    expect(priceItemPreview(bars({ [top.id]: 0, [cover.id]: 0 }), correr).missing?.code).toBe('AL 49')
+    expect(priceItemPreview(bars({ [top.id]: 0.01, [cover.id]: 0 }), correr).missing?.code).toBe('AL 50')
+    expect(priceItemPreview(bars({ [top.id]: 0.01, [cover.id]: 0.01 }), correr).missing).toBeNull()
+  })
+
   it('calc_PIVOTANTE 795x2168 Incolor 08 Fosco with latch', () => {
     const r = pricePivotante(catalog, {
       kind: 'pivotante',

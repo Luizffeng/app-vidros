@@ -74,6 +74,28 @@ export function aluminumSurcharge(config: PricingConfig, color: string): number 
   return found.surcharge
 }
 
+/** Abaixo disto a fórmula trata a linha como sem preço. R$ 0,01 entra. */
+const MIN_CATALOG_PRICE = 0.01
+
+/**
+ * Linhas zeradas só na prévia. O preço 0 precisa passar no find para a lista
+ * de custo continuar na tela, sem aceitar qualquer zero do catálogo real.
+ */
+const previewZeroRows = new Set<string>()
+
+export function markPreviewZeroRow(table: string, id: number) {
+  previewZeroRows.add(`${table}:${id}`)
+}
+
+export function clearPreviewZeroRows() {
+  previewZeroRows.clear()
+}
+
+function hasCatalogPrice(table: string, id: number, value: number | null | undefined): boolean {
+  if (previewZeroRows.has(`${table}:${id}`)) return true
+  return typeof value === 'number' && Number.isFinite(value) && value >= MIN_CATALOG_PRICE
+}
+
 export function findVidro(
   catalog: Catalog,
   tipo: string,
@@ -83,7 +105,7 @@ export function findVidro(
   const same = (v: Catalog['vidros'][number]) =>
     v.tipo === tipo && v.cor === cor && (espessuraMm == null || v.espessuraMm === espessuraMm)
   const active = catalog.vidros.find((v) => isCatalogItemActive(v) && same(v))
-  if (active && active.valorM2 != null) return active
+  if (active && hasCatalogPrice('vidros', active.id, active.valorM2)) return active
   const row = active ?? catalog.vidros.find(same)
   const label = [tipo, cor, espessuraMm ? `${espessuraMm} mm` : ''].filter(Boolean).join(' - ')
   throw new MissingPriceError({
@@ -94,16 +116,16 @@ export function findVidro(
     label,
     headline: 'Vidro sem preço cadastrado!',
     unit: 'R$/m²',
-    canPrice: Boolean(active && active.valorM2 == null),
+    canPrice: Boolean(active),
     inactive: Boolean(row && !isCatalogItemActive(row)),
   })
 }
 
 export function findAcessorio(catalog: Catalog, codigo: string) {
   const active = catalog.acessorios.find((a) => isCatalogItemActive(a) && a.codigo === codigo)
-  if (active && active.valor != null) return active
+  if (active && hasCatalogPrice('acessorios', active.id, active.valor)) return active
   const row = active ?? catalog.acessorios.find((a) => a.codigo === codigo)
-  const missingPrice = Boolean(active && active.valor == null)
+  const missingPrice = Boolean(active)
   throw new MissingPriceError({
     message: missingPrice ? `Acessório sem preço: ${codigo}` : `Acessório não encontrado: ${codigo}`,
     table: 'acessorios',
@@ -121,9 +143,9 @@ export function findAcessorio(catalog: Catalog, codigo: string) {
 
 export function findAluminio(catalog: Catalog, codigo: string) {
   const active = catalog.aluminios.find((a) => isCatalogItemActive(a) && a.codigo === codigo)
-  if (active && active.valorBarra != null) return active
+  if (active && hasCatalogPrice('aluminios', active.id, active.valorBarra)) return active
   const row = active ?? catalog.aluminios.find((a) => a.codigo === codigo)
-  const missingPrice = Boolean(active && active.valorBarra == null)
+  const missingPrice = Boolean(active)
   throw new MissingPriceError({
     message: missingPrice ? `Alumínio sem preço: ${codigo}` : `Alumínio não encontrado: ${codigo}`,
     table: 'aluminios',
@@ -150,7 +172,7 @@ export function findKitBox(catalog: Catalog, cor: string, tamanhoCm: number) {
   const match = catalog.kitBox.find(
     (k) => isCatalogItemActive(k) && k.cor === cor && k.tamanhoCm === tamanhoCm,
   )
-  if (match && match.valor != null) return match
+  if (match && hasCatalogPrice('kitBox', match.id, match.valor)) return match
   const row =
     match ?? catalog.kitBox.find((k) => k.cor === cor && k.tamanhoCm === tamanhoCm)
   throw new MissingPriceError({
@@ -161,7 +183,7 @@ export function findKitBox(catalog: Catalog, cor: string, tamanhoCm: number) {
     label: `${cor} - ${tamanhoCm} cm`,
     headline: 'Kit sem preço cadastrado!',
     unit: 'Valor (R$)',
-    canPrice: Boolean(match && match.valor == null),
+    canPrice: Boolean(match),
     inactive: Boolean(row && !isCatalogItemActive(row)),
   })
 }

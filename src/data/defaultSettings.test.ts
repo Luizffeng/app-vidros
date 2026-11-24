@@ -55,3 +55,15 @@ describe('normalizeSettings marginModeChangedAt', () => {
     expect(normalizeSettings(raw).marginModeChangedAt).toBeUndefined()
   })
 })
+
+describe('normalizeSettings use8mmAluminumOn6mmGlass', () => {
+  it('defaults to on; an old row without the field stays on', () => {
+    expect(defaultSettings().use8mmAluminumOn6mmGlass).toBe(true)
+    expect(normalizeSettings({ quoteValidityDays: 10 }).use8mmAluminumOn6mmGlass).toBe(true)
+  })
+
+  it('keeps an explicit false', () => {
+    expect(normalizeSettings({ use8mmAluminumOn6mmGlass: false }).use8mmAluminumOn6mmGlass).toBe(false)
+    expect(normalizeSettings({ use8mmAluminumOn6mmGlass: true }).use8mmAluminumOn6mmGlass).toBe(true)
+  })
+})

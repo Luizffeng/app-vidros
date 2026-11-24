@@ -65,6 +65,11 @@ export interface AppSettings {
   shareCta: string
   /** Condições de pagamento da loja (PDF e WhatsApp); vazio = não mostra */
   paymentTerms: string
+  /**
+   * Vidro de 6 mm na porta de correr e no fixo usa o jogo de 8 mm.
+   * Ausente = true. false usa os perfis de 6 mm. O box não lê este campo.
+   */
+  use8mmAluminumOn6mmGlass?: boolean
   /** ISO de quando "Dispensar" foi tocado no card Primeiros passos */
   onboardingDismissedAt?: string
 }
@@ -170,6 +175,11 @@ export interface CostBreakdown {
   markup: number
   /** Ausente = empresa (itens anteriores ao cálculo de margem) */
   marginMode?: MarginMode
+  /**
+   * Só em item de 6 mm (correr ou fixo). Ausente = usou o jogo de 8 mm.
+   * Gravado para o rascunho perceber a troca da opção da loja.
+   */
+  use8mmAluminumOn6mmGlass?: boolean
 }
 
 export interface PricingResult {
