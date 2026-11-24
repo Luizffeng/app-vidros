@@ -26,12 +26,17 @@ export function priceFixo(catalog: Catalog, input: FixoInput): PricingResult {
   const siliconeQty = Math.max(1, Math.ceil(areaVao))
   const accessories = silicone.valor * siliconeQty
   const labor = areaVao * config.labor.temperedPerM2
-  const frameMeters =
-    input.thicknessMm === '06' || input.thicknessMm === '08'
-      ? ceiling(2 * input.widthMm + 2 * input.heightMm, 500) / 1000
-      : 0
-  const al66 = frameMeters > 0 ? findAluminio(catalog, 'AL 66') : null
-  const aluminum = al66 ? al66.valorMetro * frameMeters : 0
+  const frameCode =
+    input.thicknessMm === '10'
+      ? 'AL 67'
+      : input.thicknessMm === '06' || input.thicknessMm === '08'
+        ? 'AL 66'
+        : null
+  const frameMeters = frameCode
+    ? ceiling(2 * input.widthMm + 2 * input.heightMm, 500) / 1000
+    : 0
+  const frame = frameCode && frameMeters > 0 ? findAluminio(catalog, frameCode) : null
+  const aluminum = frame ? frame.valorMetro * frameMeters : 0
 
   const breakdown = buildBreakdown({
     labor,
@@ -57,17 +62,17 @@ export function priceFixo(catalog: Catalog, input: FixoInput): PricingResult {
         unit: 'm2',
         source: { table: 'vidros', id: vidro.id },
       },
-      ...(al66
+      ...(frame
         ? [
             {
-              code: al66.codigo,
-              description: al66.descricao || al66.codigo,
+              code: frame.codigo,
+              description: frame.descricao || frame.codigo,
               quantity: frameMeters,
-              unitPrice: al66.valorMetro,
+              unitPrice: frame.valorMetro,
               total: aluminum,
               category: 'aluminio' as const,
               unit: 'm' as const,
-              source: { table: 'aluminios' as const, id: al66.id },
+              source: { table: 'aluminios' as const, id: frame.id },
             },
           ]
         : []),

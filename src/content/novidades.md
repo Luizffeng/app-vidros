@@ -4,9 +4,10 @@ O que entrou no app nos últimos meses. Sugestões enviadas em [Suporte › Fale
 
 ## Novembro de 2026
 
+- **Porta de correr de 10 mm** usa trilho, capa, perfil U e vedação de 10 mm. Vidro de 6 mm continua com os perfis de 8 mm, e o perfil AL 45 sai da lista de alumínios. O box segue só em 8 mm. No rascunho, Atualizar valores aplica o preço novo; orçamento já emitido não muda.
+- **Vidro fixo** leva perfil em volta do vão (duas larguras e duas alturas, arredondadas de 500 em 500 mm): AL 66 no vidro de 6 mm e 8 mm, AL 67 no vidro de 10 mm.
 - **Box fora do padrão** no item do orçamento: informe largura e altura; o app usa vidro temperado 8 mm, kit e perfis AL 66 e AL 67 pela altura.
 - **Mão de obra do box** (padrão ou fora do padrão): escolha Fixo (por box) ou Por m²; a última opção salva volta no próximo box.
-- **Vidro fixo de 6 mm e 8 mm** leva o perfil AL 66 em volta: duas larguras e duas alturas, arredondadas de 500 em 500 mm.
 - **Novo orçamento** no computador fica à direita do filtro, no topo da lista. No celular continua na barra de baixo.
 - **Preços** é a tela de vidros, kits, ferragens e alumínios (Início, menu e título). O endereço usa a palavra preços.
 - **Vidro, kit, acessório ou alumínio sem preço** no item: o aviso fica numa linha, com Inserir embaixo. A lista de custo continua na tela e a linha sem preço aparece em vermelho, zerada.

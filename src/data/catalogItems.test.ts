@@ -52,6 +52,27 @@ describe('catalogItems', () => {
     expect('exemplo' in normalizeCatalog(seed).config).toBe(false)
   })
 
+  it('normalizeCatalog drops retired AL 45 from a saved catalog', () => {
+    const seed = loadSeedCatalog()
+    expect(seed.aluminios.some((row) => row.codigo === 'AL 45')).toBe(false)
+    const normalized = normalizeCatalog({
+      ...seed,
+      aluminios: [
+        ...seed.aluminios,
+        {
+          id: 38,
+          codigo: 'AL 45',
+          descricao: 'PERFIL DE VEDAÇÃO TRESPASSE PARA 8 MM',
+          valorBarra: 66,
+          metragemBarra: 6,
+          valorMetro: 11,
+        },
+      ],
+    })
+    expect(normalized.aluminios.some((row) => row.codigo.trim() === 'AL 45')).toBe(false)
+    expect(normalized.aluminios).toHaveLength(seed.aluminios.length)
+  })
+
   it('normalizeCatalog drops legacy boxSiliconeQty from saved config', () => {
     const seed = loadSeedCatalog()
     const normalized = normalizeCatalog({

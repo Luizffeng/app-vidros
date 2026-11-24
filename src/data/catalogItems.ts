@@ -30,13 +30,21 @@ function normalizeRow<T extends { ativo?: boolean; exemplo?: boolean }>(row: T):
   return keepExemplo({ ...row, ativo: row.ativo !== false })
 }
 
+/** Trespasso de 8 mm duplicado. O cálculo usa AL 46; catálogo gravado perde AL 45 ao carregar. */
+function isRetiredAluminio(row: { codigo?: string | null }): boolean {
+  return row.codigo?.trim() === 'AL 45'
+}
+
 export function normalizeCatalog(catalog: Catalog): Catalog {
   return {
     config: keepExemplo(normalizePricingConfig(catalog.config)),
     vidros: catalog.vidros.filter(hasCatalogCodigo).map(normalizeRow),
     kitBox: catalog.kitBox.filter(hasCatalogCodigo).map(normalizeRow),
     acessorios: catalog.acessorios.filter(hasCatalogCodigo).map(normalizeRow),
-    aluminios: catalog.aluminios.filter(hasCatalogCodigo).map(normalizeRow),
+    aluminios: catalog.aluminios
+      .filter(hasCatalogCodigo)
+      .filter((row) => !isRetiredAluminio(row))
+      .map(normalizeRow),
   }
 }
 
